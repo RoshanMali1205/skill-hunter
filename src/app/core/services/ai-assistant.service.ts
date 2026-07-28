@@ -1,14 +1,21 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { AiChatContext, AiChatError, AiChatMessage, AiChatResponse } from '../models';
+
+// Ships in the built JS bundle, so it is not a real secret — it only stops
+// casual bots/scrapers from hitting /api/ai-chat directly and burning the
+// shared free-tier quota. It must match APP_SHARED_TOKEN in Netlify's
+// environment variables (see netlify/functions/ai-chat.js).
+const APP_SHARED_TOKEN = 'OmFrAQPhkXtNYAdLfC35UCP--Th-sEVY';
 
 @Injectable({ providedIn: 'root' })
 export class AiAssistantService {
   private readonly http = inject(HttpClient);
 
   sendMessage(messages: AiChatMessage[], context?: AiChatContext): Observable<string> {
-    return this.http.post<AiChatResponse>('/api/ai-chat', { messages, context }).pipe(
+    const headers = new HttpHeaders({ 'x-app-token': APP_SHARED_TOKEN });
+    return this.http.post<AiChatResponse>('/api/ai-chat', { messages, context }, { headers }).pipe(
       map((res) => res.reply),
       catchError((err: HttpErrorResponse) => throwError(() => new Error(this.describeError(err)))),
     );

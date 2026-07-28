@@ -101,7 +101,7 @@ public/content/
   system-design/topics.json   25 lead-level frontend system-design scenarios
 
 netlify/functions/
-  ai-chat.js    Serverless proxy that holds the AI provider's API key server-side
+  ai-chat.mjs    Serverless proxy that holds the AI provider's API key server-side
                 and forwards chat requests from AiAssistantService
 ```
 
@@ -125,11 +125,17 @@ The one exception is the AI Mentor feature: messages you send there are forwarde
 
 ## AI Mentor
 
-The AI Mentor page (`/ai-mentor`) is a chat UI (`src/app/features/ai-mentor`) that calls `AiAssistantService`, which `POST`s to `/api/ai-chat`. That path is never called directly against an AI provider from the browser — it's redirected (see `netlify.toml`) to a Netlify serverless function at `netlify/functions/ai-chat.js`, which is the **only** place an API key is ever used. This keeps the app statically deployable (no server to run yourself) while still supporting a real, safely-keyed AI backend.
+The AI Mentor page (`/ai-mentor`) is a chat UI (`src/app/features/ai-mentor`) that calls `AiAssistantService`, which `POST`s to `/api/ai-chat`. That path is never called directly against an AI provider from the browser — it's redirected (see `netlify.toml`) to a Netlify serverless function at `netlify/functions/ai-chat.mjs`, which is the **only** place an API key is ever used. This keeps the app statically deployable (no server to run yourself) while still supporting a real, safely-keyed AI backend.
 
-**Why not call the AI provider straight from Angular?** Provider APIs (Anthropic, OpenAI, etc.) don't allow direct browser calls with a bearer key — the key would be visible to anyone who opens dev tools, and most providers reject browser-origin requests outright. A thin serverless proxy is the standard, minimal way to add a real AI feature to an otherwise backend-free static app.
+**Why not call the AI provider straight from Angular?** Provider APIs don't allow direct browser calls with a bearer key — the key would be visible to anyone who opens dev tools, and most providers reject browser-origin requests outright. A thin serverless proxy is the standard, minimal way to add a real AI feature to an otherwise backend-free static app.
 
-If the function isn't deployed/configured, the UI degrades gracefully — the chat shows a clear inline error instead of hanging or throwing.
+The backend calls **Google's Gemini API** (`gemini-2.5-flash` by default), chosen for its genuinely free tier — a good fit for a personal project a handful of people demo occasionally. Two things worth knowing before you rely on it:
+- Free-tier requests may be used by Google to improve their models — fine for interview-prep chat, but never point this at proprietary/confidential content.
+- The free tier only applies while **billing is disabled** on the Google Cloud project — enabling billing (e.g. to raise limits) removes the free tier entirely for that project, so keep a separate project if you ever need a paid tier.
+
+The function also checks a shared token (`x-app-token` header, `APP_SHARED_TOKEN` env var) before calling the API — this is **not** real authentication (the token ships in the built JS bundle, so anyone reading the client code can find it), it's just a deterrent against random bots hitting the endpoint directly and burning the shared free quota. The API key itself is what's actually protected, and it never leaves the function.
+
+If the function isn't deployed/configured, the UI degrades gracefully — the chat shows a clear inline error instead of hanging or throwing, including a distinct message when the daily quota is exhausted (HTTP 429).
 
 ### Local setup
 
@@ -144,12 +150,13 @@ netlify dev
 ### Production setup
 
 1. Deploy the site to Netlify (see [Deploy](#deploy-to-github--netlify) below).
-2. In the Netlify dashboard: **Site configuration → Environment variables**, add `ANTHROPIC_API_KEY` (and optionally `AI_MODEL`, default `claude-sonnet-5`). Never put the real key in a committed file.
-3. Redeploy (or trigger a new deploy) so the function picks up the variable.
+2. Get a free API key at [aistudio.google.com](https://aistudio.google.com) → **Get API key** → create it in a **new** Google Cloud project (no credit card required, no billing enabled).
+3. In the Netlify dashboard: **Site configuration → Environment variables**, add `GEMINI_API_KEY` and `APP_SHARED_TOKEN` (must exactly match the constant in `ai-assistant.service.ts`; optionally also `AI_MODEL`, default `gemini-2.5-flash`). Never put the real key in a committed file.
+4. Redeploy (or trigger a new deploy) so the function picks up the variables.
 
 ### Swapping providers
 
-`netlify/functions/ai-chat.js` is a single ~100-line file that calls Anthropic's Messages API with plain `fetch` — no SDK dependency. To use a different provider, change the `ANTHROPIC_API_URL` request inside that one file to the equivalent OpenAI/other endpoint and adjust the request/response shape; nothing on the Angular side needs to change, since `AiAssistantService` only knows about `/api/ai-chat`.
+`netlify/functions/ai-chat.mjs` is a single file that calls Gemini's `generateContent` endpoint with plain `fetch` — no SDK dependency. To use a different provider, change the request URL/shape inside that one file (and the response-parsing line at the bottom); nothing on the Angular side needs to change beyond the request/response shape, since `AiAssistantService` only knows about `/api/ai-chat` and a `{ reply: string }` response.
 
 ## Deploy to GitHub + Netlify
 
@@ -163,7 +170,7 @@ netlify dev
    - Publish directory: `dist/skill-hunter/browser`
    - Functions directory: `netlify/functions`
    - SPA fallback and the `/api/*` → function redirect are already configured.
-3. Add the `ANTHROPIC_API_KEY` environment variable (see above) before or after the first deploy, then deploy.
+3. Add the `GEMINI_API_KEY` and `APP_SHARED_TOKEN` environment variables (see above) before or after the first deploy, then deploy.
 4. Every push to the connected branch redeploys automatically.
 
 Static hosts other than Netlify (Vercel, GitHub Pages, S3 + CloudFront, etc.) work fine for the core app, but you'd need an equivalent serverless function mechanism on that platform for the AI Mentor feature specifically — everything else in the app has no server dependency at all.

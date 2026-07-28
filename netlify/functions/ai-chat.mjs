@@ -1,15 +1,23 @@
 // Netlify Function (v2, Fetch API style) — the only place the AI provider's
 // API key is ever used. It never reaches the browser.
 //
-// Required environment variable (set in Netlify: Site settings > Environment
-// variables, or locally in a git-ignored .env file for `netlify dev`):
-//   ANTHROPIC_API_KEY   your Anthropic API key
+// Required environment variables (set in Netlify: Site configuration >
+// Environment variables, or locally in a git-ignored .env file for `netlify dev`):
+//   GEMINI_API_KEY      your Google AI Studio API key (aistudio.google.com)
+//   APP_SHARED_TOKEN    any string you make up — must match the value baked
+//                       into AiAssistantService (see core/services/ai-assistant.service.ts)
 //
 // Optional:
-//   AI_MODEL            defaults to "claude-sonnet-5"
+//   AI_MODEL            defaults to "gemini-2.5-flash"
+//
+// APP_SHARED_TOKEN is a light deterrent against random bots/scrapers hitting
+// this endpoint directly and burning your free quota — it is NOT real
+// authentication (its value ships in the built JS bundle, so anyone who reads
+// the client code can find it). The thing that's actually protected is the
+// API key itself, which never leaves this function.
 
-const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
-const DEFAULT_MODEL = "claude-sonnet-5";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models";
+const DEFAULT_MODEL = "gemini-2.5-flash";
 const MAX_MESSAGES = 20;
 const MAX_MESSAGE_LENGTH = 4000;
 
@@ -38,12 +46,17 @@ export default async (req) => {
     return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const sharedToken = process.env.APP_SHARED_TOKEN;
+  if (sharedToken && req.headers.get("x-app-token") !== sharedToken) {
+    return jsonResponse({ error: "Unauthorized" }, 401);
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return jsonResponse(
       {
         error:
-          "AI Mentor is not configured yet. Set ANTHROPIC_API_KEY in your Netlify site's environment variables (or a local .env for `netlify dev`), then redeploy.",
+          "AI Mentor is not configured yet. Set GEMINI_API_KEY in your Netlify site's environment variables (or a local .env for `netlify dev`), then redeploy.",
       },
       503,
     );
@@ -83,20 +96,26 @@ export default async (req) => {
       ? `\n\nThe user is currently viewing: ${[context.subjectTitle, context.topicTitle].filter(Boolean).join(" › ")}.`
       : "";
 
+  // Anthropic-style { role: 'user' | 'assistant', content } -> Gemini "contents"
+  const contents = sanitized.map((m) => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content }],
+  }));
+
+  const model = process.env.AI_MODEL || DEFAULT_MODEL;
+
   let upstream;
   try {
-    upstream = await fetch(ANTHROPIC_API_URL, {
+    upstream = await fetch(`${GEMINI_API_URL}/${model}:generateContent`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
+        "x-goog-api-key": apiKey,
       },
       body: JSON.stringify({
-        model: process.env.AI_MODEL || DEFAULT_MODEL,
-        max_tokens: 1024,
-        system: SYSTEM_PROMPT + contextNote,
-        messages: sanitized,
+        contents,
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT + contextNote }] },
+        generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
       }),
     });
   } catch (err) {
@@ -105,11 +124,19 @@ export default async (req) => {
 
   if (!upstream.ok) {
     const detail = await upstream.text().catch(() => "");
+    // Surface 429 (quota exhausted) distinctly so the UI can show a clear,
+    // non-retryable message instead of a generic failure.
+    if (upstream.status === 429) {
+      return jsonResponse(
+        { error: "The AI Mentor has hit its daily quota for everyone sharing this deployment. Please try again later." },
+        429,
+      );
+    }
     return jsonResponse({ error: "AI provider returned an error", status: upstream.status, detail }, 502);
   }
 
   const data = await upstream.json();
-  const reply = data?.content?.find((block) => block.type === "text")?.text ?? "";
+  const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 
   return jsonResponse({ reply });
 };
