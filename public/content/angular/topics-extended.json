@@ -1,0 +1,166 @@
+[
+  {
+    "id": "angular-http-client",
+    "subjectId": "angular",
+    "categoryId": "angular-rxjs",
+    "title": "HTTP Client Fundamentals",
+    "description": "Making requests with Angular's HttpClient and understanding its observable-based, cold-request model.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 15,
+    "tags": ["http-client", "observables", "data-access"],
+    "blocks": [
+      {
+        "id": "http-client-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Cold Observables, Not Promises",
+        "content": "`HttpClient` methods return cold observables: no request is sent until something subscribes, and each new subscription triggers its own independent request. Response typing (`http.get<User>(url)`) tells the compiler the expected shape but performs no runtime validation of the actual JSON.",
+        "keyPoints": [
+          "Subscribing twice to the same `http.get()` call issues two separate HTTP requests — use `shareReplay()` or a store to share one response.",
+          "`HttpClient` automatically parses JSON responses and surfaces non-2xx responses as an `HttpErrorResponse` through the error channel.",
+          "Type parameters are a compile-time convenience only — validate untrusted response shapes explicitly if correctness matters."
+        ]
+      },
+      {
+        "id": "http-client-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "@Injectable({ providedIn: 'root' })\nexport class TopicApi {\n  private readonly http = inject(HttpClient);\n\n  getTopic(id: string): Observable<Topic> {\n    return this.http.get<Topic>(`/api/topics/${id}`);\n  }\n}",
+        "explanation": "Nothing is sent over the network until a component subscribes (directly, via the `async` pipe, or via `toSignal()`)."
+      },
+      {
+        "id": "http-client-question-1",
+        "type": "tricky-question",
+        "order": 3,
+        "question": "A component binds the same `http.get()` observable to two different places in its template with two separate `async` pipes. What happens, and how do you fix it?",
+        "answer": "Two subscriptions mean two separate HTTP requests fire for the same data. Fix it by sharing one subscription — pipe the observable through `shareReplay({ bufferSize: 1, refCount: true })` before binding it twice, or subscribe once (e.g. via `toSignal()`) and read the resulting signal in both template locations.",
+        "explanation": "This is a common source of duplicate network calls in Angular apps, and it's exactly why `ContentService` in this app caches its `subjects$` observable with `shareReplay` rather than exposing the raw `http.get()` call."
+      }
+    ]
+  },
+  {
+    "id": "angular-route-guards",
+    "subjectId": "angular",
+    "categoryId": "angular-routing-forms",
+    "title": "Route Guards",
+    "description": "Controlling navigation with functional CanActivate/CanDeactivate guards — and their real security limits.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 15,
+    "tags": ["route-guards", "canActivate", "security"],
+    "blocks": [
+      {
+        "id": "route-guards-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Functional Guards",
+        "content": "Modern Angular guards are plain functions (`CanActivateFn`, `CanDeactivateFn`, etc.) registered on a route's `canActivate` array, run through `inject()` for dependencies. A guard returns `true`/`false`, a `UrlTree` (to redirect), or an observable/promise resolving to one of those.",
+        "keyPoints": [
+          "Returning a `UrlTree` (e.g. `inject(Router).parseUrl('/login')`) is the idiomatic way to redirect from a guard instead of manually calling `router.navigate()` and returning `false`.",
+          "`CanDeactivate` guards protect against accidental navigation away from unsaved work (e.g. a dirty form).",
+          "Guards run on every matching navigation, including browser back/forward and programmatic navigation."
+        ]
+      },
+      {
+        "id": "route-guards-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "export const authGuard: CanActivateFn = () => {\n  const session = inject(SessionService);\n  const router = inject(Router);\n  return session.isAuthenticated() ? true : router.parseUrl('/login');\n};\n\n// route config\n{ path: 'settings', canActivate: [authGuard], loadComponent: () => import('./settings') }",
+        "explanation": "The guard is a pure function with dependencies pulled via `inject()` — no class or constructor boilerplate required."
+      },
+      {
+        "id": "route-guards-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Is a route guard a security boundary? Why or why not?",
+        "answer": "No. A guard only controls client-side navigation inside the already-downloaded Angular application — it improves UX by hiding routes a user shouldn't casually reach, but the underlying JavaScript and any data the guarded component would fetch are still present in the bundle and reachable by directly calling the API. Every protected operation must be authorized again on the server.",
+        "explanation": "This is one of the most common senior-level 'gotcha' questions: candidates who say a guard 'protects' a route usually haven't internalized that all client-side logic is inherently visible and bypassable."
+      }
+    ]
+  },
+  {
+    "id": "angular-reactive-forms",
+    "subjectId": "angular",
+    "categoryId": "angular-routing-forms",
+    "title": "Reactive Forms",
+    "description": "Building typed, validated forms with FormGroup/FormControl and observing value/status changes.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 20,
+    "tags": ["reactive-forms", "form-control", "validators"],
+    "blocks": [
+      {
+        "id": "reactive-forms-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "An Explicit Model in TypeScript",
+        "content": "Reactive forms define the entire form structure and validation rules in the component class as a typed `FormGroup` tree, rather than inferring structure from template directives. Strictly-typed forms (`FormGroup<{...}>`) catch mismatched control names and value types at compile time.",
+        "keyPoints": [
+          "`valueChanges` and `statusChanges` are observables — pipe them through `debounceTime`, `distinctUntilChanged`, etc. for expensive validation or autosave.",
+          "Client-side validators (`Validators.required`, custom validator functions) improve UX; the server remains the authority on whether data is actually valid.",
+          "Reactive forms scale better than template-driven forms for dynamic, deeply nested, or heavily-tested forms."
+        ]
+      },
+      {
+        "id": "reactive-forms-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "profile = new FormGroup({\n  email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),\n  bio: new FormControl(''),\n});\n\nconstructor() {\n  this.profile.controls.email.valueChanges\n    .pipe(debounceTime(300), distinctUntilChanged())\n    .subscribe(email => this.checkEmailAvailable(email));\n}",
+        "explanation": "`nonNullable: true` keeps the control's value type as `string` instead of `string | null`, and the debounced `valueChanges` stream avoids checking availability on every keystroke."
+      },
+      {
+        "id": "reactive-forms-question-1",
+        "type": "scenario-question",
+        "order": 3,
+        "question": "A save button should be disabled while the form is invalid or a save request is in flight, and should show a spinner during the save. How would you model this with reactive forms and signals?",
+        "answer": "Convert `form.statusChanges` to a signal with `toSignal()` (or track validity via `form.valid` inside a `computed()` reading a signal that mirrors form state), add a local `saving = signal(false)` toggled around the save call, and bind the button's `disabled` to `computed(() => !formValid() || saving())`.",
+        "explanation": "Keeping the 'is this safe to submit' logic as a single derived boolean (rather than checking `form.invalid` and a loading flag separately in the template) avoids subtly inconsistent UI states."
+      }
+    ]
+  },
+  {
+    "id": "angular-application-architecture",
+    "subjectId": "angular",
+    "categoryId": "angular-architecture",
+    "title": "Application Architecture & Folder Structure",
+    "description": "Organizing a growing Angular app around feature boundaries instead of technical layers.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 20,
+    "tags": ["architecture", "folder-structure", "feature-boundaries"],
+    "blocks": [
+      {
+        "id": "app-architecture-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Core, Shared, Features",
+        "content": "A common, scalable structure splits an Angular app into `core/` (app-wide singletons: layout, auth, HTTP interceptors — imported once), `shared/` (stateless, reusable presentation components/pipes/directives with no business logic), and `features/` (one folder per business capability, each importing only from core/shared, never from another feature directly).",
+        "keyPoints": [
+          "A feature should expose a small, intentional public surface (its routed components) — internals stay private to the feature folder.",
+          "`shared/` should never accumulate business logic; if a 'shared' component starts needing feature-specific state, it usually means it isn't actually shared.",
+          "Lint rules (e.g. module/import boundaries) can enforce these dependency directions automatically so architecture doesn't erode as the app and team grow."
+        ]
+      },
+      {
+        "id": "app-architecture-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "src/app/\n  core/        (layout, auth, http interceptors — provided once)\n  shared/      (dumb, reusable UI: buttons, cards, pipes)\n  features/\n    dashboard/\n    subjects/\n    practice/    (imports core + shared only, never another feature)",
+        "explanation": "This is exactly the structure this app uses (`core/`, `shared/`, `features/*`) — each feature folder is self-contained and only reaches into `core`/`shared`."
+      },
+      {
+        "id": "app-architecture-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Two features need to show the same 'topic card' UI. Where does that component belong, and where does the data for it come from?",
+        "answer": "The presentational card component (markup/styling only, driven entirely by `@Input()`s) belongs in `shared/components`. The data it displays should come from a `core/services` data-access service (or a feature-owned store, if the data is feature-specific) — never duplicated inside each feature — so both features read from the same source of truth.",
+        "explanation": "This distinction — shared presentation vs. centralized data ownership — is exactly why this app's `TopicCardComponent` lives in `shared/components` while all progress/bookmark state lives in single `core/services` stores that every feature reads from."
+      }
+    ]
+  }
+]

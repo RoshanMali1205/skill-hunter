@@ -1,0 +1,162 @@
+[
+  {
+    "id": "ts-enums-vs-literals",
+    "subjectId": "typescript",
+    "categoryId": "ts-basics",
+    "title": "Enums vs Union Literal Types",
+    "description": "Why many modern TypeScript codebases prefer `as const` literal unions over the `enum` keyword.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["enums", "literal-types", "as-const"],
+    "blocks": [
+      {
+        "id": "enums-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "`enum` creates an actual runtime object (extra emitted JavaScript) with a name-to-value mapping, and numeric enums additionally create a reverse value-to-name mapping — both easy to forget are runtime code, not just types. A literal union built from an `as const` object (or array) achieves the same 'closed set of allowed values' modeling with zero extra runtime bytes and values that are trivially inspectable in logs.",
+        "keyPoints": [
+          "Numeric enum members default to sequential integers, which are much harder to identify at a glance in logs/network payloads than string values.",
+          "`as const` on an object literal narrows its properties to literal types, and `typeof obj[keyof typeof obj]` derives the union of its values.",
+          "Enums do have a real advantage: the enum type name itself is a distinct nominal type, which can occasionally catch mixing up two same-shaped string unions that a plain literal union would not."
+        ]
+      },
+      {
+        "id": "enums-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "// enum: emits real runtime JS, numeric values are opaque in logs\nenum Status { Idle, Loading, Success, Error }\n\n// as-const alternative: zero runtime cost, self-describing values\nconst Status = { Idle: 'idle', Loading: 'loading', Success: 'success', Error: 'error' } as const;\ntype Status = typeof Status[keyof typeof Status];\n// 'idle' | 'loading' | 'success' | 'error'",
+        "explanation": "The `as const` version produces a type indistinguishable in ergonomics from the enum for most call sites, but the underlying values are readable strings and no extra object is generated beyond the one you wrote."
+      },
+      {
+        "id": "enums-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "What's a concrete reason to avoid numeric enums in a value that crosses a serialization boundary (e.g. stored in localStorage or sent over an API)?",
+        "answer": "Numeric enum values are just integers at runtime with no inherent meaning outside the TypeScript compilation that produced them — if the enum's member order ever changes (a new member inserted in the middle), every previously-serialized numeric value now silently means something different. A string literal union (`'idle' | 'loading' | ...`) is stable and self-describing regardless of how the type declaration is reordered.",
+        "explanation": "This exact failure mode is why this app's own persisted models (`TopicStatus`, `ConfidenceLevel`, etc.) are all string literal unions rather than numeric enums — they're written straight into localStorage."
+      }
+    ]
+  },
+  {
+    "id": "ts-conditional-types-infer",
+    "subjectId": "typescript",
+    "categoryId": "ts-advanced-types",
+    "title": "Conditional Types and infer",
+    "description": "Type-level branching with `T extends U ? X : Y`, and extracting nested types with `infer`.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 20,
+    "tags": ["conditional-types", "infer", "type-level-programming"],
+    "blocks": [
+      {
+        "id": "conditional-types-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "A conditional type `T extends U ? X : Y` picks between two types based on whether `T` is assignable to `U` — the type-system equivalent of an if/else, evaluated at compile time. `infer` inside the `extends` clause introduces a new type variable that captures part of the matched shape, which is how built-ins like `ReturnType<T>` and `Awaited<T>` are implemented.",
+        "keyPoints": [
+          "`ReturnType<T>` is defined roughly as `T extends (...args: any[]) => infer R ? R : never` — infer captures whatever the function actually returns.",
+          "When `T` is a bare (\"naked\") type parameter, a conditional type distributes over each member of a union individually — powerful, but a common source of surprising results.",
+          "Conditional types are resolved by the compiler, not at runtime — they cannot express logic that depends on values only known while the program is running."
+        ]
+      },
+      {
+        "id": "conditional-types-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "type ElementType<T> = T extends readonly (infer U)[] ? U : T;\n\ntype A = ElementType<string[]>;   // string\ntype B = ElementType<number>;     // number (T doesn't match the array branch)\n\ntype UnwrapPromise<T> = T extends Promise<infer V> ? V : T;\ntype C = UnwrapPromise<Promise<Topic>>; // Topic",
+        "explanation": "`infer U` inside the array-matching branch captures the array's element type; if `T` isn't an array at all, the type falls through to the `: T` branch unchanged."
+      },
+      {
+        "id": "conditional-types-question-1",
+        "type": "tricky-question",
+        "order": 3,
+        "question": "Given `type ToArray<T> = T extends any ? T[] : never;`, what is `ToArray<string | number>`?",
+        "answer": "string[] | number[] — not (string | number)[].",
+        "explanation": "Because `T` is a naked type parameter in the conditional, TypeScript distributes the conditional over each member of the union separately (as if you'd written `ToArray<string> | ToArray<number>`), producing a union of arrays rather than an array of the union. Wrapping `T` in a tuple, e.g. `[T] extends [any] ? T[] : never`, opts out of this distribution when you want the non-distributed behavior instead."
+      }
+    ]
+  },
+  {
+    "id": "ts-access-modifiers-abstract-classes",
+    "subjectId": "typescript",
+    "categoryId": "ts-oop",
+    "title": "Access Modifiers and Abstract Classes",
+    "description": "Compile-time visibility (public/protected/private) versus runtime-enforced #private, and when to reach for an abstract base class.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["access-modifiers", "abstract-classes", "encapsulation"],
+    "blocks": [
+      {
+        "id": "access-modifiers-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "`public`, `protected`, and TypeScript's `private` are compile-time-only visibility checks — they're erased entirely at runtime, so nothing stops determined outside code (or a `// @ts-ignore`) from touching a `private` member at runtime. JavaScript's native `#private` fields are the real, engine-enforced equivalent. `abstract class` sits between an interface and a concrete class: it can hold real shared implementation while still requiring subclasses to implement specific `abstract` members.",
+        "keyPoints": [
+          "`protected` members are visible to the declaring class and its subclasses, but not to arbitrary outside code — useful for a base class's internal extension points.",
+          "An abstract class cannot be instantiated directly (`new AbstractThing()` is a compile error); only concrete subclasses can be constructed.",
+          "Prefer an interface over an abstract class when there's no shared implementation to provide — abstract classes are for genuine 'shared behavior + required specialization' relationships."
+        ]
+      },
+      {
+        "id": "access-modifiers-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "abstract class ContentRenderer {\n  abstract render(block: ContentBlock): string;\n\n  renderAll(blocks: ContentBlock[]): string {\n    return blocks.map(b => this.render(b)).join('\\n'); // shared implementation\n  }\n}\n\nclass HtmlRenderer extends ContentRenderer {\n  render(block: ContentBlock): string { /* concrete implementation */ return ''; }\n}",
+        "explanation": "`renderAll` is written once on the abstract base and inherited by every renderer; only the block-specific `render()` logic differs per subclass."
+      },
+      {
+        "id": "access-modifiers-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "If TypeScript's `private` is erased at compile time and provides no real runtime protection, when would you still prefer it over a JavaScript `#private` field?",
+        "answer": "TypeScript `private` is enough when the only consumers you care about are other TypeScript code going through the compiler (which will correctly flag the violation) — it's simpler syntax, works with older build targets, and plays a little more smoothly with some reflection/serialization tooling. Reach for `#private` specifically when you need protection against determined runtime access (e.g. a library whose internals must not be touched even via `(obj as any).secret`, or code that might run through non-TypeScript consumers).",
+        "explanation": "In practice most application code is fine with compiler-level `private`; `#private` earns its extra syntax mainly in library code where the boundary genuinely needs to hold at runtime."
+      }
+    ]
+  },
+  {
+    "id": "ts-function-overloading",
+    "subjectId": "typescript",
+    "categoryId": "ts-oop",
+    "title": "Function Overloading",
+    "description": "Declaring multiple call signatures for one implementation, and when generics are a simpler alternative.",
+    "difficulty": "advanced",
+    "interviewPriority": "medium",
+    "estimatedMinutes": 15,
+    "tags": ["function-overloading", "call-signatures"],
+    "blocks": [
+      {
+        "id": "overloading-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "TypeScript lets a function declare several distinct call signatures (the overloads) backed by one implementation signature broad enough to accept every overload's parameters. The compiler checks callers against the overload signatures, not the implementation signature, so the implementation can use more permissive/union types internally while callers still get precise, per-shape autocompletion.",
+        "keyPoints": [
+          "Overload signatures are listed above the implementation, which must itself remain compatible with every declared overload.",
+          "TypeScript picks the first matching overload from top to bottom — order matters when signatures could otherwise both match.",
+          "A generic function or a single signature taking a discriminated options object is often simpler to read and maintain than a long overload list; reach for overloads mainly when the parameter/return shape genuinely changes discretely by call pattern."
+        ]
+      },
+      {
+        "id": "overloading-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "function parseTags(input: string): string[];\nfunction parseTags(input: string[]): string;\nfunction parseTags(input: string | string[]): string | string[] {\n  return Array.isArray(input) ? input.join(',') : input.split(',');\n}\n\nparseTags('a,b,c');       // string[]\nparseTags(['a', 'b']);    // string",
+        "explanation": "Callers see only the two precise overload signatures — a string in, array out, or vice versa — never the looser union signature that the implementation actually uses internally."
+      },
+      {
+        "id": "overloading-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "This `parseTags` example could also be written as a single generic function. Why might the overload version still be preferable here?",
+        "answer": "A generic version would need a conditional return type (`T extends string[] ? string : string[]`) to express 'array in, string out; string in, array out' — which works but is noticeably harder to read at the call site and in error messages than two plain, concrete overload signatures. Overloads are often clearer specifically when there's a small, fixed number of genuinely different call shapes, rather than a type that varies continuously with a generic parameter.",
+        "explanation": "The general rule of thumb: reach for generics when the type varies smoothly with input; reach for overloads when there are a few genuinely distinct, enumerable call patterns."
+      }
+    ]
+  }
+]

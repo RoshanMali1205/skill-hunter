@@ -1,0 +1,162 @@
+[
+  {
+    "id": "css-pseudo-classes-elements",
+    "subjectId": "ui",
+    "categoryId": "ui-css-fundamentals",
+    "title": "Pseudo-classes and Pseudo-elements",
+    "description": "Selecting element state with :hover/:focus-visible/:nth-child, and generated content with ::before/::after.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["pseudo-classes", "pseudo-elements", "focus-visible"],
+    "blocks": [
+      {
+        "id": "pseudo-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Pseudo-classes (single colon: `:hover`, `:focus-visible`, `:checked`, `:nth-child()`) select elements based on state or structural position that plain selectors can't express. Pseudo-elements (double colon: `::before`, `::after`, `::first-line`) target a generated sub-part of an element rather than the element itself — `::before`/`::after` create a box positioned inside the element, controlled by the `content` property.",
+        "keyPoints": [
+          "`:focus-visible` matches only when the browser's heuristics determine focus should be visibly indicated (e.g. keyboard navigation) — unlike `:focus`, it generally doesn't trigger on mouse clicks, avoiding an outline ring on every button click while still showing it for keyboard users.",
+          "Content inside `::before`/`::after` is decorative and not part of the accessibility tree in most cases — never put essential text only inside generated content.",
+          "Never gate essential functionality behind `:hover` alone — touch devices have no true hover state, and keyboard-only users don't trigger it either."
+        ]
+      },
+      {
+        "id": "pseudo-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "css",
+        "code": "button:focus-visible {\n  outline: 3px solid var(--color-primary);\n  outline-offset: 2px;\n}\n\n.required-field::after {\n  content: ' *';\n  color: var(--color-danger);\n}",
+        "explanation": "The focus ring only appears for keyboard focus (not every mouse click), and the required-field asterisk is purely decorative — the actual 'required' semantics still need a real `required` attribute or `aria-required`, not just the visible asterisk."
+      },
+      {
+        "id": "pseudo-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Why is `:focus-visible` generally preferred over `:focus` for custom focus-ring styling in a modern app?",
+        "answer": "`:focus` matches any time an element has focus, including after a mouse click — which is why many older sites disabled outlines entirely (`outline: none`) to avoid an ugly ring on every click, inadvertently breaking keyboard accessibility in the process. `:focus-visible` lets you restore a clear, deliberate focus ring specifically for keyboard/assistive-technology users without reintroducing the ring-on-every-click problem for mouse users.",
+        "explanation": "This app's shared components use `:focus-visible` in the `focus-ring()` SCSS mixin for exactly this reason."
+      }
+    ]
+  },
+  {
+    "id": "css-transitions-animations",
+    "subjectId": "ui",
+    "categoryId": "ui-css-fundamentals",
+    "title": "CSS Transitions and Animations",
+    "description": "Animating property changes smoothly, and respecting the user's reduced-motion preference.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["transitions", "animations", "reduced-motion", "keyframes"],
+    "blocks": [
+      {
+        "id": "transitions-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "`transition` animates a property smoothly between its old and new value whenever that value changes (hover, class toggle, etc.) — it needs a starting and ending state but no intermediate steps defined. `@keyframes` + `animation` define an explicit, potentially multi-step, potentially looping sequence independent of any state change. Both should list specific properties (`transition: transform 150ms ease`) rather than `transition: all`, and both should respect `prefers-reduced-motion`.",
+        "keyPoints": [
+          "Animating `transform` and `opacity` is comparatively cheap because browsers can often handle them on the compositor thread; animating `width`/`height`/`top`/`left` forces layout recalculation on every frame.",
+          "`transition: all` silently animates properties you didn't intend to (including ones added later by another rule), making performance and behavior harder to reason about.",
+          "`@media (prefers-reduced-motion: reduce)` lets you disable or shrink nonessential motion for users who've indicated they're sensitive to it at the OS level."
+        ]
+      },
+      {
+        "id": "transitions-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "css",
+        "code": ".card {\n  transition: transform 150ms ease, box-shadow 150ms ease;\n}\n.card:hover {\n  transform: translateY(-2px);\n  box-shadow: var(--shadow-md);\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .card {\n    transition: none;\n  }\n}",
+        "explanation": "Only `transform` and `box-shadow` are listed explicitly (not `all`), and the whole transition is disabled outright for users who've asked the OS to reduce motion."
+      },
+      {
+        "id": "transitions-question-1",
+        "type": "tricky-question",
+        "order": 3,
+        "question": "You add `transition: height 200ms` to an accordion panel that toggles between `height: 0` and `height: auto`. The collapse animates fine, but the expand jumps instantly instead of animating. Why?",
+        "answer": "CSS transitions cannot animate to or from `auto` — the browser has no defined intermediate values between a fixed height and `auto`, so it just snaps. Common fixes: transition `max-height` to a value larger than the content will ever need (a common but imperfect hack), or measure the content's actual height in JS and transition to that explicit pixel value, or use the newer `interpolate-size: allow-keywords` / `calc-size()` where supported.",
+        "explanation": "This is one of the most commonly hit CSS animation gotchas — transitions require two concrete, interpolatable values, and `auto` isn't one."
+      }
+    ]
+  },
+  {
+    "id": "scss-mixins-functions",
+    "subjectId": "ui",
+    "categoryId": "ui-scss",
+    "title": "SCSS Mixins and Functions",
+    "description": "Emitting reusable style blocks with @mixin/@include, and computing values with @function.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 15,
+    "tags": ["scss", "mixins", "functions"],
+    "blocks": [
+      {
+        "id": "scss-mixins-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "A `@mixin` packages a reusable block of CSS declarations (optionally parameterized, optionally accepting a content block via `@content`) that gets copy-pasted into every `@include` site at compile time. A `@function` computes and returns a single Sass value (used inside a property value) rather than emitting declarations — `@function` is to values what `@mixin` is to whole rule blocks.",
+        "keyPoints": [
+          "Mixins can accept default parameter values (`@mixin focus-ring($width: 3px)`) so most call sites can omit arguments entirely.",
+          "`@content` inside a mixin lets the caller inject an arbitrary block of CSS into a specific spot — this is how this app's own `respond-to()` breakpoint mixin wraps caller-supplied styles in a `@media` query.",
+          "Because mixins are inlined at every `@include`, using the same parameterized mixin in hundreds of places can meaningfully bloat compiled CSS — functions don't have this problem since they only ever produce one value."
+        ]
+      },
+      {
+        "id": "scss-mixins-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "scss",
+        "code": "@mixin respond-to($breakpoint) {\n  @media (min-width: map.get($breakpoints, $breakpoint)) {\n    @content;\n  }\n}\n\n@function spacing($steps) {\n  @return $steps * 0.25rem;\n}\n\n.card {\n  padding: spacing(4); // 1rem\n\n  @include respond-to(desktop) {\n    padding: spacing(6); // 1.5rem\n  }\n}",
+        "explanation": "`respond-to()` is a mixin because it emits a whole `@media`-wrapped rule block via `@content`; `spacing()` is a function because it just computes one numeric value to plug into a property."
+      },
+      {
+        "id": "scss-mixins-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "You need a helper that both (a) computes a spacing value for use in `calc()` expressions elsewhere, and (b) applies a full focus-ring style block. Would each be a mixin or a function?",
+        "answer": "The spacing helper should be a `@function` (it returns one value you plug into other expressions). The focus-ring helper should be a `@mixin` (it emits multiple declarations — `outline`, `outline-offset`, possibly more — as a block via `@include`).",
+        "explanation": "The rule of thumb: if you're going to write `property: helper(...)`, it's a function; if you're going to write `@include helper(...);` as its own statement producing one or more declarations, it's a mixin."
+      }
+    ]
+  },
+  {
+    "id": "scss-maps-loops-partials",
+    "subjectId": "ui",
+    "categoryId": "ui-scss",
+    "title": "SCSS Maps, Loops and Partials",
+    "description": "Structuring design tokens with maps, generating repetitive styles with @each/@for, and splitting files with @use.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["scss", "maps", "loops", "partials", "modules"],
+    "blocks": [
+      {
+        "id": "scss-maps-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "A Sass map (`$breakpoints: (mobile: 480px, tablet: 768px, ...)`) is a key-value structure ideal for design tokens like breakpoints, spacing scales, or color palettes, looked up with `map.get()`. `@each` and `@for` loops can generate families of related rules (utility classes, numbered spacing steps) from a map or range instead of writing them by hand. Modern Sass code loads files with `@use`/`@forward` (namespaced, loaded once) rather than the legacy global `@import`, which is deprecated.",
+        "keyPoints": [
+          "`@use 'sass:map'` must be loaded to access map functions like `map.get()` and `map.has-key()` in modern Sass.",
+          "Loops that generate a large number of rules keep the *source* small but can make the *compiled* CSS output large — audit generated output size, don't assume terse source means terse CSS.",
+          "`@forward` re-exports a partial's members as part of a package's public API, letting a library present a single entry-point module to consumers."
+        ]
+      },
+      {
+        "id": "scss-maps-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "scss",
+        "code": "@use 'sass:map';\n\n$spacing: (1: 0.25rem, 2: 0.5rem, 3: 0.75rem, 4: 1rem);\n\n@each $step, $value in $spacing {\n  .m-#{$step} { margin: $value; }\n  .p-#{$step} { padding: $value; }\n}\n\n@function space($step) {\n  @return map.get($spacing, $step);\n}",
+        "explanation": "The `@each` loop generates `.m-1`..`.m-4` and `.p-1`..`.p-4` utility classes from a single map definition, and `space()` gives component code a typed way to reuse the same scale in arbitrary property values."
+      },
+      {
+        "id": "scss-maps-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Why does modern Sass tooling recommend `@use` over the older `@import`, beyond just namespacing?",
+        "answer": "`@import` is fully global — every variable, mixin, and function from an imported file pollutes the same global namespace and can silently collide with anything else imported anywhere in the app, and a file imported multiple times gets re-evaluated (and its CSS re-emitted) each time. `@use` loads a module exactly once no matter how many files `@use` it, requires an explicit namespace prefix (`tokens.$spacing`) to access its members (eliminating naming collisions), and is what `@forward` is built on for building clean public APIs.",
+        "explanation": "`@import` is formally deprecated in Dart Sass and scheduled for eventual removal — new SCSS code should default to `@use`/`@forward`."
+      }
+    ]
+  }
+]

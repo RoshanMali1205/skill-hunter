@@ -1,13 +1,13 @@
 # Skill Hunter
 
-An interview preparation hub for **Angular, JavaScript, TypeScript, and UI Engineering** (HTML5, CSS, SCSS, Responsive Design). Built with Angular 22 (standalone components, Signals). The core app is still frontend-only — all content ships as static JSON, all progress lives in the browser's `localStorage`, no database — with one optional add-on: an **AI Mentor** chat feature backed by a single serverless function, so the app stays statically deployable while still supporting a real AI integration when you want one.
+An interview preparation hub for **Angular, JavaScript, TypeScript, UI Engineering** (HTML5, CSS, SCSS, Responsive Design), and **Frontend System Design**. Built with Angular 22 (standalone components, Signals). The core app is still frontend-only — all content ships as static JSON, all progress lives in the browser's `localStorage`, no database — with one optional add-on: an **AI Mentor** chat feature backed by a single serverless function, so the app stays statically deployable while still supporting a real AI integration when you want one.
 
 Built from [angular-interview-prep-app-lld.md](angular-interview-prep-app-lld.md), the low-level design doc this app follows.
 
 ## What's in the box
 
 - **Dashboard** — overall progress, per-subject progress, continue learning, must-revise, bookmarks count, practice summary.
-- **Subjects** — Angular, JavaScript, TypeScript, UI Engineering, each with categories and topics (difficulty, interview priority, search/filter).
+- **Subjects** — Angular, JavaScript, TypeScript, UI Engineering, and Frontend System Design, each with categories and topics (difficulty, interview priority, search/filter).
 - **Topic pages** — concept explanations, code examples with copy-to-clipboard, tricky/interview/scenario/output questions with hide-and-reveal answers, common mistakes, confidence rating, mark-complete, bookmarking, add-to-revision, and an "Ask AI" shortcut into the AI Mentor with the current topic as context.
 - **Practice mode** — filter by subject/category/difficulty/question type/bookmarked/weak topics, self-assess (correct / incorrect / needs revision).
 - **AI Mentor** — a chat interface for on-demand explanations, generated practice questions, and feedback on your own answers, backed by a serverless proxy function (see [AI Mentor](#ai-mentor)).
@@ -16,7 +16,7 @@ Built from [angular-interview-prep-app-lld.md](angular-interview-prep-app-lld.md
 - **Revision** — auto-surfaced weak topics (low confidence, incorrect attempts, bookmarks, manual adds) plus mark-revised tracking.
 - **Settings** — light/dark theme, default difficulty, auto-reveal answers, export/import progress as JSON, reset progress.
 
-Starter content ships with 37 topics across the four subjects (137 content blocks) as a seed dataset, including a dedicated **Coding Practice** category under JavaScript with 25 predict-the-output / write-the-code drills covering hoisting, closures, references, array methods, `this`, and the event loop — see [Adding content](#adding-content) to extend it.
+Starter content ships with 78 topics across five subjects (260 content blocks): a dedicated **Coding Practice** category under JavaScript with 25 predict-the-output / write-the-code drills covering hoisting, closures, references, array methods, `this`, and the event loop; a **Frontend System Design** subject with 25 lead-level scenario questions (caching, performance, auth, RBAC, XSS/CSRF/CORS, BFF, state, offline/PWA, micro-frontends, observability, deployment); plus additional topics on Angular routing/forms/architecture, JavaScript modules/memory management, TypeScript conditional types/OOP, and SCSS — see [Adding content](#adding-content) to extend it further.
 
 ## Tech stack
 
@@ -93,12 +93,12 @@ src/app/
     dashboard/  subjects/  topics/  practice/  ai-mentor/  bookmarks/  progress/  revision/  settings/
 
 public/content/
-  subjects.json         Subject + category + topic-summary metadata
-  angular/topics.json   Full topic content (concept, code, questions) per subject
-  javascript/topics.json
-  javascript/coding-practice.json  25 predict-the-output / write-the-code drills
-  typescript/topics.json
-  ui/topics.json
+  subjects.json         Subject + category + topic-summary metadata (all 5 subjects)
+  angular/topics.json, angular/topics-extended.json
+  javascript/topics.json, javascript/coding-practice.json, javascript/topics-extended.json
+  typescript/topics.json, typescript/topics-extended.json
+  ui/topics.json, ui/topics-extended.json
+  system-design/topics.json   25 lead-level frontend system-design scenarios
 
 netlify/functions/
   ai-chat.js    Serverless proxy that holds the AI provider's API key server-side

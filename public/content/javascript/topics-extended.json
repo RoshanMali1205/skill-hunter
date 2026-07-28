@@ -1,0 +1,164 @@
+[
+  {
+    "id": "js-type-coercion-equality",
+    "subjectId": "javascript",
+    "categoryId": "js-scope-functions",
+    "title": "Type Coercion and Equality",
+    "description": "How == quietly converts operand types, why === usually wins, and the handful of exceptions worth memorizing.",
+    "difficulty": "beginner",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 15,
+    "tags": ["type-coercion", "equality", "loose-equality"],
+    "blocks": [
+      {
+        "id": "coercion-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "`===` compares value and type with no conversion. `==` first coerces operands toward a common type using a fixed set of rules (e.g. comparing against `null`/`undefined` only matches each other; numbers vs strings convert the string to a number) before comparing. `Object.is()` behaves like `===` except it treats `NaN` as equal to itself and distinguishes `+0` from `-0`.",
+        "keyPoints": [
+          "`null == undefined` is `true`, but `null === undefined` is `false` — this is one of the few places `==` is arguably useful (checking for 'either null or undefined').",
+          "Object equality (`===` or `==`) always compares references, never structural/deep content, for both operators.",
+          "`NaN === NaN` is `false` — use `Number.isNaN()` or `Object.is(x, NaN)` to actually detect NaN."
+        ]
+      },
+      {
+        "id": "coercion-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "javascript",
+        "code": "'5' + 1;      // '51'  (+ concatenates when either side is a string)\n'5' - 1;      // 4     (- always coerces to numbers)\n0 == false;   // true  (loose equality coerces)\n0 === false;  // false (strict equality does not)\nObject.is(NaN, NaN); // true",
+        "explanation": "`+` is the one arithmetic operator that also means string concatenation, which is why it coerces differently from `-`, `*`, `/`."
+      },
+      {
+        "id": "coercion-question-1",
+        "type": "tricky-question",
+        "order": 3,
+        "question": "What does `[] == false` evaluate to, and why?",
+        "answer": "true.",
+        "explanation": "`==` coercion rules convert both sides toward numbers when one side is a boolean: `false` becomes `0`, and the empty array `[]` is first converted to a primitive via `toString()` (yielding `\"\"`), then `\"\"` converts to `0` — so the comparison becomes `0 == 0`, which is true. This is exactly the kind of surprising chain that makes `===` the recommended default: it never engages this conversion machinery at all."
+      }
+    ]
+  },
+  {
+    "id": "js-es6-classes",
+    "subjectId": "javascript",
+    "categoryId": "js-objects-prototypes",
+    "title": "ES6 Classes and Private Fields",
+    "description": "Class syntax as sugar over prototypes, and real, language-enforced privacy with #private fields.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["classes", "private-fields", "prototypes"],
+    "blocks": [
+      {
+        "id": "es6-classes-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "`class` syntax builds on the same prototype-based inheritance JavaScript already had — methods declared in a class body are installed on `ClassName.prototype` and shared by every instance, exactly like the manual `Constructor.prototype.method = ...` pattern. `#privateField` syntax adds true, engine-enforced privacy: unlike a `_conventionallyPrivate` property, code outside the class cannot read, write, or even detect a `#field`'s existence.",
+        "keyPoints": [
+          "Class methods are non-enumerable on the prototype, unlike properties assigned in the constructor.",
+          "`#private` fields are scoped to the class body lexically — even a subclass cannot access a parent's `#field` directly.",
+          "`static` members belong to the class itself, not instances, and are commonly used for factory methods or shared constants."
+        ]
+      },
+      {
+        "id": "es6-classes-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "javascript",
+        "code": "class BankAccount {\n  #balance;\n\n  constructor(initialBalance) {\n    this.#balance = initialBalance;\n  }\n\n  deposit(amount) {\n    this.#balance += amount;\n    return this.#balance;\n  }\n\n  get balance() {\n    return this.#balance;\n  }\n}\n\nconst account = new BankAccount(100);\naccount.deposit(50);\n// account.#balance; // SyntaxError outside the class body",
+        "explanation": "`#balance` cannot be read, mutated, or even referenced from outside `BankAccount` — this is real privacy enforced by the JavaScript engine, not just a naming convention like `_balance`."
+      },
+      {
+        "id": "es6-classes-question-1",
+        "type": "output-question",
+        "order": 3,
+        "question": "What happens when this runs?",
+        "code": "class Counter {\n  #count = 0;\n  increment() { return ++this.#count; }\n}\n\nconst c = new Counter();\nconsole.log(c.increment());\nconsole.log(c['#count']);",
+        "language": "javascript",
+        "answer": "1, then undefined (accessing `c['#count']` does not reach the private field).",
+        "explanation": "`#count` is not a regular string-keyed property — bracket notation with the literal string `'#count'` looks up an ordinary (non-existent) property named `#count`, not the private field, which can only be accessed via `this.#count` from inside the class body."
+      }
+    ]
+  },
+  {
+    "id": "js-modules-dynamic-import",
+    "subjectId": "javascript",
+    "categoryId": "js-browser-runtime",
+    "title": "ES Modules and Dynamic Import",
+    "description": "Static import/export boundaries, and using dynamic import() for runtime code-splitting.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["modules", "esm", "dynamic-import", "code-splitting"],
+    "blocks": [
+      {
+        "id": "modules-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "ES modules use static `import`/`export` declarations, resolved and validated before any module code runs — this static structure is what lets bundlers tree-shake unused exports. `import()` (as a function call, not a declaration) is dynamic: it returns a Promise that resolves to the module's namespace object, and it's the standard mechanism behind route-level and on-demand code splitting.",
+        "keyPoints": [
+          "Static imports are hoisted and resolved at parse time; dynamic `import()` can appear anywhere, including inside conditionals and event handlers.",
+          "A dynamically-imported chunk is only downloaded when the `import()` call actually executes — this is exactly how Angular's `loadComponent`/`loadChildren` route lazy-loading works under the hood.",
+          "Circular ES module dependencies are allowed but can leave one side seeing a partially-initialized export if not handled carefully."
+        ]
+      },
+      {
+        "id": "modules-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "javascript",
+        "code": "// only downloaded when the user actually opens the chart\nasync function openAnalytics() {\n  const { renderChart } = await import('./chart-library.js');\n  renderChart(document.getElementById('chart'));\n}",
+        "explanation": "The heavy charting library's bytes never reach the browser until `openAnalytics()` is actually called, keeping the initial bundle small."
+      },
+      {
+        "id": "modules-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Why can bundlers tree-shake unused exports from static ES modules but generally cannot from CommonJS (`require`/`module.exports`)?",
+        "answer": "Static `import`/`export` declarations form a graph that's fully knowable without executing any code — a bundler can see exactly which named exports are imported and drop the rest. CommonJS's `require()` and `module.exports` are just regular function calls and object mutations that happen at runtime, so a bundler generally can't prove which properties of an exported object are actually used without executing the module.",
+        "explanation": "This static analyzability is one of the concrete practical reasons the ecosystem moved from CommonJS to ES modules, beyond just syntax preference."
+      }
+    ]
+  },
+  {
+    "id": "js-memory-management-gc",
+    "subjectId": "javascript",
+    "categoryId": "js-browser-runtime",
+    "title": "Memory Management and Garbage Collection",
+    "description": "How the engine decides what to reclaim, and the common patterns that accidentally keep things alive.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 20,
+    "tags": ["memory-management", "garbage-collection", "memory-leaks", "weakmap"],
+    "blocks": [
+      {
+        "id": "memory-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "JavaScript engines garbage-collect by tracing reachability from a set of roots (global object, active call stacks, closures still in scope) — anything unreachable from a root is eventually reclaimed. \"Memory leaks\" in JS almost always mean something is unintentionally still reachable, not that the engine failed to collect it. `WeakMap`/`WeakSet` hold their keys weakly, so entries don't by themselves keep an object alive.",
+        "keyPoints": [
+          "Common leak sources: event listeners never removed, `setInterval` timers never cleared, module-level caches that grow unbounded, and closures capturing more than they need.",
+          "GC timing is nondeterministic and not something application code controls or should rely on for cleanup ordering.",
+          "Use `WeakMap` to attach metadata to an object (e.g. a DOM node) without preventing that object from being garbage-collected once nothing else references it."
+        ]
+      },
+      {
+        "id": "memory-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "javascript",
+        "code": "// leak: listener keeps `controller` (and everything it closes over) alive forever\nfunction attach(controller) {\n  window.addEventListener('resize', () => controller.onResize());\n}\n\n// fixed: keep a reference so it can be removed later\nfunction attach(controller) {\n  const handler = () => controller.onResize();\n  window.addEventListener('resize', handler);\n  return () => window.removeEventListener('resize', handler);\n}",
+        "explanation": "The first version has no way to ever detach the listener, so `controller` — and its whole closure chain — stays reachable from `window` for the page's entire lifetime. The second version returns a cleanup function that removes the listener when the consumer is done."
+      },
+      {
+        "id": "memory-question-1",
+        "type": "scenario-question",
+        "order": 3,
+        "question": "A single-page app's memory usage climbs steadily every time the user navigates between two routes, never coming back down. How would you find and fix the leak?",
+        "answer": "Take heap snapshots (DevTools Memory tab) before and after several navigation cycles and diff retained object counts to find what's growing. Look specifically at event listeners attached to long-lived targets (`window`, `document`) that aren't removed on route/component teardown, timers (`setInterval`/`setTimeout`) never cleared, and subscriptions (RxJS, WebSocket) never unsubscribed. Fix by cleaning up in the component/route's teardown hook (e.g. Angular's `ngOnDestroy`), matching every `addEventListener`/`subscribe`/`setInterval` with a corresponding removal.",
+        "explanation": "This is the standard framework-agnostic memory-leak triage process, and it's exactly why lifecycle cleanup hooks exist in every major frontend framework."
+      }
+    ]
+  }
+]

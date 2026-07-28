@@ -4,10 +4,15 @@ import { Observable, forkJoin, map, of, shareReplay, switchMap, tap } from 'rxjs
 import { SearchResult, Subject, Topic } from '../models';
 
 const SUBJECT_CONTENT_FILES: Record<string, string[]> = {
-  angular: ['content/angular/topics.json'],
-  javascript: ['content/javascript/topics.json', 'content/javascript/coding-practice.json'],
-  typescript: ['content/typescript/topics.json'],
-  ui: ['content/ui/topics.json'],
+  angular: ['content/angular/topics.json', 'content/angular/topics-extended.json'],
+  javascript: [
+    'content/javascript/topics.json',
+    'content/javascript/coding-practice.json',
+    'content/javascript/topics-extended.json',
+  ],
+  typescript: ['content/typescript/topics.json', 'content/typescript/topics-extended.json'],
+  ui: ['content/ui/topics.json', 'content/ui/topics-extended.json'],
+  'system-design': ['content/system-design/topics.json'],
 };
 
 @Injectable({ providedIn: 'root' })

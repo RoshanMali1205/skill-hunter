@@ -1,0 +1,1002 @@
+[
+  {
+    "id": "sd-design-a-scalable-enterprise-frontend",
+    "subjectId": "system-design",
+    "categoryId": "sd-foundations",
+    "title": "Design a Scalable Enterprise Frontend",
+    "description": "Lead frontend system-design interview: Design a Scalable Enterprise Frontend, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["design-a-scalable-enterprise-frontend", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-design-a-scalable-enterprise-frontend-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Design a Scalable Enterprise Frontend is an important system design interview topic. Start from business capabilities and team ownership, then define feature boundaries and allowed dependency direction. Keep identity, configuration, observability and design-system infrastructure shared, while feature/domain rules remain owned by the feature. Architecture should allow independent development without turning a shared folder or global store into a coupling point.",
+        "keyPoints": [
+          "Start from business capabilities and team ownership, then define feature boundaries and allowed dependency direction.",
+          "Keep identity, configuration, observability and design-system infrastructure shared, while feature/domain rules remain owned by the feature.",
+          "Architecture should allow independent development without turning a shared folder or global store into a coupling point."
+        ]
+      },
+      {
+        "id": "sd-design-a-scalable-enterprise-frontend-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "Browser -> App Shell -> Feature routes -> feature state/data-access -> API/BFF\nShared: identity | config | observability | design system",
+        "explanation": "This example demonstrates the practical shape of Design a Scalable Enterprise Frontend; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-design-a-scalable-enterprise-frontend-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "You have 40 screens, 8 frontend developers/teams and a five-year product lifetime. How would you structure the frontend?",
+        "answer": "Organize around business features/domains, define public APIs and dependency rules, lazy-load major capabilities, keep shared UI/infrastructure separate from business state, enforce boundaries in CI, and assign code ownership. Prefer a modular monolith first unless independent deployment is a real requirement.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-caching-strategy",
+    "subjectId": "system-design",
+    "categoryId": "sd-performance",
+    "title": "Caching Strategy",
+    "description": "Lead frontend system-design interview: Caching Strategy, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["caching-strategy", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-caching-strategy-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Caching Strategy is an important system design interview topic. Treat caching as multiple layers: browser/CDN for static assets, HTTP validators/freshness for responses, and bounded client caches for server state. Versioned hashed assets can be cached aggressively while the app shell needs revalidation so it can discover new asset hashes. Every data cache needs an explicit freshness, invalidation and privacy rule.",
+        "keyPoints": [
+          "Treat caching as multiple layers: browser/CDN for static assets, HTTP validators/freshness for responses, and bounded client caches for server state.",
+          "Versioned hashed assets can be cached aggressively while the app shell needs revalidation so it can discover new asset hashes.",
+          "Every data cache needs an explicit freshness, invalidation and privacy rule."
+        ]
+      },
+      {
+        "id": "sd-caching-strategy-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "index.html -> no-cache/revalidate\nmain.<hash>.js -> public,max-age=31536000,immutable\nAPI reference data -> ETag/TTL\nClient query cache -> short freshness + invalidation",
+        "explanation": "This example demonstrates the practical shape of Caching Strategy; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-caching-strategy-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "How would you design caching for mostly-read reference data plus frequently-changing user data?",
+        "answer": "Use immutable browser/CDN caching for hashed assets; HTTP caching/ETags for public reference data; a client cache to deduplicate reads and support stale-while-revalidate where acceptable; short freshness for user-specific data; and explicit invalidation/update after mutations. Never place private responses in shared caches accidentally.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-cache-invalidation-and-stale-data",
+    "subjectId": "system-design",
+    "categoryId": "sd-performance",
+    "title": "Cache Invalidation and Stale Data",
+    "description": "Lead frontend system-design interview: Cache Invalidation and Stale Data, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["cache-invalidation-and-stale-data", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-cache-invalidation-and-stale-data-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Cache Invalidation and Stale Data is an important system design interview topic. The core cache problem is deciding when data is no longer trustworthy. Combine TTL/revalidation with event-driven invalidation after writes and version/ETag checks where concurrency matters. Optimistic updates need rollback and dependent-query invalidation.",
+        "keyPoints": [
+          "The core cache problem is deciding when data is no longer trustworthy.",
+          "Combine TTL/revalidation with event-driven invalidation after writes and version/ETag checks where concurrency matters.",
+          "Optimistic updates need rollback and dependent-query invalidation."
+        ]
+      },
+      {
+        "id": "sd-cache-invalidation-and-stale-data-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "save(entity) -> update canonical entity cache -> invalidate dependent summaries -> refetch/revalidate",
+        "explanation": "This example demonstrates the practical shape of Cache Invalidation and Stale Data; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-cache-invalidation-and-stale-data-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "A user renames a vehicle, but another dashboard widget continues to show the old name. How do you design this correctly?",
+        "answer": "Give cached entities a clear owner or canonical normalized store. After a successful mutation update that entity and invalidate dependent queries/summaries. Components should derive from shared canonical data instead of keeping independent long-lived copies. For cross-user changes, add revalidation, server events or version checks based on freshness requirements.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-performance-investigation-for-a-large-dashboard",
+    "subjectId": "system-design",
+    "categoryId": "sd-performance",
+    "title": "Performance Investigation for a Large Dashboard",
+    "description": "Lead frontend system-design interview: Performance Investigation for a Large Dashboard, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["performance-investigation-for-a-large-dashboard", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-performance-investigation-for-a-large-dashboard-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Performance Investigation for a Large Dashboard is an important system design interview topic. Separate network, bundle load/parse/execute, API latency, framework rendering, DOM/layout/paint and long-task costs before changing code. Use browser performance traces, Angular DevTools, bundle analysis and real-user timings. Classify widgets as critical, above-the-fold, deferred or on-demand so the critical path remains small.",
+        "keyPoints": [
+          "Separate network, bundle load/parse/execute, API latency, framework rendering, DOM/layout/paint and long-task costs before changing code.",
+          "Use browser performance traces, Angular DevTools, bundle analysis and real-user timings.",
+          "Classify widgets as critical, above-the-fold, deferred or on-demand so the critical path remains small."
+        ]
+      },
+      {
+        "id": "sd-performance-investigation-for-a-large-dashboard-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "measure: navigation -> critical APIs -> first useful render -> heavy widgets ready\nprofile network + main thread + DOM/change detection",
+        "explanation": "This example demonstrates the practical shape of Performance Investigation for a Large Dashboard; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-performance-investigation-for-a-large-dashboard-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "A dashboard with 30 widgets takes five seconds to become usable. Walk through your investigation.",
+        "answer": "Capture a repeatable trace and network waterfall; measure initial bundle and API timings; find duplicate/sequential requests, long tasks, expensive lifecycle/template work and oversized DOM. Then parallelize independent data, cancel stale requests, lazy/defer heavy widgets and chart libraries, virtualize large lists, reduce render work and verify improvement with the same field/lab metrics.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-bundle-size-and-code-splitting",
+    "subjectId": "system-design",
+    "categoryId": "sd-performance",
+    "title": "Bundle Size and Code Splitting",
+    "description": "Lead frontend system-design interview: Bundle Size and Code Splitting, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["bundle-size-and-code-splitting", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-bundle-size-and-code-splitting-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Bundle Size and Code Splitting is an important system design interview topic. Ship only code required for the current user journey; route/feature boundaries are usually stable split points. Use dynamic imports/defer for heavy libraries used by a minority of users. Over-splitting can add request waterfalls, so evaluate transferred bytes plus parse/execute and navigation latency.",
+        "keyPoints": [
+          "Ship only code required for the current user journey; route/feature boundaries are usually stable split points.",
+          "Use dynamic imports/defer for heavy libraries used by a minority of users.",
+          "Over-splitting can add request waterfalls, so evaluate transferred bytes plus parse/execute and navigation latency."
+        ]
+      },
+      {
+        "id": "sd-bundle-size-and-code-splitting-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "routes: /reports -> lazy report chunk\nheavy PDF/chart/editor library -> dynamic import when feature opens",
+        "explanation": "This example demonstrates the practical shape of Bundle Size and Code Splitting; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-bundle-size-and-code-splitting-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Your initial JavaScript grows from 700 KB to 2.5 MB. What would you do?",
+        "answer": "Use a bundle analyzer to identify large/duplicate dependencies and eager imports, remove unused code, replace oversized libraries only when justified, lazy-load feature-only code, use tree-shakable APIs, defer noncritical widgets and add CI bundle budgets. Compare compressed transfer plus parse/execute time, not only raw file size.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-large-lists-and-data-grids",
+    "subjectId": "system-design",
+    "categoryId": "sd-performance",
+    "title": "Large Lists and Data Grids",
+    "description": "Lead frontend system-design interview: Large Lists and Data Grids, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["large-lists-and-data-grids", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-large-lists-and-data-grids-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Large Lists and Data Grids is an important system design interview topic. Do not render 100,000 rows into the DOM. Use server-side pagination/filter/sort when datasets are large and virtualize only visible rows. Preserve selection by stable IDs and keep keyboard/table semantics when building custom virtualization.",
+        "keyPoints": [
+          "Do not render 100,000 rows into the DOM.",
+          "Use server-side pagination/filter/sort when datasets are large and virtualize only visible rows.",
+          "Preserve selection by stable IDs and keep keyboard/table semantics when building custom virtualization."
+        ]
+      },
+      {
+        "id": "sd-large-lists-and-data-grids-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "GET /vehicles?cursor=...&sort=name&filter=...\nvirtual viewport -> render only visible rows",
+        "explanation": "This example demonstrates the practical shape of Large Lists and Data Grids; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-large-lists-and-data-grids-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "How would you design a table with 100,000 rows, filtering, sorting and selection?",
+        "answer": "Move filtering/sorting/pagination to the server or an indexed local data engine, request only needed fields, virtualize rendered rows, cancel stale queries, cache recent pages when useful, preserve selection by entity ID, and design accessible keyboard navigation. Measure DOM and scroll performance under worst-case data.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-authentication-with-oidc-oauth",
+    "subjectId": "system-design",
+    "categoryId": "sd-security",
+    "title": "Authentication with OIDC/OAuth",
+    "description": "Lead frontend system-design interview: Authentication with OIDC/OAuth, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["authentication-with-oidc-oauth", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-authentication-with-oidc-oauth-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Authentication with OIDC/OAuth is an important system design interview topic. Do not invent credential handling in the SPA; delegate identity to a standards-based identity provider. For browser apps, use a supported Authorization Code + PKCE flow or a BFF/session architecture depending on security constraints. Authentication establishes identity; APIs still authorize every protected operation.",
+        "keyPoints": [
+          "Do not invent credential handling in the SPA; delegate identity to a standards-based identity provider.",
+          "For browser apps, use a supported Authorization Code + PKCE flow or a BFF/session architecture depending on security constraints.",
+          "Authentication establishes identity; APIs still authorize every protected operation."
+        ]
+      },
+      {
+        "id": "sd-authentication-with-oidc-oauth-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "Browser -> IdP authorize (code + PKCE) -> callback\nSPA/BFF obtains approved session/access mechanism -> API",
+        "explanation": "This example demonstrates the practical shape of Authentication with OIDC/OAuth; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-authentication-with-oidc-oauth-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "How would you design enterprise login for an Angular SPA?",
+        "answer": "Use the organization's OIDC provider and a maintained client library. Choose Authorization Code + PKCE for a pure SPA or a BFF with secure HttpOnly cookies when token isolation/server session management is desired. Validate redirect/state/nonce, use short-lived access, centralize renewal/logout, and never embed a client secret in browser code.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-token-and-session-storage",
+    "subjectId": "system-design",
+    "categoryId": "sd-security",
+    "title": "Token and Session Storage",
+    "description": "Lead frontend system-design interview: Token and Session Storage, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["token-and-session-storage", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-token-and-session-storage-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Token and Session Storage is an important system design interview topic. No JavaScript-readable browser storage is safe from malicious script executing in the origin. HttpOnly cookies reduce direct credential theft by JavaScript but require CSRF-aware session design; client-readable tokens simplify SPA calls but increase XSS exposure. Prefer short lifetimes, least privilege and architectures that minimize credential exposure.",
+        "keyPoints": [
+          "No JavaScript-readable browser storage is safe from malicious script executing in the origin.",
+          "HttpOnly cookies reduce direct credential theft by JavaScript but require CSRF-aware session design; client-readable tokens simplify SPA calls but increase XSS exposure.",
+          "Prefer short lifetimes, least privilege and architectures that minimize credential exposure."
+        ]
+      },
+      {
+        "id": "sd-token-and-session-storage-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "Set-Cookie: session=...; HttpOnly; Secure; SameSite=Lax\n# JavaScript cannot read the session cookie",
+        "explanation": "This example demonstrates the practical shape of Token and Session Storage; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-token-and-session-storage-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Where should an Angular app store access tokens?",
+        "answer": "Answer depends on architecture. For many sensitive web apps, a BFF/server session with Secure HttpOnly cookies minimizes token exposure to JavaScript. If the SPA must hold access tokens, prefer short-lived credentials, keep them in memory when practical, harden strongly against XSS and follow the identity provider's supported browser guidance rather than defaulting to localStorage.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-authorization-rbac-permissions-and-abac",
+    "subjectId": "system-design",
+    "categoryId": "sd-security",
+    "title": "Authorization: RBAC, Permissions and ABAC",
+    "description": "Lead frontend system-design interview: Authorization: RBAC, Permissions and ABAC, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["authorization-rbac-permissions-and-abac", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-authorization-rbac-permissions-and-abac-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Authorization: RBAC, Permissions and ABAC is an important system design interview topic. The frontend can use roles/permissions/attributes to shape UX, but server-side authorization is authoritative. Capability checks such as `can('vehicle:update')` scale better than scattering role-name comparisons through components. Use least privilege and centralize policy interpretation.",
+        "keyPoints": [
+          "The frontend can use roles/permissions/attributes to shape UX, but server-side authorization is authoritative.",
+          "Capability checks such as `can('vehicle:update')` scale better than scattering role-name comparisons through components.",
+          "Use least privilege and centralize policy interpretation."
+        ]
+      },
+      {
+        "id": "sd-authorization-rbac-permissions-and-abac-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "UI: can('vehicle:update') -> show/enable action\nAPI: PUT /vehicles/123 -> independently authorize caller",
+        "explanation": "This example demonstrates the practical shape of Authorization: RBAC, Permissions and ABAC; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-authorization-rbac-permissions-and-abac-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Would you write `user.role === 'admin'` throughout components?",
+        "answer": "No. Centralize capability/permission evaluation so UI code asks whether an action is allowed, not which role name implies it. This supports multiple roles/attributes and reduces duplication. The API must still authorize the operation independently because client checks can be bypassed.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-xss-csp-and-trusted-types",
+    "subjectId": "system-design",
+    "categoryId": "sd-security",
+    "title": "XSS, CSP and Trusted Types",
+    "description": "Lead frontend system-design interview: XSS, CSP and Trusted Types, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["xss-csp-and-trusted-types", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-xss-csp-and-trusted-types-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "XSS, CSP and Trusted Types is an important system design interview topic. Treat external/user content as untrusted and keep framework escaping/sanitization enabled. Avoid dangerous DOM sinks and sanitization-bypass APIs unless a reviewed trust boundary proves the content safe. Content Security Policy and Trusted Types provide defense in depth against DOM-based XSS.",
+        "keyPoints": [
+          "Treat external/user content as untrusted and keep framework escaping/sanitization enabled.",
+          "Avoid dangerous DOM sinks and sanitization-bypass APIs unless a reviewed trust boundary proves the content safe.",
+          "Content Security Policy and Trusted Types provide defense in depth against DOM-based XSS."
+        ]
+      },
+      {
+        "id": "sd-xss-csp-and-trusted-types-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "user data -> safe text/template binding\nrich content -> allowlist sanitizer -> reviewed rendering path\nCSP/Trusted Types -> defense in depth",
+        "explanation": "This example demonstrates the practical shape of XSS, CSP and Trusted Types; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-xss-csp-and-trusted-types-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "The product wants to render HTML written by users. What architecture do you choose?",
+        "answer": "Prefer a structured safe format such as a limited document model/Markdown pipeline. Sanitize on a trusted boundary with an allowlist, preserve Angular's sanitization, block script/event-handler/javascript-URL vectors, minimize raw innerHTML, and deploy CSP/Trusted Types where feasible. Never solve it by broadly calling `bypassSecurityTrustHtml`.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-csrf-cors-and-samesite",
+    "subjectId": "system-design",
+    "categoryId": "sd-security",
+    "title": "CSRF, CORS and SameSite",
+    "description": "Lead frontend system-design interview: CSRF, CORS and SameSite, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["csrf-cors-and-samesite", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-csrf-cors-and-samesite-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "CSRF, CORS and SameSite is an important system design interview topic. CORS is a browser cross-origin read policy, not authentication or authorization. CSRF matters when credentials such as cookies are attached automatically to attacker-triggered requests. SameSite cookies plus anti-CSRF tokens/origin checks are common defenses depending on the session architecture.",
+        "keyPoints": [
+          "CORS is a browser cross-origin read policy, not authentication or authorization.",
+          "CSRF matters when credentials such as cookies are attached automatically to attacker-triggered requests.",
+          "SameSite cookies plus anti-CSRF tokens/origin checks are common defenses depending on the session architecture."
+        ]
+      },
+      {
+        "id": "sd-csrf-cors-and-samesite-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "CORS: allow explicit frontend origin\nCookie session: Secure + HttpOnly + SameSite\nSensitive mutation: CSRF defense as required",
+        "explanation": "This example demonstrates the practical shape of CSRF, CORS and SameSite; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-csrf-cors-and-samesite-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Why doesn't enabling CORS secure an API?",
+        "answer": "CORS only controls what browser JavaScript may read across origins. Attackers can call an API outside normal browser CORS enforcement, so the server must authenticate and authorize every request. Credentialed CORS must also use explicit trusted origins and the session design must address CSRF separately.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-backend-for-frontend-bff",
+    "subjectId": "system-design",
+    "categoryId": "sd-platform",
+    "title": "Backend for Frontend (BFF)",
+    "description": "Lead frontend system-design interview: Backend for Frontend (BFF), trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["backend-for-frontend-bff", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-backend-for-frontend-bff-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Backend for Frontend (BFF) is an important system design interview topic. A BFF is a frontend-specific server boundary that can aggregate services, transform payloads and keep session/tokens away from browser JavaScript. It can reduce browser round trips and hide backend topology. It adds operational complexity and should not become a duplicate business-logic monolith.",
+        "keyPoints": [
+          "A BFF is a frontend-specific server boundary that can aggregate services, transform payloads and keep session/tokens away from browser JavaScript.",
+          "It can reduce browser round trips and hide backend topology.",
+          "It adds operational complexity and should not become a duplicate business-logic monolith."
+        ]
+      },
+      {
+        "id": "sd-backend-for-frontend-bff-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "Angular -> BFF /dashboard -> Profile API + Fleet API + Notification API -> aggregated view model",
+        "explanation": "This example demonstrates the practical shape of Backend for Frontend (BFF); in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-backend-for-frontend-bff-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "When would you introduce a BFF?",
+        "answer": "When frontend-specific aggregation materially reduces latency/chattiness, authentication credentials should remain server-side, or backend service topology is awkward for the browser. Avoid a BFF that only blindly proxies every request without security, aggregation or contract value.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-state-management-strategy",
+    "subjectId": "system-design",
+    "categoryId": "sd-data-state",
+    "title": "State Management Strategy",
+    "description": "Lead frontend system-design interview: State Management Strategy, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["state-management-strategy", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-state-management-strategy-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "State Management Strategy is an important system design interview topic. Classify state first: transient component UI state, URL state, shared workflow/client state and remote server state have different lifecycles. Keep state as local as possible and compute derived values instead of duplicating them. A global event store is valuable only when coordination/tooling/conventions justify the complexity.",
+        "keyPoints": [
+          "Classify state first: transient component UI state, URL state, shared workflow/client state and remote server state have different lifecycles.",
+          "Keep state as local as possible and compute derived values instead of duplicating them.",
+          "A global event store is valuable only when coordination/tooling/conventions justify the complexity."
+        ]
+      },
+      {
+        "id": "sd-state-management-strategy-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "local: panel expanded\nURL: shareable filters\nfeature store: workflow selection\nserver cache: query results + freshness/invalidation",
+        "explanation": "This example demonstrates the practical shape of State Management Strategy; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-state-management-strategy-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Would you put every HTTP response into NgRx?",
+        "answer": "No. Server data often fits a dedicated query/cache layer; local UI state should stay local; URL-worthy state belongs in the route; complex cross-feature workflows may benefit from NgRx or another explicit store. Choose by ownership, lifetime, synchronization and debugging needs.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-concurrent-requests-and-race-conditions",
+    "subjectId": "system-design",
+    "categoryId": "sd-data-state",
+    "title": "Concurrent Requests and Race Conditions",
+    "description": "Lead frontend system-design interview: Concurrent Requests and Race Conditions, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["concurrent-requests-and-race-conditions", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-concurrent-requests-and-race-conditions-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Concurrent Requests and Race Conditions is an important system design interview topic. Network responses can arrive in a different order from user intent. Use latest-wins cancellation for search/typeahead, request/version checks for other reads and server-side optimistic concurrency/idempotency for writes. Do not assume HTTP completion order.",
+        "keyPoints": [
+          "Network responses can arrive in a different order from user intent.",
+          "Use latest-wins cancellation for search/typeahead, request/version checks for other reads and server-side optimistic concurrency/idempotency for writes.",
+          "Do not assume HTTP completion order."
+        ]
+      },
+      {
+        "id": "sd-concurrent-requests-and-race-conditions-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "search$ -> debounce -> distinctUntilChanged -> switchMap(query => api.search(query))",
+        "explanation": "This example demonstrates the practical shape of Concurrent Requests and Race Conditions; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-concurrent-requests-and-race-conditions-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "The user types `a`, then `angular`; the `a` request finishes last and overwrites the results. Fix it.",
+        "answer": "Model search as latest-wins: cancel/unsubscribe the prior request with `switchMap` or `AbortController`, or ignore any response whose request version is no longer current. Debounce input to reduce traffic. For writes, cancellation alone is not enough - use server concurrency/version semantics.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-offline-and-pwa-strategy",
+    "subjectId": "system-design",
+    "categoryId": "sd-platform",
+    "title": "Offline and PWA Strategy",
+    "description": "Lead frontend system-design interview: Offline and PWA Strategy, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["offline-and-pwa-strategy", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-offline-and-pwa-strategy-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Offline and PWA Strategy is an important system design interview topic. Offline support begins by defining which user journeys must work without connectivity and how conflicts sync later. Service workers can cache application resources while IndexedDB stores larger structured offline data and queued writes. Expose pending-sync/error state instead of pretending a write reached the server.",
+        "keyPoints": [
+          "Offline support begins by defining which user journeys must work without connectivity and how conflicts sync later.",
+          "Service workers can cache application resources while IndexedDB stores larger structured offline data and queued writes.",
+          "Expose pending-sync/error state instead of pretending a write reached the server."
+        ]
+      },
+      {
+        "id": "sd-offline-and-pwa-strategy-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "offline form -> IndexedDB draft + client id + pending queue\non reconnect -> idempotent sync -> conflict resolution -> refresh canonical state",
+        "explanation": "This example demonstrates the practical shape of Offline and PWA Strategy; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-offline-and-pwa-strategy-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "How would you make an inspection form work offline?",
+        "answer": "Cache the app shell/reference data, persist drafts in IndexedDB, use client-generated IDs and an outbox of idempotent mutations, show pending sync, retry on connectivity recovery, and define conflict resolution when the server record changed. Encrypt/protect sensitive offline data according to risk.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-real-time-updates",
+    "subjectId": "system-design",
+    "categoryId": "sd-data-state",
+    "title": "Real-time Updates",
+    "description": "Lead frontend system-design interview: Real-time Updates, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["real-time-updates", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-real-time-updates-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Real-time Updates is an important system design interview topic. Choose polling, Server-Sent Events or WebSockets based on freshness and directionality needs rather than fashion. Real-time clients must handle reconnects, duplicates, missed events and ordering/version issues. A snapshot plus versioned event stream is safer than assuming a connection never drops.",
+        "keyPoints": [
+          "Choose polling, Server-Sent Events or WebSockets based on freshness and directionality needs rather than fashion.",
+          "Real-time clients must handle reconnects, duplicates, missed events and ordering/version issues.",
+          "A snapshot plus versioned event stream is safer than assuming a connection never drops."
+        ]
+      },
+      {
+        "id": "sd-real-time-updates-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "load snapshot(version N) -> subscribe events after N -> idempotent store updates -> reconnect with backoff -> resync",
+        "explanation": "This example demonstrates the practical shape of Real-time Updates; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-real-time-updates-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "How would you design live vehicle-status updates?",
+        "answer": "Load a canonical snapshot, then subscribe with SSE if traffic is mostly server-to-client or WebSocket when bidirectional low-latency messaging is required. Include entity/version IDs, update normalized state idempotently, reconnect with jittered backoff and resync after disconnects so missed events cannot corrupt state.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-micro-frontend-architecture",
+    "subjectId": "system-design",
+    "categoryId": "sd-platform",
+    "title": "Micro-Frontend Architecture",
+    "description": "Lead frontend system-design interview: Micro-Frontend Architecture, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["micro-frontend-architecture", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-micro-frontend-architecture-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Micro-Frontend Architecture is an important system design interview topic. Micro-frontends primarily solve organizational and independent-deployment problems, not normal code modularity. Define routing, ownership, shared dependencies, design-system versions, identity and communication contracts before choosing module federation/runtime technology. Prefer minimal cross-frontend shared mutable state.",
+        "keyPoints": [
+          "Micro-frontends primarily solve organizational and independent-deployment problems, not normal code modularity.",
+          "Define routing, ownership, shared dependencies, design-system versions, identity and communication contracts before choosing module federation/runtime technology.",
+          "Prefer minimal cross-frontend shared mutable state."
+        ]
+      },
+      {
+        "id": "sd-micro-frontend-architecture-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "Shell -> /fleet Team A remote\n      -> /reports Team B remote\nShared contracts: identity + design tokens + navigation",
+        "explanation": "This example demonstrates the practical shape of Micro-Frontend Architecture; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-micro-frontend-architecture-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "When would you reject micro-frontends?",
+        "answer": "When one team owns the product, deployments are already coordinated, the codebase is manageable as a modular monolith, or runtime/versioning/observability complexity outweighs team autonomy. Start modular and adopt micro-frontends only for a demonstrated organizational/deployment need.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-design-system-at-scale",
+    "subjectId": "system-design",
+    "categoryId": "sd-platform",
+    "title": "Design System at Scale",
+    "description": "Lead frontend system-design interview: Design System at Scale, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["design-system-at-scale", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-design-system-at-scale-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Design System at Scale is an important system design interview topic. A design system is tokens, accessible components, interaction patterns, documentation, versioning and governance, not just a component package. Accessible behavior should be built into primitives so product teams inherit it. Consumers need semantic versioning, migration guidance and a contribution process.",
+        "keyPoints": [
+          "A design system is tokens, accessible components, interaction patterns, documentation, versioning and governance, not just a component package.",
+          "Accessible behavior should be built into primitives so product teams inherit it.",
+          "Consumers need semantic versioning, migration guidance and a contribution process."
+        ]
+      },
+      {
+        "id": "sd-design-system-at-scale-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "@org/tokens -> @org/ui-button/dialog/table -> docs/storybook -> visual + a11y tests -> versioned releases",
+        "explanation": "This example demonstrates the practical shape of Design System at Scale; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-design-system-at-scale-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "How do you stop eight teams from creating eight different button/dialog implementations?",
+        "answer": "Provide a maintained design-system layer with tokens and accessible primitives, clear usage guidance, easy installation, visual/a11y regression tests, contribution governance, deprecation/migration policy and product-design ownership. Reduce friction so reuse is easier than rebuilding.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-csr-ssr-and-hydration-strategy",
+    "subjectId": "system-design",
+    "categoryId": "sd-platform",
+    "title": "CSR, SSR and Hydration Strategy",
+    "description": "Lead frontend system-design interview: CSR, SSR and Hydration Strategy, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["csr-ssr-and-hydration-strategy", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-csr-ssr-and-hydration-strategy-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "CSR, SSR and Hydration Strategy is an important system design interview topic. Choose rendering per route: public content may benefit from SSR/static rendering, while many authenticated tools are simpler as CSR. Hydration reuses server-rendered HTML and attaches client behavior; server/client output must stay compatible. SSR adds server cost, caching, browser-API guards and operational complexity.",
+        "keyPoints": [
+          "Choose rendering per route: public content may benefit from SSR/static rendering, while many authenticated tools are simpler as CSR.",
+          "Hydration reuses server-rendered HTML and attaches client behavior; server/client output must stay compatible.",
+          "SSR adds server cost, caching, browser-API guards and operational complexity."
+        ]
+      },
+      {
+        "id": "sd-csr-ssr-and-hydration-strategy-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "public docs/landing -> SSR/static + CDN\nauthenticated admin -> CSR\nheavy public page -> SSR + defer/incremental hydration where valuable",
+        "explanation": "This example demonstrates the practical shape of CSR, SSR and Hydration Strategy; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-csr-ssr-and-hydration-strategy-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Would you enable SSR for an internal Angular dashboard?",
+        "answer": "Not automatically. Internal authenticated dashboards often gain more from bundle/API/runtime optimization and caching, with little SEO value. Use SSR only if measured first-paint/user requirements justify the extra server and hydration complexity.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-error-handling-and-resilience",
+    "subjectId": "system-design",
+    "categoryId": "sd-quality",
+    "title": "Error Handling and Resilience",
+    "description": "Lead frontend system-design interview: Error Handling and Resilience, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["error-handling-and-resilience", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-error-handling-and-resilience-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Error Handling and Resilience is an important system design interview topic. Design partial failure so one widget/service outage does not blank the whole application. Retry only transient and safe/idempotent operations, with limits/backoff/jitter. Expose useful local error/retry states and log correlation/context for diagnosis.",
+        "keyPoints": [
+          "Design partial failure so one widget/service outage does not blank the whole application.",
+          "Retry only transient and safe/idempotent operations, with limits/backoff/jitter.",
+          "Expose useful local error/retry states and log correlation/context for diagnosis."
+        ]
+      },
+      {
+        "id": "sd-error-handling-and-resilience-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "widget state: loading -> success | empty | recoverable error(retry) | fatal error(correlation id)",
+        "explanation": "This example demonstrates the practical shape of Error Handling and Resilience; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-error-handling-and-resilience-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "One of 20 dashboard APIs fails. What should happen?",
+        "answer": "Render independent successful widgets, show a localized failure state for the affected widget, offer retry if safe, capture telemetry/correlation IDs and avoid global failure unless the missing data makes the entire page invalid. Cache/fallback data may be shown only if its staleness is communicated and acceptable.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-observability-and-real-user-monitoring",
+    "subjectId": "system-design",
+    "categoryId": "sd-quality",
+    "title": "Observability and Real User Monitoring",
+    "description": "Lead frontend system-design interview: Observability and Real User Monitoring, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["observability-and-real-user-monitoring", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-observability-and-real-user-monitoring-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Observability and Real User Monitoring is an important system design interview topic. Collect JavaScript errors, API failures/latency, Core Web Vitals and important custom journey timings in production. Include build/version, route, browser/device and correlation IDs so regressions can be tied to releases. Do not log credentials, sensitive payloads or unnecessary personal data.",
+        "keyPoints": [
+          "Collect JavaScript errors, API failures/latency, Core Web Vitals and important custom journey timings in production.",
+          "Include build/version, route, browser/device and correlation IDs so regressions can be tied to releases.",
+          "Do not log credentials, sensitive payloads or unnecessary personal data."
+        ]
+      },
+      {
+        "id": "sd-observability-and-real-user-monitoring-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "{ build, route, metric:'report-render-ms', duration, correlationId }",
+        "explanation": "This example demonstrates the practical shape of Observability and Real User Monitoring; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-observability-and-real-user-monitoring-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "What do you monitor immediately after a frontend release?",
+        "answer": "Compare JavaScript error rate, failed/slow API calls, Core Web Vitals, route/startup timings, authentication failures and critical feature success against the previous build. Segment by release/browser/device and alert on material regressions rather than only infrastructure uptime.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-feature-flags-and-runtime-configuration",
+    "subjectId": "system-design",
+    "categoryId": "sd-platform",
+    "title": "Feature Flags and Runtime Configuration",
+    "description": "Lead frontend system-design interview: Feature Flags and Runtime Configuration, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["feature-flags-and-runtime-configuration", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-feature-flags-and-runtime-configuration-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Feature Flags and Runtime Configuration is an important system design interview topic. Feature flags separate deployment from release but increase possible runtime states and cleanup debt. Every flag needs an owner, expiry/removal plan and safe default. Anything delivered to browser JavaScript is public; runtime config must never contain secrets.",
+        "keyPoints": [
+          "Feature flags separate deployment from release but increase possible runtime states and cleanup debt.",
+          "Every flag needs an owner, expiry/removal plan and safe default.",
+          "Anything delivered to browser JavaScript is public; runtime config must never contain secrets."
+        ]
+      },
+      {
+        "id": "sd-feature-flags-and-runtime-configuration-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "GET /app-config.json -> { apiBaseUrl, features:{ newReports:true } }",
+        "explanation": "This example demonstrates the practical shape of Feature Flags and Runtime Configuration; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-feature-flags-and-runtime-configuration-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Can you hide an API secret in Angular `environment.ts`?",
+        "answer": "No. Browser bundles and downloaded configuration can be inspected by users. Secrets must remain on trusted servers. Frontend environment/runtime configuration should contain only public values such as API base URLs, tenant-safe feature flags and non-secret identifiers.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-accessibility-and-internationalization-at-scale",
+    "subjectId": "system-design",
+    "categoryId": "sd-quality",
+    "title": "Accessibility and Internationalization at Scale",
+    "description": "Lead frontend system-design interview: Accessibility and Internationalization at Scale, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["accessibility-and-internationalization-at-scale", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-accessibility-and-internationalization-at-scale-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Accessibility and Internationalization at Scale is an important system design interview topic. Treat accessibility and localization as architecture constraints baked into the design system and CI. Use semantic components, focus/keyboard contracts, automated a11y checks and manual critical-flow testing. Translation architecture must support pluralization, RTL, locale formatting and text expansion rather than concatenated English fragments.",
+        "keyPoints": [
+          "Treat accessibility and localization as architecture constraints baked into the design system and CI.",
+          "Use semantic components, focus/keyboard contracts, automated a11y checks and manual critical-flow testing.",
+          "Translation architecture must support pluralization, RTL, locale formatting and text expansion rather than concatenated English fragments."
+        ]
+      },
+      {
+        "id": "sd-accessibility-and-internationalization-at-scale-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "design system -> semantic components + focus behavior + RTL-safe CSS\nCI -> lint + a11y + visual tests\ncontent -> stable translation IDs",
+        "explanation": "This example demonstrates the practical shape of Accessibility and Internationalization at Scale; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-accessibility-and-internationalization-at-scale-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "How do you prevent accessibility regressions across many teams?",
+        "answer": "Centralize accessible primitives, include keyboard/focus/ARIA acceptance criteria, add lint and automated accessibility checks, run manual keyboard/screen-reader tests on critical journeys, train reviewers and make accessibility part of definition-of-done. Track issues like normal quality defects rather than a final audit.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-frontend-deployment-versioning-and-rollback",
+    "subjectId": "system-design",
+    "categoryId": "sd-quality",
+    "title": "Frontend Deployment, Versioning and Rollback",
+    "description": "Lead frontend system-design interview: Frontend Deployment, Versioning and Rollback, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["frontend-deployment-versioning-and-rollback", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-frontend-deployment-versioning-and-rollback-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Frontend Deployment, Versioning and Rollback is an important system design interview topic. Frontend releases should be immutable, observable and quickly reversible. Hashed assets allow side-by-side versions, but app-shell caching and old open tabs must not reference deleted chunks. Backend APIs should remain compatible across the frontend rollout window.",
+        "keyPoints": [
+          "Frontend releases should be immutable, observable and quickly reversible.",
+          "Hashed assets allow side-by-side versions, but app-shell caching and old open tabs must not reference deleted chunks.",
+          "Backend APIs should remain compatible across the frontend rollout window."
+        ]
+      },
+      {
+        "id": "sd-frontend-deployment-versioning-and-rollback-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "release N: index + hashed chunks\nrelease N+1 published atomically\nkeep N assets for grace period\nhealth/telemetry check -> promote or rollback",
+        "explanation": "This example demonstrates the practical shape of Frontend Deployment, Versioning and Rollback; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-frontend-deployment-versioning-and-rollback-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "A user leaves an old browser tab open while a new frontend deploy removes old chunks. How do you avoid chunk-load failures?",
+        "answer": "Keep prior hashed assets available for a grace period, use immutable versioned filenames, publish the new manifest/index atomically, detect chunk-load/version mismatch and offer a controlled refresh, and maintain API backward compatibility while old clients remain possible.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  },
+  {
+    "id": "sd-frontend-security-threat-modeling",
+    "subjectId": "system-design",
+    "categoryId": "sd-security",
+    "title": "Frontend Security Threat Modeling",
+    "description": "Lead frontend system-design interview: Frontend Security Threat Modeling, trade-offs, failure modes and production architecture.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["frontend-security-threat-modeling", "system-design"],
+    "blocks": [
+      {
+        "id": "sd-frontend-security-threat-modeling-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Frontend Security Threat Modeling is an important system design interview topic. Map assets, actors, data flows and trust boundaries before implementation so security work is not limited to patching XSS after code exists. Review user input, rich content, identity/session flows, browser storage, third-party scripts and assumptions about backend authorization. Prioritize mitigations by likely impact and attack feasibility.",
+        "keyPoints": [
+          "Map assets, actors, data flows and trust boundaries before implementation so security work is not limited to patching XSS after code exists.",
+          "Review user input, rich content, identity/session flows, browser storage, third-party scripts and assumptions about backend authorization.",
+          "Prioritize mitigations by likely impact and attack feasibility."
+        ]
+      },
+      {
+        "id": "sd-frontend-security-threat-modeling-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "text",
+        "code": "user input -> template/DOM\nIdP -> session -> API\nthird-party script -> same origin page\nAPI rich text -> renderer\n# review each trust boundary",
+        "explanation": "This example demonstrates the practical shape of Frontend Security Threat Modeling; in an interview, explain why you chose it and what can go wrong."
+      },
+      {
+        "id": "sd-frontend-security-threat-modeling-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "What questions do you ask before adding a third-party script to an enterprise frontend?",
+        "answer": "Ask what data it can read, what privileges it has in the page origin, how it is updated, whether CSP/SRI/sandboxing or route-limited loading is possible, what happens if the vendor is compromised, whether consent/privacy rules apply, and whether the business value justifies the supply-chain risk.",
+        "explanation": "A strong senior/lead answer should cover the mechanism, trade-offs, failure modes, and how you would validate the decision in production."
+      }
+    ]
+  }
+]

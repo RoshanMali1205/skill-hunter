@@ -37,7 +37,8 @@
         "order": 3,
         "topics": [
           { "id": "angular-rxjs-operators", "categoryId": "angular-rxjs", "title": "RxJS switchMap vs mergeMap", "description": "Choosing the right flattening operator for HTTP calls triggered by user input.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["rxjs", "switchMap", "mergeMap", "operators"] },
-          { "id": "angular-http-interceptors", "categoryId": "angular-rxjs", "title": "HTTP Interceptors", "description": "Intercepting and transforming outgoing requests and incoming responses.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["http", "interceptors", "functional-interceptors"] }
+          { "id": "angular-http-interceptors", "categoryId": "angular-rxjs", "title": "HTTP Interceptors", "description": "Intercepting and transforming outgoing requests and incoming responses.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["http", "interceptors", "functional-interceptors"] },
+          { "id": "angular-http-client", "categoryId": "angular-rxjs", "title": "HTTP Client Fundamentals", "description": "Making requests with Angular's HttpClient and understanding its observable-based, cold-request model.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["http-client", "observables", "data-access"] }
         ]
       },
       {
@@ -47,7 +48,19 @@
         "description": "Senior-level scenarios for scaling and optimizing large Angular applications.",
         "order": 4,
         "topics": [
-          { "id": "angular-onpush-performance", "categoryId": "angular-architecture", "title": "Optimizing Change Detection for Large Dashboards", "description": "Senior-level scenario: keeping a real-time dashboard responsive with hundreds of widgets.", "difficulty": "advanced", "interviewPriority": "high", "estimatedMinutes": 25, "tags": ["performance", "architecture", "onpush", "trackby"] }
+          { "id": "angular-onpush-performance", "categoryId": "angular-architecture", "title": "Optimizing Change Detection for Large Dashboards", "description": "Senior-level scenario: keeping a real-time dashboard responsive with hundreds of widgets.", "difficulty": "advanced", "interviewPriority": "high", "estimatedMinutes": 25, "tags": ["performance", "architecture", "onpush", "trackby"] },
+          { "id": "angular-application-architecture", "categoryId": "angular-architecture", "title": "Application Architecture & Folder Structure", "description": "Organizing a growing Angular app around feature boundaries instead of technical layers.", "difficulty": "advanced", "interviewPriority": "high", "estimatedMinutes": 20, "tags": ["architecture", "folder-structure", "feature-boundaries"] }
+        ]
+      },
+      {
+        "id": "angular-routing-forms",
+        "subjectId": "angular",
+        "title": "Routing & Forms",
+        "description": "Navigation guards and reactive form architecture.",
+        "order": 5,
+        "topics": [
+          { "id": "angular-route-guards", "categoryId": "angular-routing-forms", "title": "Route Guards", "description": "Controlling navigation with functional CanActivate/CanDeactivate guards — and their real security limits.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["route-guards", "canActivate", "security"] },
+          { "id": "angular-reactive-forms", "categoryId": "angular-routing-forms", "title": "Reactive Forms", "description": "Building typed, validated forms with FormGroup/FormControl and observing value/status changes.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["reactive-forms", "form-control", "validators"] }
         ]
       }
     ]
@@ -67,7 +80,8 @@
         "order": 1,
         "topics": [
           { "id": "js-var-let-const", "categoryId": "js-scope-functions", "title": "var, let, and const", "description": "Differences in scoping and reassignment rules between the three declaration keywords.", "difficulty": "beginner", "interviewPriority": "must-know", "estimatedMinutes": 10, "tags": ["scope", "var", "let", "const"] },
-          { "id": "js-hoisting-tdz", "categoryId": "js-scope-functions", "title": "Hoisting and the Temporal Dead Zone", "description": "How declarations are processed before code executes.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["hoisting", "tdz", "scope"] }
+          { "id": "js-hoisting-tdz", "categoryId": "js-scope-functions", "title": "Hoisting and the Temporal Dead Zone", "description": "How declarations are processed before code executes.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["hoisting", "tdz", "scope"] },
+          { "id": "js-type-coercion-equality", "categoryId": "js-scope-functions", "title": "Type Coercion and Equality", "description": "How == quietly converts operand types, why === usually wins, and the handful of exceptions worth memorizing.", "difficulty": "beginner", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["type-coercion", "equality", "loose-equality"] }
         ]
       },
       {
@@ -90,7 +104,8 @@
         "order": 3,
         "topics": [
           { "id": "js-prototype-chain", "categoryId": "js-objects-prototypes", "title": "Prototypes and the Prototype Chain", "description": "How JavaScript objects inherit properties and methods.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["prototype", "inheritance", "classes"] },
-          { "id": "js-this-keyword", "categoryId": "js-objects-prototypes", "title": "Understanding this, call, apply, and bind", "description": "How the value of `this` is determined at call time, and how to control it explicitly.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["this", "call", "apply", "bind", "arrow-functions"] }
+          { "id": "js-this-keyword", "categoryId": "js-objects-prototypes", "title": "Understanding this, call, apply, and bind", "description": "How the value of `this` is determined at call time, and how to control it explicitly.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["this", "call", "apply", "bind", "arrow-functions"] },
+          { "id": "js-es6-classes", "categoryId": "js-objects-prototypes", "title": "ES6 Classes and Private Fields", "description": "Class syntax as sugar over prototypes, and real, language-enforced privacy with #private fields.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["classes", "private-fields", "prototypes"] }
         ]
       },
       {
@@ -104,11 +119,22 @@
         ]
       },
       {
+        "id": "js-browser-runtime",
+        "subjectId": "javascript",
+        "title": "Browser Runtime",
+        "description": "Modules, dynamic import, memory management, and garbage collection.",
+        "order": 5,
+        "topics": [
+          { "id": "js-modules-dynamic-import", "categoryId": "js-browser-runtime", "title": "ES Modules and Dynamic Import", "description": "Static import/export boundaries, and using dynamic import() for runtime code-splitting.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["modules", "esm", "dynamic-import", "code-splitting"] },
+          { "id": "js-memory-management-gc", "categoryId": "js-browser-runtime", "title": "Memory Management and Garbage Collection", "description": "How the engine decides what to reclaim, and the common patterns that accidentally keep things alive.", "difficulty": "advanced", "interviewPriority": "high", "estimatedMinutes": 20, "tags": ["memory-management", "garbage-collection", "memory-leaks", "weakmap"] }
+        ]
+      },
+      {
         "id": "js-coding-practice",
         "subjectId": "javascript",
         "title": "Coding Practice",
         "description": "Predict-the-output and write-the-code drills covering hoisting, closures, references, array methods, this-binding, and the event loop.",
-        "order": 5,
+        "order": 6,
         "topics": [
           { "id": "js-practice-hoisting-scope", "categoryId": "js-coding-practice", "title": "Coding Practice: Hoisting & Scope", "description": "Six short snippets that expose exactly how var, let, and function declarations are hoisted and scoped.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["hoisting", "scope", "var", "let", "tdz", "coding-practice"] },
           { "id": "js-practice-closures", "categoryId": "js-coding-practice", "title": "Coding Practice: Closures", "description": "Four snippets that build up closure intuition, ending in the classic var-vs-let loop interview question.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["closures", "loops", "settimeout", "coding-practice"] },
@@ -135,7 +161,8 @@
         "order": 1,
         "topics": [
           { "id": "ts-interfaces-vs-types", "categoryId": "ts-basics", "title": "Interfaces vs Type Aliases", "description": "When to reach for `interface` versus `type` when modeling shapes.", "difficulty": "beginner", "interviewPriority": "high", "estimatedMinutes": 10, "tags": ["interfaces", "type-aliases"] },
-          { "id": "ts-union-intersection-types", "categoryId": "ts-basics", "title": "Union and Intersection Types", "description": "Combining types with `|` and `&`.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["union", "intersection", "type-guards"] }
+          { "id": "ts-union-intersection-types", "categoryId": "ts-basics", "title": "Union and Intersection Types", "description": "Combining types with `|` and `&`.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["union", "intersection", "type-guards"] },
+          { "id": "ts-enums-vs-literals", "categoryId": "ts-basics", "title": "Enums vs Union Literal Types", "description": "Why many modern TypeScript codebases prefer `as const` literal unions over the `enum` keyword.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["enums", "literal-types", "as-const"] }
         ]
       },
       {
@@ -158,7 +185,19 @@
         "order": 3,
         "topics": [
           { "id": "ts-discriminated-unions", "categoryId": "ts-advanced-types", "title": "Discriminated Unions", "description": "Modeling variant data safely using a shared literal tag field.", "difficulty": "advanced", "interviewPriority": "high", "estimatedMinutes": 20, "tags": ["discriminated-unions", "type-guards", "exhaustiveness"] },
-          { "id": "ts-unknown-vs-any", "categoryId": "ts-advanced-types", "title": "unknown vs any", "description": "Why `unknown` is the type-safe alternative to `any` for values of uncertain shape.", "difficulty": "beginner", "interviewPriority": "must-know", "estimatedMinutes": 10, "tags": ["unknown", "any", "type-safety"] }
+          { "id": "ts-unknown-vs-any", "categoryId": "ts-advanced-types", "title": "unknown vs any", "description": "Why `unknown` is the type-safe alternative to `any` for values of uncertain shape.", "difficulty": "beginner", "interviewPriority": "must-know", "estimatedMinutes": 10, "tags": ["unknown", "any", "type-safety"] },
+          { "id": "ts-conditional-types-infer", "categoryId": "ts-advanced-types", "title": "Conditional Types and infer", "description": "Type-level branching with `T extends U ? X : Y`, and extracting nested types with `infer`.", "difficulty": "advanced", "interviewPriority": "high", "estimatedMinutes": 20, "tags": ["conditional-types", "infer", "type-level-programming"] }
+        ]
+      },
+      {
+        "id": "ts-oop",
+        "subjectId": "typescript",
+        "title": "Classes & Advanced Functions",
+        "description": "Visibility modifiers, abstract classes, and function overloading.",
+        "order": 4,
+        "topics": [
+          { "id": "ts-access-modifiers-abstract-classes", "categoryId": "ts-oop", "title": "Access Modifiers and Abstract Classes", "description": "Compile-time visibility (public/protected/private) versus runtime-enforced #private, and when to reach for an abstract base class.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["access-modifiers", "abstract-classes", "encapsulation"] },
+          { "id": "ts-function-overloading", "categoryId": "ts-oop", "title": "Function Overloading", "description": "Declaring multiple call signatures for one implementation, and when generics are a simpler alternative.", "difficulty": "advanced", "interviewPriority": "medium", "estimatedMinutes": 15, "tags": ["function-overloading", "call-signatures"] }
         ]
       }
     ]
@@ -178,7 +217,9 @@
         "order": 1,
         "topics": [
           { "id": "css-box-model", "categoryId": "ui-css-fundamentals", "title": "The CSS Box Model", "description": "Content, padding, border, and margin, and how box-sizing changes their math.", "difficulty": "beginner", "interviewPriority": "must-know", "estimatedMinutes": 10, "tags": ["box-model", "box-sizing"] },
-          { "id": "css-specificity-cascade", "categoryId": "ui-css-fundamentals", "title": "Specificity and the Cascade", "description": "How the browser decides which of several conflicting rules wins.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["specificity", "cascade", "!important"] }
+          { "id": "css-specificity-cascade", "categoryId": "ui-css-fundamentals", "title": "Specificity and the Cascade", "description": "How the browser decides which of several conflicting rules wins.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["specificity", "cascade", "!important"] },
+          { "id": "css-pseudo-classes-elements", "categoryId": "ui-css-fundamentals", "title": "Pseudo-classes and Pseudo-elements", "description": "Selecting element state with :hover/:focus-visible/:nth-child, and generated content with ::before/::after.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["pseudo-classes", "pseudo-elements", "focus-visible"] },
+          { "id": "css-transitions-animations", "categoryId": "ui-css-fundamentals", "title": "CSS Transitions and Animations", "description": "Animating property changes smoothly, and respecting the user's reduced-motion preference.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["transitions", "animations", "reduced-motion", "keyframes"] }
         ]
       },
       {
@@ -212,6 +253,105 @@
         "order": 4,
         "topics": [
           { "id": "html5-semantic-elements-accessibility", "categoryId": "ui-html-accessibility", "title": "Semantic HTML and Accessibility Basics", "description": "Choosing the right elements so assistive technology and browsers understand page structure.", "difficulty": "beginner", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["semantic-html", "accessibility", "aria"] }
+        ]
+      },
+      {
+        "id": "ui-scss",
+        "subjectId": "ui",
+        "title": "SCSS",
+        "description": "Mixins, functions, maps, loops, partials, and the modern @use/@forward module system.",
+        "order": 5,
+        "topics": [
+          { "id": "scss-mixins-functions", "categoryId": "ui-scss", "title": "SCSS Mixins and Functions", "description": "Emitting reusable style blocks with @mixin/@include, and computing values with @function.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["scss", "mixins", "functions"] },
+          { "id": "scss-maps-loops-partials", "categoryId": "ui-scss", "title": "SCSS Maps, Loops and Partials", "description": "Structuring design tokens with maps, generating repetitive styles with @each/@for, and splitting files with @use.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["scss", "maps", "loops", "partials", "modules"] }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "system-design",
+    "title": "Frontend System Design",
+    "description": "25 lead-level architecture questions covering caching, performance, security, auth, state, platform architecture and delivery for Senior/Lead interviews.",
+    "icon": "system-design",
+    "order": 5,
+    "categories": [
+      {
+        "id": "sd-foundations",
+        "subjectId": "system-design",
+        "title": "Architecture Foundations",
+        "description": "Structuring a large frontend around business capabilities and team ownership.",
+        "order": 1,
+        "topics": [
+          { "id": "sd-design-a-scalable-enterprise-frontend", "categoryId": "sd-foundations", "title": "Design a Scalable Enterprise Frontend", "description": "Lead frontend system-design interview: Design a Scalable Enterprise Frontend, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["design-a-scalable-enterprise-frontend", "system-design"] }
+        ]
+      },
+      {
+        "id": "sd-performance",
+        "subjectId": "system-design",
+        "title": "Caching & Performance",
+        "description": "Multi-layer caching, cache invalidation, bundle size, code splitting, and large dashboards/data grids.",
+        "order": 2,
+        "topics": [
+          { "id": "sd-caching-strategy", "categoryId": "sd-performance", "title": "Caching Strategy", "description": "Lead frontend system-design interview: Caching Strategy, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["caching-strategy", "system-design"] },
+          { "id": "sd-cache-invalidation-and-stale-data", "categoryId": "sd-performance", "title": "Cache Invalidation and Stale Data", "description": "Lead frontend system-design interview: Cache Invalidation and Stale Data, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["cache-invalidation-and-stale-data", "system-design"] },
+          { "id": "sd-performance-investigation-for-a-large-dashboard", "categoryId": "sd-performance", "title": "Performance Investigation for a Large Dashboard", "description": "Lead frontend system-design interview: Performance Investigation for a Large Dashboard, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["performance-investigation-for-a-large-dashboard", "system-design"] },
+          { "id": "sd-bundle-size-and-code-splitting", "categoryId": "sd-performance", "title": "Bundle Size and Code Splitting", "description": "Lead frontend system-design interview: Bundle Size and Code Splitting, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["bundle-size-and-code-splitting", "system-design"] },
+          { "id": "sd-large-lists-and-data-grids", "categoryId": "sd-performance", "title": "Large Lists and Data Grids", "description": "Lead frontend system-design interview: Large Lists and Data Grids, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["large-lists-and-data-grids", "system-design"] }
+        ]
+      },
+      {
+        "id": "sd-security",
+        "subjectId": "system-design",
+        "title": "Security, Authentication & Authorization",
+        "description": "OIDC/OAuth, token storage, RBAC/ABAC, XSS/CSP/Trusted Types, CSRF/CORS, and threat modeling.",
+        "order": 3,
+        "topics": [
+          { "id": "sd-authentication-with-oidc-oauth", "categoryId": "sd-security", "title": "Authentication with OIDC/OAuth", "description": "Lead frontend system-design interview: Authentication with OIDC/OAuth, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["authentication-with-oidc-oauth", "system-design"] },
+          { "id": "sd-token-and-session-storage", "categoryId": "sd-security", "title": "Token and Session Storage", "description": "Lead frontend system-design interview: Token and Session Storage, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["token-and-session-storage", "system-design"] },
+          { "id": "sd-authorization-rbac-permissions-and-abac", "categoryId": "sd-security", "title": "Authorization: RBAC, Permissions and ABAC", "description": "Lead frontend system-design interview: Authorization: RBAC, Permissions and ABAC, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["authorization-rbac-permissions-and-abac", "system-design"] },
+          { "id": "sd-xss-csp-and-trusted-types", "categoryId": "sd-security", "title": "XSS, CSP and Trusted Types", "description": "Lead frontend system-design interview: XSS, CSP and Trusted Types, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["xss-csp-and-trusted-types", "system-design"] },
+          { "id": "sd-csrf-cors-and-samesite", "categoryId": "sd-security", "title": "CSRF, CORS and SameSite", "description": "Lead frontend system-design interview: CSRF, CORS and SameSite, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["csrf-cors-and-samesite", "system-design"] },
+          { "id": "sd-frontend-security-threat-modeling", "categoryId": "sd-security", "title": "Frontend Security Threat Modeling", "description": "Lead frontend system-design interview: Frontend Security Threat Modeling, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["frontend-security-threat-modeling", "system-design"] }
+        ]
+      },
+      {
+        "id": "sd-data-state",
+        "subjectId": "system-design",
+        "title": "Data, State & Realtime",
+        "description": "State management strategy, race conditions, and real-time update architecture.",
+        "order": 4,
+        "topics": [
+          { "id": "sd-state-management-strategy", "categoryId": "sd-data-state", "title": "State Management Strategy", "description": "Lead frontend system-design interview: State Management Strategy, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["state-management-strategy", "system-design"] },
+          { "id": "sd-concurrent-requests-and-race-conditions", "categoryId": "sd-data-state", "title": "Concurrent Requests and Race Conditions", "description": "Lead frontend system-design interview: Concurrent Requests and Race Conditions, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["concurrent-requests-and-race-conditions", "system-design"] },
+          { "id": "sd-real-time-updates", "categoryId": "sd-data-state", "title": "Real-time Updates", "description": "Lead frontend system-design interview: Real-time Updates, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["real-time-updates", "system-design"] }
+        ]
+      },
+      {
+        "id": "sd-platform",
+        "subjectId": "system-design",
+        "title": "Platform Architecture",
+        "description": "BFF, offline/PWA, micro-frontends, design systems, CSR/SSR/hydration, and feature flags.",
+        "order": 5,
+        "topics": [
+          { "id": "sd-backend-for-frontend-bff", "categoryId": "sd-platform", "title": "Backend for Frontend (BFF)", "description": "Lead frontend system-design interview: Backend for Frontend (BFF), trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["backend-for-frontend-bff", "system-design"] },
+          { "id": "sd-offline-and-pwa-strategy", "categoryId": "sd-platform", "title": "Offline and PWA Strategy", "description": "Lead frontend system-design interview: Offline and PWA Strategy, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["offline-and-pwa-strategy", "system-design"] },
+          { "id": "sd-micro-frontend-architecture", "categoryId": "sd-platform", "title": "Micro-Frontend Architecture", "description": "Lead frontend system-design interview: Micro-Frontend Architecture, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["micro-frontend-architecture", "system-design"] },
+          { "id": "sd-design-system-at-scale", "categoryId": "sd-platform", "title": "Design System at Scale", "description": "Lead frontend system-design interview: Design System at Scale, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["design-system-at-scale", "system-design"] },
+          { "id": "sd-csr-ssr-and-hydration-strategy", "categoryId": "sd-platform", "title": "CSR, SSR and Hydration Strategy", "description": "Lead frontend system-design interview: CSR, SSR and Hydration Strategy, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["csr-ssr-and-hydration-strategy", "system-design"] },
+          { "id": "sd-feature-flags-and-runtime-configuration", "categoryId": "sd-platform", "title": "Feature Flags and Runtime Configuration", "description": "Lead frontend system-design interview: Feature Flags and Runtime Configuration, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["feature-flags-and-runtime-configuration", "system-design"] }
+        ]
+      },
+      {
+        "id": "sd-quality",
+        "subjectId": "system-design",
+        "title": "Quality, Observability & Delivery",
+        "description": "Error handling and resilience, observability/RUM, accessibility/i18n at scale, and deployment/rollback.",
+        "order": 6,
+        "topics": [
+          { "id": "sd-error-handling-and-resilience", "categoryId": "sd-quality", "title": "Error Handling and Resilience", "description": "Lead frontend system-design interview: Error Handling and Resilience, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["error-handling-and-resilience", "system-design"] },
+          { "id": "sd-observability-and-real-user-monitoring", "categoryId": "sd-quality", "title": "Observability and Real User Monitoring", "description": "Lead frontend system-design interview: Observability and Real User Monitoring, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["observability-and-real-user-monitoring", "system-design"] },
+          { "id": "sd-accessibility-and-internationalization-at-scale", "categoryId": "sd-quality", "title": "Accessibility and Internationalization at Scale", "description": "Lead frontend system-design interview: Accessibility and Internationalization at Scale, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["accessibility-and-internationalization-at-scale", "system-design"] },
+          { "id": "sd-frontend-deployment-versioning-and-rollback", "categoryId": "sd-quality", "title": "Frontend Deployment, Versioning and Rollback", "description": "Lead frontend system-design interview: Frontend Deployment, Versioning and Rollback, trade-offs, failure modes and production architecture.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["frontend-deployment-versioning-and-rollback", "system-design"] }
         ]
       }
     ]
