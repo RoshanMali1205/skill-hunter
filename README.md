@@ -2,7 +2,7 @@
 
 An interview preparation hub for **Angular, JavaScript, TypeScript, UI Engineering** (HTML5, CSS, SCSS, Responsive Design), and **Frontend System Design**. Built with Angular 22 (standalone components, Signals). The core app is still frontend-only — all content ships as static JSON, all progress lives in the browser's `localStorage`, no database — with one optional add-on: an **AI Mentor** chat feature backed by a single serverless function, so the app stays statically deployable while still supporting a real AI integration when you want one.
 
-Built from [angular-interview-prep-app-lld.md](angular-interview-prep-app-lld.md), the low-level design doc this app follows.
+
 
 ## What's in the box
 
