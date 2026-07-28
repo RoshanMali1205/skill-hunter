@@ -1,0 +1,11 @@
+<button
+  type="button"
+  class="bookmark-button"
+  [class.bookmark-button--active]="bookmarked()"
+  [attr.aria-pressed]="bookmarked()"
+  [attr.aria-label]="bookmarked() ? 'Remove bookmark' : 'Add bookmark'"
+  (click)="toggled.emit()"
+>
+  <span aria-hidden="true">{{ bookmarked() ? '★' : '☆' }}</span>
+  <span>{{ bookmarked() ? 'Bookmarked' : 'Bookmark' }}</span>
+</button>

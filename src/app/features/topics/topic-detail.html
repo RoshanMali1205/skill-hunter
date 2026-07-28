@@ -1,0 +1,97 @@
+@if (topic(); as topic) {
+  <div class="stack">
+    <app-breadcrumb
+      [items]="[
+        { label: 'Subjects', link: ['/subjects'] },
+        { label: subject()?.title ?? subjectId(), link: ['/subjects', subjectId()] },
+        { label: topic.title },
+      ]"
+    />
+
+    <header class="topic-detail__header">
+      <div>
+        <h1>{{ topic.title }}</h1>
+        <p class="topic-detail__description">{{ topic.description }}</p>
+        <div class="cluster">
+          <app-difficulty-chip [difficulty]="topic.difficulty" />
+          <app-priority-chip [priority]="topic.interviewPriority" />
+          @if (topic.estimatedMinutes) {
+            <span class="topic-detail__minutes">~{{ topic.estimatedMinutes }} min</span>
+          }
+        </div>
+      </div>
+      <app-bookmark-button [bookmarked]="isBookmarked()" (toggled)="toggleBookmark()" />
+    </header>
+
+    <div class="stack">
+      @for (block of sortedBlocks(); track block.id) {
+        @switch (block.type) {
+          @case ('concept') {
+            <section class="topic-detail__block">
+              @if (block.title) {
+                <h2>{{ block.title }}</h2>
+              }
+              <p>{{ block.content }}</p>
+              @if (block.keyPoints && block.keyPoints.length > 0) {
+                <ul class="topic-detail__key-points">
+                  @for (point of block.keyPoints; track point) {
+                    <li>{{ point }}</li>
+                  }
+                </ul>
+              }
+            </section>
+          }
+          @case ('code-example') {
+            <section class="topic-detail__block">
+              @if (block.title) {
+                <h2>{{ block.title }}</h2>
+              }
+              <app-code-block [code]="block.code" [language]="block.language" />
+              <p class="topic-detail__explanation">{{ block.explanation }}</p>
+            </section>
+          }
+          @case ('common-mistake') {
+            <section class="topic-detail__block topic-detail__block--mistake">
+              <h2>Common Mistake</h2>
+              <p><strong>Mistake:</strong> {{ block.mistake }}</p>
+              <p><strong>Why it happens:</strong> {{ block.whyItHappens }}</p>
+              <p><strong>Correct approach:</strong> {{ block.correctApproach }}</p>
+            </section>
+          }
+          @default {
+            <app-question-card
+              [question]="block"
+              [bookmarked]="isQuestionBookmarked(block.id)"
+              (bookmarkToggled)="toggleQuestionBookmark(block.id)"
+            />
+          }
+        }
+      }
+    </div>
+
+    <footer class="topic-detail__footer">
+      <div>
+        <h2>Rate Your Confidence</h2>
+        <app-confidence-selector
+          [confidence]="progress().confidence"
+          (changed)="setConfidence($event)"
+        />
+      </div>
+      <div class="cluster">
+        <app-completion-button [status]="progress().status" (toggled)="toggleComplete()" />
+        <button type="button" class="btn" (click)="toggleRevision()">
+          {{ isInRevision() ? 'Remove from Revision' : 'Add to Revision' }}
+        </button>
+        <button type="button" class="btn" (click)="practiceAgain()">Practice Again</button>
+        <button type="button" class="btn" (click)="askAi()">Ask AI</button>
+      </div>
+    </footer>
+  </div>
+} @else {
+  <app-empty-state
+    title="We couldn't load this topic."
+    message="Please return to the subjects list and try again."
+  >
+    <a class="btn btn--primary" [routerLink]="['/subjects']">Return to Subjects</a>
+  </app-empty-state>
+}

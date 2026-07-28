@@ -1,0 +1,24 @@
+<div class="search">
+  <input
+    type="search"
+    class="search__input"
+    placeholder="Search topics, tags, questions..."
+    [value]="term()"
+    (input)="onInput($any($event.target).value)"
+    (focus)="isOpen.set(true)"
+    (blur)="close()"
+    aria-label="Search interview content"
+  />
+
+  @if (isOpen() && term().trim().length > 1) {
+    <div class="search__results">
+      @if (results().length === 0) {
+        <p class="search__empty">No results for "{{ term() }}"</p>
+      } @else {
+        @for (result of results(); track result.topicId + result.matchedIn) {
+          <app-search-result [result]="result" (selected)="isOpen.set(false)" />
+        }
+      }
+    </div>
+  }
+</div>

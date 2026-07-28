@@ -1,0 +1,388 @@
+[
+  {
+    "id": "js-var-let-const",
+    "subjectId": "javascript",
+    "categoryId": "js-scope-functions",
+    "title": "var, let, and const",
+    "description": "Differences in scoping and reassignment rules between the three declaration keywords.",
+    "difficulty": "beginner",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 10,
+    "tags": ["scope", "var", "let", "const"],
+    "blocks": [
+      {
+        "id": "vlc-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Function Scope vs Block Scope",
+        "content": "`var` is function-scoped and hoisted with an initial value of `undefined`. `let` and `const` are block-scoped and live in the temporal dead zone until their declaration line executes. `const` additionally forbids reassignment of the binding (though object/array contents can still be mutated).",
+        "keyPoints": [
+          "`var` leaks out of `if`/`for` blocks into the enclosing function scope.",
+          "`let`/`const` are confined to the nearest enclosing `{}` block.",
+          "`const` prevents rebinding the variable, not mutation of its contents."
+        ]
+      },
+      {
+        "id": "vlc-question-1",
+        "type": "interview-question",
+        "order": 2,
+        "question": "What is the difference between let, const, and var?",
+        "answer": "var is function-scoped, hoisted and initialized to undefined; let and const are block-scoped and stay in the temporal dead zone until declared; const cannot be reassigned after initialization.",
+        "explanation": "Interviewers usually follow up by asking for the classic var-in-a-loop-with-setTimeout gotcha, which let solves naturally by creating a new binding per iteration."
+      },
+      {
+        "id": "vlc-question-2",
+        "type": "output-question",
+        "order": 3,
+        "question": "Does this throw an error?",
+        "code": "const user = { name: \"Roshan\" };\nuser.name = \"Rahul\";\nuser.age = 35;\nconsole.log(user);",
+        "language": "javascript",
+        "answer": "No error — logs { name: \"Rahul\", age: 35 }.",
+        "explanation": "`const` only freezes the *binding* — you can never reassign `user` to a different object — but it does nothing to protect the object's contents. Mutating or adding properties is unrelated to const/let/var; to actually make the object immutable you'd need `Object.freeze(user)` (which is shallow) or a deep-freeze utility."
+      }
+    ]
+  },
+  {
+    "id": "js-hoisting-tdz",
+    "subjectId": "javascript",
+    "categoryId": "js-scope-functions",
+    "title": "Hoisting and the Temporal Dead Zone",
+    "description": "How declarations are processed before code executes.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["hoisting", "tdz", "scope"],
+    "blocks": [
+      {
+        "id": "hoisting-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "During the compile phase, JavaScript registers `var` declarations and function declarations in their scope before execution begins. `let`/`const` declarations are also registered but remain uninitialized — accessing them before their declaration line throws a ReferenceError instead of returning undefined.",
+        "keyPoints": [
+          "Function declarations are fully hoisted, including their body.",
+          "Function expressions and arrow functions assigned to `var`/`let` are not callable before the assignment line.",
+          "The gap between entering scope and the declaration line is the Temporal Dead Zone (TDZ)."
+        ]
+      },
+      {
+        "id": "hoisting-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "javascript",
+        "code": "console.log(a); // undefined\nvar a = 1;\n\nconsole.log(b); // ReferenceError\nlet b = 2;",
+        "explanation": "`a` is hoisted and initialized to undefined, while `b` exists in the TDZ and throws when read before its declaration."
+      },
+      {
+        "id": "hoisting-question-1",
+        "type": "output-question",
+        "order": 3,
+        "question": "What does this print?",
+        "code": "function greet() {\n  console.log(typeof sayHi);\n  var sayHi = () => 'hi';\n}\ngreet();",
+        "language": "javascript",
+        "answer": "\"undefined\"",
+        "explanation": "`sayHi` is a var, so it is hoisted and initialized to undefined before the assignment runs; `typeof` on undefined returns the string \"undefined\", not an error."
+      },
+      {
+        "id": "hoisting-question-2",
+        "type": "tricky-question",
+        "order": 4,
+        "question": "Is a `class` declaration hoisted the same way a `function` declaration is?",
+        "answer": "No — class declarations are hoisted but, like let/const, remain in the Temporal Dead Zone until evaluated. Referencing a class before its declaration line throws a ReferenceError, even though the class 'exists' in scope from the top of the block.",
+        "explanation": "This trips people up because `class` looks like it should behave like `function` (both define reusable behavior), but under the hood a class declaration follows let/const hoisting semantics, not function hoisting semantics."
+      }
+    ]
+  },
+  {
+    "id": "js-closures",
+    "subjectId": "javascript",
+    "categoryId": "js-closures-async",
+    "title": "Closures",
+    "description": "Understand lexical scope and closures in JavaScript.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 20,
+    "tags": ["closure", "scope", "functions"],
+    "blocks": [
+      {
+        "id": "closure-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "What is a Closure?",
+        "content": "A closure is created when a function remembers variables from its lexical scope even after the outer function has completed.",
+        "keyPoints": [
+          "Closures depend on lexical scope.",
+          "Inner functions can access outer function variables.",
+          "Closures are commonly used for encapsulation and state."
+        ]
+      },
+      {
+        "id": "closure-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "javascript",
+        "code": "function createCounter() {\n  let count = 0;\n\n  return () => ++count;\n}\n\nconst counter = createCounter();\nconsole.log(counter());\nconsole.log(counter());",
+        "explanation": "The returned function keeps access to the count variable even after createCounter has returned."
+      },
+      {
+        "id": "closure-question-1",
+        "type": "output-question",
+        "order": 3,
+        "question": "What will be printed?",
+        "code": "for (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 0);\n}",
+        "language": "javascript",
+        "answer": "3 3 3",
+        "explanation": "var is function-scoped. All callbacks reference the same variable i, whose value is 3 when the callbacks execute."
+      },
+      {
+        "id": "closure-mistake-1",
+        "type": "common-mistake",
+        "order": 4,
+        "mistake": "Using `var` in a loop that schedules callbacks and expecting each callback to see its own loop index.",
+        "whyItHappens": "All callbacks close over the single shared function-scoped `var` binding.",
+        "correctApproach": "Use `let` (creates a fresh binding per iteration) or wrap the body in an IIFE that captures the current value explicitly."
+      },
+      {
+        "id": "closure-question-2",
+        "type": "scenario-question",
+        "order": 5,
+        "question": "How would you use a closure to create a `createBankAccount(initialBalance)` function whose returned object exposes `deposit()`, `withdraw()`, and `getBalance()`, but with no way for outside code to directly read or overwrite the balance variable?",
+        "answer": "function createBankAccount(initialBalance) {\n  let balance = initialBalance;\n  return {\n    deposit: amount => (balance += amount),\n    withdraw: amount => (balance -= amount),\n    getBalance: () => balance,\n  };\n}",
+        "explanation": "This is the module/revealing pattern: `balance` lives only in createBankAccount's scope, and the three returned functions close over it. There is no `this.balance` property anywhere, so the caller has no way to reach in and set `balance` directly — the only surface area is the methods you chose to expose. This predates (and still coexists with) ES class private fields (`#balance`) as a way to achieve real encapsulation."
+      }
+    ]
+  },
+  {
+    "id": "js-event-loop",
+    "subjectId": "javascript",
+    "categoryId": "js-closures-async",
+    "title": "The Event Loop",
+    "description": "How the call stack, task queue, and microtask queue coordinate to run asynchronous code.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["event-loop", "microtask", "macrotask"],
+    "blocks": [
+      {
+        "id": "event-loop-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Call Stack, Microtasks, Macrotasks",
+        "content": "JavaScript runs on a single call stack. Once the stack is empty, the event loop first drains the entire microtask queue (Promise callbacks, queueMicrotask, MutationObserver) before running a single macrotask (setTimeout, setInterval, I/O, UI rendering).",
+        "keyPoints": [
+          "All microtasks queued run before the next macrotask, even ones queued while draining the microtask queue.",
+          "`setTimeout(fn, 0)` never runs immediately — it waits for the current synchronous code and the entire microtask queue to finish.",
+          "Long-running synchronous code blocks the event loop entirely, freezing the UI."
+        ]
+      },
+      {
+        "id": "event-loop-question-1",
+        "type": "output-question",
+        "order": 2,
+        "question": "What is the logged order?",
+        "code": "console.log('1');\nsetTimeout(() => console.log('2'), 0);\nPromise.resolve().then(() => console.log('3'));\nconsole.log('4');",
+        "language": "javascript",
+        "answer": "1 4 3 2",
+        "explanation": "Synchronous code (1, 4) runs first. The microtask queue (Promise .then, logging 3) drains next. Only then does the macrotask queue run the setTimeout callback (2)."
+      },
+      {
+        "id": "event-loop-question-2",
+        "type": "tricky-question",
+        "order": 3,
+        "question": "Can a chain of Promise.then() callbacks starve setTimeout callbacks from ever running?",
+        "answer": "Yes, in principle — if each .then() callback keeps enqueuing another microtask, the engine keeps draining the microtask queue and never reaches the macrotask queue.",
+        "explanation": "This is a well-known way to explain why microtasks can 'starve' macrotasks; in practice this shows up as recursive Promise chains freezing timer-based code."
+      },
+      {
+        "id": "event-loop-question-3",
+        "type": "interview-question",
+        "order": 4,
+        "question": "Where does requestAnimationFrame fit relative to microtasks and macrotasks?",
+        "answer": "requestAnimationFrame callbacks run before the browser's next repaint, after the current task and all queued microtasks have drained, but they are scheduled separately from the setTimeout/setInterval macrotask queue — the browser tries to run them right before it paints the frame.",
+        "explanation": "In practice, the ordering for a single tick looks like: synchronous code → all microtasks → requestAnimationFrame callbacks (right before paint) → paint → next macrotask. This is why requestAnimationFrame, not setTimeout(fn, 16), is the correct tool for visual/animation updates — it's synchronized to the browser's actual render cycle."
+      }
+    ]
+  },
+  {
+    "id": "js-promises-async-await",
+    "subjectId": "javascript",
+    "categoryId": "js-closures-async",
+    "title": "Promises and async/await",
+    "description": "Modeling asynchronous operations without callback pyramids.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 20,
+    "tags": ["promises", "async-await", "error-handling"],
+    "blocks": [
+      {
+        "id": "promises-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "A Promise represents a value that may be available now, later, or never, with three states: pending, fulfilled, rejected. `async/await` is syntax sugar over Promises that lets asynchronous code read like synchronous code, with `try/catch` handling rejections.",
+        "keyPoints": [
+          "An `async function` always returns a Promise, even if you `return` a plain value.",
+          "`await` pauses the async function (not the whole thread) until the awaited Promise settles.",
+          "Unhandled Promise rejections should be caught with `try/catch` around `await`, or `.catch()` on the Promise chain."
+        ]
+      },
+      {
+        "id": "promises-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "javascript",
+        "code": "async function loadTopic(id) {\n  try {\n    const res = await fetch(`/content/${id}.json`);\n    if (!res.ok) throw new Error('Not found');\n    return await res.json();\n  } catch (err) {\n    console.error('Failed to load topic', err);\n    return null;\n  }\n}",
+        "explanation": "Errors from either the fetch call or a non-OK response are funneled into the same catch block."
+      },
+      {
+        "id": "promises-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "What is the difference between Promise.all, Promise.allSettled, and Promise.race?",
+        "answer": "Promise.all rejects immediately if any promise rejects; Promise.allSettled always resolves with the outcome (fulfilled/rejected) of every promise; Promise.race settles as soon as the first promise settles, whether fulfilled or rejected.",
+        "explanation": "Use allSettled when you need every result regardless of individual failures, and race for timeout patterns (racing a request against a timer)."
+      },
+      {
+        "id": "promises-question-2",
+        "type": "output-question",
+        "order": 4,
+        "question": "What is logged, and in what order?",
+        "code": "async function getData() {\n  throw new Error('boom');\n}\n\nasync function run() {\n  try {\n    await getData();\n  } catch (err) {\n    console.log('caught:', err.message);\n  }\n}\n\nconsole.log('before');\nrun();\nconsole.log('after');",
+        "language": "javascript",
+        "answer": "before\nafter\ncaught: boom",
+        "explanation": "A `throw` inside an async function doesn't throw synchronously to the caller — it rejects the Promise that function returns. `run()` starts executing synchronously up to `await getData()`, which suspends it (control returns to the caller, so \"after\" logs before anything from inside run() resumes), and only once the rejected Promise is processed as a microtask does the `catch` block run and log last. This is exactly why `try/catch` around `await` works: await converts a Promise rejection back into a synchronously-catchable throw, just deferred to the microtask queue."
+      }
+    ]
+  },
+  {
+    "id": "js-prototype-chain",
+    "subjectId": "javascript",
+    "categoryId": "js-objects-prototypes",
+    "title": "Prototypes and the Prototype Chain",
+    "description": "How JavaScript objects inherit properties and methods.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["prototype", "inheritance", "classes"],
+    "blocks": [
+      {
+        "id": "prototype-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Every JavaScript object has an internal [[Prototype]] link (exposed as `__proto__` or via `Object.getPrototypeOf`). Property lookups walk up this chain until the property is found or the chain ends at `null`. `class` syntax is sugar over this same prototype-based inheritance.",
+        "keyPoints": [
+          "Methods defined in a class body live on `ClassName.prototype`, shared by all instances.",
+          "`Object.create(proto)` creates an object whose prototype is explicitly `proto`.",
+          "Own properties shadow prototype properties with the same name."
+        ]
+      },
+      {
+        "id": "prototype-question-1",
+        "type": "output-question",
+        "order": 2,
+        "question": "What does this print?",
+        "code": "function Animal(name) { this.name = name; }\nAnimal.prototype.speak = function () { return `${this.name} makes a sound`; };\nconst dog = new Animal('Rex');\nconsole.log(dog.speak());",
+        "language": "javascript",
+        "answer": "\"Rex makes a sound\"",
+        "explanation": "`dog` does not have its own `speak` property, so the lookup walks up to `Animal.prototype.speak`, which uses `this.name` bound to `dog`."
+      },
+      {
+        "id": "prototype-question-2",
+        "type": "tricky-question",
+        "order": 3,
+        "question": "What's the difference between `Object.hasOwn(obj, 'key')` (or `obj.hasOwnProperty('key')`) and the `'key' in obj` operator?",
+        "answer": "`hasOwnProperty`/`Object.hasOwn` check only the object's own properties, ignoring the prototype chain. The `in` operator checks the own properties *and* everything inherited up the prototype chain.",
+        "explanation": "This matters when iterating: `for...in` walks enumerable properties including inherited ones, which is why it's common (and recommended) to guard the loop body with `if (Object.hasOwn(obj, key))` to avoid accidentally processing inherited properties like custom methods added to Object.prototype by a poorly-behaved library."
+      }
+    ]
+  },
+  {
+    "id": "js-this-keyword",
+    "subjectId": "javascript",
+    "categoryId": "js-objects-prototypes",
+    "title": "Understanding this, call, apply, and bind",
+    "description": "How the value of `this` is determined at call time, and how to control it explicitly.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 15,
+    "tags": ["this", "call", "apply", "bind", "arrow-functions"],
+    "blocks": [
+      {
+        "id": "this-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "`this` is determined by how a function is called, not where it is defined — except for arrow functions, which capture `this` lexically from their enclosing scope at creation time. `call`/`apply` invoke a function immediately with an explicit `this`; `bind` returns a new function permanently bound to a given `this`.",
+        "keyPoints": [
+          "Plain function call: `this` is undefined in strict mode, or the global object otherwise.",
+          "Method call (`obj.method()`): `this` is `obj`.",
+          "Arrow functions never have their own `this` — they inherit it from the enclosing lexical scope."
+        ]
+      },
+      {
+        "id": "this-question-1",
+        "type": "tricky-question",
+        "order": 2,
+        "question": "A method is detached from its object and passed as a callback, e.g. `setTimeout(obj.method, 100)`. What happens to `this` inside method?",
+        "answer": "`this` is no longer `obj` — it becomes undefined (strict mode) or the global object, because the function is now called without a receiver.",
+        "explanation": "This is why event handlers and callbacks are often written as arrow functions or explicitly bound: `setTimeout(obj.method.bind(obj), 100)` or `setTimeout(() => obj.method(), 100)`."
+      },
+      {
+        "id": "this-question-2",
+        "type": "output-question",
+        "order": 3,
+        "question": "What does this log, and why?",
+        "code": "class Counter {\n  count = 0;\n\n  increment() {\n    this.count++;\n    console.log(this.count);\n  }\n}\n\nconst counter = new Counter();\nconst handler = counter.increment;\n\nhandler();",
+        "language": "javascript",
+        "answer": "TypeError: Cannot read properties of undefined (reading 'count').",
+        "explanation": "`increment` is a regular class method, so its `this` depends on the call site — assigning it to `handler` and calling `handler()` invokes it with no receiver, so `this` is undefined in strict mode (all class bodies are implicitly strict). The fix is either an arrow-function class field (`increment = () => { this.count++; ... }`, which captures `this` lexically at construction time) or explicitly binding: `const handler = counter.increment.bind(counter)`.",
+        "hints": ["This exact bug is why UI framework code (event handlers, callback props) so often uses arrow-function class fields."]
+      }
+    ]
+  },
+  {
+    "id": "js-debounce-throttle",
+    "subjectId": "javascript",
+    "categoryId": "js-performance-patterns",
+    "title": "Debounce and Throttle",
+    "description": "Rate-limiting patterns for expensive or frequent event handlers.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["debounce", "throttle", "performance"],
+    "blocks": [
+      {
+        "id": "debounce-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Debounce delays invoking a function until a burst of calls has stopped for a given period — ideal for search-as-you-type. Throttle guarantees a function runs at most once per fixed interval regardless of how many times it's triggered — ideal for scroll or resize handlers.",
+        "keyPoints": [
+          "Debounce: wait for silence (e.g. 300ms with no new keystrokes) before firing.",
+          "Throttle: fire immediately, then ignore further calls until the interval elapses.",
+          "Both patterns reduce the number of expensive operations (API calls, layout reads) triggered by rapid-fire events."
+        ]
+      },
+      {
+        "id": "debounce-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "javascript",
+        "code": "function debounce(fn, delay) {\n  let timerId;\n  return (...args) => {\n    clearTimeout(timerId);\n    timerId = setTimeout(() => fn(...args), delay);\n  };\n}",
+        "explanation": "Every new call cancels the pending timer and schedules a fresh one, so `fn` only runs once the calls stop for `delay` milliseconds."
+      },
+      {
+        "id": "debounce-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Would you use debounce or throttle for a live search box that calls an API as the user types?",
+        "answer": "Debounce.",
+        "explanation": "You only want to call the API once the user pauses typing; firing on a fixed interval (throttle) would still send requests for incomplete, transient search terms."
+      },
+      {
+        "id": "debounce-question-2",
+        "type": "scenario-question",
+        "order": 4,
+        "question": "Implement a `throttle(fn, limit)` function: fn should run immediately on the first call, then ignore further calls until `limit` milliseconds have passed.",
+        "answer": "function throttle(fn, limit) {\n  let inCooldown = false;\n  return (...args) => {\n    if (inCooldown) return;\n    fn(...args);\n    inCooldown = true;\n    setTimeout(() => (inCooldown = false), limit);\n  };\n}",
+        "explanation": "Unlike debounce (which always waits for a quiet period), this 'leading-edge' throttle fires right away for responsiveness, then uses a boolean flag and a single timer to block every subsequent call until the cooldown window elapses — a good fit for scroll/resize handlers where you want at least one immediate reaction, followed by a capped rate."
+      }
+    ]
+  }
+]

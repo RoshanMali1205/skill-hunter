@@ -1,0 +1,40 @@
+<article class="question-card">
+  <header class="question-card__header">
+    <span class="question-card__type">{{ typeLabels[question().type] }}</span>
+    @if (showBookmark()) {
+      <app-bookmark-button [bookmarked]="bookmarked()" (toggled)="bookmarkToggled.emit()" />
+    }
+  </header>
+
+  @if (question().title) {
+    <h3>{{ question().title }}</h3>
+  }
+
+  <p class="question-card__question">{{ question().question }}</p>
+
+  @if (question().code) {
+    <app-code-block [code]="question().code!" [language]="question().language ?? 'javascript'" />
+  }
+
+  <div class="question-card__answer">
+    <app-answer-reveal
+      [answer]="question().answer"
+      [explanation]="question().explanation"
+      [hints]="question().hints ?? []"
+      [autoReveal]="autoReveal()"
+    />
+  </div>
+
+  @if (showSelfAssessment()) {
+    <div class="question-card__self-assess">
+      <span>How did you do?</span>
+      <div class="question-card__self-assess-actions">
+        <button type="button" class="btn" (click)="assessed.emit('correct')">Correct</button>
+        <button type="button" class="btn" (click)="assessed.emit('incorrect')">Incorrect</button>
+        <button type="button" class="btn" (click)="assessed.emit('needs-revision')">
+          Needs Revision
+        </button>
+      </div>
+    </div>
+  }
+</article>

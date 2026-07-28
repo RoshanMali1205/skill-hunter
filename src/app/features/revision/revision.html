@@ -1,0 +1,52 @@
+<div class="stack">
+  <div>
+    <h1>Today's Revision</h1>
+    <p class="revision__subtitle">
+      Topics surfaced from low confidence, incorrect practice attempts, bookmarks, and manual additions.
+    </p>
+  </div>
+
+  @if (revisionItems().length === 0) {
+    <app-empty-state
+      title="Nothing to revise right now"
+      message="Weak topics will show up here automatically as you study and practice."
+    />
+  } @else {
+    <div class="stack">
+      @for (item of revisionItems(); track item.topic.id) {
+        <div class="revision__item">
+          <app-topic-card
+            [topic]="item.topic"
+            [subjectId]="item.subjectId"
+            [status]="statusFor(item.topic.id)"
+          />
+          <div class="revision__meta">
+            <div class="revision__reasons">
+              @for (reason of item.reasons; track reason) {
+                <span class="revision__reason">{{ reason }}</span>
+              }
+            </div>
+            <div class="cluster">
+              <button
+                type="button"
+                class="btn btn--primary"
+                (click)="completeRevision(item.topic.id, item.subjectId)"
+              >
+                Mark Revised
+              </button>
+              @if (isManuallyAdded(item.topic.id)) {
+                <button
+                  type="button"
+                  class="btn btn--ghost"
+                  (click)="removeFromRevisionList(item.topic.id)"
+                >
+                  Remove from list
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,12 @@
+<nav class="mobile-nav" aria-label="Mobile navigation">
+  @for (item of navItems; track item.path) {
+    <a
+      [routerLink]="item.path"
+      routerLinkActive="mobile-nav__link--active"
+      class="mobile-nav__link"
+    >
+      <span aria-hidden="true">{{ item.icon }}</span>
+      <span>{{ item.label }}</span>
+    </a>
+  }
+</nav>

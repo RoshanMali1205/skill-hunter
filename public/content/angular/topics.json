@@ -1,0 +1,411 @@
+[
+  {
+    "id": "angular-standalone-components",
+    "subjectId": "angular",
+    "categoryId": "angular-fundamentals",
+    "title": "Standalone Components",
+    "description": "Building Angular components without NgModules.",
+    "difficulty": "beginner",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["standalone", "components", "bootstrap"],
+    "blocks": [
+      {
+        "id": "standalone-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "What are Standalone Components?",
+        "content": "Standalone components declare their own imports directly in the @Component decorator instead of relying on an NgModule. Angular 22 uses standalone as the default and only mode for new applications, removing the need for NgModule boilerplate entirely.",
+        "keyPoints": [
+          "No NgModule is required to declare or bootstrap a standalone component.",
+          "Dependencies (directives, pipes, other components) are listed in the `imports` array.",
+          "Bootstrapping uses `bootstrapApplication(App, appConfig)` instead of `platformBrowser().bootstrapModule(...)`."
+        ]
+      },
+      {
+        "id": "standalone-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "@Component({\n  selector: 'app-topic-card',\n  imports: [DifficultyChipComponent, PriorityChipComponent],\n  templateUrl: './topic-card.html',\n})\nexport class TopicCardComponent {\n  topic = input.required<TopicSummary>();\n}",
+        "explanation": "The component lists exactly the pieces it needs in `imports`, making dependencies explicit and enabling better tree-shaking."
+      },
+      {
+        "id": "standalone-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Why did Angular move away from NgModules toward standalone components?",
+        "answer": "To reduce boilerplate, make dependencies explicit per component, simplify lazy loading, and make the mental model closer to how most modern frontend frameworks compose UI.",
+        "explanation": "NgModules added an indirection layer that new developers found confusing, and most of what NgModules provided (declarations, providers, exports) can be expressed more directly at the component and provider level."
+      },
+      {
+        "id": "standalone-mistake-1",
+        "type": "common-mistake",
+        "order": 4,
+        "mistake": "Forgetting to add a directive or pipe to a standalone component's `imports` array.",
+        "whyItHappens": "Developers coming from NgModule-based apps assume everything declared anywhere in the app is automatically available.",
+        "correctApproach": "Explicitly import every directive, pipe, or component used in the template into the `imports` array of the component that uses it."
+      },
+      {
+        "id": "standalone-question-2",
+        "type": "scenario-question",
+        "order": 5,
+        "question": "You need a route to lazy-load a standalone component that itself depends on three other standalone components and a service. How do you keep that route's chunk from bloating the initial bundle?",
+        "answer": "Use `loadComponent: () => import('./feature.component').then(m => m.FeatureComponent)` in the route definition — the dynamic import puts the component and everything it statically imports (its child components, the service) into a separate chunk that only downloads when the route activates.",
+        "explanation": "Because a standalone component's dependencies are just regular ES imports declared in its `imports` array, the bundler can trace and split them automatically — there's no NgModule boundary to configure separately, which is part of why standalone components made route-level code-splitting simpler."
+      }
+    ]
+  },
+  {
+    "id": "angular-lifecycle-hooks",
+    "subjectId": "angular",
+    "categoryId": "angular-fundamentals",
+    "title": "Lifecycle Hooks",
+    "description": "The sequence of hooks Angular calls as a component is created, updated, and destroyed.",
+    "difficulty": "beginner",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 15,
+    "tags": ["lifecycle", "ngOnInit", "ngOnDestroy"],
+    "blocks": [
+      {
+        "id": "lifecycle-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Component Lifecycle Order",
+        "content": "Angular calls lifecycle hooks in a predictable order: constructor, ngOnChanges, ngOnInit, ngDoCheck, ngAfterContentInit, ngAfterContentChecked, ngAfterViewInit, ngAfterViewChecked, and ngOnDestroy.",
+        "keyPoints": [
+          "ngOnChanges runs before ngOnInit whenever an `@Input()` changes, and on every subsequent input change.",
+          "ngOnInit runs once, after the first ngOnChanges.",
+          "ngOnDestroy is the place to unsubscribe, clear timers, and release resources."
+        ]
+      },
+      {
+        "id": "lifecycle-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "export class TopicTimerComponent implements OnInit, OnDestroy {\n  private intervalId?: ReturnType<typeof setInterval>;\n\n  ngOnInit(): void {\n    this.intervalId = setInterval(() => this.tick(), 1000);\n  }\n\n  ngOnDestroy(): void {\n    clearInterval(this.intervalId);\n  }\n\n  private tick(): void {}\n}",
+        "explanation": "Resources started in ngOnInit are cleaned up in ngOnDestroy to avoid leaking timers after the component is removed."
+      },
+      {
+        "id": "lifecycle-question-1",
+        "type": "tricky-question",
+        "order": 3,
+        "question": "If a component has no @Input() bindings at all, will ngOnChanges ever run?",
+        "answer": "No.",
+        "explanation": "ngOnChanges only fires when there is at least one bound @Input() property. Without any inputs, Angular never calls it, so components with no inputs should rely on ngOnInit instead."
+      },
+      {
+        "id": "lifecycle-question-2",
+        "type": "interview-question",
+        "order": 4,
+        "question": "Why should you avoid doing heavy DOM or child-component work in the constructor, and put it in ngOnInit instead?",
+        "answer": "The constructor runs before Angular has set any @Input() bindings and before the view/child views exist, so anything that depends on input values or ViewChild/ContentChild queries isn't safe yet — ngOnInit runs after the first ngOnChanges, once inputs are populated.",
+        "explanation": "A useful mental model: the constructor is for dependency injection only (`private readonly x = inject(X)`), ngOnInit is for initialization logic that needs inputs, and ngAfterViewInit is for logic that needs the rendered view/queried children."
+      }
+    ]
+  },
+  {
+    "id": "angular-dependency-injection",
+    "subjectId": "angular",
+    "categoryId": "angular-fundamentals",
+    "title": "Dependency Injection",
+    "description": "How Angular's hierarchical injector resolves and provides services.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 20,
+    "tags": ["di", "injector", "providedIn", "inject"],
+    "blocks": [
+      {
+        "id": "di-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Hierarchical Injectors",
+        "content": "Angular resolves a dependency by walking up a tree of injectors: element injector (component/directive), module/environment injector, and the root injector. The first injector in that chain that has a provider for the token wins.",
+        "keyPoints": [
+          "`providedIn: 'root'` registers a singleton in the root environment injector.",
+          "Providing a service in a component's `providers` array creates a new instance scoped to that component subtree.",
+          "The `inject()` function can be used outside constructors, e.g. in factory functions or field initializers."
+        ]
+      },
+      {
+        "id": "di-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "@Injectable({ providedIn: 'root' })\nexport class ContentService {\n  private readonly http = inject(HttpClient);\n}",
+        "explanation": "`inject()` retrieves the current injector's instance of HttpClient without needing a constructor parameter."
+      },
+      {
+        "id": "di-question-1",
+        "type": "scenario-question",
+        "order": 3,
+        "question": "Two sibling components each provide the same service in their own `providers` array. Do they share state?",
+        "answer": "No, each component subtree gets its own instance.",
+        "explanation": "Providing a service at the component level creates a new element injector for that component and its descendants, so each sibling receives an independent instance rather than sharing the root singleton."
+      },
+      {
+        "id": "di-question-2",
+        "type": "tricky-question",
+        "order": 4,
+        "question": "What do `@Optional()`, `@Self()`, and `@SkipSelf()` change about how a dependency is resolved?",
+        "answer": "`@Optional()` returns null instead of throwing if no provider is found; `@Self()` only looks at the current element's own injector (no walking up the tree); `@SkipSelf()` starts the search at the parent injector, skipping the current element even if it has a matching provider.",
+        "explanation": "These decorators are most often seen together in component libraries — e.g. a form control that optionally connects to a parent form group via `@Optional() @SkipSelf() parent?: ControlContainer`, so the component still works standalone when no parent is present."
+      }
+    ]
+  },
+  {
+    "id": "angular-change-detection",
+    "subjectId": "angular",
+    "categoryId": "angular-change-detection",
+    "title": "Change Detection",
+    "description": "How Angular decides when to re-render a component's view.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": ["change-detection", "zone.js", "onpush"],
+    "blocks": [
+      {
+        "id": "cd-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Default vs OnPush",
+        "content": "In Default mode, Angular checks every component in the tree whenever any asynchronous event Zone.js is aware of occurs (click, timer, HTTP response). In OnPush mode, a component only re-checks when an @Input() reference changes, an event originates from inside the component, or an observable bound with the async pipe emits.",
+        "keyPoints": [
+          "OnPush relies on immutable data: replace objects/arrays rather than mutating them in place.",
+          "Signals integrate naturally with OnPush because reading a signal in a template automatically registers it for fine-grained updates.",
+          "Zoneless Angular applications skip Zone.js entirely and rely on signals for change notification."
+        ]
+      },
+      {
+        "id": "cd-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "@Component({\n  selector: 'app-progress-card',\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `<p>{{ percentage() }}%</p>`,\n})\nexport class ProgressCardComponent {\n  percentage = input.required<number>();\n}",
+        "explanation": "Because `percentage` is a signal input, Angular re-renders the interpolation whenever the signal value changes, without needing to check the rest of the component tree."
+      },
+      {
+        "id": "cd-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Explain Default vs OnPush change detection.",
+        "answer": "Default checks the whole component tree on every browser event Zone.js patches; OnPush limits checks to input reference changes, internal events, and observable emissions via the async pipe, which is far cheaper for large trees.",
+        "explanation": "Use OnPush for presentational components fed with immutable inputs or signals, and reserve Default for components where mutation patterns are hard to avoid."
+      },
+      {
+        "id": "cd-mistake-1",
+        "type": "common-mistake",
+        "order": 4,
+        "mistake": "Mutating an array in place (`list.push(item)`) on an OnPush component and expecting the view to update.",
+        "whyItHappens": "OnPush compares input references, not deep contents, so mutating the same reference never triggers a check.",
+        "correctApproach": "Replace the reference: `this.list = [...this.list, item];` or use a signal and update it with `.set()` / `.update()`."
+      },
+      {
+        "id": "cd-question-2",
+        "type": "scenario-question",
+        "order": 5,
+        "question": "A component receives data through a third-party callback (e.g. a Google Maps SDK event) that runs outside Angular's Zone.js patched APIs. The view doesn't update even though the underlying data changed. What's happening and how do you fix it?",
+        "answer": "Third-party SDKs that schedule their own callbacks (via native timers, WebSockets, or their own event loop) can execute outside Zone.js's monkey-patched APIs, so Angular never gets notified to run change detection. Fix it by explicitly calling `this.ngZone.run(() => { ... })` around the state update, or by injecting `ChangeDetectorRef` and calling `markForCheck()`/`detectChanges()` after the callback.",
+        "explanation": "This is the flip side of `NgZone.runOutsideAngular()` — code intentionally run outside the zone (e.g. a high-frequency animation loop) must explicitly re-enter the zone or trigger detection manually to reflect its results in the UI. In zoneless applications this problem disappears for signal-based state, since signal writes notify Angular directly regardless of which zone they happened in."
+      }
+    ]
+  },
+  {
+    "id": "angular-signals",
+    "subjectId": "angular",
+    "categoryId": "angular-change-detection",
+    "title": "Signals",
+    "description": "Angular's fine-grained reactive primitive for local and shared state.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 20,
+    "tags": ["signals", "computed", "effect"],
+    "blocks": [
+      {
+        "id": "signals-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Signals vs RxJS",
+        "content": "A signal is a synchronous, glitch-free reactive value container: `signal()` holds state, `computed()` derives state, and `effect()` reacts to state changes for side effects. RxJS observables model asynchronous streams and complex event composition (debouncing, retries, combining multiple sources).",
+        "keyPoints": [
+          "Reading a signal inside a template or a `computed()` automatically tracks it as a dependency.",
+          "`computed()` values are memoized and only recompute when a dependency changes.",
+          "Use `toSignal()` / `toObservable()` from @angular/core/rxjs-interop to bridge the two worlds."
+        ]
+      },
+      {
+        "id": "signals-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "private readonly _progress = signal<Record<string, TopicProgress>>({});\nreadonly progress = this._progress.asReadonly();\n\nreadonly completedCount = computed(() =>\n  Object.values(this._progress()).filter(p => p.status === 'completed').length\n);",
+        "explanation": "`completedCount` recomputes automatically whenever `_progress` changes, without manual subscription management."
+      },
+      {
+        "id": "signals-question-1",
+        "type": "tricky-question",
+        "order": 3,
+        "question": "Signals vs RxJS: when would you choose one over the other for the Progress Store?",
+        "answer": "Signals for synchronous local UI state like progress and bookmarks; RxJS for asynchronous streams like debounced search input or combining multiple HTTP calls.",
+        "explanation": "Signals shine for state that is read synchronously in templates; RxJS shines for orchestrating asynchronous, time-based, or multi-source event flows."
+      },
+      {
+        "id": "signals-question-2",
+        "type": "tricky-question",
+        "order": 4,
+        "question": "You call a signal-writing function inside `effect()`, and the effect also reads that same signal (directly or through a service method). What can go wrong?",
+        "answer": "If the write happens as a tracked read-then-write within the same effect execution, the effect becomes dependent on the signal it just wrote to, which re-triggers the effect — potentially in an infinite loop if the written value is never identical to the previous one (e.g. it includes a fresh timestamp).",
+        "explanation": "The fix is `untracked()`: wrap the read (or the whole write-path call) so it doesn't register as a dependency of the effect — `untracked(() => this.store.touch(id))`. This is a real, easy-to-hit bug: any service method that reads a signal internally before writing to it becomes unsafe to call from inside an effect unless that internal read is untracked."
+      }
+    ]
+  },
+  {
+    "id": "angular-rxjs-operators",
+    "subjectId": "angular",
+    "categoryId": "angular-rxjs",
+    "title": "RxJS switchMap vs mergeMap",
+    "description": "Choosing the right flattening operator for HTTP calls triggered by user input.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 20,
+    "tags": ["rxjs", "switchMap", "mergeMap", "operators"],
+    "blocks": [
+      {
+        "id": "rxjs-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Flattening Operators",
+        "content": "switchMap cancels the previous inner observable when a new source value arrives, making it ideal for search-as-you-type. mergeMap runs all inner observables concurrently without cancellation, useful when every request must complete (e.g. batch uploads). concatMap queues inner observables to run strictly in order. exhaustMap ignores new source values while an inner observable is still running.",
+        "keyPoints": [
+          "switchMap: cancel-and-replace (typeahead search).",
+          "mergeMap: run concurrently (independent parallel requests).",
+          "concatMap: strictly ordered, one at a time (sequential writes).",
+          "exhaustMap: ignore new triggers until current completes (prevent duplicate submits)."
+        ]
+      },
+      {
+        "id": "rxjs-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "searchTerm$.pipe(\n  debounceTime(250),\n  distinctUntilChanged(),\n  switchMap(term => this.contentService.search(term))\n).subscribe(results => this.results.set(results));",
+        "explanation": "switchMap cancels any in-flight search request as soon as the user types again, so only the latest search's results are ever applied."
+      },
+      {
+        "id": "rxjs-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Why is switchMap generally preferred over mergeMap for a live search box?",
+        "answer": "Because switchMap automatically cancels the previous request, preventing an older, slower response from overwriting the results of a newer search.",
+        "explanation": "With mergeMap, if an earlier request resolves after a later one, the UI could flicker back to stale results — a race condition switchMap avoids by cancelling the previous inner subscription."
+      },
+      {
+        "id": "rxjs-question-2",
+        "type": "scenario-question",
+        "order": 4,
+        "question": "A \"Submit\" button triggers an HTTP save on click. Users sometimes double-click it and create two records. Which flattening operator fixes this, and why not switchMap?",
+        "answer": "exhaustMap — it ignores new clicks entirely while the in-flight save request hasn't completed, so a rapid second click is simply dropped rather than starting a second request.",
+        "explanation": "switchMap would be wrong here: it cancels the *first* request's HTTP call when the second click fires, which for a POST doesn't actually stop the server from processing it — you could still end up with a duplicate record, just with the UI now tracking the wrong response. exhaustMap is the standard idiom for 'prevent duplicate submit' style interactions."
+      }
+    ]
+  },
+  {
+    "id": "angular-http-interceptors",
+    "subjectId": "angular",
+    "categoryId": "angular-rxjs",
+    "title": "HTTP Interceptors",
+    "description": "Intercepting and transforming outgoing requests and incoming responses.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["http", "interceptors", "functional-interceptors"],
+    "blocks": [
+      {
+        "id": "interceptor-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Functional Interceptors",
+        "content": "Modern Angular uses functional interceptors registered via `provideHttpClient(withInterceptors([...]))`. Each interceptor is a function `(req, next) => Observable<HttpEvent>` that can modify the request, short-circuit it, or transform the response.",
+        "keyPoints": [
+          "Interceptors run in the order they are provided, wrapping each other like middleware.",
+          "Common uses: attaching auth headers, logging, global error handling, retry logic.",
+          "`next(req)` forwards the (possibly cloned/modified) request to the next interceptor or the backend."
+        ]
+      },
+      {
+        "id": "interceptor-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "export const loggingInterceptor: HttpInterceptorFn = (req, next) => {\n  const started = Date.now();\n  return next(req).pipe(\n    tap(() => console.log(`${req.url} took ${Date.now() - started}ms`))\n  );\n};",
+        "explanation": "This interceptor measures request duration without modifying the request or response payload."
+      },
+      {
+        "id": "interceptor-question-1",
+        "type": "output-question",
+        "order": 3,
+        "question": "Requests are HTTP objects and immutable. What happens if you try `req.headers.set(...)` directly on the incoming `req`?",
+        "answer": "It has no effect on the outgoing request.",
+        "explanation": "HttpRequest instances are immutable; `headers.set()` returns a new HttpHeaders object rather than mutating in place. You must clone the request: `req.clone({ headers: req.headers.set('X-Auth', token) })`."
+      },
+      {
+        "id": "interceptor-question-2",
+        "type": "scenario-question",
+        "order": 4,
+        "question": "An auth interceptor attaches an access token to every request. The token expires mid-session and the API starts returning 401s. How do you refresh the token and retry the original request transparently, without duplicating the refresh call for every simultaneous 401?",
+        "answer": "Catch the 401 in the interceptor with `catchError`, and if a refresh isn't already in flight, call the refresh-token endpoint and share that single Observable (e.g. via `shareReplay(1)`) among all concurrently failing requests; once the refreshed token arrives, clone and retry each original request with the new token using `switchMap`.",
+        "explanation": "The key detail interviewers look for is deduplication: without a shared in-flight refresh Observable, five simultaneous 401s would trigger five separate refresh-token calls, and some auth servers invalidate the previous refresh token as soon as a new one is issued, causing a race that logs the user out."
+      }
+    ]
+  },
+  {
+    "id": "angular-onpush-performance",
+    "subjectId": "angular",
+    "categoryId": "angular-architecture",
+    "title": "Optimizing Change Detection for Large Dashboards",
+    "description": "Senior-level scenario: keeping a real-time dashboard responsive with hundreds of widgets.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 25,
+    "tags": ["performance", "architecture", "onpush", "trackby"],
+    "blocks": [
+      {
+        "id": "onpush-perf-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Layered Performance Strategy",
+        "content": "For a dashboard with hundreds of live-updating widgets, combine several techniques: OnPush on every widget component, immutable data updates (or signals), `track` expressions on @for loops to avoid full DOM re-creation, and splitting the update stream so unrelated widgets don't re-render on every tick.",
+        "keyPoints": [
+          "Use `track widget.id` in @for so Angular reuses DOM nodes instead of recreating them.",
+          "Batch incoming real-time updates (e.g. with `bufferTime`) instead of triggering change detection on every single message.",
+          "Consider virtual scrolling (CDK Virtual Scroll) when hundreds of widgets are rendered at once but only a handful are visible."
+        ]
+      },
+      {
+        "id": "onpush-perf-question-1",
+        "type": "scenario-question",
+        "order": 2,
+        "question": "You have a large real-time dashboard where a WebSocket pushes 50 updates/second across 300 widgets. The UI is janky. How would you optimize Angular's change detection here?",
+        "answer": "Make every widget OnPush with signal or immutable inputs, buffer/throttle the WebSocket stream so widgets update at a UI-friendly rate (e.g. 10fps) instead of on every message, use `track` for list rendering, and only route each update to the specific widget it affects instead of re-evaluating the whole tree.",
+        "explanation": "The goal is to shrink both how often change detection runs and how much of the tree it has to touch each time it does."
+      },
+      {
+        "id": "onpush-perf-mistake-1",
+        "type": "common-mistake",
+        "order": 3,
+        "mistake": "Subscribing to a shared real-time observable inside every widget component individually.",
+        "whyItHappens": "It seems simpler per-component, but it multiplies subscription and change-detection overhead by the number of widgets.",
+        "correctApproach": "Subscribe once at a higher level, slice the data per widget with `computed()`/`selectors`, and pass only the relevant slice down as an input."
+      },
+      {
+        "id": "onpush-perf-question-2",
+        "type": "interview-question",
+        "order": 4,
+        "question": "What does `NgZone.runOutsideAngular()` do, and when would you use it on this dashboard?",
+        "answer": "It runs a callback outside Zone.js's patched context, so anything scheduled inside it (timers, event listeners, WebSocket handlers) no longer automatically triggers Angular change detection — you opt back in manually (via `ngZone.run()` or a signal write) only when you actually have something worth rendering.",
+        "explanation": "On a dashboard receiving 50 WebSocket messages/second, you'd process and buffer incoming data inside `runOutsideAngular()`, and only re-enter the zone (or update a signal) at the throttled UI update rate — turning 50 potential change-detection passes per second into far fewer."
+      }
+    ]
+  }
+]

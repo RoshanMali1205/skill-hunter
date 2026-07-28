@@ -1,0 +1,219 @@
+[
+  {
+    "id": "angular",
+    "title": "Angular",
+    "description": "Standalone components, signals, change detection, RxJS, and architecture for senior Angular interviews.",
+    "icon": "angular",
+    "order": 1,
+    "categories": [
+      {
+        "id": "angular-fundamentals",
+        "subjectId": "angular",
+        "title": "Angular Fundamentals",
+        "description": "Standalone components, lifecycle hooks, and dependency injection.",
+        "order": 1,
+        "topics": [
+          { "id": "angular-standalone-components", "categoryId": "angular-fundamentals", "title": "Standalone Components", "description": "Building Angular components without NgModules.", "difficulty": "beginner", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["standalone", "components", "bootstrap"] },
+          { "id": "angular-lifecycle-hooks", "categoryId": "angular-fundamentals", "title": "Lifecycle Hooks", "description": "The sequence of hooks Angular calls as a component is created, updated, and destroyed.", "difficulty": "beginner", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["lifecycle", "ngOnInit", "ngOnDestroy"] },
+          { "id": "angular-dependency-injection", "categoryId": "angular-fundamentals", "title": "Dependency Injection", "description": "How Angular's hierarchical injector resolves and provides services.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["di", "injector", "providedIn", "inject"] }
+        ]
+      },
+      {
+        "id": "angular-change-detection",
+        "subjectId": "angular",
+        "title": "Change Detection & Signals",
+        "description": "Default vs OnPush, and Angular's fine-grained reactivity model.",
+        "order": 2,
+        "topics": [
+          { "id": "angular-change-detection", "categoryId": "angular-change-detection", "title": "Change Detection", "description": "How Angular decides when to re-render a component's view.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["change-detection", "zone.js", "onpush"] },
+          { "id": "angular-signals", "categoryId": "angular-change-detection", "title": "Signals", "description": "Angular's fine-grained reactive primitive for local and shared state.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 20, "tags": ["signals", "computed", "effect"] }
+        ]
+      },
+      {
+        "id": "angular-rxjs",
+        "subjectId": "angular",
+        "title": "RxJS & HTTP",
+        "description": "Flattening operators and functional HTTP interceptors.",
+        "order": 3,
+        "topics": [
+          { "id": "angular-rxjs-operators", "categoryId": "angular-rxjs", "title": "RxJS switchMap vs mergeMap", "description": "Choosing the right flattening operator for HTTP calls triggered by user input.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["rxjs", "switchMap", "mergeMap", "operators"] },
+          { "id": "angular-http-interceptors", "categoryId": "angular-rxjs", "title": "HTTP Interceptors", "description": "Intercepting and transforming outgoing requests and incoming responses.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["http", "interceptors", "functional-interceptors"] }
+        ]
+      },
+      {
+        "id": "angular-architecture",
+        "subjectId": "angular",
+        "title": "Architecture & Performance",
+        "description": "Senior-level scenarios for scaling and optimizing large Angular applications.",
+        "order": 4,
+        "topics": [
+          { "id": "angular-onpush-performance", "categoryId": "angular-architecture", "title": "Optimizing Change Detection for Large Dashboards", "description": "Senior-level scenario: keeping a real-time dashboard responsive with hundreds of widgets.", "difficulty": "advanced", "interviewPriority": "high", "estimatedMinutes": 25, "tags": ["performance", "architecture", "onpush", "trackby"] }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "javascript",
+    "title": "JavaScript",
+    "description": "Scope, closures, the event loop, prototypes, and the performance patterns interviewers love to probe.",
+    "icon": "javascript",
+    "order": 2,
+    "categories": [
+      {
+        "id": "js-scope-functions",
+        "subjectId": "javascript",
+        "title": "Scope & Functions",
+        "description": "var/let/const, hoisting, and the temporal dead zone.",
+        "order": 1,
+        "topics": [
+          { "id": "js-var-let-const", "categoryId": "js-scope-functions", "title": "var, let, and const", "description": "Differences in scoping and reassignment rules between the three declaration keywords.", "difficulty": "beginner", "interviewPriority": "must-know", "estimatedMinutes": 10, "tags": ["scope", "var", "let", "const"] },
+          { "id": "js-hoisting-tdz", "categoryId": "js-scope-functions", "title": "Hoisting and the Temporal Dead Zone", "description": "How declarations are processed before code executes.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["hoisting", "tdz", "scope"] }
+        ]
+      },
+      {
+        "id": "js-closures-async",
+        "subjectId": "javascript",
+        "title": "Closures & Async",
+        "description": "Closures, the event loop, and promises.",
+        "order": 2,
+        "topics": [
+          { "id": "js-closures", "categoryId": "js-closures-async", "title": "Closures", "description": "Understand lexical scope and closures in JavaScript.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["closure", "scope", "functions"] },
+          { "id": "js-event-loop", "categoryId": "js-closures-async", "title": "The Event Loop", "description": "How the call stack, task queue, and microtask queue coordinate to run asynchronous code.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 25, "tags": ["event-loop", "microtask", "macrotask"] },
+          { "id": "js-promises-async-await", "categoryId": "js-closures-async", "title": "Promises and async/await", "description": "Modeling asynchronous operations without callback pyramids.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["promises", "async-await", "error-handling"] }
+        ]
+      },
+      {
+        "id": "js-objects-prototypes",
+        "subjectId": "javascript",
+        "title": "Objects & Prototypes",
+        "description": "Prototype chain and the many faces of `this`.",
+        "order": 3,
+        "topics": [
+          { "id": "js-prototype-chain", "categoryId": "js-objects-prototypes", "title": "Prototypes and the Prototype Chain", "description": "How JavaScript objects inherit properties and methods.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["prototype", "inheritance", "classes"] },
+          { "id": "js-this-keyword", "categoryId": "js-objects-prototypes", "title": "Understanding this, call, apply, and bind", "description": "How the value of `this` is determined at call time, and how to control it explicitly.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["this", "call", "apply", "bind", "arrow-functions"] }
+        ]
+      },
+      {
+        "id": "js-performance-patterns",
+        "subjectId": "javascript",
+        "title": "Performance Patterns",
+        "description": "Rate-limiting techniques for expensive event handlers.",
+        "order": 4,
+        "topics": [
+          { "id": "js-debounce-throttle", "categoryId": "js-performance-patterns", "title": "Debounce and Throttle", "description": "Rate-limiting patterns for expensive or frequent event handlers.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["debounce", "throttle", "performance"] }
+        ]
+      },
+      {
+        "id": "js-coding-practice",
+        "subjectId": "javascript",
+        "title": "Coding Practice",
+        "description": "Predict-the-output and write-the-code drills covering hoisting, closures, references, array methods, this-binding, and the event loop.",
+        "order": 5,
+        "topics": [
+          { "id": "js-practice-hoisting-scope", "categoryId": "js-coding-practice", "title": "Coding Practice: Hoisting & Scope", "description": "Six short snippets that expose exactly how var, let, and function declarations are hoisted and scoped.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["hoisting", "scope", "var", "let", "tdz", "coding-practice"] },
+          { "id": "js-practice-closures", "categoryId": "js-coding-practice", "title": "Coding Practice: Closures", "description": "Four snippets that build up closure intuition, ending in the classic var-vs-let loop interview question.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["closures", "loops", "settimeout", "coding-practice"] },
+          { "id": "js-practice-references-destructuring", "categoryId": "js-coding-practice", "title": "Coding Practice: References, Destructuring, Rest & Spread", "description": "Object reference semantics, the shallow-copy trap, and the destructuring/rest/spread syntax that comes up in almost every interview.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["object-reference", "shallow-copy", "destructuring", "rest", "spread", "coding-practice"] },
+          { "id": "js-practice-array-methods", "categoryId": "js-coding-practice", "title": "Coding Practice: map, filter & reduce", "description": "The three array methods that show up in nearly every practical JavaScript interview exercise.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["map", "filter", "reduce", "array-methods", "coding-practice"] },
+          { "id": "js-practice-this-async-event-loop", "categoryId": "js-coding-practice", "title": "Coding Practice: this, call/apply/bind, Promises & the Event Loop", "description": "Five snippets covering the most senior-heavy JavaScript interview territory: this-binding and asynchronous execution order.", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 30, "tags": ["this", "call", "apply", "bind", "promise", "event-loop", "async-await", "coding-practice"] },
+          { "id": "js-practice-data-transformation", "categoryId": "js-coding-practice", "title": "Coding Practice: Real-World Data Transformation", "description": "A senior-level capstone problem: reshaping a flat array into a grouped lookup object using reduce().", "difficulty": "advanced", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["reduce", "group-by", "data-transformation", "coding-practice"] }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "typescript",
+    "title": "TypeScript",
+    "description": "Interfaces, generics, utility types, and the type-system tricks senior interviews probe for.",
+    "icon": "typescript",
+    "order": 3,
+    "categories": [
+      {
+        "id": "ts-basics",
+        "subjectId": "typescript",
+        "title": "Type System Basics",
+        "description": "Interfaces, type aliases, unions, and intersections.",
+        "order": 1,
+        "topics": [
+          { "id": "ts-interfaces-vs-types", "categoryId": "ts-basics", "title": "Interfaces vs Type Aliases", "description": "When to reach for `interface` versus `type` when modeling shapes.", "difficulty": "beginner", "interviewPriority": "high", "estimatedMinutes": 10, "tags": ["interfaces", "type-aliases"] },
+          { "id": "ts-union-intersection-types", "categoryId": "ts-basics", "title": "Union and Intersection Types", "description": "Combining types with `|` and `&`.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["union", "intersection", "type-guards"] }
+        ]
+      },
+      {
+        "id": "ts-generics-utility",
+        "subjectId": "typescript",
+        "title": "Generics & Utility Types",
+        "description": "Reusable type-safe abstractions and built-in type transformations.",
+        "order": 2,
+        "topics": [
+          { "id": "ts-generics", "categoryId": "ts-generics-utility", "title": "Generics", "description": "Writing reusable, type-safe functions and classes parameterized over types.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 20, "tags": ["generics", "constraints", "reusability"] },
+          { "id": "ts-utility-types", "categoryId": "ts-generics-utility", "title": "Utility Types", "description": "Built-in type transformations like Partial, Pick, Omit, and Record.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["utility-types", "partial", "pick", "omit", "record"] },
+          { "id": "ts-keyof-typeof", "categoryId": "ts-generics-utility", "title": "keyof and typeof", "description": "Deriving types from the shape of existing types and values.", "difficulty": "intermediate", "interviewPriority": "medium", "estimatedMinutes": 15, "tags": ["keyof", "typeof", "indexed-access"] }
+        ]
+      },
+      {
+        "id": "ts-advanced-types",
+        "subjectId": "typescript",
+        "title": "Advanced Types",
+        "description": "Discriminated unions and the unknown/any distinction.",
+        "order": 3,
+        "topics": [
+          { "id": "ts-discriminated-unions", "categoryId": "ts-advanced-types", "title": "Discriminated Unions", "description": "Modeling variant data safely using a shared literal tag field.", "difficulty": "advanced", "interviewPriority": "high", "estimatedMinutes": 20, "tags": ["discriminated-unions", "type-guards", "exhaustiveness"] },
+          { "id": "ts-unknown-vs-any", "categoryId": "ts-advanced-types", "title": "unknown vs any", "description": "Why `unknown` is the type-safe alternative to `any` for values of uncertain shape.", "difficulty": "beginner", "interviewPriority": "must-know", "estimatedMinutes": 10, "tags": ["unknown", "any", "type-safety"] }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ui",
+    "title": "UI Engineering",
+    "description": "HTML5, CSS, SCSS, and responsive design fundamentals for building accessible, adaptive interfaces.",
+    "icon": "ui",
+    "order": 4,
+    "categories": [
+      {
+        "id": "ui-css-fundamentals",
+        "subjectId": "ui",
+        "title": "CSS Fundamentals",
+        "description": "The box model, specificity, and the cascade.",
+        "order": 1,
+        "topics": [
+          { "id": "css-box-model", "categoryId": "ui-css-fundamentals", "title": "The CSS Box Model", "description": "Content, padding, border, and margin, and how box-sizing changes their math.", "difficulty": "beginner", "interviewPriority": "must-know", "estimatedMinutes": 10, "tags": ["box-model", "box-sizing"] },
+          { "id": "css-specificity-cascade", "categoryId": "ui-css-fundamentals", "title": "Specificity and the Cascade", "description": "How the browser decides which of several conflicting rules wins.", "difficulty": "intermediate", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["specificity", "cascade", "!important"] }
+        ]
+      },
+      {
+        "id": "ui-css-layout",
+        "subjectId": "ui",
+        "title": "CSS Layout",
+        "description": "Flexbox, Grid, and stacking contexts.",
+        "order": 2,
+        "topics": [
+          { "id": "css-flexbox", "categoryId": "ui-css-layout", "title": "Flexbox", "description": "One-dimensional layout for distributing space along a main and cross axis.", "difficulty": "beginner", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["flexbox", "layout"] },
+          { "id": "css-grid", "categoryId": "ui-css-layout", "title": "CSS Grid", "description": "Two-dimensional layout for rows and columns together.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 20, "tags": ["grid", "layout", "responsive"] },
+          { "id": "css-position-zindex-stacking", "categoryId": "ui-css-layout", "title": "Positioning and Stacking Contexts", "description": "How position values and z-index interact to determine paint order.", "difficulty": "intermediate", "interviewPriority": "high", "estimatedMinutes": 20, "tags": ["position", "z-index", "stacking-context"] }
+        ]
+      },
+      {
+        "id": "ui-responsive-design",
+        "subjectId": "ui",
+        "title": "Responsive Design",
+        "description": "Mobile-first media queries, fluid images, and fluid typography.",
+        "order": 3,
+        "topics": [
+          { "id": "responsive-media-queries-mobile-first", "categoryId": "ui-responsive-design", "title": "Mobile-First Media Queries", "description": "Structuring breakpoints so the base styles target the smallest screens.", "difficulty": "beginner", "interviewPriority": "must-know", "estimatedMinutes": 15, "tags": ["media-queries", "mobile-first", "breakpoints"] },
+          { "id": "responsive-images-and-typography", "categoryId": "ui-responsive-design", "title": "Responsive Images and Typography", "description": "Making images and text scale gracefully across device sizes.", "difficulty": "intermediate", "interviewPriority": "medium", "estimatedMinutes": 15, "tags": ["responsive-images", "fluid-typography", "clamp"] }
+        ]
+      },
+      {
+        "id": "ui-html-accessibility",
+        "subjectId": "ui",
+        "title": "HTML5 & Accessibility",
+        "description": "Semantic markup and accessible interactive elements.",
+        "order": 4,
+        "topics": [
+          { "id": "html5-semantic-elements-accessibility", "categoryId": "ui-html-accessibility", "title": "Semantic HTML and Accessibility Basics", "description": "Choosing the right elements so assistive technology and browsers understand page structure.", "difficulty": "beginner", "interviewPriority": "high", "estimatedMinutes": 15, "tags": ["semantic-html", "accessibility", "aria"] }
+        ]
+      }
+    ]
+  }
+]

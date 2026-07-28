@@ -1,0 +1,17 @@
+<div class="stack">
+  <div>
+    <h1>Subjects</h1>
+    <p class="subject-list__subtitle">Pick an area to prepare systematically.</p>
+  </div>
+
+  <div class="grid-cards">
+    @for (item of subjectMetrics(); track item.subject.id) {
+      <app-subject-card
+        [subject]="item.subject"
+        [completed]="item.completed"
+        [total]="item.total"
+        [percentage]="item.percentage"
+      />
+    }
+  </div>
+</div>

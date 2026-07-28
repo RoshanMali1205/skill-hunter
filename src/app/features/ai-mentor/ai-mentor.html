@@ -1,0 +1,59 @@
+<div class="ai-mentor">
+  <header class="ai-mentor__header">
+    <div>
+      <h1>AI Mentor</h1>
+      <p class="ai-mentor__subtitle">
+        Ask for explanations, practice questions, or feedback on your own answers.
+        @if (contextLabel(); as ctx) {
+          <span class="ai-mentor__context">Context: {{ ctx }}</span>
+        }
+      </p>
+    </div>
+    @if (messages().length > 0) {
+      <button type="button" class="btn btn--ghost" (click)="clearChat()">Clear chat</button>
+    }
+  </header>
+
+  <div class="ai-mentor__chat">
+    @if (messages().length === 0) {
+      <div class="ai-mentor__starter">
+        <p>Try one of these, or type your own question below:</p>
+        <div class="ai-mentor__prompts">
+          @for (item of quickPrompts; track item.label) {
+            <button type="button" class="btn" (click)="sendPrompt(item.prompt)">{{ item.label }}</button>
+          }
+        </div>
+      </div>
+    }
+
+    @for (message of messages(); track $index) {
+      <div class="ai-mentor__bubble" [class.ai-mentor__bubble--user]="message.role === 'user'">
+        <span class="ai-mentor__role">{{ message.role === 'user' ? 'You' : 'AI Mentor' }}</span>
+        <p>{{ message.content }}</p>
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="ai-mentor__bubble">
+        <span class="ai-mentor__role">AI Mentor</span>
+        <p class="ai-mentor__thinking">Thinking…</p>
+      </div>
+    }
+
+    @if (errorMessage(); as error) {
+      <div class="ai-mentor__error" role="alert">{{ error }}</div>
+    }
+  </div>
+
+  <form class="ai-mentor__composer" (submit)="$event.preventDefault(); sendDraft()">
+    <textarea
+      [ngModel]="draft()"
+      (ngModelChange)="draft.set($event)"
+      name="draft"
+      rows="2"
+      placeholder="Ask about a concept, request a practice question, or paste your answer for review..."
+      (keydown.enter)="$event.preventDefault(); sendDraft()"
+    ></textarea>
+    <button type="submit" class="btn btn--primary" [disabled]="loading() || !draft().trim()">Send</button>
+  </form>
+</div>

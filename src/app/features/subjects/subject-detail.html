@@ -1,0 +1,47 @@
+@if (subject(); as subject) {
+  <div class="stack">
+    <app-breadcrumb
+      [items]="[{ label: 'Subjects', link: ['/subjects'] }, { label: subject.title }]"
+    />
+
+    <div>
+      <h1>{{ subject.title }}</h1>
+      <p class="subject-detail__description">{{ subject.description }}</p>
+      @if (metrics(); as m) {
+        <p class="subject-detail__count">
+          Progress: {{ m.percentage }}% &mdash; Completed {{ m.completed }} / {{ m.total }} topics
+        </p>
+      }
+    </div>
+
+    <app-filter-panel [filter]="filter()" (filterChange)="filter.set($event)" />
+
+    @if (filteredCategories().length === 0) {
+      <app-empty-state
+        title="No topics match your filters"
+        message="Try adjusting or clearing your filters."
+      />
+    } @else {
+      @for (entry of filteredCategories(); track entry.category.id) {
+        <section class="subject-detail__category">
+          <h2>{{ entry.category.title }}</h2>
+          <div class="grid-cards">
+            @for (topic of entry.topics; track topic.id) {
+              <app-topic-card
+                [topic]="topic"
+                [subjectId]="subject.id"
+                [status]="statusFor(topic.id)"
+                [bookmarked]="isBookmarked(topic.id)"
+              />
+            }
+          </div>
+        </section>
+      }
+    }
+  </div>
+} @else {
+  <app-empty-state
+    title="We couldn't load this subject."
+    message="Please return to the subjects list and try again."
+  />
+}

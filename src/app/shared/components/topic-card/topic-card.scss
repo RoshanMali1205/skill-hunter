@@ -1,0 +1,62 @@
+@use 'mixins' as *;
+
+.topic-card {
+  @include card;
+  @include focus-ring;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+  }
+
+  &--completed {
+    border-left: 3px solid var(--color-success);
+  }
+}
+
+.topic-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+
+  h4 {
+    font-size: 1rem;
+  }
+}
+
+.topic-card__bookmark {
+  color: var(--color-warning);
+}
+
+.topic-card__description {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.topic-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.topic-card__status {
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  &--completed {
+    color: var(--color-success);
+  }
+
+  &--progress {
+    color: var(--color-accent);
+  }
+}

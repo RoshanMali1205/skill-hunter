@@ -42,3 +42,12 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Netlify
+/.netlify
+deno.lock
+
+# Environment variables / secrets — never commit real API keys
+.env
+.env.*
+!.env.example

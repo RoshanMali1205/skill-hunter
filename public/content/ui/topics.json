@@ -1,0 +1,342 @@
+[
+  {
+    "id": "css-box-model",
+    "subjectId": "ui",
+    "categoryId": "ui-css-fundamentals",
+    "title": "The CSS Box Model",
+    "description": "Content, padding, border, and margin, and how box-sizing changes their math.",
+    "difficulty": "beginner",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 10,
+    "tags": ["box-model", "box-sizing"],
+    "blocks": [
+      {
+        "id": "box-model-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Every element is a box made of content, padding, border, and margin, in that order from the inside out. With the default `box-sizing: content-box`, `width`/`height` apply only to the content area, so padding and border add to the rendered size. `box-sizing: border-box` makes `width`/`height` include padding and border instead.",
+        "keyPoints": [
+          "Margins collapse vertically between adjacent block elements; padding and border never do.",
+          "`* { box-sizing: border-box; }` is a near-universal reset because it makes sizing math predictable.",
+          "Margin creates space outside the border; padding creates space inside it, still part of the element's background."
+        ]
+      },
+      {
+        "id": "box-model-question-1",
+        "type": "output-question",
+        "order": 2,
+        "question": "With `box-sizing: content-box`, what is the rendered width of this element?",
+        "code": ".box {\n  width: 200px;\n  padding: 20px;\n  border: 5px solid black;\n}",
+        "language": "css",
+        "answer": "250px",
+        "explanation": "content-box adds padding and border on top of the specified width: 200 + (20 * 2) + (5 * 2) = 250px."
+      },
+      {
+        "id": "box-model-question-2",
+        "type": "output-question",
+        "order": 3,
+        "question": "Same element, but with `box-sizing: border-box`. Now what is the rendered width?",
+        "code": ".box {\n  box-sizing: border-box;\n  width: 200px;\n  padding: 20px;\n  border: 5px solid black;\n}",
+        "language": "css",
+        "answer": "200px.",
+        "explanation": "border-box makes `width` the final rendered width — padding and border are subtracted from the content area to fit inside that 200px, rather than added on top of it. This is why `* { box-sizing: border-box; }` is such a common global reset: it makes a component's declared width its actual width, regardless of how much padding/border you add later."
+      }
+    ]
+  },
+  {
+    "id": "css-specificity-cascade",
+    "subjectId": "ui",
+    "categoryId": "ui-css-fundamentals",
+    "title": "Specificity and the Cascade",
+    "description": "How the browser decides which of several conflicting rules wins.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 15,
+    "tags": ["specificity", "cascade", "!important"],
+    "blocks": [
+      {
+        "id": "specificity-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "When multiple rules target the same element, the browser resolves the conflict using, in order: importance (`!important` and origin), specificity, and source order. Specificity is calculated as a tuple of (inline styles, ID selectors, class/attribute/pseudo-class selectors, type/pseudo-element selectors).",
+        "keyPoints": [
+          "An ID selector (#id) always outweighs any number of class selectors.",
+          "`!important` overrides normal specificity but should be used sparingly — it's very hard to override later.",
+          "When specificity ties, the rule that appears later in the stylesheet (or later in document order for equally specific sheets) wins."
+        ]
+      },
+      {
+        "id": "specificity-question-1",
+        "type": "tricky-question",
+        "order": 2,
+        "question": "Which rule wins: `.card .title { color: blue; }` or `#page .title { color: red; }`?",
+        "answer": "The ID-based rule (`#page .title`) wins, so the text is red.",
+        "explanation": "Specificity is (0,1,1) for `#page .title` (one ID, one class) vs (0,0,2) for `.card .title` (two classes). The ID selector outweighs the extra class."
+      },
+      {
+        "id": "specificity-question-2",
+        "type": "interview-question",
+        "order": 3,
+        "question": "You inherit a codebase littered with `!important`. What CSS feature introduced in the last few years gives you a *structured* alternative to reaching for `!important` to control precedence?",
+        "answer": "`@layer` (CSS Cascade Layers). It lets you group rules into named layers whose *order of declaration* decides precedence, regardless of each rule's own specificity — a layer declared later always beats one declared earlier, so a low-specificity rule in a later layer can override a high-specificity rule in an earlier layer without any `!important`.",
+        "explanation": "A common setup is `@layer reset, base, components, utilities, overrides;` — third-party/reset CSS goes in the earliest layers, app styles in the middle, and true one-off overrides in the last layer, giving you `!important`-level control while keeping every individual rule's specificity meaningful and debuggable."
+      }
+    ]
+  },
+  {
+    "id": "css-flexbox",
+    "subjectId": "ui",
+    "categoryId": "ui-css-layout",
+    "title": "Flexbox",
+    "description": "One-dimensional layout for distributing space along a main and cross axis.",
+    "difficulty": "beginner",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 15,
+    "tags": ["flexbox", "layout"],
+    "blocks": [
+      {
+        "id": "flexbox-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Flexbox lays out children of a `display: flex` container along a main axis (row by default) and a cross axis (column by default). `justify-content` aligns items along the main axis; `align-items` aligns them along the cross axis. `flex-grow`, `flex-shrink`, and `flex-basis` (shorthand `flex`) control how individual items resize to fill or fit the container.",
+        "keyPoints": [
+          "`flex: 1` is shorthand for `flex-grow: 1; flex-shrink: 1; flex-basis: 0%`, making an item grow to fill available space.",
+          "`gap` sets consistent spacing between flex children without needing margin hacks.",
+          "`flex-wrap: wrap` allows items to flow onto new lines instead of shrinking indefinitely."
+        ]
+      },
+      {
+        "id": "flexbox-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "scss",
+        "code": ".toolbar {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 12px;\n}\n\n.toolbar__spacer {\n  flex: 1;\n}",
+        "explanation": "The spacer element grows to absorb all extra horizontal space, pushing the elements on either side of it to the edges of the toolbar."
+      },
+      {
+        "id": "flexbox-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "What is the difference between justify-content and align-items?",
+        "answer": "justify-content aligns items along the main axis (horizontal in a row container); align-items aligns items along the cross axis (vertical in a row container).",
+        "explanation": "If `flex-direction: column` is set, the main and cross axes swap, so justify-content becomes vertical and align-items becomes horizontal."
+      },
+      {
+        "id": "flexbox-question-2",
+        "type": "tricky-question",
+        "order": 4,
+        "question": "You put a long, unbroken filename inside a flex item with `flex: 1`, expecting it to shrink and truncate with an ellipsis. Instead it overflows its container. What's going on?",
+        "answer": "Flex items have an implicit `min-width: auto` (and `min-height: auto` in a column) by default, which means a flex item will never shrink below its content's intrinsic size — even with `flex-shrink` set — unless you explicitly override that minimum.",
+        "explanation": "The fix is `min-width: 0` (or `overflow: hidden` combined with it) on the flex item, which lets it actually shrink smaller than its content, so a subsequent `text-overflow: ellipsis; white-space: nowrap; overflow: hidden;` can do its job. This is one of the most common real-world Flexbox layout bugs and a strong senior-level signal when someone can explain it unprompted."
+      }
+    ]
+  },
+  {
+    "id": "css-grid",
+    "subjectId": "ui",
+    "categoryId": "ui-css-layout",
+    "title": "CSS Grid",
+    "description": "Two-dimensional layout for rows and columns together.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 20,
+    "tags": ["grid", "layout", "responsive"],
+    "blocks": [
+      {
+        "id": "grid-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "CSS Grid lets a container define explicit rows and columns simultaneously, unlike flexbox's single-axis model. `grid-template-columns: repeat(auto-fit, minmax(240px, 1fr))` is a common responsive pattern: it fits as many 240px+ columns as will fit, and stretches them evenly to fill remaining space.",
+        "keyPoints": [
+          "`fr` units divide remaining space proportionally after fixed-size tracks are accounted for.",
+          "`auto-fit` collapses empty tracks; `auto-fill` keeps them, leaving visible gaps.",
+          "Named grid areas (`grid-template-areas`) can make complex layouts self-documenting."
+        ]
+      },
+      {
+        "id": "grid-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "scss",
+        "code": ".grid-cards {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));\n  gap: 16px;\n}",
+        "explanation": "This single rule replaces multiple hand-written media queries for a card grid that reflows automatically as the viewport width changes."
+      },
+      {
+        "id": "grid-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "When would you reach for Grid instead of Flexbox?",
+        "answer": "When you need to control both rows and columns together (a true two-dimensional layout), such as a page-level layout or a card grid with aligned rows and columns; Flexbox is better suited to one-dimensional distribution like a toolbar or nav bar.",
+        "explanation": "They are complementary: many UIs use Grid for the page/section layout and Flexbox for the internals of individual components."
+      },
+      {
+        "id": "grid-question-2",
+        "type": "scenario-question",
+        "order": 4,
+        "question": "Build a classic 'holy grail' layout — header spanning the full width, a fixed-width sidebar, a flexible main content area, and a footer spanning the full width — using named grid-template-areas.",
+        "answer": ".layout {\n  display: grid;\n  grid-template-columns: 240px 1fr;\n  grid-template-rows: auto 1fr auto;\n  grid-template-areas:\n    \"header header\"\n    \"sidebar main\"\n    \"footer footer\";\n}\n\n.header { grid-area: header; }\n.sidebar { grid-area: sidebar; }\n.main { grid-area: main; }\n.footer { grid-area: footer; }",
+        "explanation": "grid-template-areas turns the layout into a readable ASCII diagram right in the CSS — each row of the string maps to a grid row, each word to a column, and repeating a name (like `header header`) makes that area span multiple columns. It's self-documenting in a way raw grid-column/grid-row line numbers usually aren't."
+      }
+    ]
+  },
+  {
+    "id": "css-position-zindex-stacking",
+    "subjectId": "ui",
+    "categoryId": "ui-css-layout",
+    "title": "Positioning and Stacking Contexts",
+    "description": "How position values and z-index interact to determine paint order.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 20,
+    "tags": ["position", "z-index", "stacking-context"],
+    "blocks": [
+      {
+        "id": "stacking-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "`z-index` only has an effect on positioned elements (`position` other than `static`), and it only compares elements within the same stacking context. Certain CSS properties (opacity < 1, transform, filter, will-change, an explicit `isolation: isolate`) create a new stacking context, trapping z-index comparisons for descendants inside it.",
+        "keyPoints": [
+          "A child with `z-index: 9999` still renders below a sibling of its parent if the parent itself has a lower stacking order.",
+          "`position: fixed`/`sticky` elements establish a new containing block relative to the viewport or nearest scroll container.",
+          "Debugging a 'z-index not working' bug almost always means finding an ancestor that unexpectedly created a new stacking context."
+        ]
+      },
+      {
+        "id": "stacking-question-1",
+        "type": "tricky-question",
+        "order": 2,
+        "question": "A dropdown menu has `z-index: 1000` but still renders behind a sibling card that has `z-index: 1`. Both are positioned. What's the likely cause?",
+        "answer": "The dropdown's parent container likely has a lower stacking order than the card's parent (or the card's ancestor creates a stacking context with a higher order), so the dropdown's high z-index only wins within its own parent's context, not globally.",
+        "explanation": "Because z-index comparisons are scoped to the nearest stacking context, a very high z-index value inside a 'losing' context can never escape and beat an element in a 'winning' sibling context."
+      },
+      {
+        "id": "stacking-question-2",
+        "type": "tricky-question",
+        "order": 3,
+        "question": "You add `position: sticky; top: 0;` to a table header, but it scrolls away with the rest of the table instead of sticking. What's the most likely cause?",
+        "answer": "An ancestor of the sticky element has `overflow: hidden`, `overflow: auto`, or `overflow: scroll` set — sticky positioning is computed relative to the nearest ancestor with a scrolling mechanism (or the viewport if none exists), and if that ancestor clips overflow, the sticky element can only 'stick' within that ancestor's box, which often makes it look like it isn't sticking at all if the ancestor itself scrolls out of view.",
+        "explanation": "This is one of the most reported 'position: sticky isn't working' bugs. The fix is either removing the offending `overflow` from the ancestor, or restructuring so the scrollable container is the one you actually want the sticky element to stick within."
+      }
+    ]
+  },
+  {
+    "id": "responsive-media-queries-mobile-first",
+    "subjectId": "ui",
+    "categoryId": "ui-responsive-design",
+    "title": "Mobile-First Media Queries",
+    "description": "Structuring breakpoints so the base styles target the smallest screens.",
+    "difficulty": "beginner",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 15,
+    "tags": ["media-queries", "mobile-first", "breakpoints"],
+    "blocks": [
+      {
+        "id": "mobile-first-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Mobile-first CSS writes unprefixed base styles for the smallest screens, then layers on `min-width` media queries to progressively enhance the layout for larger viewports. This keeps small-screen styles simple (no overrides to undo) and generally produces smaller, more maintainable stylesheets than a desktop-first approach using `max-width` overrides.",
+        "keyPoints": [
+          "Use `min-width` queries stacked in ascending order: mobile styles first, then tablet, then desktop overrides.",
+          "A shared SCSS breakpoint map plus a `respond-to()` mixin avoids scattering magic pixel values across the codebase.",
+          "Avoid designing exclusively at one fixed width — test the fluid range between breakpoints too."
+        ]
+      },
+      {
+        "id": "mobile-first-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "scss",
+        "code": ".app-shell {\n  display: block;\n\n  @include respond-to(desktop) {\n    display: grid;\n    grid-template-columns: var(--sidebar-width) 1fr;\n  }\n}",
+        "explanation": "Mobile gets a simple stacked block layout by default; only from the desktop breakpoint up does the layout switch to a sidebar + content grid."
+      },
+      {
+        "id": "mobile-first-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "How is a CSS container query different from a media query, and when would you reach for one instead of the other?",
+        "answer": "A media query responds to the viewport's size; a container query (`@container`) responds to the size of a specific containing element, regardless of the viewport. You'd use a container query when a component (e.g. a card) needs to adapt its own layout based on the space it's actually given — inside a narrow sidebar vs a wide main column — which a viewport-based media query can't express, since the viewport could be wide while that particular container is narrow.",
+        "explanation": "Container queries make components genuinely reusable and self-adapting across contexts, which is exactly the gap the LLD's own 'container queries concepts' item under Responsive Design points at — a card component styled with `@container (min-width: 400px) { ... }` behaves correctly whether it's dropped into a full-width page or a narrow sidebar widget."
+      }
+    ]
+  },
+  {
+    "id": "responsive-images-and-typography",
+    "subjectId": "ui",
+    "categoryId": "ui-responsive-design",
+    "title": "Responsive Images and Typography",
+    "description": "Making images and text scale gracefully across device sizes.",
+    "difficulty": "intermediate",
+    "interviewPriority": "medium",
+    "estimatedMinutes": 15,
+    "tags": ["responsive-images", "fluid-typography", "clamp"],
+    "blocks": [
+      {
+        "id": "responsive-images-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "`max-width: 100%; height: auto;` prevents images from overflowing their container while preserving aspect ratio. `srcset`/`sizes` let the browser choose an appropriately sized image file for the viewport and pixel density instead of always downloading the largest version. `clamp(min, preferred, max)` produces fluid typography that scales smoothly between breakpoints without a media query for every step.",
+        "keyPoints": [
+          "`clamp(1rem, 0.5rem + 2vw, 1.5rem)` scales font-size fluidly while staying within sensible bounds.",
+          "Serving correctly sized images (via srcset) is one of the highest-leverage performance wins on image-heavy pages.",
+          "Fluid type avoids the 'too small on mobile, too large on desktop' problem of a single fixed font-size."
+        ]
+      },
+      {
+        "id": "responsive-images-question-1",
+        "type": "interview-question",
+        "order": 2,
+        "question": "Why use clamp() for font sizes instead of writing a media query per breakpoint?",
+        "answer": "clamp() scales continuously with the viewport between the min and max bounds, so text size feels natural at every width in between, not just at the exact breakpoints where a media query would apply a fixed jump.",
+        "explanation": "It also reduces the number of media queries needed just for typography, keeping the stylesheet smaller."
+      },
+      {
+        "id": "responsive-images-question-2",
+        "type": "scenario-question",
+        "order": 3,
+        "question": "Images loading on a slow connection cause the whole page to jump as each one finishes loading and pushes content down. How do you prevent this layout shift using CSS alone, without knowing an image's dimensions in advance server-side?",
+        "answer": "Set an explicit `width` and `height` attribute (or CSS `aspect-ratio`) on the `<img>` element even though the displayed size is responsive — the browser uses the width/height ratio to reserve the correct amount of space in the layout before the image has actually downloaded, then scales the image to fit that reserved box via `max-width: 100%; height: auto;`.",
+        "explanation": "This directly targets Cumulative Layout Shift (CLS), one of Google's Core Web Vitals — the browser doesn't need the actual pixel dimensions ahead of time, just the *aspect ratio*, which `width`/`height` attributes (or an explicit `aspect-ratio: 16 / 9;` rule) provide instantly from markup alone, before any image bytes arrive."
+      }
+    ]
+  },
+  {
+    "id": "html5-semantic-elements-accessibility",
+    "subjectId": "ui",
+    "categoryId": "ui-html-accessibility",
+    "title": "Semantic HTML and Accessibility Basics",
+    "description": "Choosing the right elements so assistive technology and browsers understand page structure.",
+    "difficulty": "beginner",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["semantic-html", "accessibility", "aria"],
+    "blocks": [
+      {
+        "id": "semantic-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Semantic elements (`<nav>`, `<main>`, `<button>`, `<header>`, `<article>`) communicate meaning and behavior that a generic `<div>` cannot, giving screen readers and browsers built-in landmarks, keyboard behavior, and default accessible roles for free.",
+        "keyPoints": [
+          "A native `<button>` gets keyboard focus, Enter/Space activation, and the 'button' role for free; a `<div onclick>` gets none of that without extra ARIA and JS.",
+          "ARIA attributes should supplement semantic HTML, not replace it — 'no ARIA is better than bad ARIA'.",
+          "Landmarks like `<nav>`, `<main>`, and `<footer>` let screen reader users jump directly between page regions."
+        ]
+      },
+      {
+        "id": "semantic-question-1",
+        "type": "common-mistake",
+        "order": 2,
+        "mistake": "Building a clickable card as `<div class=\"card\" onclick=\"...\">` instead of a real interactive element.",
+        "whyItHappens": "Divs are the default building block and visually easy to style, so it's tempting to attach a click handler directly.",
+        "correctApproach": "Wrap the card content in a `<button>` or `<a>` (styled to look like the card), so keyboard users can Tab to it and activate it with Enter/Space, and screen readers announce it as interactive."
+      },
+      {
+        "id": "semantic-question-2",
+        "type": "interview-question",
+        "order": 3,
+        "question": "What's the difference between `aria-label` and `aria-labelledby`, and when would you use each?",
+        "answer": "`aria-label` provides an accessible name as a literal string directly on the element — useful when there's no visible text to reference (e.g. an icon-only close button: `aria-label=\"Close dialog\"`). `aria-labelledby` instead points, by id, to one or more *existing* elements whose text content becomes the accessible name — useful when the label is already visible on the page and you don't want to duplicate the text.",
+        "explanation": "A common real example: a search input with a visible `<span id=\"search-label\">Search topics</span>` should use `aria-labelledby=\"search-label\"` on the input rather than repeating the same text in a redundant `aria-label`, keeping the visible label and the accessible name as a single source of truth."
+      }
+    ]
+  }
+]

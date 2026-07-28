@@ -1,0 +1,80 @@
+@use 'mixins' as *;
+
+.settings__subtitle {
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+.settings__card {
+  @include card;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  &--danger {
+    border-color: color-mix(in srgb, var(--color-danger) 40%, var(--color-border));
+  }
+}
+
+.settings__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.9rem;
+
+  select {
+    @include touch-target;
+    @include focus-ring;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-surface);
+    color: var(--color-text);
+    max-width: 260px;
+  }
+
+  &--checkbox {
+    flex-direction: row;
+    align-items: center;
+
+    input {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.settings__muted {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.settings__file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+label.btn {
+  position: relative;
+  cursor: pointer;
+}
+
+.settings__success {
+  color: var(--color-success);
+  font-size: 0.9rem;
+}
+
+.settings__error {
+  color: var(--color-danger);
+  font-size: 0.9rem;
+}
+
+.settings__confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}

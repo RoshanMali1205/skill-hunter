@@ -1,0 +1,128 @@
+<div class="stack">
+  <div>
+    <h1>Practice</h1>
+    <p class="practice__subtitle">Test yourself against realistic interview questions.</p>
+  </div>
+
+  @if (!started()) {
+    <div class="practice__filters">
+      <label class="practice__field">
+        <span>Subject</span>
+        <select
+          [ngModel]="filter().subjectId ?? ''"
+          (ngModelChange)="updateFilter({ subjectId: $event || undefined, categoryId: undefined })"
+        >
+          <option value="">All Subjects</option>
+          @for (subject of subjects(); track subject.id) {
+            <option [value]="subject.id">{{ subject.title }}</option>
+          }
+        </select>
+      </label>
+
+      @if (selectedSubjectCategories().length > 0) {
+        <label class="practice__field">
+          <span>Category</span>
+          <select
+            [ngModel]="filter().categoryId ?? ''"
+            (ngModelChange)="updateFilter({ categoryId: $event || undefined })"
+          >
+            <option value="">All Categories</option>
+            @for (category of selectedSubjectCategories(); track category.id) {
+              <option [value]="category.id">{{ category.title }}</option>
+            }
+          </select>
+        </label>
+      }
+
+      <label class="practice__field">
+        <span>Difficulty</span>
+        <select
+          [ngModel]="filter().difficulty ?? 'all'"
+          (ngModelChange)="updateFilter({ difficulty: $event })"
+        >
+          <option value="all">All</option>
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+        </select>
+      </label>
+
+      <label class="practice__field">
+        <span>Question Type</span>
+        <select
+          [ngModel]="filter().questionType ?? 'all'"
+          (ngModelChange)="updateFilter({ questionType: $event })"
+        >
+          <option value="all">All</option>
+          <option value="output-question">Code Output</option>
+          <option value="interview-question">Interview Question</option>
+          <option value="tricky-question">Tricky Question</option>
+          <option value="scenario-question">Scenario Question</option>
+        </select>
+      </label>
+
+      <label class="practice__field practice__field--checkbox">
+        <input
+          type="checkbox"
+          [ngModel]="filter().onlyBookmarked"
+          (ngModelChange)="updateFilter({ onlyBookmarked: $event })"
+        />
+        <span>Only bookmarked questions</span>
+      </label>
+
+      <label class="practice__field practice__field--checkbox">
+        <input
+          type="checkbox"
+          [ngModel]="filter().onlyWeak"
+          (ngModelChange)="updateFilter({ onlyWeak: $event })"
+        />
+        <span>Only weak topics</span>
+      </label>
+
+      <label class="practice__field practice__field--checkbox">
+        <input
+          type="checkbox"
+          [ngModel]="filter().random"
+          (ngModelChange)="updateFilter({ random: $event })"
+        />
+        <span>Random order</span>
+      </label>
+
+      <button type="button" class="btn btn--primary" (click)="startPractice()">
+        Generate Questions
+      </button>
+    </div>
+  } @else if (sessionComplete()) {
+    <div class="practice__summary">
+      <h2>Session Complete</h2>
+      <dl class="practice__summary-stats">
+        <div><dt>Correct</dt><dd>{{ sessionResults().correct }}</dd></div>
+        <div><dt>Incorrect</dt><dd>{{ sessionResults().incorrect }}</dd></div>
+        <div><dt>Needs Revision</dt><dd>{{ sessionResults().needsRevision }}</dd></div>
+      </dl>
+      <button type="button" class="btn btn--primary" (click)="restart()">
+        Start New Session
+      </button>
+    </div>
+  } @else if (pool().length === 0) {
+    <app-empty-state
+      title="No questions match your filters"
+      message="Try widening your filters and generating questions again."
+    >
+      <button type="button" class="btn" (click)="restart()">Back to Filters</button>
+    </app-empty-state>
+  } @else if (currentQuestion(); as current) {
+    <div class="practice__session">
+      <p class="practice__progress">
+        Question {{ currentIndex() + 1 }} of {{ pool().length }} &middot; {{ current.topicTitle }}
+      </p>
+      <app-question-card
+        [question]="current.block"
+        [showSelfAssessment]="true"
+        [bookmarked]="isQuestionBookmarked(current.block.id)"
+        (bookmarkToggled)="toggleQuestionBookmark(current.block.id, current.topicId, current.subjectId)"
+        (assessed)="onAssessed($event)"
+      />
+    </div>
+  }
+</div>

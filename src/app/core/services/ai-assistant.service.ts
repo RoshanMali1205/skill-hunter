@@ -1,0 +1,24 @@
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable, catchError, map, throwError } from 'rxjs';
+import { AiChatContext, AiChatError, AiChatMessage, AiChatResponse } from '../models';
+
+@Injectable({ providedIn: 'root' })
+export class AiAssistantService {
+  private readonly http = inject(HttpClient);
+
+  sendMessage(messages: AiChatMessage[], context?: AiChatContext): Observable<string> {
+    return this.http.post<AiChatResponse>('/api/ai-chat', { messages, context }).pipe(
+      map((res) => res.reply),
+      catchError((err: HttpErrorResponse) => throwError(() => new Error(this.describeError(err)))),
+    );
+  }
+
+  private describeError(err: HttpErrorResponse): string {
+    if (err.status === 0) {
+      return 'Could not reach the AI backend. Locally, run this app with `netlify dev` (not plain `ng serve`) so the /api/ai-chat function is available; on a deployed site, check that the Netlify function deployed successfully.';
+    }
+    const body = err.error as AiChatError | undefined;
+    return body?.error ?? `AI request failed (HTTP ${err.status}).`;
+  }
+}

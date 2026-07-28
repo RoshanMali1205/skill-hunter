@@ -1,0 +1,59 @@
+<div class="stack">
+  <div>
+    <h1>Bookmarks</h1>
+    <p class="bookmarks__subtitle">Topics and questions you've saved for quick access.</p>
+  </div>
+
+  <section>
+    <h2>Bookmarked Topics ({{ topicBookmarks().length }})</h2>
+    @if (topicBookmarks().length === 0) {
+      <app-empty-state
+        title="No bookmarked topics yet"
+        message="Bookmark a topic from its detail page to see it here."
+      />
+    } @else {
+      <div class="grid-cards">
+        @for (topic of topicBookmarks(); track topic.id) {
+          <div class="bookmarks__topic-item">
+            <app-topic-card
+              [topic]="topic"
+              [subjectId]="topic.subjectId"
+              [status]="statusFor(topic.id)"
+              [bookmarked]="true"
+            />
+            <button
+              type="button"
+              class="btn btn--ghost bookmarks__remove"
+              (click)="removeTopicBookmark(topic.id, topic.subjectId)"
+            >
+              Remove bookmark
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section>
+    <h2>Bookmarked Questions ({{ questionBookmarks().length }})</h2>
+    @if (questionBookmarks().length === 0) {
+      <app-empty-state
+        title="No bookmarked questions yet"
+        message="Bookmark a question from a topic page to revisit it here."
+      />
+    } @else {
+      <div class="stack">
+        @for (item of questionBookmarks(); track item.question.id) {
+          <div>
+            <p class="bookmarks__question-topic">{{ item.topicTitle }}</p>
+            <app-question-card
+              [question]="item.question"
+              [bookmarked]="true"
+              (bookmarkToggled)="removeQuestionBookmark(item.question.id, item.topicId, item.subjectId)"
+            />
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

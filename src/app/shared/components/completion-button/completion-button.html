@@ -1,0 +1,12 @@
+<button
+  type="button"
+  class="btn"
+  [class.btn--primary]="status() === 'completed'"
+  (click)="toggled.emit()"
+>
+  @if (status() === 'completed') {
+    <span aria-hidden="true">✓</span> Completed
+  } @else {
+    Mark Complete
+  }
+</button>

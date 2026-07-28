@@ -1,0 +1,82 @@
+<div class="stack">
+  <div>
+    <h1>Welcome Back</h1>
+    <p class="dashboard__subtitle">Here's where your interview preparation stands today.</p>
+  </div>
+
+  <section class="dashboard__overall">
+    <h2>Overall Progress</h2>
+    <app-progress-bar [percentage]="metrics().completionPercentage" />
+    <p class="dashboard__overall-count">
+      {{ metrics().completedTopics }} / {{ metrics().totalTopics }} topics completed
+    </p>
+  </section>
+
+  <section>
+    <h2>Subject Progress</h2>
+    <div class="grid-cards">
+      @for (item of subjectMetrics(); track item.subject.id) {
+        <a class="dashboard__subject" [routerLink]="['/subjects', item.subject.id]">
+          <div class="dashboard__subject-header">
+            <span>{{ item.subject.title }}</span>
+            <span>{{ item.percentage }}%</span>
+          </div>
+          <app-progress-bar [percentage]="item.percentage" />
+        </a>
+      }
+    </div>
+  </section>
+
+  <div class="grid-cards">
+    <section class="dashboard__card">
+      <h2>Continue Learning</h2>
+      @if (continueLearning(); as cl) {
+        <a
+          class="dashboard__continue-link"
+          [routerLink]="['/subjects', cl.subjectId, 'topics', cl.topic.id]"
+        >
+          {{ cl.topic.title }}
+        </a>
+      } @else {
+        <p class="dashboard__muted">Start a topic to see it here next time.</p>
+      }
+    </section>
+
+    <section class="dashboard__card">
+      <h2>Must Revise</h2>
+      @if (weakTopics().length === 0) {
+        <p class="dashboard__muted">No weak topics identified yet.</p>
+      } @else {
+        <ul class="dashboard__list">
+          @for (weak of weakTopics(); track weak.topic.id) {
+            <li>
+              <a [routerLink]="['/subjects', weak.subjectId, 'topics', weak.topic.id]">{{
+                weak.topic.title
+              }}</a>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section class="dashboard__card">
+      <h2>Bookmarked</h2>
+      <p class="dashboard__big-number">{{ metrics().bookmarkedTopics }}</p>
+      <a routerLink="/bookmarks">View bookmarks</a>
+    </section>
+
+    <section class="dashboard__card">
+      <h2>Practice Summary</h2>
+      @if (metrics().questionsAttempted === 0) {
+        <p class="dashboard__muted">No practice attempts yet.</p>
+      } @else {
+        <dl class="dashboard__stats">
+          <div><dt>Attempted</dt><dd>{{ metrics().questionsAttempted }}</dd></div>
+          <div><dt>Correct</dt><dd>{{ metrics().correctAnswers }}</dd></div>
+          <div><dt>Accuracy</dt><dd>{{ metrics().practiceAccuracy }}%</dd></div>
+        </dl>
+      }
+      <a routerLink="/practice">Start practicing</a>
+    </section>
+  </div>
+</div>

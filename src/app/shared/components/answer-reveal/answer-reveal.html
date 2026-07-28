@@ -1,0 +1,18 @@
+@if (!revealed()) {
+  @if (hints().length > 0) {
+    <ul class="answer-reveal__hints">
+      @for (hint of hints(); track hint) {
+        <li>{{ hint }}</li>
+      }
+    </ul>
+  }
+  <button type="button" class="btn btn--primary" (click)="toggle()">Show Answer</button>
+} @else {
+  <div class="answer-reveal__content">
+    <p class="answer-reveal__answer">{{ answer() }}</p>
+    @if (explanation()) {
+      <p class="answer-reveal__explanation">{{ explanation() }}</p>
+    }
+    <button type="button" class="btn btn--ghost" (click)="toggle()">Hide Answer</button>
+  </div>
+}

@@ -1,0 +1,11 @@
+<a
+  class="search-result"
+  [routerLink]="['/subjects', result().subjectId, 'topics', result().topicId]"
+  (click)="selected.emit()"
+>
+  <span class="search-result__path">
+    {{ result().subjectTitle }} &rsaquo; {{ result().categoryTitle }}
+  </span>
+  <span class="search-result__title">{{ result().topicTitle }}</span>
+  <span class="search-result__snippet">{{ result().snippet }}</span>
+</a>

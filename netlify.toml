@@ -1,0 +1,23 @@
+[build]
+  command = "npm run build"
+  publish = "dist/skill-hunter/browser"
+  functions = "netlify/functions"
+
+[dev]
+  command = "npm start"
+  targetPort = 4200
+  port = 8888
+  publish = "dist/skill-hunter/browser"
+  autoLaunch = false
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# SPA fallback so deep links like /subjects/angular/topics/angular-signals
+# resolve to index.html and let the Angular router take over.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -1,1 +1,29 @@
-/* You can add global styles to this file, and also import other style files */
+@use 'styles/breakpoints' as *;
+@use 'styles/variables';
+@use 'styles/typography';
+@use 'styles/mixins' as *;
+@use 'styles/utilities';
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--color-bg);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+a {
+  color: var(--color-primary);
+}
+
+button {
+  font-family: inherit;
+}

@@ -1,0 +1,299 @@
+[
+  {
+    "id": "ts-interfaces-vs-types",
+    "subjectId": "typescript",
+    "categoryId": "ts-basics",
+    "title": "Interfaces vs Type Aliases",
+    "description": "When to reach for `interface` versus `type` when modeling shapes.",
+    "difficulty": "beginner",
+    "interviewPriority": "high",
+    "estimatedMinutes": 10,
+    "tags": ["interfaces", "type-aliases"],
+    "blocks": [
+      {
+        "id": "iface-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Both `interface` and `type` describe the shape of an object, and are largely interchangeable for that use case. Interfaces support declaration merging (re-opening the same interface adds to it) and are generally preferred for public object/class APIs. Type aliases can also describe unions, tuples, and primitives, which interfaces cannot.",
+        "keyPoints": [
+          "Only `interface` supports declaration merging.",
+          "Only `type` can alias unions, intersections, tuples, and primitives directly.",
+          "A class can `implements` an interface or a type alias that describes an object shape."
+        ]
+      },
+      {
+        "id": "iface-question-1",
+        "type": "interview-question",
+        "order": 2,
+        "question": "When would you choose `type` over `interface`?",
+        "answer": "When you need to model a union, a tuple, a mapped/conditional type, or any non-object shape — interfaces can only describe object-like shapes.",
+        "explanation": "For plain object contracts, either works; many teams pick one as a house style and reserve the other for cases only it can express."
+      },
+      {
+        "id": "iface-question-2",
+        "type": "scenario-question",
+        "order": 3,
+        "question": "You're writing a library and want consumers to be able to add new properties to one of your exported interfaces (e.g. augmenting a global `Window` or a plugin config type). Would you export it as an `interface` or a `type`, and why?",
+        "answer": "As an `interface` — declaration merging means a consumer can write another `interface Window { myPlugin: MyPlugin }` in their own code and TypeScript merges it into the original, adding the property. A `type` alias can't be reopened like this; redeclaring it is a compile error.",
+        "explanation": "This is exactly how libraries like Express (`Request` augmentation) and Angular itself extend ambient global types — it's one of the few places the interface-vs-type choice isn't just style, it's a hard capability difference."
+      }
+    ]
+  },
+  {
+    "id": "ts-union-intersection-types",
+    "subjectId": "typescript",
+    "categoryId": "ts-basics",
+    "title": "Union and Intersection Types",
+    "description": "Combining types with `|` and `&`.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 15,
+    "tags": ["union", "intersection", "type-guards"],
+    "blocks": [
+      {
+        "id": "union-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "A union type (`A | B`) accepts a value that is either A or B, and only members common to both are accessible without narrowing. An intersection type (`A & B`) requires a value that satisfies both A and B simultaneously — all members of both are accessible.",
+        "keyPoints": [
+          "Narrow a union with `typeof`, `instanceof`, `in`, or a discriminant property before accessing type-specific members.",
+          "Intersecting two object types merges their properties; intersecting incompatible primitive types (e.g. `string & number`) produces `never`.",
+          "Discriminated unions (a shared literal `type` field) are the idiomatic way to model variant data in TypeScript."
+        ]
+      },
+      {
+        "id": "union-question-1",
+        "type": "output-question",
+        "order": 2,
+        "question": "What is the type of `merged` here?",
+        "code": "type A = { id: string };\ntype B = { id: string; label: string };\ntype Merged = A & B;\nconst merged: Merged = { id: '1', label: 'x' };",
+        "language": "typescript",
+        "answer": "{ id: string; label: string }",
+        "explanation": "Intersecting A and B combines their members; since `id` is compatible (`string` in both), the result requires both `id` and `label`."
+      },
+      {
+        "id": "union-question-2",
+        "type": "tricky-question",
+        "order": 3,
+        "question": "Given `type Shape = { kind: 'circle'; radius: number } | { kind: 'square'; side: number }`, why does `shape.radius` error even after checking `if ('radius' in shape)`?",
+        "answer": "It doesn't error — the `in` operator is actually a valid TypeScript narrowing technique for unions that *don't* share a common discriminant property, and `if ('radius' in shape)` correctly narrows `shape` to the circle branch, making `.radius` safe to access.",
+        "explanation": "This is a common point of confusion: people assume only `switch (shape.kind)` narrows unions, but `in`, `typeof`, `instanceof`, and custom type-guard functions (`function isCircle(s): s is Circle`) are all valid narrowing mechanisms — the discriminant-field pattern (`kind`) is just the most ergonomic one when you control the shape's design."
+      }
+    ]
+  },
+  {
+    "id": "ts-generics",
+    "subjectId": "typescript",
+    "categoryId": "ts-generics-utility",
+    "title": "Generics",
+    "description": "Writing reusable, type-safe functions and classes parameterized over types.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 20,
+    "tags": ["generics", "constraints", "reusability"],
+    "blocks": [
+      {
+        "id": "generics-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "Generics let a function, interface, or class defer the concrete type until it is used, while still preserving type relationships between inputs and outputs. A generic constraint (`<T extends SomeShape>`) restricts which types are allowed while still letting the compiler infer the specific type used at each call site.",
+        "keyPoints": [
+          "`function first<T>(items: T[]): T | undefined` preserves the element type of whatever array is passed in.",
+          "`<T extends { id: string }>` constrains T to object types that at least have an `id` string field.",
+          "Generic defaults (`<T = string>`) provide a fallback type when the caller doesn't specify one."
+        ]
+      },
+      {
+        "id": "generics-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "function groupBy<T, K extends string | number>(\n  items: T[],\n  keyFn: (item: T) => K\n): Record<K, T[]> {\n  const result = {} as Record<K, T[]>;\n  for (const item of items) {\n    const key = keyFn(item);\n    (result[key] ??= []).push(item);\n  }\n  return result;\n}",
+        "explanation": "The function works for any array type T while the return type stays precisely tied to both T and the key type K."
+      },
+      {
+        "id": "generics-question-1",
+        "type": "interview-question",
+        "order": 3,
+        "question": "Why use a generic constraint like `<T extends { id: string }>` instead of just typing the parameter as `any`?",
+        "answer": "The constraint preserves full type information and IDE autocompletion for the caller's specific type while still guaranteeing the function can safely access `.id`; `any` throws away all type safety entirely.",
+        "explanation": "Generics give you both flexibility (works with many types) and safety (the compiler still checks usage), which `any` cannot provide."
+      },
+      {
+        "id": "generics-question-2",
+        "type": "output-question",
+        "order": 4,
+        "question": "What does TypeScript infer for `T` in each call, and does the second call compile?",
+        "code": "function wrapInArray<T>(value: T): T[] {\n  return [value];\n}\n\nconst a = wrapInArray(42);\nconst b = wrapInArray<string>(42);",
+        "language": "typescript",
+        "answer": "`a` infers T as `number` (type `number[]`) and compiles fine. `b` explicitly pins T to `string`, so passing `42` (a number) is a type error — argument of type 'number' is not assignable to parameter of type 'string'.",
+        "explanation": "Generic type arguments can always be inferred from usage, or supplied explicitly with `<T>` syntax to override inference — but once supplied explicitly, the compiler holds every argument to that pinned type instead of inferring it freely."
+      }
+    ]
+  },
+  {
+    "id": "ts-utility-types",
+    "subjectId": "typescript",
+    "categoryId": "ts-generics-utility",
+    "title": "Utility Types",
+    "description": "Built-in type transformations like Partial, Pick, Omit, and Record.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 15,
+    "tags": ["utility-types", "partial", "pick", "omit", "record"],
+    "blocks": [
+      {
+        "id": "utility-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "TypeScript ships mapped-type helpers that transform an existing type instead of redefining it by hand: `Partial<T>` makes every property optional, `Required<T>` makes every property mandatory, `Pick<T, K>` selects a subset of keys, `Omit<T, K>` removes a subset of keys, and `Record<K, V>` builds an object type with keys K and values V.",
+        "keyPoints": [
+          "`Partial<Topic>` is useful for PATCH-style update payloads where any subset of fields may be supplied.",
+          "`Pick<Topic, 'id' | 'title'>` extracts a lightweight summary type derived from a larger interface.",
+          "`Record<string, TopicProgress>` models a dictionary keyed by topic id, exactly as used in the Progress Store."
+        ]
+      },
+      {
+        "id": "utility-question-1",
+        "type": "output-question",
+        "order": 2,
+        "question": "What does the resulting type look like?",
+        "code": "interface Topic { id: string; title: string; difficulty: string; }\ntype TopicPreview = Omit<Topic, 'difficulty'>;",
+        "language": "typescript",
+        "answer": "{ id: string; title: string }",
+        "explanation": "Omit removes the listed keys ('difficulty') from the source type, keeping everything else unchanged."
+      },
+      {
+        "id": "utility-question-2",
+        "type": "interview-question",
+        "order": 3,
+        "question": "You have a function `function computeMetrics(subjects: Subject[]): DashboardMetrics { ... }` but no exported type for its return value. How do you get a usable type for `DashboardMetrics` without duplicating the shape by hand?",
+        "answer": "`type Metrics = ReturnType<typeof computeMetrics>;` — ReturnType extracts a function's return type, and Parameters<typeof computeMetrics> would similarly extract a tuple type of its parameters.",
+        "explanation": "ReturnType and Parameters are two of the most practically useful utility types for keeping derived types in sync with implementation — if computeMetrics's return shape changes, `Metrics` updates automatically instead of silently drifting out of date like a hand-written duplicate would."
+      }
+    ]
+  },
+  {
+    "id": "ts-keyof-typeof",
+    "subjectId": "typescript",
+    "categoryId": "ts-generics-utility",
+    "title": "keyof and typeof",
+    "description": "Deriving types from the shape of existing types and values.",
+    "difficulty": "intermediate",
+    "interviewPriority": "medium",
+    "estimatedMinutes": 15,
+    "tags": ["keyof", "typeof", "indexed-access"],
+    "blocks": [
+      {
+        "id": "keyof-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "`keyof T` produces a union of T's property names as string/number literal types. `typeof value` (in a type position) extracts the static type of a runtime value, letting you derive a type from an object literal or a const array instead of writing it twice.",
+        "keyPoints": [
+          "`keyof Topic` yields `'id' | 'title' | 'difficulty' | ...` for every key of Topic.",
+          "`typeof STORAGE_KEYS` combined with indexed access can derive the union of storage key string values.",
+          "Combining both lets you write generic, type-safe accessor functions like `get<K extends keyof T>(obj: T, key: K): T[K]`."
+        ]
+      },
+      {
+        "id": "keyof-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "export const STORAGE_KEYS = {\n  progress: 'interview-prep.progress',\n  bookmarks: 'interview-prep.bookmarks',\n} as const;\n\ntype StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS];\n// 'interview-prep.progress' | 'interview-prep.bookmarks'",
+        "explanation": "`as const` narrows the object's values to literal types, and `keyof typeof` derives a precise union of those literal string values."
+      },
+      {
+        "id": "keyof-question-1",
+        "type": "output-question",
+        "order": 3,
+        "question": "What is the type of `difficulty` here?",
+        "code": "interface Topic {\n  id: string;\n  difficulty: 'beginner' | 'intermediate' | 'advanced';\n}\n\ntype TopicDifficulty = Topic['difficulty'];",
+        "language": "typescript",
+        "answer": "'beginner' | 'intermediate' | 'advanced'",
+        "explanation": "`Topic['difficulty']` is an indexed access type — it reads the type of a specific property off another type, the same way `topic.difficulty` reads the value off an object at runtime. It's how you derive a narrower type from one field of a larger interface without retyping the union by hand."
+      }
+    ]
+  },
+  {
+    "id": "ts-discriminated-unions",
+    "subjectId": "typescript",
+    "categoryId": "ts-advanced-types",
+    "title": "Discriminated Unions",
+    "description": "Modeling variant data safely using a shared literal tag field.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 20,
+    "tags": ["discriminated-unions", "type-guards", "exhaustiveness"],
+    "blocks": [
+      {
+        "id": "discriminated-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "A discriminated union gives every variant of a union a shared literal property (a 'tag' or 'discriminant', e.g. `type`), which TypeScript uses to narrow the type inside `if`/`switch` branches without any manual type guard function. This is exactly the pattern used by `ContentBlock` in this application: every block variant shares a `type` field.",
+        "keyPoints": [
+          "Narrowing on the discriminant field works inside `if`, `switch`, and `.filter()` callbacks.",
+          "A `default` branch that assigns the remaining value to a `never`-typed variable gives compile-time exhaustiveness checking.",
+          "Discriminated unions avoid unsafe type assertions when handling heterogeneous data."
+        ]
+      },
+      {
+        "id": "discriminated-code-1",
+        "type": "code-example",
+        "order": 2,
+        "language": "typescript",
+        "code": "function renderBlock(block: ContentBlock) {\n  switch (block.type) {\n    case 'concept':\n      return block.content;\n    case 'code-example':\n      return block.code;\n    case 'common-mistake':\n      return block.mistake;\n    default: {\n      const exhaustiveCheck: never = block;\n      return exhaustiveCheck;\n    }\n  }\n}",
+        "explanation": "If a new ContentBlock variant is added later without a matching case, this function fails to compile because `block` would no longer be assignable to `never` in the default branch."
+      },
+      {
+        "id": "discriminated-question-1",
+        "type": "scenario-question",
+        "order": 3,
+        "question": "A teammate adds a fifth PracticeAttempt result — 'skipped' — to the `result: 'correct' | 'incorrect' | 'needs-revision'` union in this app's PracticeAttempt model, but forgets to update the switch statement that renders a badge for each result. Without the exhaustiveness pattern, what happens? With it, what happens?",
+        "answer": "Without exhaustiveness checking, the switch statement compiles fine and silently falls through to whatever the default case does (or renders nothing) for 'skipped' — a runtime gap that's easy to miss in review. With a `default: { const check: never = result; ... }` exhaustiveness guard, the same change fails to compile the moment the union grows, forcing the teammate to add a 'skipped' case before the build passes.",
+        "explanation": "This is the practical payoff of discriminated unions plus exhaustiveness checking: it turns a class of 'forgot to handle the new case' bugs from a runtime surprise into a compile-time error, at zero runtime cost."
+      }
+    ]
+  },
+  {
+    "id": "ts-unknown-vs-any",
+    "subjectId": "typescript",
+    "categoryId": "ts-advanced-types",
+    "title": "unknown vs any",
+    "description": "Why `unknown` is the type-safe alternative to `any` for values of uncertain shape.",
+    "difficulty": "beginner",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 10,
+    "tags": ["unknown", "any", "type-safety"],
+    "blocks": [
+      {
+        "id": "unknown-concept-1",
+        "type": "concept",
+        "order": 1,
+        "content": "`any` disables type checking entirely for a value — you can call any method or access any property with no compiler errors. `unknown` also accepts any value, but forces you to narrow it (via `typeof`, `instanceof`, or a type guard) before you can do anything with it.",
+        "keyPoints": [
+          "Prefer `unknown` for values from external sources (JSON.parse, imported JSON content) until validated.",
+          "`any` silently defeats the type checker for everything that flows through it.",
+          "Narrowing `unknown` down to a concrete type is exactly how safely validating imported progress-export JSON should work."
+        ]
+      },
+      {
+        "id": "unknown-question-1",
+        "type": "tricky-question",
+        "order": 2,
+        "question": "Why does `JSON.parse` return `any` instead of `unknown`, and is that a good default?",
+        "answer": "Historically JSON.parse was typed to return `any` for convenience, but it is widely considered a footgun — the safer pattern is to treat the result as `unknown` and validate/narrow it before use.",
+        "explanation": "When importing progress data in this application, the parsed JSON should be checked against the expected `StoredApplicationData` shape before being trusted, rather than assumed correct."
+      },
+      {
+        "id": "unknown-question-2",
+        "type": "code-example",
+        "order": 3,
+        "language": "typescript",
+        "title": "Narrowing unknown with a type predicate",
+        "code": "function isStoredApplicationData(value: unknown): value is StoredApplicationData {\n  if (!value || typeof value !== 'object') return false;\n  const v = value as Record<string, unknown>;\n  return (\n    typeof v['version'] === 'number' &&\n    typeof v['progress'] === 'object' &&\n    Array.isArray(v['bookmarks'])\n  );\n}\n\nconst parsed: unknown = JSON.parse(fileContents);\nif (isStoredApplicationData(parsed)) {\n  // parsed is now typed as StoredApplicationData here\n  restoreProgress(parsed);\n}",
+        "explanation": "A function whose return type is `value is StoredApplicationData` (a type predicate) lets you write a runtime check once and get real compile-time narrowing everywhere it's called — this is exactly the pattern DataManagementService.importFromJson uses to safely accept unknown, user-supplied import files."
+      }
+    ]
+  }
+]

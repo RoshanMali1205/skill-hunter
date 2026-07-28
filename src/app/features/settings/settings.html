@@ -1,0 +1,87 @@
+<div class="stack">
+  <div>
+    <h1>Settings</h1>
+    <p class="settings__subtitle">Personalize your preparation experience.</p>
+  </div>
+
+  <section class="settings__card">
+    <h2>Appearance</h2>
+    <label class="settings__field settings__field--checkbox">
+      <input
+        type="checkbox"
+        [ngModel]="settings().theme === 'dark'"
+        (ngModelChange)="setTheme($event ? 'dark' : 'light')"
+      />
+      <span>Dark theme</span>
+    </label>
+  </section>
+
+  <section class="settings__card">
+    <h2>Study Preferences</h2>
+    <label class="settings__field">
+      <span>Default difficulty filter</span>
+      <select
+        [ngModel]="settings().defaultDifficulty"
+        (ngModelChange)="setDefaultDifficulty($event)"
+      >
+        <option value="all">All</option>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+    </label>
+
+    <label class="settings__field settings__field--checkbox">
+      <input
+        type="checkbox"
+        [ngModel]="settings().showAnswersAutomatically"
+        (ngModelChange)="setShowAnswersAutomatically($event)"
+      />
+      <span>Show answers automatically</span>
+    </label>
+  </section>
+
+  <section class="settings__card">
+    <h2>Backup Your Progress</h2>
+    <p class="settings__muted">
+      Progress is stored only in this browser. Export it to back it up or move it to another device.
+    </p>
+    <div class="cluster">
+      <button type="button" class="btn btn--primary" (click)="exportProgress()">
+        Export Progress
+      </button>
+      <label class="btn">
+        Import Progress
+        <input type="file" accept="application/json" class="settings__file-input" (change)="onImportFile($event)" />
+      </label>
+    </div>
+    @if (importMessage(); as message) {
+      <p [class.settings__success]="message.success" [class.settings__error]="!message.success">
+        {{ message.text }}
+      </p>
+    }
+  </section>
+
+  <section class="settings__card settings__card--danger">
+    <h2>Reset Progress</h2>
+    <p class="settings__muted">
+      This clears all locally stored progress, bookmarks, practice history, and your revision list.
+      Interview content itself is never affected.
+    </p>
+    @if (!confirmingReset()) {
+      <button type="button" class="btn btn--danger" (click)="requestReset()">
+        Reset All Progress
+      </button>
+    } @else {
+      <div class="settings__confirm">
+        <p>Are you sure? This cannot be undone.</p>
+        <div class="cluster">
+          <button type="button" class="btn btn--danger" (click)="confirmReset()">
+            Yes, reset everything
+          </button>
+          <button type="button" class="btn" (click)="cancelReset()">Cancel</button>
+        </div>
+      </div>
+    }
+  </section>
+</div>

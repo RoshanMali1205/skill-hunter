@@ -1,0 +1,16 @@
+@use 'breakpoints' as *;
+
+.app-shell {
+  display: flex;
+  min-height: calc(100vh - var(--header-height));
+}
+
+.app-shell__content {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-5) var(--space-4) calc(var(--mobile-nav-height) + var(--space-5));
+
+  @include respond-to(desktop) {
+    padding: var(--space-6) var(--space-6);
+  }
+}

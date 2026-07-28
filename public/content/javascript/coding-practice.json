@@ -1,0 +1,363 @@
+[
+  {
+    "id": "js-practice-hoisting-scope",
+    "subjectId": "javascript",
+    "categoryId": "js-coding-practice",
+    "title": "Coding Practice: Hoisting & Scope",
+    "description": "Six short snippets that expose exactly how var, let, and function declarations are hoisted and scoped.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 20,
+    "tags": ["hoisting", "scope", "var", "let", "tdz", "coding-practice"],
+    "blocks": [
+      {
+        "id": "practice-hoisting-1",
+        "type": "output-question",
+        "order": 1,
+        "title": "1. var Hoisting",
+        "question": "What is the output, and why?",
+        "code": "console.log(a);\n\nvar a = 10;\n\nconsole.log(a);",
+        "language": "javascript",
+        "answer": "undefined, then 10.",
+        "explanation": "var declarations are hoisted to the top of their function/global scope and initialized to undefined before any code runs — only the declaration is hoisted, not the assignment. The first log sees the hoisted-but-unassigned variable; by the second log the assignment on line 3 has run.",
+        "hints": ["Hoisting splits a `var` declaration from its assignment.", "No error is thrown here — that's the giveaway it isn't let/const."]
+      },
+      {
+        "id": "practice-hoisting-2",
+        "type": "output-question",
+        "order": 2,
+        "title": "2. let and the Temporal Dead Zone",
+        "question": "undefined or error? Why?",
+        "code": "console.log(a);\n\nlet a = 10;",
+        "language": "javascript",
+        "answer": "ReferenceError: Cannot access 'a' before initialization.",
+        "explanation": "let (and const) are hoisted to the top of the block too, but they are not initialized — they sit in the Temporal Dead Zone from the start of the block until their declaration line executes. Reading them before that line throws, unlike var's silent undefined.",
+        "hints": ["Compare this directly against snippet 1 — same shape, different keyword, different failure mode."]
+      },
+      {
+        "id": "practice-hoisting-3",
+        "type": "output-question",
+        "order": 3,
+        "title": "3. Function Declaration Hoisting",
+        "question": "Does this work?",
+        "code": "sayHello();\n\nfunction sayHello() {\n  console.log(\"Hello\");\n}",
+        "language": "javascript",
+        "answer": "Yes — logs \"Hello\".",
+        "explanation": "Function declarations (unlike function expressions) are hoisted completely, body included, so the function is fully callable before its position in the source text."
+      },
+      {
+        "id": "practice-hoisting-4",
+        "type": "output-question",
+        "order": 4,
+        "title": "4. Function Expression Hoisting",
+        "question": "What happens here?",
+        "code": "sayHello();\n\nvar sayHello = function () {\n  console.log(\"Hello\");\n};",
+        "language": "javascript",
+        "answer": "TypeError: sayHello is not a function.",
+        "explanation": "Only the `var sayHello` declaration is hoisted (initialized to undefined) — the function assignment happens at the line where it's written. At the point of the call, sayHello is still undefined, and calling undefined() throws a TypeError, not a ReferenceError. That distinction (TypeError vs ReferenceError) is exactly what interviewers listen for.",
+        "hints": ["This is a different error type than snippet 2 — say why out loud."]
+      },
+      {
+        "id": "practice-hoisting-5",
+        "type": "output-question",
+        "order": 5,
+        "title": "5. var Is Function-Scoped",
+        "question": "Can name be accessed outside the if block?",
+        "code": "function test() {\n  if (true) {\n    var name = \"Roshan\";\n  }\n\n  console.log(name);\n}\n\ntest();",
+        "language": "javascript",
+        "answer": "Yes — logs \"Roshan\".",
+        "explanation": "var ignores block boundaries (`if`, `for`, `while`) entirely; it is scoped to the nearest enclosing function (or the global scope). The if block does not create a new scope for var."
+      },
+      {
+        "id": "practice-hoisting-6",
+        "type": "output-question",
+        "order": 6,
+        "title": "6. let Is Block-Scoped",
+        "question": "What happens when var is replaced with let?",
+        "code": "function test() {\n  if (true) {\n    let name = \"Roshan\";\n  }\n\n  console.log(name);\n}\n\ntest();",
+        "language": "javascript",
+        "answer": "ReferenceError: name is not defined.",
+        "explanation": "let is scoped to the block it's declared in — the `{ }` of the if statement — so it simply does not exist once execution leaves that block. This pair (5 and 6) is the cleanest possible illustration of function-scope vs block-scope."
+      }
+    ]
+  },
+  {
+    "id": "js-practice-closures",
+    "subjectId": "javascript",
+    "categoryId": "js-coding-practice",
+    "title": "Coding Practice: Closures",
+    "description": "Four snippets that build up closure intuition, ending in the classic var-vs-let loop interview question.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 20,
+    "tags": ["closures", "loops", "settimeout", "coding-practice"],
+    "blocks": [
+      {
+        "id": "practice-closure-1",
+        "type": "output-question",
+        "order": 1,
+        "title": "7. A Basic Closure",
+        "question": "What's the output, and why doesn't count reset between calls?",
+        "code": "function outer() {\n  let count = 0;\n\n  return function inner() {\n    count++;\n    console.log(count);\n  };\n}\n\nconst counter = outer();\n\ncounter();\ncounter();\ncounter();",
+        "language": "javascript",
+        "answer": "1\n2\n3",
+        "explanation": "inner() closes over the `count` variable from outer()'s scope. Each call to outer() would create a brand-new `count`, but here outer() only runs once — counter always refers to that same single `count` binding, which is why it keeps incrementing instead of resetting."
+      },
+      {
+        "id": "practice-closure-2",
+        "type": "output-question",
+        "order": 2,
+        "title": "8. Two Independent Closures",
+        "question": "Predict all four logged values.",
+        "code": "function createCounter() {\n  let count = 0;\n\n  return function () {\n    return ++count;\n  };\n}\n\nconst counter1 = createCounter();\nconst counter2 = createCounter();\n\nconsole.log(counter1());\nconsole.log(counter1());\nconsole.log(counter2());\nconsole.log(counter1());",
+        "language": "javascript",
+        "answer": "1\n2\n1\n3",
+        "explanation": "counter1 and counter2 come from two separate invocations of createCounter(), so each gets its own private `count` in its own closure. counter2's calls never touch counter1's count, which is why counter2() resets to 1 while counter1 keeps climbing to 3."
+      },
+      {
+        "id": "practice-closure-3",
+        "type": "output-question",
+        "order": 3,
+        "title": "9. var Inside a Loop with setTimeout",
+        "question": "Is the output 0 1 2, or something else? Explain using closures.",
+        "code": "for (var i = 0; i < 3; i++) {\n  setTimeout(function () {\n    console.log(i);\n  }, 100);\n}",
+        "language": "javascript",
+        "answer": "3\n3\n3",
+        "explanation": "There is only one `i` for the whole loop (var is function/global-scoped), and all three callbacks close over that same binding. By the time any setTimeout callback actually runs — after the synchronous loop has fully finished — `i` has already reached 3, so every callback logs the same final value.",
+        "hints": ["This is the single most common JavaScript interview question — make sure you can explain the fix, not just the output."]
+      },
+      {
+        "id": "practice-closure-4",
+        "type": "output-question",
+        "order": 4,
+        "title": "10. let Inside a Loop with setTimeout",
+        "question": "Why is this different from the previous example?",
+        "code": "for (let i = 0; i < 3; i++) {\n  setTimeout(function () {\n    console.log(i);\n  }, 100);\n}",
+        "language": "javascript",
+        "answer": "0\n1\n2",
+        "explanation": "let creates a brand-new binding of `i` for every single iteration of the loop, and each setTimeout callback closes over its own iteration's binding. That's why switching var to let is the standard one-line fix for the previous snippet's bug."
+      }
+    ]
+  },
+  {
+    "id": "js-practice-references-destructuring",
+    "subjectId": "javascript",
+    "categoryId": "js-coding-practice",
+    "title": "Coding Practice: References, Destructuring, Rest & Spread",
+    "description": "Object reference semantics, the shallow-copy trap, and the destructuring/rest/spread syntax that comes up in almost every interview.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 20,
+    "tags": ["object-reference", "shallow-copy", "destructuring", "rest", "spread", "coding-practice"],
+    "blocks": [
+      {
+        "id": "practice-reference-1",
+        "type": "output-question",
+        "order": 1,
+        "title": "11. Object Reference Assignment",
+        "question": "Why does changing user2 affect user1?",
+        "code": "const user1 = {\n  name: \"Roshan\"\n};\n\nconst user2 = user1;\n\nuser2.name = \"Rahul\";\n\nconsole.log(user1.name);\nconsole.log(user2.name);",
+        "language": "javascript",
+        "answer": "\"Rahul\"\n\"Rahul\"",
+        "explanation": "Objects are assigned and passed by reference. `const user2 = user1` copies the reference (the memory address), not the object itself — user1 and user2 point at the exact same object, so mutating through either name reads back on both."
+      },
+      {
+        "id": "practice-reference-2",
+        "type": "tricky-question",
+        "order": 2,
+        "title": "12. Shallow Copy with Spread",
+        "question": "Why does spread fix the top-level change but not the nested one?",
+        "code": "const user1 = {\n  name: \"Roshan\",\n  address: {\n    city: \"Pune\"\n  }\n};\n\nconst user2 = { ...user1 };\n\nuser2.name = \"Rahul\";\nuser2.address.city = \"Mumbai\";\n\nconsole.log(user1.name);\nconsole.log(user1.address.city);",
+        "language": "javascript",
+        "answer": "\"Roshan\"\n\"Mumbai\"",
+        "explanation": "`{ ...user1 }` copies only the top-level properties into a new object — `name` becomes an independent string value, so reassigning user2.name never touches user1. But `address` is copied as a reference, not deep-cloned, so user1.address and user2.address still point to the identical nested object; mutating city through either one is visible on both.",
+        "hints": ["To fix this you need a deep clone: structuredClone(user1), or a nested spread { ...user1, address: { ...user1.address } }."]
+      },
+      {
+        "id": "practice-destructuring-1",
+        "type": "scenario-question",
+        "order": 3,
+        "title": "13. Destructuring with Renaming",
+        "question": "Given the object below, destructure `name` into a variable called `userName` while still pulling out `city` normally.",
+        "code": "const user = {\n  name: \"Roshan\",\n  age: 35,\n  city: \"Pune\"\n};",
+        "language": "javascript",
+        "answer": "const { name: userName, city } = user;\n\nconsole.log(userName); // \"Roshan\"\nconsole.log(city);     // \"Pune\"",
+        "explanation": "The `oldName: newName` syntax inside a destructuring pattern renames the binding on the left while still reading the property named on the right from the source object."
+      },
+      {
+        "id": "practice-rest-1",
+        "type": "output-question",
+        "order": 4,
+        "title": "14. Rest Operator in Array Destructuring",
+        "question": "What is inside remaining?",
+        "code": "const numbers = [10, 20, 30, 40, 50];\n\nconst [first, second, ...remaining] = numbers;\n\nconsole.log(first);\nconsole.log(second);\nconsole.log(remaining);",
+        "language": "javascript",
+        "answer": "first = 10, second = 20, remaining = [30, 40, 50]",
+        "explanation": "The rest element (`...remaining`) must come last in the pattern and collects every element not already picked off individually, into a real array — not a reference into the original array."
+      },
+      {
+        "id": "practice-spread-1",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "15. Spread Operator: Inserting a Value Mid-Array",
+        "question": "Modify the code so result is [1, 2, 3, 100, 4, 5, 6].",
+        "code": "const arr1 = [1, 2, 3];\nconst arr2 = [4, 5, 6];\n\nconst result = [...arr1, ...arr2];\n\nconsole.log(result);",
+        "language": "javascript",
+        "answer": "const result = [...arr1, 100, ...arr2];",
+        "explanation": "Spread just splices an iterable's elements in wherever it appears in the array literal — placing a literal value between two spreads inserts it exactly at that position, no concat() or splice() needed."
+      }
+    ]
+  },
+  {
+    "id": "js-practice-array-methods",
+    "subjectId": "javascript",
+    "categoryId": "js-coding-practice",
+    "title": "Coding Practice: map, filter & reduce",
+    "description": "The three array methods that show up in nearly every practical JavaScript interview exercise.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 20,
+    "tags": ["map", "filter", "reduce", "array-methods", "coding-practice"],
+    "blocks": [
+      {
+        "id": "practice-map-1",
+        "type": "output-question",
+        "order": 1,
+        "title": "16. Does map() Mutate the Original Array?",
+        "question": "Does map() modify the original array?",
+        "code": "const numbers = [1, 2, 3, 4];\n\nconst result = numbers.map(num => num * 2);\n\nconsole.log(result);\nconsole.log(numbers);",
+        "language": "javascript",
+        "answer": "result = [2, 4, 6, 8], numbers = [1, 2, 3, 4] (unchanged).",
+        "explanation": "map() is non-mutating — it always returns a brand-new array built from the callback's return values, leaving the original array untouched. This is exactly why map()/filter()/reduce() compose so well: each one hands the next a fresh array."
+      },
+      {
+        "id": "practice-filter-1",
+        "type": "scenario-question",
+        "order": 2,
+        "title": "17. filter() Employees by Salary",
+        "question": "Using filter(), return only the employees whose salary is greater than 50000.",
+        "code": "const employees = [\n  { name: \"A\", salary: 40000 },\n  { name: \"B\", salary: 70000 },\n  { name: \"C\", salary: 90000 },\n  { name: \"D\", salary: 30000 }\n];",
+        "language": "javascript",
+        "answer": "const result = employees.filter(emp => emp.salary > 50000);\n// [{ name: \"B\", salary: 70000 }, { name: \"C\", salary: 90000 }]",
+        "explanation": "filter() keeps only the elements for which the predicate callback returns a truthy value, and — like map() — returns a new array without touching the original."
+      },
+      {
+        "id": "practice-reduce-1",
+        "type": "scenario-question",
+        "order": 3,
+        "title": "18. reduce() to Sum an Array",
+        "question": "Using reduce(), calculate the total of [10, 20, 30, 40]. Then explain what `acc` and `current` are in reduce((acc, current) => {}, 0).",
+        "code": "const numbers = [10, 20, 30, 40];",
+        "language": "javascript",
+        "answer": "const total = numbers.reduce((acc, current) => acc + current, 0);\n// total === 100",
+        "explanation": "`acc` (the accumulator) carries the running result from one iteration to the next — it starts as the second argument to reduce() (here, 0) and becomes whatever the callback returned on the previous step. `current` is simply the array element being visited on this iteration. reduce() is the most general array method: map() and filter() can both be implemented in terms of it."
+      },
+      {
+        "id": "practice-map-filter-1",
+        "type": "scenario-question",
+        "order": 4,
+        "title": "19. Combine filter() and map()",
+        "question": "From [1, 2, 3, 4, 5, 6], produce only the even numbers, each multiplied by 10 — using filter() then map().",
+        "code": "const numbers = [1, 2, 3, 4, 5, 6];",
+        "language": "javascript",
+        "answer": "const result = numbers.filter(n => n % 2 === 0).map(n => n * 10);\n// [20, 40, 60]",
+        "explanation": "Chaining filter() then map() reads as a pipeline: first narrow down to the elements you care about, then transform each surviving element. Doing it in the opposite order (map then filter) also works here, but filter-then-map is usually cheaper since map only ever runs on the elements that passed the filter."
+      }
+    ]
+  },
+  {
+    "id": "js-practice-this-async-event-loop",
+    "subjectId": "javascript",
+    "categoryId": "js-coding-practice",
+    "title": "Coding Practice: this, call/apply/bind, Promises & the Event Loop",
+    "description": "Five snippets covering the most senior-heavy JavaScript interview territory: this-binding and asynchronous execution order.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 30,
+    "tags": ["this", "call", "apply", "bind", "promise", "event-loop", "async-await", "coding-practice"],
+    "blocks": [
+      {
+        "id": "practice-this-1",
+        "type": "tricky-question",
+        "order": 1,
+        "title": "20. Regular Method vs Arrow Method",
+        "question": "Why can arrow functions behave differently with this? Compare the two versions of printName.",
+        "code": "const userA = {\n  name: \"Roshan\",\n  printName() {\n    console.log(this.name);\n  }\n};\nuserA.printName();\n\nconst userB = {\n  name: \"Roshan\",\n  printName: () => {\n    console.log(this.name);\n  }\n};\nuserB.printName();",
+        "language": "javascript",
+        "answer": "\"Roshan\", then undefined.",
+        "explanation": "userA.printName is a regular (shorthand) method, so `this` is determined by the call site: `userA.printName()` sets `this` to userA, and this.name is \"Roshan\". Arrow functions never bind their own `this` — they capture it lexically from where they were *defined*, which here is the top level of the module, not the object literal. So userB.printName's `this` is whatever `this` is outside the object (undefined in a module/strict/class context), and this.name is undefined — the object literal `{ name: ... }` is never consulted at all.",
+        "hints": ["The fix for real code that needs `this` to be the enclosing object is: never use an arrow function for an object method that reads `this`."]
+      },
+      {
+        "id": "practice-call-apply-bind-1",
+        "type": "interview-question",
+        "order": 2,
+        "title": "21. call(), apply(), and bind()",
+        "question": "Call introduce with this bound to `user` using call(), apply(), and bind(). What's the difference between the three?",
+        "code": "const user = { name: \"Roshan\" };\n\nfunction introduce(city, role) {\n  console.log(\n    `My name is ${this.name}, I live in ${city}, and I am a ${role}`\n  );\n}",
+        "language": "javascript",
+        "answer": "introduce.call(user, \"Pune\", \"Developer\");\nintroduce.apply(user, [\"Pune\", \"Developer\"]);\nconst bound = introduce.bind(user, \"Pune\", \"Developer\");\nbound();",
+        "explanation": "All three explicitly set `this` for introduce, but they differ in invocation: call() invokes immediately with arguments passed individually; apply() invokes immediately with arguments passed as a single array; bind() does not invoke at all — it returns a brand-new function permanently bound to the given `this` (and optionally partial arguments), which you call later. bind() is the one to reach for when a callback is handed off to code you don't control (event listeners, setTimeout) and needs to keep its `this`."
+      },
+      {
+        "id": "practice-promise-1",
+        "type": "output-question",
+        "order": 3,
+        "title": "22. Promise Executor Timing",
+        "question": "Predict the exact order of the four logs.",
+        "code": "console.log(\"Start\");\n\nconst promise = new Promise((resolve, reject) => {\n  console.log(\"Promise\");\n\n  resolve(\"Success\");\n});\n\npromise.then(result => {\n  console.log(result);\n});\n\nconsole.log(\"End\");",
+        "language": "javascript",
+        "answer": "Start\nPromise\nEnd\nSuccess",
+        "explanation": "The Promise executor function runs synchronously and immediately when `new Promise(...)` is called — that's why \"Promise\" logs before \"End\", not after. Calling resolve() only schedules the .then() callback as a microtask; it can't run until the current synchronous block finishes, so \"End\" still logs before \"Success\"."
+      },
+      {
+        "id": "practice-event-loop-1",
+        "type": "output-question",
+        "order": 4,
+        "title": "23. The Event Loop: setTimeout vs Promise",
+        "question": "Predict the order of A, B, C, D. Explain using the call stack, Web APIs, the microtask queue, the macrotask queue, and the event loop.",
+        "code": "console.log(\"A\");\n\nsetTimeout(() => {\n  console.log(\"B\");\n}, 0);\n\nPromise.resolve().then(() => {\n  console.log(\"C\");\n});\n\nconsole.log(\"D\");",
+        "language": "javascript",
+        "answer": "A\nD\nC\nB",
+        "explanation": "\"A\" and \"D\" run synchronously on the call stack first. setTimeout hands its callback off to the Web API/timer facility, which queues it as a macrotask only once the delay elapses — even a 0ms delay still waits for the current script to finish. Promise.resolve().then() queues its callback as a microtask instead. After every synchronous statement finishes, the event loop always drains the entire microtask queue (\"C\") before pulling a single task from the macrotask queue (\"B\").",
+        "hints": ["Microtasks (Promises, queueMicrotask) always fully drain before the next macrotask (setTimeout, setInterval, I/O) runs — no exceptions."]
+      },
+      {
+        "id": "practice-async-await-1",
+        "type": "output-question",
+        "order": 5,
+        "title": "24. async/await Execution Order",
+        "question": "Predict the output order of 1, 2, 3, 4.",
+        "code": "async function test() {\n  console.log(\"1\");\n\n  await Promise.resolve();\n\n  console.log(\"2\");\n}\n\nconsole.log(\"3\");\n\ntest();\n\nconsole.log(\"4\");",
+        "language": "javascript",
+        "answer": "3\n1\n4\n2",
+        "explanation": "\"3\" logs first since it's the next synchronous line. Calling test() runs its body synchronously up to the first `await` — logging \"1\" — then the await suspends the async function and immediately returns control to the caller, so \"4\" logs next. Only after the current synchronous script finishes does the microtask resuming test() run, logging \"2\" last. async/await is syntax sugar over exactly the Promise-then microtask behavior from the previous two snippets."
+      }
+    ]
+  },
+  {
+    "id": "js-practice-data-transformation",
+    "subjectId": "javascript",
+    "categoryId": "js-coding-practice",
+    "title": "Coding Practice: Real-World Data Transformation",
+    "description": "A senior-level capstone problem: reshaping a flat array into a grouped lookup object using reduce().",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 20,
+    "tags": ["reduce", "group-by", "data-transformation", "coding-practice"],
+    "blocks": [
+      {
+        "id": "practice-group-by-1",
+        "type": "scenario-question",
+        "order": 1,
+        "title": "25. Group Employees by Department",
+        "question": "Convert this flat array of employees into an object keyed by department, where each key maps to the array of employees in that department. Solve it using reduce().",
+        "code": "const employees = [\n  { name: \"Roshan\", department: \"IT\" },\n  { name: \"Amit\", department: \"HR\" },\n  { name: \"Rahul\", department: \"IT\" },\n  { name: \"Sneha\", department: \"Finance\" },\n  { name: \"Priya\", department: \"HR\" }\n];",
+        "language": "javascript",
+        "answer": "const grouped = employees.reduce((acc, employee) => {\n  const key = employee.department;\n  (acc[key] ??= []).push(employee);\n  return acc;\n}, {});\n\n// {\n//   IT: [{ name: \"Roshan\", ... }, { name: \"Rahul\", ... }],\n//   HR: [{ name: \"Amit\", ... }, { name: \"Priya\", ... }],\n//   Finance: [{ name: \"Sneha\", ... }]\n// }",
+        "explanation": "This is the general \"group-by\" pattern built on reduce(): the accumulator starts as an empty object; on each element, look up (or lazily create with `??=`) the array for that element's key, and push the element into it. It's one of the most commonly asked practical JavaScript exercises because it combines object/array manipulation, reduce mechanics, and real data-shaping in one problem.",
+        "hints": ["A natural follow-up: also compute just the *count* of employees per department instead of the full arrays — same pattern, `acc[key] = (acc[key] ?? 0) + 1`."]
+      }
+    ]
+  }
+]

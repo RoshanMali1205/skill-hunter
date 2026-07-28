@@ -1,0 +1,6 @@
+<a class="subject-card" [routerLink]="['/subjects', subject().id]">
+  <h3>{{ subject().title }}</h3>
+  <p class="subject-card__description">{{ subject().description }}</p>
+  <app-progress-bar [percentage]="percentage()" />
+  <p class="subject-card__count">{{ completed() }} / {{ total() }} topics completed</p>
+</a>

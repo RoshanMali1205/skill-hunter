@@ -1,0 +1,65 @@
+@use 'breakpoints' as *;
+@use 'mixins' as *;
+
+.topic-detail__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+
+  @include respond-to(tablet) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+}
+
+.topic-detail__description {
+  color: var(--color-text-muted);
+  margin: var(--space-1) 0 var(--space-3);
+}
+
+.topic-detail__minutes {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.topic-detail__block {
+  @include card;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  &--mistake {
+    border-left: 3px solid var(--color-warning);
+  }
+
+  p {
+    color: var(--color-text);
+  }
+}
+
+.topic-detail__key-points {
+  margin: 0;
+  padding-left: var(--space-5);
+  color: var(--color-text-muted);
+}
+
+.topic-detail__explanation {
+  color: var(--color-text-muted);
+}
+
+.topic-detail__footer {
+  @include card;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  @include respond-to(tablet) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}

@@ -1,0 +1,34 @@
+.search-result {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  text-decoration: none;
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-surface-alt);
+  }
+}
+
+.search-result__path {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.search-result__title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.search-result__snippet {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
