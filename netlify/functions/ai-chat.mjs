@@ -8,7 +8,10 @@
 //                       into AiAssistantService (see core/services/ai-assistant.service.ts)
 //
 // Optional:
-//   AI_MODEL            defaults to "gemini-2.5-flash"
+//   AI_MODEL            defaults to "gemini-flash-latest" (a Google-maintained
+//                       alias that always resolves to a currently-available
+//                       flash model — dated model IDs like "gemini-2.5-flash"
+//                       can stop being available to newer projects without notice)
 //
 // APP_SHARED_TOKEN is a light deterrent against random bots/scrapers hitting
 // this endpoint directly and burning your free quota — it is NOT real
@@ -17,7 +20,7 @@
 // API key itself, which never leaves this function.
 
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models";
-const DEFAULT_MODEL = "gemini-2.5-flash";
+const DEFAULT_MODEL = "gemini-flash-latest";
 const MAX_MESSAGES = 20;
 const MAX_MESSAGE_LENGTH = 4000;
 

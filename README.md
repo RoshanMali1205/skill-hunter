@@ -129,7 +129,7 @@ The AI Mentor page (`/ai-mentor`) is a chat UI (`src/app/features/ai-mentor`) th
 
 **Why not call the AI provider straight from Angular?** Provider APIs don't allow direct browser calls with a bearer key — the key would be visible to anyone who opens dev tools, and most providers reject browser-origin requests outright. A thin serverless proxy is the standard, minimal way to add a real AI feature to an otherwise backend-free static app.
 
-The backend calls **Google's Gemini API** (`gemini-2.5-flash` by default), chosen for its genuinely free tier — a good fit for a personal project a handful of people demo occasionally. Two things worth knowing before you rely on it:
+The backend calls **Google's Gemini API** (`gemini-flash-latest` by default), chosen for its genuinely free tier — a good fit for a personal project a handful of people demo occasionally. Two things worth knowing before you rely on it:
 - Free-tier requests may be used by Google to improve their models — fine for interview-prep chat, but never point this at proprietary/confidential content.
 - The free tier only applies while **billing is disabled** on the Google Cloud project — enabling billing (e.g. to raise limits) removes the free tier entirely for that project, so keep a separate project if you ever need a paid tier.
 
@@ -151,7 +151,7 @@ netlify dev
 
 1. Deploy the site to Netlify (see [Deploy](#deploy-to-github--netlify) below).
 2. Get a free API key at [aistudio.google.com](https://aistudio.google.com) → **Get API key** → create it in a **new** Google Cloud project (no credit card required, no billing enabled).
-3. In the Netlify dashboard: **Site configuration → Environment variables**, add `GEMINI_API_KEY` and `APP_SHARED_TOKEN` (must exactly match the constant in `ai-assistant.service.ts`; optionally also `AI_MODEL`, default `gemini-2.5-flash`). Never put the real key in a committed file.
+3. In the Netlify dashboard: **Site configuration → Environment variables**, add `GEMINI_API_KEY` and `APP_SHARED_TOKEN` (must exactly match the constant in `ai-assistant.service.ts`; optionally also `AI_MODEL`, default `gemini-flash-latest`). Never put the real key in a committed file.
 4. Redeploy (or trigger a new deploy) so the function picks up the variables.
 
 ### Swapping providers
