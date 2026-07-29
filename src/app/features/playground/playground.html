@@ -1,0 +1,66 @@
+<div class="stack playground">
+  <div>
+    <h1>JavaScript Playground</h1>
+    <p class="playground__subtitle">
+      Write and run real JavaScript — sandboxed in a Web Worker, so an infinite loop can't freeze
+      the page.
+    </p>
+  </div>
+
+  <div class="playground__toolbar">
+    <label class="playground__snippet-picker">
+      <span>Practice snippet</span>
+      <select [value]="selectedSnippetId()" (change)="loadSnippet($any($event.target).value)">
+        <option value="">— Starter template —</option>
+        @for (group of snippetGroups(); track group.groupLabel) {
+          <optgroup [label]="group.groupLabel">
+            @for (item of group.items; track item.id) {
+              <option [value]="item.id">{{ item.label }}</option>
+            }
+          </optgroup>
+        }
+      </select>
+    </label>
+
+    <div class="cluster">
+      <button type="button" class="btn" (click)="reset()">
+        <app-icon name="repeat" /> Reset
+      </button>
+      <button type="button" class="btn btn--primary" (click)="run()" [disabled]="running()">
+        <app-icon name="play" [filled]="true" />
+        {{ running() ? 'Running…' : 'Run' }}
+        <span class="playground__shortcut">Ctrl+Enter</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="playground__workspace">
+    <div class="playground__editor-card">
+      <div #editorHost class="playground__editor"></div>
+    </div>
+
+    <div class="playground__console-card">
+      <header class="playground__console-header">
+        <span>Console</span>
+        @if (elapsedMs() !== null) {
+          <span class="playground__console-time">{{ elapsedMs() }}ms</span>
+        }
+      </header>
+      <div class="playground__console-body">
+        @if (!hasRun()) {
+          <p class="playground__console-placeholder">Run your code to see console output here.</p>
+        } @else {
+          @if (logs().length === 0 && !runError()) {
+            <p class="playground__console-placeholder">No console output.</p>
+          }
+          @for (entry of logs(); track $index) {
+            <pre class="playground__log" [attr.data-level]="entry.level">{{ entry.text }}</pre>
+          }
+          @if (runError(); as error) {
+            <pre class="playground__log" data-level="error">{{ error }}</pre>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</div>

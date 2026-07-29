@@ -1,0 +1,135 @@
+@use 'mixins' as *;
+@use 'breakpoints' as *;
+
+.playground__subtitle {
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+.playground__toolbar {
+  @include card;
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.playground__snippet-picker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+
+  select {
+    @include touch-target;
+    @include focus-ring;
+    max-width: 320px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.85rem;
+  }
+}
+
+.playground__shortcut {
+  font-size: 0.7rem;
+  font-weight: 600;
+  opacity: 0.7;
+  margin-left: var(--space-1);
+}
+
+.playground__workspace {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+
+  @include respond-to(desktop) {
+    grid-template-columns: 3fr 2fr;
+  }
+}
+
+.playground__editor-card,
+.playground__console-card {
+  @include card;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 480px;
+}
+
+.playground__editor {
+  flex: 1;
+  min-height: 0;
+
+  // CodeMirror injects its DOM imperatively (not through Angular's
+  // template compiler), so it never receives the component's
+  // encapsulation attribute — ::ng-deep is required to reach it.
+  ::ng-deep .cm-editor {
+    height: 100%;
+  }
+
+  ::ng-deep .cm-scroller {
+    overflow: auto;
+  }
+}
+
+.playground__console-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.playground__console-time {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary);
+}
+
+.playground__console-body {
+  @include custom-scrollbar;
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.playground__console-placeholder {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.playground__log {
+  margin: 0;
+  font-family: var(--font-family-mono);
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--color-text);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px dashed var(--color-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &[data-level='warn'] {
+    color: var(--color-warning);
+  }
+
+  &[data-level='error'] {
+    color: var(--color-danger);
+  }
+}

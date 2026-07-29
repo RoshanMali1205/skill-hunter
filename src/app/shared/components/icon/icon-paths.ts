@@ -32,6 +32,7 @@ export const ICON_PATHS: Record<string, string> = {
     '<path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4" />',
   flag: '<path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528" />',
   circle: '<circle cx="12" cy="12" r="10" />',
+  code: '<path d="m16 18 6-6-6-6" /><path d="m8 6-6 6 6 6" />',
   'chevron-right': '<path d="m9 18 6-6-6-6" />',
   'chevron-left': '<path d="m15 18-6-6 6-6" />',
   x: '<path d="M18 6 6 18" /><path d="m6 6 12 12" />',
