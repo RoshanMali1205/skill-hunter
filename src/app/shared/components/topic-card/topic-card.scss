@@ -1,23 +1,25 @@
 @use 'mixins' as *;
 
 .topic-card {
-  @include card;
-  @include focus-ring;
+  @include card-interactive;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-4);
   text-decoration: none;
   color: var(--color-text);
-  transition: border-color 0.15s ease, transform 0.15s ease;
+  border-left: 3px solid transparent;
 
   &:hover {
-    border-color: var(--color-primary);
-    transform: translateY(-2px);
+    border-left-color: var(--accent, var(--color-primary));
   }
 
   &--completed {
-    border-left: 3px solid var(--color-success);
+    border-left-color: var(--color-success);
+
+    &:hover {
+      border-left-color: var(--color-success);
+    }
   }
 }
 
@@ -29,6 +31,7 @@
 
   h4 {
     font-size: 1rem;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -49,8 +52,11 @@
 }
 
 .topic-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
 
   &--completed {
     color: var(--color-success);

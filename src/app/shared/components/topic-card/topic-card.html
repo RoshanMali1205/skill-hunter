@@ -1,6 +1,7 @@
 <a
   class="topic-card"
   [class.topic-card--completed]="status() === 'completed'"
+  [style.--accent]="visual().color"
   [routerLink]="['/subjects', subjectId(), 'topics', topic().id]"
 >
   <header class="topic-card__header">

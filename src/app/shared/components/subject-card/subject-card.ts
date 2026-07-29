@@ -1,7 +1,8 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Subject } from '../../../core/models';
 import { ProgressBarComponent } from '../progress-bar/progress-bar';
+import { subjectVisual } from '../../subject-visuals';
 
 @Component({
   selector: 'app-subject-card',
@@ -14,4 +15,6 @@ export class SubjectCardComponent {
   completed = input.required<number>();
   total = input.required<number>();
   percentage = input.required<number>();
+
+  readonly visual = computed(() => subjectVisual(this.subject().id));
 }

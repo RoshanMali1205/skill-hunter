@@ -1,0 +1,22 @@
+<div class="donut">
+  <div class="donut__ring" [style.background]="gradient()">
+    <div class="donut__hole">
+      @if (centerValue()) {
+        <span class="donut__value">{{ centerValue() }}</span>
+      }
+      @if (centerLabel()) {
+        <span class="donut__label">{{ centerLabel() }}</span>
+      }
+    </div>
+  </div>
+
+  <ul class="donut__legend">
+    @for (item of legendItems(); track item.label) {
+      <li>
+        <span class="donut__dot" [style.background]="item.color" aria-hidden="true"></span>
+        <span class="donut__legend-label">{{ item.label }}</span>
+        <span class="donut__legend-value">{{ item.value }} · {{ item.percentage }}%</span>
+      </li>
+    }
+  </ul>
+</div>

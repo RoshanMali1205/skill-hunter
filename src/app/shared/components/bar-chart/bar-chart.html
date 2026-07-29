@@ -1,0 +1,15 @@
+<div class="bar-chart">
+  @for (row of rows(); track row.label) {
+    <div class="bar-chart__row" [attr.title]="row.label + ': ' + row.value + unit()">
+      <span class="bar-chart__label">{{ row.label }}</span>
+      <div class="bar-chart__track">
+        <div
+          class="bar-chart__fill"
+          [style.width.%]="widthFor(row.value)"
+          [style.background]="row.color"
+        ></div>
+      </div>
+      <span class="bar-chart__value">{{ row.value }}{{ unit() }}</span>
+    </div>
+  }
+</div>

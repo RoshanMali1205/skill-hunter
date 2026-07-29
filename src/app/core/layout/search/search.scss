@@ -1,9 +1,15 @@
 @use 'mixins' as *;
 
+:host {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  max-width: 420px;
+}
+
 .search {
   position: relative;
-  flex: 1;
-  max-width: 420px;
+  width: 100%;
 }
 
 .search__input {

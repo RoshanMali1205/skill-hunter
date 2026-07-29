@@ -47,12 +47,6 @@ export const routes: Routes = [
     title: 'Bookmarks · Skill Hunter',
   },
   {
-    path: 'progress',
-    loadComponent: () =>
-      import('./features/progress/progress').then((m) => m.ProgressComponent),
-    title: 'Progress · Skill Hunter',
-  },
-  {
     path: 'revision',
     loadComponent: () =>
       import('./features/revision/revision').then((m) => m.RevisionComponent),

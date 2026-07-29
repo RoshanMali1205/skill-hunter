@@ -5,6 +5,20 @@
   box-shadow: var(--shadow-sm);
 }
 
+@mixin card-interactive {
+  @include card;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: color-mix(in srgb, var(--color-primary) 35%, var(--color-border));
+  }
+}
+
 @mixin focus-ring {
   &:focus-visible {
     outline: 2px solid var(--color-primary);

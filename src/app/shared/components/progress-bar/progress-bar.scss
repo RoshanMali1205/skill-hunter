@@ -11,12 +11,13 @@
   height: 8px;
   border-radius: 999px;
   background: var(--color-surface-alt);
+  box-shadow: inset 0 1px 2px rgba(20, 21, 40, 0.06);
   overflow: hidden;
 }
 
 .progress-bar__fill {
   height: 100%;
-  background: var(--color-primary);
+  background: var(--gradient-primary);
   border-radius: inherit;
-  transition: width 0.3s ease;
+  transition: width 0.35s ease;
 }

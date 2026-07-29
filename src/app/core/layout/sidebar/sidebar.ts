@@ -13,7 +13,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Practice', path: '/practice', icon: '🎯' },
   { label: 'AI Mentor', path: '/ai-mentor', icon: '🤖' },
   { label: 'Bookmarks', path: '/bookmarks', icon: '⭐' },
-  { label: 'Progress', path: '/progress', icon: '📈' },
   { label: 'Revision', path: '/revision', icon: '🔁' },
   { label: 'Settings', path: '/settings', icon: '⚙️' },
 ];

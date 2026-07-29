@@ -1,4 +1,9 @@
-<a class="subject-card" [routerLink]="['/subjects', subject().id]">
+<a
+  class="subject-card"
+  [style.--accent]="visual().color"
+  [routerLink]="['/subjects', subject().id]"
+>
+  <span class="subject-card__icon" aria-hidden="true">{{ visual().emoji }}</span>
   <h3>{{ subject().title }}</h3>
   <p class="subject-card__description">{{ subject().description }}</p>
   <app-progress-bar [percentage]="percentage()" />
