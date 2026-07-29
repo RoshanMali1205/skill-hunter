@@ -6,13 +6,29 @@
   margin-top: var(--space-1);
 }
 
-.practice__filters {
+.practice__setup {
   @include card;
-  padding: var(--space-4);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+
+    app-icon {
+      color: var(--color-primary);
+      font-size: 1rem;
+    }
+  }
+}
+
+.practice__grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-3);
-  align-items: end;
+  gap: var(--space-4);
 
   @include respond-to(tablet) {
     grid-template-columns: repeat(2, 1fr);
@@ -26,35 +42,100 @@
 .practice__field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
   font-size: 0.85rem;
   color: var(--color-text-muted);
+  font-weight: 600;
 
-  select,
-  input[type='checkbox'] {
-    @include touch-target;
-    @include focus-ring;
+  span {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+
+    app-icon {
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+    }
   }
 
   select {
+    @include touch-target;
+    @include focus-ring;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     padding: var(--space-2) var(--space-3);
     background: var(--color-surface);
     color: var(--color-text);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+}
+
+.practice__toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.practice__toggle {
+  @include touch-target;
+  @include focus-ring;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: 999px;
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  app-icon {
+    font-size: 0.85rem;
   }
 
-  &--checkbox {
-    flex-direction: row;
-    align-items: center;
-
-    input {
-      min-height: auto;
-      min-width: auto;
-      width: 18px;
-      height: 18px;
-    }
+  &:hover {
+    border-color: var(--color-primary);
   }
+
+  &--active {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  }
+}
+
+.practice__generate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.practice__preview {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+
+  strong {
+    color: var(--color-text);
+    font-size: 1.1rem;
+  }
+}
+
+.practice__generate-btn {
+  padding: var(--space-3) var(--space-6);
 }
 
 .practice__progress {
@@ -65,27 +146,59 @@
 
 .practice__summary {
   @include card;
-  padding: var(--space-5);
+  padding: var(--space-6) var(--space-5);
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
   align-items: center;
+  gap: var(--space-4);
+}
+
+.practice__summary-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-success) 14%, transparent);
+  color: var(--color-success);
+  font-size: 2rem;
 }
 
 .practice__summary-stats {
   display: flex;
   gap: var(--space-6);
-  margin: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
 
-  dt {
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
-  }
+.practice__summary-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
 
-  dd {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
+.practice__summary-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.practice__summary-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.practice__summary-stat--correct .practice__summary-value {
+  color: var(--color-success);
+}
+
+.practice__summary-stat--incorrect .practice__summary-value {
+  color: var(--color-danger);
+}
+
+.practice__summary-stat--revision .practice__summary-value {
+  color: var(--color-warning);
 }

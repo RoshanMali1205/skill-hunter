@@ -1,0 +1,90 @@
+<div class="auth-form">
+  <h1>Create your account</h1>
+  <p class="auth-form__subtitle">Track your own progress, streaks, and bookmarks.</p>
+
+  @if (error(); as message) {
+    <p class="auth-form__error">{{ message }}</p>
+  }
+
+  <form (ngSubmit)="submit()">
+    <label class="auth-form__field">
+      <span>Full name</span>
+      <input
+        type="text"
+        required
+        [ngModel]="name()"
+        (ngModelChange)="name.set($event)"
+        name="name"
+        autocomplete="name"
+      />
+    </label>
+
+    <label class="auth-form__field">
+      <span>Email</span>
+      <input
+        type="email"
+        required
+        [ngModel]="email()"
+        (ngModelChange)="email.set($event)"
+        name="email"
+        autocomplete="email"
+      />
+    </label>
+
+    <label class="auth-form__field">
+      <span>Password</span>
+      <div class="auth-form__password">
+        <input
+          [type]="showPassword() ? 'text' : 'password'"
+          required
+          [ngModel]="password()"
+          (ngModelChange)="password.set($event)"
+          name="password"
+          autocomplete="new-password"
+        />
+        <button
+          type="button"
+          class="auth-form__toggle"
+          (click)="togglePassword()"
+          [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+        >
+          <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" />
+        </button>
+      </div>
+      @if (password()) {
+        <div class="auth-form__strength" [attr.data-strength]="strength()">
+          @for (i of [0, 1, 2, 3]; track i) {
+            <span
+              class="auth-form__strength-bar"
+              [class.auth-form__strength-bar--filled]="i < strength()"
+            ></span>
+          }
+          <span class="auth-form__strength-label">{{ strengthLabel() }}</span>
+        </div>
+      } @else {
+        <span class="auth-form__hint">At least 8 characters, one uppercase letter, one number.</span>
+      }
+    </label>
+
+    <label class="auth-form__field">
+      <span>Confirm password</span>
+      <input
+        type="password"
+        required
+        [ngModel]="confirmPassword()"
+        (ngModelChange)="confirmPassword.set($event)"
+        name="confirmPassword"
+        autocomplete="new-password"
+      />
+      @if (passwordsMismatch()) {
+        <span class="auth-form__error-inline">Passwords don't match.</span>
+      }
+    </label>
+
+    <button type="submit" class="btn btn--primary auth-form__submit" [disabled]="!canSubmit()">
+      {{ isLoading() ? 'Creating account…' : 'Create account' }}
+    </button>
+  </form>
+
+  <p class="auth-form__switch">Already have an account? <a routerLink="/login">Sign in</a></p>
+</div>

@@ -211,7 +211,7 @@ h2 {
 
 .calendar__month-day {
   @include focus-ring;
-  aspect-ratio: 1;
+  height: 56px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -223,9 +223,14 @@ h2 {
   cursor: pointer;
   font-family: inherit;
   color: var(--color-text);
+  position: relative;
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease;
+
+  @include respond-to(tablet) {
+    height: 68px;
+  }
 
   &:hover {
     border-color: var(--color-primary);
@@ -238,6 +243,12 @@ h2 {
   &--today {
     border-color: var(--color-primary);
     border-width: 2px;
+    background: color-mix(in srgb, var(--color-primary) 14%, var(--color-surface));
+
+    .calendar__month-day-number {
+      color: var(--color-primary);
+      font-weight: 800;
+    }
   }
 
   &--selected {

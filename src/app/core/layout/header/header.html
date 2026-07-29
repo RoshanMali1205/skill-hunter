@@ -4,7 +4,44 @@
     <span class="header__brand-text">Skill Hunter</span>
   </a>
 
-  <app-search />
+  <div class="header__actions">
+    @if (user(); as currentUser) {
+      <div class="header__user">
+        <button
+          type="button"
+          class="header__user-trigger"
+          [class.header__user-trigger--open]="menuOpen()"
+          (click)="toggleMenu()"
+          [attr.aria-expanded]="menuOpen()"
+        >
+          <span class="header__user-avatar" aria-hidden="true">{{ initials(currentUser.name) }}</span>
+          <span class="header__user-name">{{ currentUser.name }}</span>
+          <app-icon name="chevron-right" class="header__user-chevron" />
+        </button>
 
-  <app-theme-toggle />
+        @if (menuOpen()) {
+          <button
+            type="button"
+            class="header__user-backdrop"
+            aria-label="Close menu"
+            (click)="closeMenu()"
+          ></button>
+          <div class="header__user-menu">
+            <a routerLink="/settings" class="header__user-menu-item" (click)="closeMenu()">
+              <app-icon name="settings" /> Settings
+            </a>
+            <button
+              type="button"
+              class="header__user-menu-item header__user-menu-item--danger"
+              (click)="logout()"
+            >
+              <app-icon name="log-out" /> Log out
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <app-theme-toggle />
+  </div>
 </header>

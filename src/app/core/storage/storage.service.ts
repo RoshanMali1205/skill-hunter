@@ -1,7 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { AuthService } from '../services/auth.service';
+import { scopedKey } from './storage-keys';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
+  private readonly authService = inject(AuthService);
   private readonly isBrowser = typeof window !== 'undefined' && !!window.localStorage;
 
   get<T>(key: string, fallback: T): T {
@@ -9,7 +12,8 @@ export class StorageService {
       return fallback;
     }
 
-    const raw = window.localStorage.getItem(key);
+    const fullKey = this.scoped(key);
+    const raw = window.localStorage.getItem(fullKey);
     if (raw === null) {
       return fallback;
     }
@@ -17,8 +21,8 @@ export class StorageService {
     try {
       return JSON.parse(raw) as T;
     } catch {
-      console.warn(`[StorageService] Corrupted value for key "${key}", resetting to default.`);
-      window.localStorage.removeItem(key);
+      console.warn(`[StorageService] Corrupted value for key "${fullKey}", resetting to default.`);
+      window.localStorage.removeItem(fullKey);
       return fallback;
     }
   }
@@ -28,7 +32,7 @@ export class StorageService {
       return;
     }
 
-    window.localStorage.setItem(key, JSON.stringify(value));
+    window.localStorage.setItem(this.scoped(key), JSON.stringify(value));
   }
 
   remove(key: string): void {
@@ -36,10 +40,14 @@ export class StorageService {
       return;
     }
 
-    window.localStorage.removeItem(key);
+    window.localStorage.removeItem(this.scoped(key));
   }
 
   clear(keys: string[]): void {
     keys.forEach((key) => this.remove(key));
+  }
+
+  private scoped(key: string): string {
+    return scopedKey(key, this.authService.currentUserId());
   }
 }

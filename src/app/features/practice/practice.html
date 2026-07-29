@@ -5,101 +5,137 @@
   </div>
 
   @if (!started()) {
-    <div class="practice__filters">
-      <label class="practice__field">
-        <span>Subject</span>
-        <select
-          [ngModel]="filter().subjectId ?? ''"
-          (ngModelChange)="updateFilter({ subjectId: $event || undefined, categoryId: undefined })"
-        >
-          <option value="">All Subjects</option>
-          @for (subject of subjects(); track subject.id) {
-            <option [value]="subject.id">{{ subject.title }}</option>
-          }
-        </select>
-      </label>
+    <section class="practice__setup">
+      <h2><app-icon name="target" /> Filters</h2>
 
-      @if (selectedSubjectCategories().length > 0) {
+      <div class="practice__grid">
         <label class="practice__field">
-          <span>Category</span>
+          <span><app-icon name="book-open" /> Subject</span>
           <select
-            [ngModel]="filter().categoryId ?? ''"
-            (ngModelChange)="updateFilter({ categoryId: $event || undefined })"
+            [ngModel]="filter().subjectId ?? ''"
+            (ngModelChange)="updateFilter({ subjectId: $event || undefined, categoryId: undefined })"
           >
-            <option value="">All Categories</option>
-            @for (category of selectedSubjectCategories(); track category.id) {
-              <option [value]="category.id">{{ category.title }}</option>
+            <option value="">All Subjects</option>
+            @for (subject of subjects(); track subject.id) {
+              <option [value]="subject.id">{{ subject.title }}</option>
             }
           </select>
         </label>
-      }
 
-      <label class="practice__field">
-        <span>Difficulty</span>
-        <select
-          [ngModel]="filter().difficulty ?? 'all'"
-          (ngModelChange)="updateFilter({ difficulty: $event })"
+        @if (selectedSubjectCategories().length > 0) {
+          <label class="practice__field">
+            <span><app-icon name="pie-chart" /> Category</span>
+            <select
+              [ngModel]="filter().categoryId ?? ''"
+              (ngModelChange)="updateFilter({ categoryId: $event || undefined })"
+            >
+              <option value="">All Categories</option>
+              @for (category of selectedSubjectCategories(); track category.id) {
+                <option [value]="category.id">{{ category.title }}</option>
+              }
+            </select>
+          </label>
+        }
+
+        <label class="practice__field">
+          <span><app-icon name="bar-chart" /> Difficulty</span>
+          <select
+            [ngModel]="filter().difficulty ?? 'all'"
+            (ngModelChange)="updateFilter({ difficulty: $event })"
+          >
+            <option value="all">All</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </label>
+
+        <label class="practice__field">
+          <span><app-icon name="code" /> Question Type</span>
+          <select
+            [ngModel]="filter().questionType ?? 'all'"
+            (ngModelChange)="updateFilter({ questionType: $event })"
+          >
+            <option value="all">All</option>
+            <option value="output-question">Code Output</option>
+            <option value="interview-question">Interview Question</option>
+            <option value="tricky-question">Tricky Question</option>
+            <option value="scenario-question">Scenario Question</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="practice__toggles">
+        <button
+          type="button"
+          class="practice__toggle"
+          [class.practice__toggle--active]="filter().onlyBookmarked"
+          (click)="updateFilter({ onlyBookmarked: !filter().onlyBookmarked })"
         >
-          <option value="all">All</option>
-          <option value="beginner">Beginner</option>
-          <option value="intermediate">Intermediate</option>
-          <option value="advanced">Advanced</option>
-        </select>
-      </label>
+          <app-icon name="bookmark" [filled]="!!filter().onlyBookmarked" />
+          Only bookmarked
+        </button>
 
-      <label class="practice__field">
-        <span>Question Type</span>
-        <select
-          [ngModel]="filter().questionType ?? 'all'"
-          (ngModelChange)="updateFilter({ questionType: $event })"
+        <button
+          type="button"
+          class="practice__toggle"
+          [class.practice__toggle--active]="filter().onlyWeak"
+          (click)="updateFilter({ onlyWeak: !filter().onlyWeak })"
         >
-          <option value="all">All</option>
-          <option value="output-question">Code Output</option>
-          <option value="interview-question">Interview Question</option>
-          <option value="tricky-question">Tricky Question</option>
-          <option value="scenario-question">Scenario Question</option>
-        </select>
-      </label>
+          <app-icon name="triangle-alert" [filled]="!!filter().onlyWeak" />
+          Only weak topics
+        </button>
 
-      <label class="practice__field practice__field--checkbox">
-        <input
-          type="checkbox"
-          [ngModel]="filter().onlyBookmarked"
-          (ngModelChange)="updateFilter({ onlyBookmarked: $event })"
-        />
-        <span>Only bookmarked questions</span>
-      </label>
+        <button
+          type="button"
+          class="practice__toggle"
+          [class.practice__toggle--active]="filter().random"
+          (click)="updateFilter({ random: !filter().random })"
+        >
+          <app-icon name="repeat" [filled]="!!filter().random" />
+          Random order
+        </button>
+      </div>
 
-      <label class="practice__field practice__field--checkbox">
-        <input
-          type="checkbox"
-          [ngModel]="filter().onlyWeak"
-          (ngModelChange)="updateFilter({ onlyWeak: $event })"
-        />
-        <span>Only weak topics</span>
-      </label>
-
-      <label class="practice__field practice__field--checkbox">
-        <input
-          type="checkbox"
-          [ngModel]="filter().random"
-          (ngModelChange)="updateFilter({ random: $event })"
-        />
-        <span>Random order</span>
-      </label>
-
-      <button type="button" class="btn btn--primary" (click)="startPractice()">
-        Generate Questions
-      </button>
-    </div>
+      <div class="practice__generate">
+        <p class="practice__preview">
+          @if (previewCount() > 0) {
+            <strong>{{ previewCount() }}</strong>
+            question{{ previewCount() === 1 ? '' : 's' }} match your filters.
+          } @else {
+            No questions match these filters yet — try widening them.
+          }
+        </p>
+        <button
+          type="button"
+          class="btn btn--primary practice__generate-btn"
+          (click)="startPractice()"
+          [disabled]="previewCount() === 0"
+        >
+          <app-icon name="play" [filled]="true" /> Generate Questions
+        </button>
+      </div>
+    </section>
   } @else if (sessionComplete()) {
     <div class="practice__summary">
+      <span class="practice__summary-icon" aria-hidden="true">
+        <app-icon name="trophy" [filled]="true" />
+      </span>
       <h2>Session Complete</h2>
-      <dl class="practice__summary-stats">
-        <div><dt>Correct</dt><dd>{{ sessionResults().correct }}</dd></div>
-        <div><dt>Incorrect</dt><dd>{{ sessionResults().incorrect }}</dd></div>
-        <div><dt>Needs Revision</dt><dd>{{ sessionResults().needsRevision }}</dd></div>
-      </dl>
+      <div class="practice__summary-stats">
+        <div class="practice__summary-stat practice__summary-stat--correct">
+          <span class="practice__summary-value">{{ sessionResults().correct }}</span>
+          <span class="practice__summary-label">Correct</span>
+        </div>
+        <div class="practice__summary-stat practice__summary-stat--incorrect">
+          <span class="practice__summary-value">{{ sessionResults().incorrect }}</span>
+          <span class="practice__summary-label">Incorrect</span>
+        </div>
+        <div class="practice__summary-stat practice__summary-stat--revision">
+          <span class="practice__summary-value">{{ sessionResults().needsRevision }}</span>
+          <span class="practice__summary-label">Needs Revision</span>
+        </div>
+      </div>
       <button type="button" class="btn btn--primary" (click)="restart()">
         Start New Session
       </button>

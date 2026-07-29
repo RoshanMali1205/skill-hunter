@@ -3,6 +3,7 @@
 @use 'styles/typography';
 @use 'styles/mixins' as *;
 @use 'styles/utilities';
+@use 'styles/auth';
 
 * {
   box-sizing: border-box;

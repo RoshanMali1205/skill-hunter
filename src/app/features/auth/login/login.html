@@ -1,0 +1,54 @@
+<div class="auth-form">
+  <h1>Welcome back</h1>
+  <p class="auth-form__subtitle">Sign in to continue your prep.</p>
+
+  @if (error(); as message) {
+    <p class="auth-form__error">{{ message }}</p>
+  }
+
+  <form (ngSubmit)="submit()">
+    <label class="auth-form__field">
+      <span>Email</span>
+      <input
+        type="email"
+        required
+        [ngModel]="email()"
+        (ngModelChange)="email.set($event)"
+        name="email"
+        autocomplete="email"
+      />
+    </label>
+
+    <label class="auth-form__field">
+      <span>Password</span>
+      <div class="auth-form__password">
+        <input
+          [type]="showPassword() ? 'text' : 'password'"
+          required
+          [ngModel]="password()"
+          (ngModelChange)="password.set($event)"
+          name="password"
+          autocomplete="current-password"
+        />
+        <button
+          type="button"
+          class="auth-form__toggle"
+          (click)="togglePassword()"
+          [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+        >
+          <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" />
+        </button>
+      </div>
+    </label>
+
+    <button
+      type="submit"
+      class="btn btn--primary auth-form__submit"
+      [disabled]="isLoading() || !email() || !password()"
+    >
+      {{ isLoading() ? 'Signing in…' : 'Sign in' }}
+    </button>
+  </form>
+
+  <p class="auth-form__switch">Don't have an account? <a routerLink="/register">Create one</a></p>
+</div>

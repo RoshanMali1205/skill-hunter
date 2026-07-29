@@ -11,10 +11,11 @@ import { SettingsService } from '../../core/services/settings.service';
 import { PracticeFilter } from '../../core/models/filters.models';
 import { QuestionCardComponent } from '../../shared/components/question-card/question-card';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
+import { IconComponent } from '../../shared/components/icon/icon';
 
 @Component({
   selector: 'app-practice',
-  imports: [FormsModule, QuestionCardComponent, EmptyStateComponent],
+  imports: [FormsModule, QuestionCardComponent, EmptyStateComponent, IconComponent],
   templateUrl: './practice.html',
   styleUrl: './practice.scss',
 })
@@ -80,6 +81,17 @@ export class PracticeComponent {
     return ids;
   });
 
+  private readonly previewPool = computed(() =>
+    this.practiceService.buildQuestionPool(
+      this.availableTopics(),
+      this.filter(),
+      this.bookmarkService.bookmarkedQuestionIds(),
+      this.weakTopicIds(),
+    ),
+  );
+
+  readonly previewCount = computed(() => this.previewPool().length);
+
   readonly pool = signal<ReturnType<PracticeService['buildQuestionPool']>>([]);
   readonly currentIndex = signal(0);
   readonly sessionResults = signal<{ correct: number; incorrect: number; needsRevision: number }>({
@@ -100,13 +112,7 @@ export class PracticeComponent {
   }
 
   startPractice(): void {
-    const pool = this.practiceService.buildQuestionPool(
-      this.availableTopics(),
-      this.filter(),
-      this.bookmarkService.bookmarkedQuestionIds(),
-      this.weakTopicIds(),
-    );
-    this.pool.set(pool);
+    this.pool.set(this.previewPool());
     this.currentIndex.set(0);
     this.sessionResults.set({ correct: 0, incorrect: 0, needsRevision: 0 });
     this.started.set(true);
