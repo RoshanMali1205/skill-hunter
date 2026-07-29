@@ -115,6 +115,98 @@ netlify/functions/
                 and forwards chat requests from AiAssistantService
 ```
 
+## Architecture
+
+### App shell & layout
+
+```mermaid
+flowchart TD
+    A[AppComponent] --> B{Signed in?}
+    B -- No --> C[AuthLayout<br/>Login / Register]
+    B -- Yes --> D[AppShell]
+    D --> E[Header<br/>brand · user menu · theme toggle]
+    D --> F[Sidebar<br/>search · nav · app version]
+    D --> G[router-outlet<br/>active feature page]
+    D --> H[Mobile Nav<br/>bottom bar + More sheet]
+    G --> I[Dashboard]
+    G --> J[Subjects → Topics]
+    G --> K[Practice]
+    G --> L[Playground]
+    G --> M[AI Mentor]
+    G --> N[Calendar]
+    G --> O[Bookmarks · Revision · Settings]
+```
+
+### Per-account data flow
+
+Every read/write goes through `StorageService`, which transparently namespaces the key by whichever account is currently signed in — this is what keeps two accounts on the same browser from ever seeing each other's data, with no per-service code needed.
+
+```mermaid
+flowchart LR
+    Comp[Component<br/>signals] <--> Svc[ProgressStore · BookmarkService<br/>ActivityService · SettingsService · ...]
+    Svc <--> Store[StorageService]
+    Auth[AuthService<br/>currentUserId] -.->|scopedKey = key + '::' + userId| Store
+    Store --> LS[(localStorage)]
+```
+
+### Auth flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant P as Login / Register page
+    participant A as AuthService
+    participant W as Web Crypto (PBKDF2-SHA256)
+    participant L as localStorage
+
+    U->>P: Submit form
+    P->>A: login() / register()
+    A->>W: hash password (random salt, 120k iterations)
+    W-->>A: password hash
+    A->>L: read/write scoped account + session
+    Note over A,L: First-ever account also inherits<br/>any pre-existing unscoped data
+    A-->>P: success or error message
+    P-->>U: redirect to /dashboard, or show the error inline
+```
+
+### AI Mentor request flow
+
+The API key never reaches the browser — this is the whole reason a serverless proxy exists instead of calling Gemini directly from Angular.
+
+```mermaid
+sequenceDiagram
+    participant B as Browser (AiAssistantService)
+    participant N as Netlify Function (ai-chat.mjs)
+    participant G as Gemini API
+
+    B->>N: POST /api/ai-chat  { messages, context, x-app-token }
+    Note over N: validates shared token · GEMINI_API_KEY<br/>lives only in this function's env
+    N->>G: POST generateContent (x-goog-api-key)
+    G-->>N: candidate response
+    N-->>B: { reply: string }
+    Note over B: markdown parser renders headings/code/lists<br/>— escapes input first, emits only whitelisted tags
+```
+
+### Playground sandbox flow
+
+```mermaid
+sequenceDiagram
+    participant E as CodeMirror editor
+    participant C as CodeRunnerService
+    participant W as Web Worker (own thread, no DOM)
+
+    E->>C: run(code)
+    C->>W: postMessage({ code })
+    Note over C: starts a 4s timeout
+    alt finishes in time
+        W-->>C: postMessage({ logs, error, ms })
+        C-->>E: render console output
+    else exceeds 4s (e.g. infinite loop)
+        C->>W: terminate()
+        C-->>E: "Execution timed out" error, UI never froze
+    end
+```
+
 ## Adding content
 
 Content is plain JSON, so adding a topic doesn't require touching application code:
