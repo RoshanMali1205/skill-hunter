@@ -118,7 +118,7 @@ export default async (req) => {
       body: JSON.stringify({
         contents,
         systemInstruction: { parts: [{ text: SYSTEM_PROMPT + contextNote }] },
-        generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
+        generationConfig: { maxOutputTokens: 4096, temperature: 0.7 },
       }),
     });
   } catch (err) {
@@ -139,7 +139,12 @@ export default async (req) => {
   }
 
   const data = await upstream.json();
-  const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  const candidate = data?.candidates?.[0];
+  let reply = candidate?.content?.parts?.[0]?.text ?? "";
+
+  if (candidate?.finishReason === "MAX_TOKENS") {
+    reply += "\n\n*(Reply hit the length limit — ask me to \"continue\" for the rest.)*";
+  }
 
   return jsonResponse({ reply });
 };

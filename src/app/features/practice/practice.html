@@ -118,6 +118,7 @@
       </p>
       <app-question-card
         [question]="current.block"
+        [autoReveal]="settings().showAnswersAutomatically"
         [showSelfAssessment]="true"
         [bookmarked]="isQuestionBookmarked(current.block.id)"
         (bookmarkToggled)="toggleQuestionBookmark(current.block.id, current.topicId, current.subjectId)"

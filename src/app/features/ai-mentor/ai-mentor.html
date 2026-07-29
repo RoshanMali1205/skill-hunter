@@ -29,7 +29,11 @@
     @for (message of messages(); track $index) {
       <div class="ai-mentor__bubble" [class.ai-mentor__bubble--user]="message.role === 'user'">
         <span class="ai-mentor__role">{{ message.role === 'user' ? 'You' : 'AI Mentor' }}</span>
-        <p>{{ message.content }}</p>
+        @if (message.role === 'assistant') {
+          <div class="ai-mentor__markdown" [innerHTML]="message.content | markdown"></div>
+        } @else {
+          <p>{{ message.content }}</p>
+        }
       </div>
     }
 

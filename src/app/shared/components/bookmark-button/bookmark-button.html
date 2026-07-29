@@ -6,6 +6,6 @@
   [attr.aria-label]="bookmarked() ? 'Remove bookmark' : 'Add bookmark'"
   (click)="toggled.emit()"
 >
-  <span aria-hidden="true">{{ bookmarked() ? '★' : '☆' }}</span>
+  <app-icon name="bookmark" [filled]="bookmarked()" />
   <span>{{ bookmarked() ? 'Bookmarked' : 'Bookmark' }}</span>
 </button>

@@ -41,6 +41,11 @@ export const routes: Routes = [
     title: 'Practice · Skill Hunter',
   },
   {
+    path: 'calendar',
+    loadComponent: () => import('./features/calendar/calendar').then((m) => m.CalendarComponent),
+    title: 'Calendar · Skill Hunter',
+  },
+  {
     path: 'bookmarks',
     loadComponent: () =>
       import('./features/bookmarks/bookmarks').then((m) => m.BookmarksComponent),

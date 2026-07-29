@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { SettingsService } from '../../services/settings.service';
+import { IconComponent } from '../../../shared/components/icon/icon';
 
 @Component({
   selector: 'app-theme-toggle',
+  imports: [IconComponent],
   templateUrl: './theme-toggle.html',
   styleUrl: './theme-toggle.scss',
 })

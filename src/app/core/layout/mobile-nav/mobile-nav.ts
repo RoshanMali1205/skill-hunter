@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { IconComponent } from '../../../shared/components/icon/icon';
 
 interface NavItem {
   label: string;
@@ -8,19 +9,35 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Home', path: '/dashboard', icon: '🏠' },
-  { label: 'Subjects', path: '/subjects', icon: '📚' },
-  { label: 'Practice', path: '/practice', icon: '🎯' },
-  { label: 'AI Mentor', path: '/ai-mentor', icon: '🤖' },
-  { label: 'Settings', path: '/settings', icon: '⚙️' },
+  { label: 'Home', path: '/dashboard', icon: 'home' },
+  { label: 'Subjects', path: '/subjects', icon: 'book-open' },
+  { label: 'Practice', path: '/practice', icon: 'target' },
+  { label: 'AI Mentor', path: '/ai-mentor', icon: 'bot' },
+];
+
+const MORE_ITEMS: NavItem[] = [
+  { label: 'Calendar', path: '/calendar', icon: 'calendar' },
+  { label: 'Bookmarks', path: '/bookmarks', icon: 'bookmark' },
+  { label: 'Revision', path: '/revision', icon: 'repeat' },
+  { label: 'Settings', path: '/settings', icon: 'settings' },
 ];
 
 @Component({
   selector: 'app-mobile-nav',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, IconComponent],
   templateUrl: './mobile-nav.html',
   styleUrl: './mobile-nav.scss',
 })
 export class MobileNavComponent {
   readonly navItems = NAV_ITEMS;
+  readonly moreItems = MORE_ITEMS;
+  readonly moreOpen = signal(false);
+
+  toggleMore(): void {
+    this.moreOpen.update((open) => !open);
+  }
+
+  closeMore(): void {
+    this.moreOpen.set(false);
+  }
 }

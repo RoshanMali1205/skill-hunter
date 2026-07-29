@@ -7,6 +7,7 @@ import { ProgressStore } from '../../core/services/progress.store';
 import { BookmarkService } from '../../core/services/bookmark.service';
 import { PracticeService } from '../../core/services/practice.service';
 import { RevisionService } from '../../core/services/revision.service';
+import { SettingsService } from '../../core/services/settings.service';
 import { PracticeFilter } from '../../core/models/filters.models';
 import { QuestionCardComponent } from '../../shared/components/question-card/question-card';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
@@ -23,6 +24,9 @@ export class PracticeComponent {
   private readonly bookmarkService = inject(BookmarkService);
   private readonly practiceService = inject(PracticeService);
   private readonly revisionService = inject(RevisionService);
+  private readonly settingsService = inject(SettingsService);
+
+  readonly settings = this.settingsService.settings;
 
   subjectId = input<string>();
   topicId = input<string>();

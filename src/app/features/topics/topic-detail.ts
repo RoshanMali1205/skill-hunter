@@ -6,6 +6,7 @@ import { ContentService } from '../../core/services/content.service';
 import { ProgressStore } from '../../core/services/progress.store';
 import { BookmarkService } from '../../core/services/bookmark.service';
 import { RevisionService } from '../../core/services/revision.service';
+import { SettingsService } from '../../core/services/settings.service';
 import { ConfidenceLevel } from '../../core/models';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb';
 import { DifficultyChipComponent } from '../../shared/components/difficulty-chip/difficulty-chip';
@@ -39,7 +40,10 @@ export class TopicDetailComponent {
   private readonly progressStore = inject(ProgressStore);
   private readonly bookmarkService = inject(BookmarkService);
   private readonly revisionService = inject(RevisionService);
+  private readonly settingsService = inject(SettingsService);
   private readonly router = inject(Router);
+
+  readonly settings = this.settingsService.settings;
 
   subjectId = input.required<string>();
   topicId = input.required<string>();

@@ -34,6 +34,10 @@ export class SettingsService {
     this.update({ showAnswersAutomatically });
   }
 
+  setDailyGoalMinutes(dailyGoalMinutes: number): void {
+    this.update({ dailyGoalMinutes });
+  }
+
   replaceAll(settings: AppSettings): void {
     this._settings.set(settings);
     this.persist();

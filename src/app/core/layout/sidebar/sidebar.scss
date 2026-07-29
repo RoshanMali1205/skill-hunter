@@ -2,11 +2,17 @@
 @use 'mixins' as *;
 
 .sidebar {
+  @include custom-scrollbar;
   display: none;
+  flex-shrink: 0;
   width: var(--sidebar-width);
   border-right: 1px solid var(--color-border);
   background: var(--color-surface);
   padding: var(--space-5) var(--space-3);
+  position: sticky;
+  top: var(--header-height);
+  height: calc(100dvh - var(--header-height));
+  overflow-y: auto;
 
   @include respond-to(desktop) {
     display: block;
@@ -38,7 +44,7 @@
     background-color 0.15s ease,
     color 0.15s ease;
 
-  span:first-child {
+  app-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -59,8 +65,9 @@
     background: color-mix(in srgb, var(--color-primary) 12%, transparent);
     color: var(--color-primary);
 
-    span:first-child {
+    app-icon {
       background: var(--gradient-primary);
+      color: var(--color-primary-contrast);
       box-shadow: var(--shadow-primary);
     }
 

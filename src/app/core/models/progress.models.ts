@@ -38,13 +38,18 @@ export interface AppSettings {
   theme: 'light' | 'dark';
   defaultDifficulty: 'all' | 'beginner' | 'intermediate' | 'advanced';
   showAnswersAutomatically: boolean;
+  dailyGoalMinutes: number;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
   theme: 'light',
   defaultDifficulty: 'all',
   showAnswersAutomatically: false,
+  dailyGoalMinutes: 20,
 };
+
+/** Seconds of active study time, keyed by local date ("YYYY-MM-DD"). */
+export type ActivityLog = Record<string, number>;
 
 export interface StoredApplicationData {
   version: number;
@@ -53,4 +58,5 @@ export interface StoredApplicationData {
   practiceHistory: PracticeAttempt[];
   revisionTopicIds: string[];
   settings: AppSettings;
+  activity?: ActivityLog;
 }

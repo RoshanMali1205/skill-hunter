@@ -7,7 +7,7 @@
       [attr.aria-pressed]="confidence() === option.value"
       (click)="changed.emit(option.value)"
     >
-      <span aria-hidden="true">{{ option.emoji }}</span>
+      <app-icon name="circle" [filled]="true" [style.color]="option.color" />
       {{ option.label }}
     </button>
   }

@@ -2,6 +2,7 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AiAssistantService } from '../../core/services/ai-assistant.service';
 import { AiChatMessage } from '../../core/models';
+import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
 
 interface QuickPrompt {
   label: string;
@@ -17,7 +18,7 @@ const QUICK_PROMPTS: QuickPrompt[] = [
 
 @Component({
   selector: 'app-ai-mentor',
-  imports: [FormsModule],
+  imports: [FormsModule, MarkdownPipe],
   templateUrl: './ai-mentor.html',
   styleUrl: './ai-mentor.scss',
 })

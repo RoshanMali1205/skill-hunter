@@ -4,6 +4,7 @@ export interface BarChartRow {
   label: string;
   value: number;
   color: string;
+  total?: number;
 }
 
 @Component({
@@ -15,9 +16,15 @@ export class BarChartComponent {
   rows = input.required<BarChartRow[]>();
   unit = input<string>('');
 
-  readonly maxValue = computed(() => Math.max(1, ...this.rows().map((r) => r.value)));
+  readonly maxValue = computed(() => Math.max(1, ...this.rows().map((r) => r.total ?? r.value)));
 
-  widthFor(value: number): number {
-    return Math.round((value / this.maxValue()) * 100);
+  widthFor(row: BarChartRow): number {
+    const denominator = row.total ?? this.maxValue();
+    if (denominator === 0) return 0;
+    return Math.round((row.value / denominator) * 100);
+  }
+
+  valueLabel(row: BarChartRow): string {
+    return row.total !== undefined ? `${row.value} / ${row.total}` : `${row.value}${this.unit()}`;
   }
 }

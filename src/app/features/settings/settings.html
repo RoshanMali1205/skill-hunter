@@ -69,14 +69,29 @@
       Interview content itself is never affected.
     </p>
     @if (!confirmingReset()) {
-      <button type="button" class="btn btn--danger" (click)="requestReset()">
+      <button type="button" class="btn btn--danger settings__reset-btn" (click)="requestReset()">
         Reset All Progress
       </button>
     } @else {
       <div class="settings__confirm">
-        <p>Are you sure? This cannot be undone.</p>
+        <p>
+          This cannot be undone. Type <strong>RESET</strong> below to confirm.
+        </p>
+        <input
+          type="text"
+          class="settings__confirm-input"
+          [ngModel]="resetConfirmText()"
+          (ngModelChange)="resetConfirmText.set($event)"
+          placeholder="Type RESET"
+          autocomplete="off"
+        />
         <div class="cluster">
-          <button type="button" class="btn btn--danger" (click)="confirmReset()">
+          <button
+            type="button"
+            class="btn btn--danger"
+            [disabled]="!canConfirmReset()"
+            (click)="confirmReset()"
+          >
             Yes, reset everything
           </button>
           <button type="button" class="btn" (click)="cancelReset()">Cancel</button>

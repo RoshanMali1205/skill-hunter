@@ -1,1 +1,4 @@
-<span class="chip" [attr.data-priority]="priority()">{{ label() }}</span>
+<span class="chip" [attr.data-priority]="priority()">
+  <app-icon [name]="config().icon" [filled]="config().filled" />
+  {{ config().label }}
+</span>

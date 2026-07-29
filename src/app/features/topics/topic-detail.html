@@ -61,6 +61,7 @@
           @default {
             <app-question-card
               [question]="block"
+              [autoReveal]="settings().showAnswersAutomatically"
               [bookmarked]="isQuestionBookmarked(block.id)"
               (bookmarkToggled)="toggleQuestionBookmark(block.id)"
             />

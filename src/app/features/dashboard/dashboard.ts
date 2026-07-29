@@ -4,9 +4,13 @@ import { RouterLink } from '@angular/router';
 import { ContentService } from '../../core/services/content.service';
 import { ProgressStore } from '../../core/services/progress.store';
 import { MetricsService } from '../../core/services/metrics.service';
+import { BookmarkService } from '../../core/services/bookmark.service';
+import { ActivityService } from '../../core/services/activity.service';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar';
 import { DonutChartComponent } from '../../shared/components/donut-chart/donut-chart';
 import { BarChartComponent } from '../../shared/components/bar-chart/bar-chart';
+import { DifficultyChipComponent } from '../../shared/components/difficulty-chip/difficulty-chip';
+import { IconComponent } from '../../shared/components/icon/icon';
 import { subjectVisual } from '../../shared/subject-visuals';
 import { Subject, TopicSummary } from '../../core/models';
 
@@ -25,7 +29,14 @@ function findTopic(
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, ProgressBarComponent, DonutChartComponent, BarChartComponent],
+  imports: [
+    RouterLink,
+    ProgressBarComponent,
+    DonutChartComponent,
+    BarChartComponent,
+    DifficultyChipComponent,
+    IconComponent,
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -33,8 +44,12 @@ export class DashboardComponent {
   private readonly contentService = inject(ContentService);
   private readonly progressStore = inject(ProgressStore);
   private readonly metricsService = inject(MetricsService);
+  private readonly bookmarkService = inject(BookmarkService);
+  private readonly activityService = inject(ActivityService);
 
   readonly subjectVisual = subjectVisual;
+  readonly currentStreak = this.activityService.currentStreak;
+  readonly todayMinutes = this.activityService.todayMinutes;
 
   private readonly subjects = toSignal(this.contentService.getSubjects(), { initialValue: [] });
 
@@ -57,18 +72,38 @@ export class DashboardComponent {
   });
 
   readonly difficultyRows = computed(() => {
-    const counts = { beginner: 0, intermediate: 0, advanced: 0 };
+    const progress = this.progressStore.progress();
+    const totals = { beginner: 0, intermediate: 0, advanced: 0 };
+    const completed = { beginner: 0, intermediate: 0, advanced: 0 };
     for (const subject of this.subjects()) {
       for (const category of subject.categories) {
         for (const topic of category.topics) {
-          counts[topic.difficulty]++;
+          totals[topic.difficulty]++;
+          if (progress[topic.id]?.status === 'completed') {
+            completed[topic.difficulty]++;
+          }
         }
       }
     }
     return [
-      { label: 'Beginner', value: counts.beginner, color: 'var(--color-difficulty-beginner)' },
-      { label: 'Intermediate', value: counts.intermediate, color: 'var(--color-difficulty-intermediate)' },
-      { label: 'Advanced', value: counts.advanced, color: 'var(--color-difficulty-advanced)' },
+      {
+        label: 'Beginner',
+        value: completed.beginner,
+        total: totals.beginner,
+        color: 'var(--color-difficulty-beginner)',
+      },
+      {
+        label: 'Intermediate',
+        value: completed.intermediate,
+        total: totals.intermediate,
+        color: 'var(--color-difficulty-intermediate)',
+      },
+      {
+        label: 'Advanced',
+        value: completed.advanced,
+        total: totals.advanced,
+        color: 'var(--color-difficulty-advanced)',
+      },
     ];
   });
 
@@ -80,11 +115,22 @@ export class DashboardComponent {
       for (const category of subject.categories) {
         const topic = category.topics.find((t) => t.id === recent.topicId);
         if (topic) {
-          return { subjectId: subject.id, topic };
+          return { subjectId: subject.id, subjectTitle: subject.title, topic };
         }
       }
     }
     return undefined;
+  });
+
+  readonly recentBookmarks = computed(() => {
+    const subjects = this.subjects();
+    return this.bookmarkService
+      .bookmarks()
+      .filter((b) => b.entityType === 'topic')
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, 3)
+      .map((b) => ({ bookmark: b, resolved: findTopic(subjects, b.topicId) }))
+      .filter((entry) => !!entry.resolved);
   });
 
   readonly strongCategories = computed(() =>

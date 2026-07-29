@@ -1,12 +1,41 @@
+@if (moreOpen()) {
+  <button type="button" class="mobile-nav__backdrop" aria-label="Close menu" (click)="closeMore()"></button>
+  <div class="mobile-nav__sheet">
+    @for (item of moreItems; track item.path) {
+      <a
+        [routerLink]="item.path"
+        routerLinkActive="mobile-nav__sheet-link--active"
+        class="mobile-nav__sheet-link"
+        (click)="closeMore()"
+      >
+        <app-icon [name]="item.icon" />
+        <span>{{ item.label }}</span>
+      </a>
+    }
+  </div>
+}
+
 <nav class="mobile-nav" aria-label="Mobile navigation">
   @for (item of navItems; track item.path) {
     <a
       [routerLink]="item.path"
       routerLinkActive="mobile-nav__link--active"
       class="mobile-nav__link"
+      (click)="closeMore()"
     >
-      <span aria-hidden="true">{{ item.icon }}</span>
+      <app-icon [name]="item.icon" />
       <span>{{ item.label }}</span>
     </a>
   }
+
+  <button
+    type="button"
+    class="mobile-nav__link"
+    [class.mobile-nav__link--active]="moreOpen()"
+    [attr.aria-expanded]="moreOpen()"
+    (click)="toggleMore()"
+  >
+    <app-icon name="settings" />
+    <span>More</span>
+  </button>
 </nav>

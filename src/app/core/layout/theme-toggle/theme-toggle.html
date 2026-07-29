@@ -2,11 +2,12 @@
   type="button"
   class="theme-toggle"
   [attr.aria-label]="settings().theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+  [attr.aria-pressed]="settings().theme === 'dark'"
   (click)="toggle()"
 >
   @if (settings().theme === 'dark') {
-    <span aria-hidden="true">☀️</span>
+    <app-icon name="sun" />
   } @else {
-    <span aria-hidden="true">🌙</span>
+    <app-icon name="moon" />
   }
 </button>

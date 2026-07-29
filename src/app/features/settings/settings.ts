@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../../core/services/settings.service';
 import { DataManagementService } from '../../core/services/data-management.service';
@@ -16,6 +16,8 @@ export class SettingsComponent {
 
   readonly settings = this.settingsService.settings;
   readonly confirmingReset = signal(false);
+  readonly resetConfirmText = signal('');
+  readonly canConfirmReset = computed(() => this.resetConfirmText().trim().toUpperCase() === 'RESET');
   readonly importMessage = signal<{ text: string; success: boolean } | null>(null);
 
   setTheme(theme: AppSettings['theme']): void {
@@ -58,14 +60,18 @@ export class SettingsComponent {
 
   requestReset(): void {
     this.confirmingReset.set(true);
+    this.resetConfirmText.set('');
   }
 
   cancelReset(): void {
     this.confirmingReset.set(false);
+    this.resetConfirmText.set('');
   }
 
   confirmReset(): void {
+    if (!this.canConfirmReset()) return;
     this.dataManagementService.resetAllProgress();
     this.confirmingReset.set(false);
+    this.resetConfirmText.set('');
   }
 }

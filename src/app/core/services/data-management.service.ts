@@ -4,6 +4,7 @@ import { BookmarkService } from './bookmark.service';
 import { PracticeService } from './practice.service';
 import { RevisionService } from './revision.service';
 import { SettingsService } from './settings.service';
+import { ActivityService } from './activity.service';
 import { CURRENT_DATA_VERSION } from '../storage/storage-keys';
 import { StoredApplicationData } from '../models';
 
@@ -14,6 +15,7 @@ export class DataManagementService {
   private readonly practiceService = inject(PracticeService);
   private readonly revisionService = inject(RevisionService);
   private readonly settingsService = inject(SettingsService);
+  private readonly activityService = inject(ActivityService);
 
   buildExport(): StoredApplicationData {
     return {
@@ -23,6 +25,7 @@ export class DataManagementService {
       practiceHistory: this.practiceService.history(),
       revisionTopicIds: this.revisionService.revisionTopicIds(),
       settings: this.settingsService.settings(),
+      activity: this.activityService.activity(),
     };
   }
 
@@ -47,6 +50,7 @@ export class DataManagementService {
     this.practiceService.replaceAll(raw.practiceHistory);
     this.revisionService.replaceAll(raw.revisionTopicIds);
     this.settingsService.replaceAll(raw.settings);
+    this.activityService.replaceAll(raw.activity ?? {});
 
     return { success: true };
   }
@@ -56,6 +60,7 @@ export class DataManagementService {
     this.bookmarkService.resetAll();
     this.practiceService.resetAll();
     this.revisionService.resetAll();
+    this.activityService.resetAll();
   }
 
   private isValidStoredData(raw: unknown): raw is StoredApplicationData {

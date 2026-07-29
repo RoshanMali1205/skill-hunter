@@ -1,0 +1,167 @@
+<div class="stack">
+  <div>
+    <h1>Study Calendar</h1>
+    <p class="calendar__subtitle">
+      Track how much you study, day by day — and keep the streak alive.
+    </p>
+  </div>
+
+  <div class="grid-cards grid-cards--quad">
+    <div class="calendar__stat">
+      <app-icon name="flame" [filled]="currentStreak() > 0" class="calendar__stat-icon calendar__stat-icon--streak" />
+      <div>
+        <p class="calendar__stat-value">{{ currentStreak() }}</p>
+        <p class="calendar__stat-label">Day streak</p>
+      </div>
+    </div>
+
+    <div class="calendar__stat">
+      <app-icon name="trophy" class="calendar__stat-icon calendar__stat-icon--trophy" />
+      <div>
+        <p class="calendar__stat-value">{{ longestStreak() }}</p>
+        <p class="calendar__stat-label">Longest streak</p>
+      </div>
+    </div>
+
+    <div class="calendar__stat">
+      <app-icon name="clock" class="calendar__stat-icon" />
+      <div>
+        <p class="calendar__stat-value">{{ todayMinutes() }}<span>min</span></p>
+        <p class="calendar__stat-label">Today</p>
+      </div>
+    </div>
+
+    <div class="calendar__stat">
+      <app-icon name="bar-chart" class="calendar__stat-icon" />
+      <div>
+        <p class="calendar__stat-value">{{ weekMinutes() }}<span>min</span></p>
+        <p class="calendar__stat-label">This week</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="calendar__goal-card">
+    <div class="calendar__goal-header">
+      <h2>Today's Goal</h2>
+      <label class="calendar__goal-input">
+        <span>Daily goal</span>
+        <input
+          type="number"
+          min="5"
+          max="240"
+          step="5"
+          [ngModel]="settings().dailyGoalMinutes"
+          (ngModelChange)="setGoal($event)"
+        />
+        <span>min</span>
+      </label>
+    </div>
+    <app-progress-bar
+      [percentage]="goalPercentage()"
+      [label]="todayMinutes() + ' / ' + settings().dailyGoalMinutes + ' min'"
+    />
+    @if (nextMilestone(); as milestone) {
+      <p class="calendar__milestone">
+        <app-icon name="flame" [filled]="true" />
+        {{ milestone - currentStreak() }} more day{{ milestone - currentStreak() === 1 ? '' : 's' }}
+        to your {{ milestone }}-day streak badge.
+      </p>
+    } @else {
+      <p class="calendar__milestone">
+        <app-icon name="trophy" [filled]="true" />
+        You've hit every streak milestone — legendary consistency.
+      </p>
+    }
+  </section>
+
+  <section>
+    <h2>Last {{ heatmapWeeks().length }} Weeks</h2>
+    <div class="calendar__heatmap-card">
+      <div class="calendar__heatmap">
+        @for (week of heatmapWeeks(); track $index) {
+          <div class="calendar__heatmap-col">
+            @for (day of week; track day.key) {
+              <div
+                class="calendar__heatmap-cell"
+                [class.calendar__heatmap-cell--future]="day.inFuture"
+                [attr.data-level]="day.level"
+                [attr.title]="day.date.toDateString() + ': ' + day.minutes + ' min'"
+              ></div>
+            }
+          </div>
+        }
+      </div>
+      <div class="calendar__heatmap-legend">
+        <span>Less</span>
+        <span class="calendar__heatmap-cell" data-level="0"></span>
+        <span class="calendar__heatmap-cell" data-level="1"></span>
+        <span class="calendar__heatmap-cell" data-level="2"></span>
+        <span class="calendar__heatmap-cell" data-level="3"></span>
+        <span class="calendar__heatmap-cell" data-level="4"></span>
+        <span>More</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="calendar__month-header">
+      <h2>{{ monthLabel() }}</h2>
+      <div class="cluster">
+        <button type="button" class="btn btn--ghost" (click)="prevMonth()" aria-label="Previous month">
+          <app-icon name="chevron-left" />
+        </button>
+        <button type="button" class="btn btn--ghost" (click)="nextMonth()" aria-label="Next month">
+          <app-icon name="chevron-right" />
+        </button>
+      </div>
+    </div>
+
+    <div class="calendar__month-card">
+      <div class="calendar__month-grid">
+        @for (label of weekdayLabels; track label) {
+          <div class="calendar__month-weekday">{{ label }}</div>
+        }
+        @for (day of monthGrid(); track day.key) {
+          <button
+            type="button"
+            class="calendar__month-day"
+            [class.calendar__month-day--outside]="!day.inMonth"
+            [class.calendar__month-day--today]="day.isToday"
+            [class.calendar__month-day--selected]="selectedDay() === day.key"
+            [attr.data-level]="day.level"
+            (click)="selectDay(day.key)"
+          >
+            <span class="calendar__month-day-number">{{ day.day }}</span>
+            @if (day.minutes > 0) {
+              <span class="calendar__month-day-minutes">{{ day.minutes }}m</span>
+            }
+          </button>
+        }
+      </div>
+
+      @if (selectedDay()) {
+        <div class="calendar__day-detail">
+          <h3>{{ selectedDayLabel() }}</h3>
+          <p class="calendar__muted">{{ selectedDayMinutes() }} min studied</p>
+          @if (selectedDayTopics().length === 0) {
+            <p class="calendar__muted">No topics touched this day.</p>
+          } @else {
+            <ul class="link-list">
+              @for (item of selectedDayTopics(); track item.topic.id) {
+                <li>
+                  <a
+                    class="link-list__row"
+                    [routerLink]="['/subjects', item.subjectId, 'topics', item.topic.id]"
+                  >
+                    <span>{{ item.topic.title }}</span>
+                    <span class="link-list__meta">{{ item.completed ? 'Completed' : 'Visited' }}</span>
+                  </a>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      }
+    </div>
+  </section>
+</div>
