@@ -5,6 +5,7 @@ import { PracticeService } from './practice.service';
 import { RevisionService } from './revision.service';
 import { SettingsService } from './settings.service';
 import { ActivityService } from './activity.service';
+import { NoteService } from './note.service';
 import { CURRENT_DATA_VERSION } from '../storage/storage-keys';
 import { StoredApplicationData } from '../models';
 
@@ -16,6 +17,7 @@ export class DataManagementService {
   private readonly revisionService = inject(RevisionService);
   private readonly settingsService = inject(SettingsService);
   private readonly activityService = inject(ActivityService);
+  private readonly noteService = inject(NoteService);
 
   buildExport(): StoredApplicationData {
     return {
@@ -26,6 +28,7 @@ export class DataManagementService {
       revisionTopicIds: this.revisionService.revisionTopicIds(),
       settings: this.settingsService.settings(),
       activity: this.activityService.activity(),
+      notes: this.noteService.notes(),
     };
   }
 
@@ -51,6 +54,7 @@ export class DataManagementService {
     this.revisionService.replaceAll(raw.revisionTopicIds);
     this.settingsService.replaceAll(raw.settings);
     this.activityService.replaceAll(raw.activity ?? {});
+    this.noteService.replaceAll(raw.notes ?? {});
 
     return { success: true };
   }
@@ -61,6 +65,7 @@ export class DataManagementService {
     this.practiceService.resetAll();
     this.revisionService.resetAll();
     this.activityService.resetAll();
+    this.noteService.resetAll();
   }
 
   private isValidStoredData(raw: unknown): raw is StoredApplicationData {
@@ -68,11 +73,15 @@ export class DataManagementService {
     const candidate = raw as Record<string, unknown>;
     return (
       typeof candidate['version'] === 'number' &&
-      typeof candidate['progress'] === 'object' &&
+      this.isPlainObject(candidate['progress']) &&
       Array.isArray(candidate['bookmarks']) &&
       Array.isArray(candidate['practiceHistory']) &&
       Array.isArray(candidate['revisionTopicIds']) &&
-      typeof candidate['settings'] === 'object'
+      this.isPlainObject(candidate['settings'])
     );
+  }
+
+  private isPlainObject(value: unknown): boolean {
+    return !!value && typeof value === 'object' && !Array.isArray(value);
   }
 }

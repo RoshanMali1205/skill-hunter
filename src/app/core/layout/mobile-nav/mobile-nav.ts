@@ -19,6 +19,7 @@ const MORE_ITEMS: NavItem[] = [
   { label: 'Playground', path: '/playground', icon: 'code' },
   { label: 'Calendar', path: '/calendar', icon: 'calendar' },
   { label: 'Bookmarks', path: '/bookmarks', icon: 'bookmark' },
+  { label: 'Notes', path: '/notes', icon: 'pencil' },
   { label: 'Revision', path: '/revision', icon: 'repeat' },
   { label: 'Settings', path: '/settings', icon: 'settings' },
 ];

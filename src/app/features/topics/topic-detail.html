@@ -25,8 +25,21 @@
           }
         </div>
       </div>
-      <app-bookmark-button [bookmarked]="isBookmarked()" (toggled)="toggleBookmark()" />
+      <div class="cluster">
+        <app-note-button [hasNote]="hasNote()" (clicked)="toggleNoteEditor()" />
+        <app-bookmark-button [bookmarked]="isBookmarked()" (toggled)="toggleBookmark()" />
+      </div>
     </header>
+
+    @if (noteEditorOpen()) {
+      <app-note-editor
+        [initialContent]="note()?.content ?? ''"
+        [updatedAt]="note()?.updatedAt"
+        (saved)="saveNote($event)"
+        (deleted)="deleteNote()"
+        (closed)="toggleNoteEditor()"
+      />
+    }
 
     <div class="stack">
       @for (block of sortedBlocks(); track block.id) {

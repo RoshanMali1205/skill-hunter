@@ -18,6 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'AI Mentor', path: '/ai-mentor', icon: 'bot' },
   { label: 'Calendar', path: '/calendar', icon: 'calendar' },
   { label: 'Bookmarks', path: '/bookmarks', icon: 'bookmark' },
+  { label: 'Notes', path: '/notes', icon: 'pencil' },
   { label: 'Revision', path: '/revision', icon: 'repeat' },
   { label: 'Settings', path: '/settings', icon: 'settings' },
 ];

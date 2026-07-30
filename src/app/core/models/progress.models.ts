@@ -24,6 +24,13 @@ export interface Bookmark {
   createdAt: string;
 }
 
+export interface Note {
+  topicId: string;
+  subjectId: string;
+  content: string;
+  updatedAt: string;
+}
+
 export interface PracticeAttempt {
   id: string;
   questionId: string;
@@ -59,4 +66,5 @@ export interface StoredApplicationData {
   revisionTopicIds: string[];
   settings: AppSettings;
   activity?: ActivityLog;
+  notes?: Record<string, Note>;
 }

@@ -5,6 +5,7 @@ export const STORAGE_KEYS = {
   settings: 'interview-prep.settings',
   revisionList: 'interview-prep.revision-list',
   activity: 'interview-prep.activity',
+  notes: 'interview-prep.notes',
 } as const;
 
 export const CURRENT_DATA_VERSION = 1;

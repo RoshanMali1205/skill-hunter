@@ -91,6 +91,12 @@ export const routes: Routes = [
     title: 'Bookmarks · Skill Hunter',
   },
   {
+    path: 'notes',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/notes/notes').then((m) => m.NotesComponent),
+    title: 'Notes · Skill Hunter',
+  },
+  {
     path: 'revision',
     canActivate: [authGuard],
     loadComponent: () =>

@@ -1,0 +1,34 @@
+<div class="stack">
+  <div>
+    <h1>Notes</h1>
+    <p class="notes__subtitle">Your private notes, attached to the topics they belong to.</p>
+  </div>
+
+  @if (notesWithTopics().length === 0) {
+    <app-empty-state
+      title="No notes yet"
+      message="Open any topic and tap “Add Note” to jot down your own explanation, gotcha, or reminder."
+    />
+  } @else {
+    <div class="stack">
+      @for (item of notesWithTopics(); track item.note.topicId) {
+        <article class="notes__card">
+          <header class="notes__card-header">
+            <a [routerLink]="['/subjects', item.topic.subjectId, 'topics', item.topic.id]">
+              {{ item.topic.title }}
+            </a>
+            <span class="notes__updated">Updated {{ formattedDate(item.note.updatedAt) }}</span>
+          </header>
+          <div class="notes__preview" [innerHTML]="item.note.content | markdown"></div>
+          <button
+            type="button"
+            class="btn btn--danger notes__remove"
+            (click)="removeNote(item.note.topicId)"
+          >
+            Delete note
+          </button>
+        </article>
+      }
+    </div>
+  }
+</div>

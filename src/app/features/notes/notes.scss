@@ -1,0 +1,41 @@
+@use 'mixins' as *;
+
+.notes__subtitle {
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+.notes__card {
+  @include card;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.notes__card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+
+  a {
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+}
+
+.notes__updated {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.notes__preview {
+  color: var(--color-text);
+}
+
+.notes__remove {
+  align-self: flex-start;
+}

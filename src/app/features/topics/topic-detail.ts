@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { combineLatest, switchMap } from 'rxjs';
@@ -7,6 +7,7 @@ import { ProgressStore } from '../../core/services/progress.store';
 import { BookmarkService } from '../../core/services/bookmark.service';
 import { RevisionService } from '../../core/services/revision.service';
 import { SettingsService } from '../../core/services/settings.service';
+import { NoteService } from '../../core/services/note.service';
 import { ConfidenceLevel } from '../../core/models';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb';
 import { IconComponent } from '../../shared/components/icon/icon';
@@ -15,6 +16,8 @@ import { PriorityChipComponent } from '../../shared/components/priority-chip/pri
 import { CodeBlockComponent } from '../../shared/components/code-block/code-block';
 import { QuestionCardComponent } from '../../shared/components/question-card/question-card';
 import { BookmarkButtonComponent } from '../../shared/components/bookmark-button/bookmark-button';
+import { NoteButtonComponent } from '../../shared/components/note-button/note-button';
+import { NoteEditorComponent } from '../../shared/components/note-editor/note-editor';
 import { CompletionButtonComponent } from '../../shared/components/completion-button/completion-button';
 import { ConfidenceSelectorComponent } from '../../shared/components/confidence-selector/confidence-selector';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
@@ -30,6 +33,8 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
     CodeBlockComponent,
     QuestionCardComponent,
     BookmarkButtonComponent,
+    NoteButtonComponent,
+    NoteEditorComponent,
     CompletionButtonComponent,
     ConfidenceSelectorComponent,
     EmptyStateComponent,
@@ -43,6 +48,7 @@ export class TopicDetailComponent {
   private readonly bookmarkService = inject(BookmarkService);
   private readonly revisionService = inject(RevisionService);
   private readonly settingsService = inject(SettingsService);
+  private readonly noteService = inject(NoteService);
   private readonly router = inject(Router);
 
   readonly settings = this.settingsService.settings;
@@ -77,6 +83,10 @@ export class TopicDetailComponent {
   readonly isBookmarked = computed(() => this.bookmarkService.isTopicBookmarked(this.topicId()));
 
   readonly isInRevision = computed(() => this.revisionService.isInRevision(this.topicId()));
+
+  readonly note = computed(() => this.noteService.getNote(this.topicId()));
+  readonly hasNote = computed(() => !!this.note());
+  readonly noteEditorOpen = signal(false);
 
   constructor() {
     effect(() => {
@@ -116,13 +126,37 @@ export class TopicDetailComponent {
     this.revisionService.toggleRevision(this.topicId());
   }
 
+  toggleNoteEditor(): void {
+    this.noteEditorOpen.update((open) => !open);
+  }
+
+  saveNote(content: string): void {
+    this.noteService.saveNote(this.topicId(), this.subjectId(), content);
+    this.noteEditorOpen.set(false);
+  }
+
+  deleteNote(): void {
+    this.noteService.deleteNote(this.topicId());
+    this.noteEditorOpen.set(false);
+  }
+
   practiceAgain(): void {
     this.router.navigate(['/practice'], { queryParams: { topicId: this.topicId() } });
   }
 
   askAi(): void {
+    const topicTitle = this.topic()?.title;
+    const question = topicTitle
+      ? `Can you explain "${topicTitle}" in more depth, and give me a tricky follow-up question to test my understanding?`
+      : undefined;
     this.router.navigate(['/ai-mentor'], {
-      queryParams: { subject: this.subject()?.title, topic: this.topic()?.title },
+      queryParams: {
+        subject: this.subject()?.title,
+        topic: topicTitle,
+        subjectId: this.subjectId(),
+        topicId: this.topicId(),
+        question,
+      },
     });
   }
 }

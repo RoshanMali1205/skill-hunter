@@ -1,0 +1,38 @@
+<div class="note-editor">
+  <div class="note-editor__toolbar">
+    <button type="button" class="btn btn--ghost" (click)="togglePreview()">
+      {{ showPreview() ? 'Edit' : 'Preview' }}
+    </button>
+    @if (formattedUpdatedAt(); as updated) {
+      <span class="note-editor__meta">Last updated {{ updated }}</span>
+    }
+  </div>
+
+  @if (showPreview()) {
+    <div class="note-editor__preview">
+      @if (draft().trim()) {
+        <div [innerHTML]="draft() | markdown"></div>
+      } @else {
+        <p class="note-editor__empty">Nothing to preview yet.</p>
+      }
+    </div>
+  } @else {
+    <textarea
+      class="note-editor__textarea"
+      [ngModel]="draft()"
+      (ngModelChange)="draft.set($event)"
+      rows="8"
+      placeholder="Write a private note for yourself — a gotcha, a reminder, your own explanation. Markdown supported."
+    ></textarea>
+  }
+
+  <div class="cluster">
+    <button type="button" class="btn btn--primary" [disabled]="!isDirty()" (click)="save()">
+      Save Note
+    </button>
+    @if (hasSavedNote()) {
+      <button type="button" class="btn btn--danger" (click)="delete()">Delete Note</button>
+    }
+    <button type="button" class="btn btn--ghost" (click)="closed.emit()">Close</button>
+  </div>
+</div>
