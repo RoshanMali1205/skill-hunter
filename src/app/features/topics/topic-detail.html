@@ -1,5 +1,10 @@
 @if (topic(); as topic) {
   <div class="stack">
+    <a class="btn topic-detail__back" [routerLink]="['/subjects', subjectId()]">
+      <app-icon name="chevron-left" />
+      Back
+    </a>
+
     <app-breadcrumb
       [items]="[
         { label: 'Subjects', link: ['/subjects'] },

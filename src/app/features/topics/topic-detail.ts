@@ -9,6 +9,7 @@ import { RevisionService } from '../../core/services/revision.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { ConfidenceLevel } from '../../core/models';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb';
+import { IconComponent } from '../../shared/components/icon/icon';
 import { DifficultyChipComponent } from '../../shared/components/difficulty-chip/difficulty-chip';
 import { PriorityChipComponent } from '../../shared/components/priority-chip/priority-chip';
 import { CodeBlockComponent } from '../../shared/components/code-block/code-block';
@@ -23,6 +24,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
   imports: [
     RouterLink,
     BreadcrumbComponent,
+    IconComponent,
     DifficultyChipComponent,
     PriorityChipComponent,
     CodeBlockComponent,

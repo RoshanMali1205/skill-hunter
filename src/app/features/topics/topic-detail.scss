@@ -1,6 +1,12 @@
 @use 'breakpoints' as *;
 @use 'mixins' as *;
 
+.topic-detail__back {
+  align-self: flex-start;
+  text-decoration: none;
+  font-weight: 500;
+}
+
 .topic-detail__header {
   display: flex;
   flex-direction: column;
