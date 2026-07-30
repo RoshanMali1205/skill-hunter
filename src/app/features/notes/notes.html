@@ -1,32 +1,91 @@
 <div class="stack">
-  <div>
-    <h1>Notes</h1>
-    <p class="notes__subtitle">Your private notes, attached to the topics they belong to.</p>
+  <div class="notes__header">
+    <div>
+      <h1>Notes</h1>
+      <p class="notes__subtitle">Your private notes, attached to the topics they belong to.</p>
+    </div>
+    <button type="button" class="btn btn--primary" (click)="openPicker()">+ Add Note</button>
   </div>
+
+  @if (pickerOpen()) {
+    <section class="notes__picker">
+      <div class="notes__picker-row">
+        <label class="notes__picker-field">
+          <span>Subject</span>
+          <select [ngModel]="pickerSubjectId()" (ngModelChange)="onPickerSubjectChange($event)">
+            <option value="">Choose a subject…</option>
+            @for (s of subjects(); track s.id) {
+              <option [value]="s.id">{{ s.title }}</option>
+            }
+          </select>
+        </label>
+        <label class="notes__picker-field">
+          <span>Topic</span>
+          <select
+            [ngModel]="pickerTopicId()"
+            (ngModelChange)="pickerTopicId.set($event)"
+            [disabled]="!pickerSubjectId()"
+          >
+            <option value="">Choose a topic…</option>
+            @for (t of pickerTopics(); track t.topicId) {
+              <option [value]="t.topicId">{{ t.topicTitle }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      <div class="cluster">
+        <button
+          type="button"
+          class="btn btn--primary"
+          [disabled]="!pickerTopicId()"
+          (click)="startPickedNote()"
+        >
+          Open Note Editor
+        </button>
+        <button type="button" class="btn btn--ghost" (click)="closePicker()">Cancel</button>
+      </div>
+    </section>
+  }
+
+  @if (editingRef(); as ref) {
+    <section class="notes__editing">
+      <a
+        class="notes__editing-topic"
+        [routerLink]="['/subjects', ref.subjectId, 'topics', ref.topicId]"
+      >
+        {{ ref.subjectTitle }} › {{ ref.topicTitle }}
+      </a>
+      <app-note-editor
+        [initialContent]="editingContent()"
+        [updatedAt]="editingUpdatedAt()"
+        (saved)="saveEditing($event)"
+        (deleted)="deleteEditing()"
+        (closed)="closeEditor()"
+      />
+    </section>
+  }
 
   @if (notesWithTopics().length === 0) {
     <app-empty-state
       title="No notes yet"
-      message="Open any topic and tap “Add Note” to jot down your own explanation, gotcha, or reminder."
+      message="Tap “+ Add Note” above, or open any topic and tap “Add Note” to jot down your own explanation, gotcha, or reminder."
     />
   } @else {
     <div class="stack">
       @for (item of notesWithTopics(); track item.note.topicId) {
-        <article class="notes__card">
+        <article
+          class="notes__card"
+          role="button"
+          tabindex="0"
+          (click)="openNote(item.note.topicId)"
+          (keydown.enter)="openNote(item.note.topicId)"
+          (keydown.space)="$event.preventDefault(); openNote(item.note.topicId)"
+        >
           <header class="notes__card-header">
-            <a [routerLink]="['/subjects', item.topic.subjectId, 'topics', item.topic.id]">
-              {{ item.topic.title }}
-            </a>
+            <span class="notes__card-topic">{{ item.ref.topicTitle }}</span>
             <span class="notes__updated">Updated {{ formattedDate(item.note.updatedAt) }}</span>
           </header>
           <div class="notes__preview" [innerHTML]="item.note.content | markdown"></div>
-          <button
-            type="button"
-            class="btn btn--danger notes__remove"
-            (click)="removeNote(item.note.topicId)"
-          >
-            Delete note
-          </button>
         </article>
       }
     </div>
