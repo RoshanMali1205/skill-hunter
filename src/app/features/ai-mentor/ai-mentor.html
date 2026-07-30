@@ -10,7 +10,7 @@
       </p>
     </div>
     @if (messages().length > 0) {
-      <button type="button" class="btn btn--ghost" (click)="clearChat()">Clear chat</button>
+      <button type="button" class="btn btn--danger" (click)="clearChat()">Clear chat</button>
     }
   </header>
 
@@ -34,6 +34,16 @@
         } @else {
           <p>{{ message.content }}</p>
         }
+        <div class="ai-mentor__actions">
+          <button type="button" class="ai-mentor__action" (click)="copyMessage($index, message.content)">
+            {{ copiedIndex() === $index ? 'Copied!' : 'Copy' }}
+          </button>
+          @if (message.role === 'assistant' && hasTopicContext()) {
+            <button type="button" class="ai-mentor__action" (click)="saveToNotes($index, message.content)">
+              {{ savedIndex() === $index ? 'Saved to Note!' : 'Save to Note' }}
+            </button>
+          }
+        </div>
       </div>
     }
 

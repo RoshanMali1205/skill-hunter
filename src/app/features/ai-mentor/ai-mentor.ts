@@ -1,6 +1,7 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AiAssistantService } from '../../core/services/ai-assistant.service';
+import { NoteService } from '../../core/services/note.service';
 import { AiChatMessage } from '../../core/models';
 import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
 
@@ -24,20 +25,40 @@ const QUICK_PROMPTS: QuickPrompt[] = [
 })
 export class AiMentorComponent {
   private readonly aiAssistantService = inject(AiAssistantService);
+  private readonly noteService = inject(NoteService);
 
   subject = input<string>();
   topic = input<string>();
+  subjectId = input<string>();
+  topicId = input<string>();
+  question = input<string>();
 
   readonly quickPrompts = QUICK_PROMPTS;
   readonly messages = signal<AiChatMessage[]>([]);
   readonly draft = signal('');
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly copiedIndex = signal<number | null>(null);
+  readonly savedIndex = signal<number | null>(null);
 
   readonly contextLabel = computed(() => {
     const parts = [this.subject(), this.topic()].filter(Boolean);
     return parts.length > 0 ? parts.join(' › ') : null;
   });
+
+  readonly hasTopicContext = computed(() => !!this.topicId() && !!this.subjectId());
+
+  constructor() {
+    effect(() => {
+      const question = this.question();
+      if (!question) return;
+      untracked(() => {
+        if (this.messages().length === 0 && !this.draft()) {
+          this.draft.set(question);
+        }
+      });
+    });
+  }
 
   sendDraft(): void {
     const text = this.draft().trim();
@@ -77,5 +98,25 @@ export class AiMentorComponent {
   clearChat(): void {
     this.messages.set([]);
     this.errorMessage.set(null);
+  }
+
+  async copyMessage(index: number, content: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(content);
+      this.copiedIndex.set(index);
+      setTimeout(() => this.copiedIndex.update((i) => (i === index ? null : i)), 1500);
+    } catch {
+      this.copiedIndex.set(null);
+    }
+  }
+
+  saveToNotes(index: number, content: string): void {
+    const topicId = this.topicId();
+    const subjectId = this.subjectId();
+    if (!topicId || !subjectId) return;
+
+    this.noteService.appendToNote(topicId, subjectId, content);
+    this.savedIndex.set(index);
+    setTimeout(() => this.savedIndex.update((i) => (i === index ? null : i)), 1500);
   }
 }
