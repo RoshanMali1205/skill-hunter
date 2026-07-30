@@ -93,8 +93,14 @@
   }
 
   &--danger {
-    color: var(--color-danger);
-    border-color: var(--color-danger);
+    background: var(--gradient-danger);
+    border-color: transparent;
+    color: var(--color-danger-contrast);
+    box-shadow: var(--shadow-danger);
+
+    &:hover {
+      filter: brightness(1.06);
+    }
   }
 }
 

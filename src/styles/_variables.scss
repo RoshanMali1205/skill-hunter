@@ -13,6 +13,7 @@
   --color-success: #16a34a;
   --color-warning: #d97706;
   --color-danger: #dc2626;
+  --color-danger-contrast: #ffffff;
 
   --color-difficulty-beginner: #16a34a;
   --color-difficulty-intermediate: #d97706;
@@ -20,11 +21,13 @@
 
   --gradient-primary: linear-gradient(135deg, #6366f1 0%, #4f46e5 55%, #4338ca 100%);
   --gradient-hero: linear-gradient(120deg, rgba(79, 70, 229, 0.12), rgba(8, 145, 178, 0.1));
+  --gradient-danger: linear-gradient(135deg, #f87171 0%, #dc2626 55%, #b91c1c 100%);
 
   --shadow-sm: 0 1px 2px rgba(20, 21, 40, 0.05);
   --shadow-md: 0 6px 16px rgba(20, 21, 40, 0.08);
   --shadow-lg: 0 16px 32px rgba(20, 21, 40, 0.12);
   --shadow-primary: 0 8px 20px rgba(79, 70, 229, 0.28);
+  --shadow-danger: 0 8px 20px rgba(220, 38, 38, 0.28);
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -61,14 +64,17 @@
   --color-success: #4ade80;
   --color-warning: #fbbf24;
   --color-danger: #f87171;
+  --color-danger-contrast: #12131a;
 
   --gradient-primary: linear-gradient(135deg, #818cf8 0%, #6366f1 55%, #4f46e5 100%);
   --gradient-hero: linear-gradient(120deg, rgba(129, 140, 248, 0.16), rgba(34, 211, 238, 0.1));
+  --gradient-danger: linear-gradient(135deg, #fca5a5 0%, #f87171 55%, #ef4444 100%);
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.45);
   --shadow-primary: 0 8px 24px rgba(129, 140, 248, 0.35);
+  --shadow-danger: 0 8px 24px rgba(248, 113, 113, 0.35);
 
   color-scheme: dark;
 }
@@ -89,14 +95,17 @@
     --color-success: #4ade80;
     --color-warning: #fbbf24;
     --color-danger: #f87171;
+    --color-danger-contrast: #12131a;
 
     --gradient-primary: linear-gradient(135deg, #818cf8 0%, #6366f1 55%, #4f46e5 100%);
     --gradient-hero: linear-gradient(120deg, rgba(129, 140, 248, 0.16), rgba(34, 211, 238, 0.1));
+    --gradient-danger: linear-gradient(135deg, #fca5a5 0%, #f87171 55%, #ef4444 100%);
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.35);
     --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.45);
     --shadow-primary: 0 8px 24px rgba(129, 140, 248, 0.35);
+    --shadow-danger: 0 8px 24px rgba(248, 113, 113, 0.35);
 
     color-scheme: dark;
   }
