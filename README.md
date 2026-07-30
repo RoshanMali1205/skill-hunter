@@ -4,19 +4,22 @@ An interview preparation hub for **Angular, JavaScript, TypeScript, UI Engineeri
 
 **Author:** Roshan Mali
 
+For a deeper technical dive — architecture, data model, service catalog, and a sequence diagram for every core flow — see [`docs/LLD.md`](docs/LLD.md) (Low-Level Design document).
+
 ## What's in the box
 
 - **Login / Register** — a real account system (register, sign in, log out) so progress, bookmarks, streaks, and settings are kept separate per person on a shared browser or deployment. Passwords are hashed client-side with PBKDF2-SHA256 via the Web Crypto API — see [Accounts & data](#accounts--data) for what this does and doesn't protect against.
 - **Dashboard** — overall progress donut, topics-by-difficulty breakdown, per-subject progress, study streak, continue learning, must-revise, recent bookmarks, practice summary, strong areas, most-revised and recently-studied topics.
 - **Subjects** — Angular, JavaScript, TypeScript, UI Engineering, and Frontend System Design, each with categories and topics (difficulty, interview priority, search/filter).
-- **Topic pages** — concept explanations, code examples with copy-to-clipboard, tricky/interview/scenario/output questions with hide-and-reveal answers, common mistakes, confidence rating, mark-complete, bookmarking, add-to-revision, and an "Ask AI" shortcut into the AI Mentor with the current topic as context.
+- **Topic pages** — concept explanations, code examples with copy-to-clipboard, tricky/interview/scenario/output questions with hide-and-reveal answers, common mistakes, confidence rating, mark-complete, bookmarking, add-to-revision, a private note, a Back button to the parent subject, and an "Ask AI" shortcut into the AI Mentor with the current topic pre-loaded as a ready-to-send question.
 - **Practice mode** — filter by subject/category/difficulty/question type/bookmarked/weak topics, with a live "N questions match your filters" count before you commit, then self-assess (correct / incorrect / needs revision).
 - **JavaScript Playground** — a real code editor (CodeMirror, syntax highlighting) that runs your JavaScript in a sandboxed Web Worker, so an infinite loop times out cleanly instead of freezing the tab. Comes preloaded with all 25 of the app's coding-practice questions as runnable snippets. See [JavaScript Playground](#javascript-playground).
 - **Study Calendar** — automatic daily study-time tracking, current/longest streaks with milestone messages, a GitHub-style contribution heatmap, and a navigable month calendar where clicking a day shows exactly which topics you touched. See [Study Calendar](#study-calendar).
-- **AI Mentor** — a chat interface for on-demand explanations, generated practice questions, and feedback on your own answers, backed by a serverless proxy function (see [AI Mentor](#ai-mentor)). Responses render as real formatted markdown (headings, code blocks, lists), not raw text.
+- **AI Mentor** — a chat interface for on-demand explanations, generated practice questions, and feedback on your own answers, backed by a serverless proxy function (see [AI Mentor](#ai-mentor)). Responses render as real formatted markdown (headings, code blocks, lists), not raw text. Every message has a Copy button, and AI answers can be saved straight into that topic's note.
+- **Notes** — a private markdown note on any topic (edit/preview, save/delete), all browsable on one page with a rendered preview and a link back to the topic.
 - **Bookmarks** — bookmarked topics and questions in one place.
 - **Revision** — auto-surfaced weak topics (low confidence, incorrect attempts, bookmarks, manual adds) plus mark-revised tracking.
-- **Settings** — light/dark theme, default difficulty, auto-reveal answers, export/import progress as JSON, reset progress.
+- **Settings** — light/dark theme, default difficulty, auto-reveal answers, export/import progress (including notes) as JSON, reset progress.
 
 Starter content ships with 78 topics across five subjects: **Angular** (12), **JavaScript** (18, including a dedicated **Coding Practice** category with 25 predict-the-output / write-the-code drills covering hoisting, closures, references, array methods, `this`, and the event loop), **TypeScript** (11), **UI Engineering** (12), and **Frontend System Design** (25 lead-level scenario questions — caching, performance, auth, RBAC, XSS/CSRF/CORS, BFF, state, offline/PWA, micro-frontends, observability, deployment). See [Adding content](#adding-content) to extend it further.
 
@@ -28,7 +31,7 @@ Starter content ships with 78 topics across five subjects: **Angular** (12), **J
 - [CodeMirror 6](https://codemirror.net/) for the Playground editor, lazy-loaded only on that route
 - Web Crypto API (`crypto.subtle`) for PBKDF2 password hashing — no auth library or backend
 - Static JSON content under `public/content/`, fetched with `HttpClient`
-- `localStorage` for progress, bookmarks, practice history, revision list, settings, activity, and the account list (see `src/app/core/storage`)
+- `localStorage` for progress, bookmarks, notes, practice history, revision list, settings, activity, and the account list (see `src/app/core/storage`)
 
 ## Development server
 
@@ -78,9 +81,10 @@ All feature routes are lazy-loaded (`loadComponent`) so the initial bundle only 
 | `/subjects/:subjectId/topics/:topicId` | Topic detail — concept, code, questions, answers |
 | `/practice` | Practice mode (accepts optional `?subjectId=` / `?topicId=` query params) |
 | `/playground` | JavaScript Playground |
-| `/ai-mentor` | AI Mentor chat (accepts optional `?subject=` / `?topic=` query params for context) |
+| `/ai-mentor` | AI Mentor chat (accepts optional `?subject=` / `?topic=` / `?subjectId=` / `?topicId=` / `?question=` query params for context and a pre-filled question) |
 | `/calendar` | Study Calendar — streaks, heatmap, daily goal |
 | `/bookmarks` | Bookmarked topics and questions |
+| `/notes` | Your private per-topic notes |
 | `/revision` | Auto-surfaced revision list |
 | `/settings` | Theme, preferences, export/import/reset |
 
@@ -92,15 +96,15 @@ src/app/
     models/       Shared TypeScript interfaces (content, progress, filters, auth)
     storage/      localStorage wrapper (scoped per account) + versioned storage keys
     guards/       authGuard, guestGuard
-    services/     ContentService, ProgressStore, BookmarkService, PracticeService,
+    services/     ContentService, ProgressStore, BookmarkService, NoteService, PracticeService,
                   RevisionService, SettingsService, MetricsService, DataManagementService,
                   AiAssistantService, AuthService, ActivityService, CodeRunnerService
     layout/       App shell, header (user menu), sidebar (search + nav), mobile nav, theme toggle
   shared/
-    components/   Reusable UI: cards, chips, code block, question card, charts, icon, filters, etc.
+    components/   Reusable UI: cards, chips, code block, question card, note editor, charts, icon, filters, etc.
   features/
     auth/  dashboard/  subjects/  topics/  practice/  playground/  ai-mentor/
-    calendar/  bookmarks/  revision/  settings/
+    calendar/  bookmarks/  notes/  revision/  settings/
 
 public/content/
   subjects.json         Subject + category + topic-summary metadata (all 5 subjects)
@@ -134,7 +138,7 @@ flowchart TD
     G --> L[Playground]
     G --> M[AI Mentor]
     G --> N[Calendar]
-    G --> O[Bookmarks · Revision · Settings]
+    G --> O[Bookmarks · Notes · Revision · Settings]
 ```
 
 ### Per-account data flow
@@ -221,7 +225,7 @@ As a subject's content grows, its `topics.json` can be split into multiple files
 
 Registering creates an account entirely in `localStorage` — there's no backend, no database, and nothing is sent anywhere. Passwords are hashed with **PBKDF2-SHA256** (120,000 iterations, a random per-user salt) via the browser's native Web Crypto API before ever touching storage; the plaintext password itself is never persisted.
 
-Every account gets its **own** namespaced progress, bookmarks, practice history, revision list, settings, and study activity — `StorageService` transparently prefixes every key by the signed-in user's id, so two people using the same browser (or the same deployed link) don't see each other's data. The very first account ever created on a browser automatically inherits whatever progress already existed there from before accounts existed, so switching this on doesn't look like data loss.
+Every account gets its **own** namespaced progress, bookmarks, notes, practice history, revision list, settings, and study activity — `StorageService` transparently prefixes every key by the signed-in user's id, so two people using the same browser (or the same deployed link) don't see each other's data. The very first account ever created on a browser automatically inherits whatever progress already existed there from before accounts existed, so switching this on doesn't look like data loss.
 
 **This is real hashing, not real security.** There's no server validating anything — someone with access to the same browser's dev tools could inspect the account list directly in `localStorage`. That's an inherent limit of a backend-free app, not a bug: treat this like any other local-only demo account, and don't reuse a password here that protects something that actually matters.
 
@@ -269,6 +273,8 @@ The backend calls **Google's Gemini API** (`gemini-flash-latest` by default), ch
 The function also checks a shared token (`x-app-token` header, `APP_SHARED_TOKEN` env var) before calling the API — this is **not** real authentication (the token ships in the built JS bundle, so anyone reading the client code can find it), it's just a deterrent against random bots hitting the endpoint directly and burning the shared free quota. The API key itself is what's actually protected, and it never leaves the function.
 
 Responses are rendered through a small self-written markdown parser (`src/app/shared/markdown.ts`) — headings, bold/italic, inline and fenced code, and lists all render properly instead of showing raw `###`/`**` syntax. It escapes all input first and only ever emits a fixed set of whitelisted tags it builds itself, so it's safe to render even though the source is LLM output.
+
+Every message (yours or the AI's) has a **Copy** button. AI answers additionally get a **Save to Note** button — shown only when the chat was opened with topic context (i.e. via a topic's "Ask AI" button) — which appends the answer straight into that topic's private note. Speaking of which, "Ask AI" from a topic page pre-fills the chat's input with a ready-to-send question about that topic instead of leaving it blank, and conversations are multi-turn (each message you send includes the full prior history, so follow-ups have context).
 
 If the function isn't deployed/configured, the UI degrades gracefully — the chat shows a clear inline error instead of hanging or throwing, including a distinct message when the daily quota is exhausted (HTTP 429) and when a reply hits the length limit mid-answer.
 
