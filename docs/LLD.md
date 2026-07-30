@@ -132,7 +132,7 @@ Each feature below is described as: **purpose → user flow → business rules**
 
 **Purpose:** a private, per-topic markdown scratchpad — your own explanation, a gotcha, or an AI answer worth keeping.
 
-**Flow:** from a topic page, "Add Note" opens an editor (Edit / Preview toggle) → Save (or Delete). All notes are also browsable on a dedicated `/notes` page with a rendered preview and a link back to the topic.
+**Flow:** from a topic page, "Add Note" opens an editor (Edit / Preview toggle) → Save (or Delete). All notes are also browsable on a dedicated `/notes` page, which additionally supports starting a note from scratch: **+ Add Note** opens a subject → topic picker, and clicking any existing note in the list reopens the same editor inline (edit / update / save / delete) rather than a read-only preview.
 
 **Business rules:** one note per topic (keyed by `topicId`); saving with empty content deletes the note instead of storing a blank one; AI Mentor's "Save to Note" **appends** to an existing note (separated by `---`) rather than overwriting it.
 
@@ -181,6 +181,7 @@ Each feature below is described as: **purpose → user flow → business rules**
 | AI backend | **Netlify Functions** (`netlify/functions/ai-chat.mjs`) → **Google Gemini** (`gemini-flash-latest`) | Plain `fetch`, no SDK; single file, easy to swap providers |
 | Testing | **Vitest** (Angular 22's default test builder) | See [§11.6](#116-testing) for current coverage |
 | Hosting | **Netlify** (static hosting + Functions) | `netlify.toml` drives build/redirects; any static host works for everything except AI Mentor |
+| Analytics | **Google Analytics** (`gtag.js`) | Loaded as a plain `<script>` snippet in `src/index.html` (not an Angular service) — basic usage/traffic telemetry only, independent of the account system |
 
 No `src/environments/` file-replacement pattern exists — the app has no environment-specific build config, since it only ever calls same-origin relative paths (`content/...`, `/api/ai-chat`).
 
@@ -635,18 +636,28 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant T as TopicDetailComponent
+    participant T as TopicDetailComponent /<br/>NotesComponent
     participant E as NoteEditorComponent
     participant N as NoteService
     participant L as localStorage
 
-    U->>T: click "Add Note" / "Note"
+    alt from a topic page
+        U->>T: click "Add Note" / "Note"
+    else from the Notes page, new note
+        U->>T: "+ Add Note" -> pick Subject -> pick Topic -> "Open Note Editor"
+    else from the Notes page, existing note
+        U->>T: click a note card in the list
+    end
     T->>E: open editor, initialContent = note()?.content ?? ''
     U->>E: edit markdown, toggle Preview (renders via MarkdownPipe)
-    U->>E: Save
-    E->>T: saved(content)
-    T->>N: saveNote(topicId, subjectId, content)
-    N->>N: empty content? deleteNote() instead : store {topicId, subjectId, content, updatedAt}
+    U->>E: Save (or Delete)
+    E->>T: saved(content) / deleted()
+    alt saved
+        T->>N: saveNote(topicId, subjectId, content)
+        N->>N: empty content? deleteNote() instead : store {topicId, subjectId, content, updatedAt}
+    else deleted
+        T->>N: deleteNote(topicId)
+    end
     N->>L: persist notes map
     Note over U,N: AI Mentor's "Save to Note" calls appendToNote()<br/>instead — joins onto existing content with a --- separator
 ```
@@ -928,6 +939,8 @@ sequenceDiagram
 - **AI API key never reaches the browser.** The Netlify function is the only place `GEMINI_API_KEY` is read (`process.env`); the client only ever holds `APP_SHARED_TOKEN`, which is a bot deterrent, not a secret (it ships in the built JS bundle).
 - **XSS-safe markdown rendering.** `src/app/shared/markdown.ts` escapes `&`/`<`/`>` in the raw input *before* introducing any HTML tags, and only ever emits a small fixed set of tags it constructs itself — safe to pipe LLM output straight into `[innerHTML]` via `DomSanitizer.bypassSecurityTrustHtml`.
 - **Per-account data isolation** is enforced structurally (every key is namespaced by user id), not by any access-control check — there's no scenario where account A's code could accidentally read account B's key, since the key literally doesn't exist under A's namespace.
+- **Google Analytics is the second exception to "nothing leaves the browser."** The `gtag.js` snippet in `src/index.html` is a static third-party script, entirely outside the Angular app and its account/storage system — it has no access to `localStorage`, progress, notes, or account data, and sends only standard page-view/usage telemetry.
+- **Secrets belong in `.env`, never `.env.example`.** `.env` is git-ignored specifically so real API keys can live there for local `netlify dev` testing; `.env.example` is a committed template and must only ever contain placeholder values.
 
 ### 11.3 Performance
 

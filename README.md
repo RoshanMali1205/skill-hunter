@@ -16,7 +16,7 @@ For a deeper technical dive — architecture, data model, service catalog, and a
 - **JavaScript Playground** — a real code editor (CodeMirror, syntax highlighting) that runs your JavaScript in a sandboxed Web Worker, so an infinite loop times out cleanly instead of freezing the tab. Comes preloaded with all 25 of the app's coding-practice questions as runnable snippets. See [JavaScript Playground](#javascript-playground).
 - **Study Calendar** — automatic daily study-time tracking, current/longest streaks with milestone messages, a GitHub-style contribution heatmap, and a navigable month calendar where clicking a day shows exactly which topics you touched. See [Study Calendar](#study-calendar).
 - **AI Mentor** — a chat interface for on-demand explanations, generated practice questions, and feedback on your own answers, backed by a serverless proxy function (see [AI Mentor](#ai-mentor)). Responses render as real formatted markdown (headings, code blocks, lists), not raw text. Every message has a Copy button, and AI answers can be saved straight into that topic's note.
-- **Notes** — a private markdown note on any topic (edit/preview, save/delete), all browsable on one page with a rendered preview and a link back to the topic.
+- **Notes** — a private markdown note on any topic (edit/preview, save/delete). Start one from a topic page, or from the Notes page itself via **+ Add Note** (pick a subject, then a topic); every note is listed with a rendered preview, and clicking one reopens the same editor to update or delete it.
 - **Bookmarks** — bookmarked topics and questions in one place.
 - **Revision** — auto-surfaced weak topics (low confidence, incorrect attempts, bookmarks, manual adds) plus mark-revised tracking.
 - **Settings** — light/dark theme, default difficulty, auto-reveal answers, export/import progress (including notes) as JSON, reset progress.
@@ -32,6 +32,7 @@ Starter content ships with 78 topics across five subjects: **Angular** (12), **J
 - Web Crypto API (`crypto.subtle`) for PBKDF2 password hashing — no auth library or backend
 - Static JSON content under `public/content/`, fetched with `HttpClient`
 - `localStorage` for progress, bookmarks, notes, practice history, revision list, settings, activity, and the account list (see `src/app/core/storage`)
+- Google Analytics (`gtag.js`) for basic usage analytics — see [Accounts & data](#accounts--data)
 
 ## Development server
 
@@ -231,7 +232,9 @@ Every account gets its **own** namespaced progress, bookmarks, notes, practice h
 
 Use **Settings → Export Progress** to back up the current account's data or move it to another device, and **Import Progress** to restore it. Local data is versioned (`STORAGE_KEYS`, `CURRENT_DATA_VERSION` in `src/app/core/storage/storage-keys.ts`) so a future release can migrate older saved data instead of discarding it.
 
-The one exception to "nothing leaves the browser" is the AI Mentor: messages you send there are forwarded through the serverless function to the configured AI provider (and are subject to that provider's own data handling policy) so a response can be generated — the function itself doesn't log, store, or persist chat content anywhere.
+There are two exceptions to "nothing leaves the browser": the AI Mentor, and Google Analytics.
+- **AI Mentor**: messages you send there are forwarded through the serverless function to the configured AI provider (and are subject to that provider's own data handling policy) so a response can be generated — the function itself doesn't log, store, or persist chat content anywhere.
+- **Google Analytics**: a standard `gtag.js` snippet is loaded in `src/index.html` for basic usage/traffic analytics. It's independent of the account system — it doesn't know your app account, and no progress/note/bookmark content is ever sent to it.
 
 ## Study Calendar
 
