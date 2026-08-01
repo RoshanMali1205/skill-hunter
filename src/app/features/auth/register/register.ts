@@ -53,7 +53,7 @@ export class RegisterComponent {
       password: this.password(),
     });
     if (success) {
-      window.location.href = '/dashboard';
+      window.location.replace('/dashboard');
     }
   }
 }

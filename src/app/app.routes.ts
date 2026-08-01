@@ -13,9 +13,9 @@ export const routes: Routes = [
   },
   {
     path: '',
+    canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/auth/auth-layout/auth-layout').then((m) => m.AuthLayoutComponent),
-    canActivate: [guestGuard],
     children: [
       {
         path: 'login',
@@ -31,84 +31,85 @@ export const routes: Routes = [
     ],
   },
   {
-    path: 'dashboard',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.DashboardComponent),
-    title: 'Dashboard · Skill Hunter',
-  },
-  {
-    path: 'subjects',
+    // Authenticated chrome is a route layout — not toggled by an auth signal.
+    // That avoids login/logout flashing the wrong shell around the current URL.
+    path: '',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/subjects/subject-list').then((m) => m.SubjectListComponent),
-    title: 'Subjects · Skill Hunter',
-  },
-  {
-    path: 'subjects/:subjectId',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/subjects/subject-detail').then((m) => m.SubjectDetailComponent),
-    title: 'Subject · Skill Hunter',
-  },
-  {
-    path: 'subjects/:subjectId/topics/:topicId',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/topics/topic-detail').then((m) => m.TopicDetailComponent),
-    title: 'Topic · Skill Hunter',
-  },
-  {
-    path: 'ai-mentor',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/ai-mentor/ai-mentor').then((m) => m.AiMentorComponent),
-    title: 'AI Mentor · Skill Hunter',
-  },
-  {
-    path: 'practice',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/practice/practice').then((m) => m.PracticeComponent),
-    title: 'Practice · Skill Hunter',
-  },
-  {
-    path: 'playground',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/playground/playground').then((m) => m.PlaygroundComponent),
-    title: 'Playground · Skill Hunter',
-  },
-  {
-    path: 'calendar',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/calendar/calendar').then((m) => m.CalendarComponent),
-    title: 'Calendar · Skill Hunter',
-  },
-  {
-    path: 'bookmarks',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/bookmarks/bookmarks').then((m) => m.BookmarksComponent),
-    title: 'Bookmarks · Skill Hunter',
-  },
-  {
-    path: 'notes',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/notes/notes').then((m) => m.NotesComponent),
-    title: 'Notes · Skill Hunter',
-  },
-  {
-    path: 'revision',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/revision/revision').then((m) => m.RevisionComponent),
-    title: 'Revision · Skill Hunter',
-  },
-  {
-    path: 'settings',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/settings/settings').then((m) => m.SettingsComponent),
-    title: 'Settings · Skill Hunter',
+      import('./core/layout/app-shell/app-shell').then((m) => m.AppShellComponent),
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/dashboard/dashboard').then((m) => m.DashboardComponent),
+        title: 'Dashboard · Skill Hunter',
+      },
+      {
+        path: 'subjects',
+        loadComponent: () =>
+          import('./features/subjects/subject-list').then((m) => m.SubjectListComponent),
+        title: 'Subjects · Skill Hunter',
+      },
+      {
+        path: 'subjects/:subjectId',
+        loadComponent: () =>
+          import('./features/subjects/subject-detail').then((m) => m.SubjectDetailComponent),
+        title: 'Subject · Skill Hunter',
+      },
+      {
+        path: 'subjects/:subjectId/topics/:topicId',
+        loadComponent: () =>
+          import('./features/topics/topic-detail').then((m) => m.TopicDetailComponent),
+        title: 'Topic · Skill Hunter',
+      },
+      {
+        path: 'ai-mentor',
+        loadComponent: () =>
+          import('./features/ai-mentor/ai-mentor').then((m) => m.AiMentorComponent),
+        title: 'AI Mentor · Skill Hunter',
+      },
+      {
+        path: 'practice',
+        loadComponent: () =>
+          import('./features/practice/practice').then((m) => m.PracticeComponent),
+        title: 'Practice · Skill Hunter',
+      },
+      {
+        path: 'playground',
+        loadComponent: () =>
+          import('./features/playground/playground').then((m) => m.PlaygroundComponent),
+        title: 'Playground · Skill Hunter',
+      },
+      {
+        path: 'calendar',
+        loadComponent: () =>
+          import('./features/calendar/calendar').then((m) => m.CalendarComponent),
+        title: 'Calendar · Skill Hunter',
+      },
+      {
+        path: 'bookmarks',
+        loadComponent: () =>
+          import('./features/bookmarks/bookmarks').then((m) => m.BookmarksComponent),
+        title: 'Bookmarks · Skill Hunter',
+      },
+      {
+        path: 'notes',
+        loadComponent: () => import('./features/notes/notes').then((m) => m.NotesComponent),
+        title: 'Notes · Skill Hunter',
+      },
+      {
+        path: 'revision',
+        loadComponent: () =>
+          import('./features/revision/revision').then((m) => m.RevisionComponent),
+        title: 'Revision · Skill Hunter',
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./features/settings/settings').then((m) => m.SettingsComponent),
+        title: 'Settings · Skill Hunter',
+      },
+    ],
   },
   {
     path: '**',

@@ -1,19 +1,15 @@
-@if (isAuthenticated()) {
-  <app-header />
+<app-header />
 
-  <div class="app-shell">
-    <app-sidebar />
+<div class="app-shell">
+  <app-sidebar />
 
-    <main class="app-shell__content" id="main-content">
-      <router-outlet />
+  <main class="app-shell__content" id="main-content">
+    <router-outlet />
 
-      <footer class="app-footer">
-        Developed by Roshan Mali &middot; &copy; 2026 &middot; v{{ appVersion }}
-      </footer>
-    </main>
-  </div>
+    <footer class="app-footer">
+      Developed by Roshan Mali &middot; &copy; 2026 &middot; v{{ appVersion }}
+    </footer>
+  </main>
+</div>
 
-  <app-mobile-nav />
-} @else {
-  <router-outlet />
-}
+<app-mobile-nav />

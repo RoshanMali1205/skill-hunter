@@ -34,13 +34,14 @@ export class LoginComponent {
       const redirect = this.safeRedirectPath(
         this.route.snapshot.queryParamMap.get('redirect'),
       );
-      window.location.href = redirect;
+      window.location.replace(redirect);
     }
   }
 
   /**
-   * Only allow same-origin relative paths. Rejects absolute URLs,
-   * protocol-relative (`//evil.com`), and non-path schemes.
+   * Only allow same-origin relative paths into the authenticated app.
+   * Rejects absolute URLs, protocol-relative hosts, and auth routes
+   * (which would loop a signed-in user back onto the login screen).
    */
   private safeRedirectPath(raw: string | null): string {
     if (!raw) return '/dashboard';
@@ -51,6 +52,10 @@ export class LoginComponent {
     try {
       const url = new URL(path, window.location.origin);
       if (url.origin !== window.location.origin) return '/dashboard';
+      const pathname = url.pathname.replace(/\/+$/, '') || '/';
+      if (pathname === '/login' || pathname === '/register') {
+        return '/dashboard';
+      }
       return `${url.pathname}${url.search}${url.hash}`;
     } catch {
       return '/dashboard';
