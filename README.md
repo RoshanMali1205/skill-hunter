@@ -70,7 +70,7 @@ Runs the [Vitest](https://vitest.dev/) suite.
 
 ## Routes
 
-All feature routes are lazy-loaded (`loadComponent`) so the initial bundle only contains the app shell. Every route below except `/login` and `/register` requires an account (`authGuard`); `/login` and `/register` bounce an already-signed-in user back to the dashboard (`guestGuard`).
+All feature routes are lazy-loaded (`loadComponent`) so the initial bundle only contains the root router. Authenticated pages load under `AppShell`; `/login` and `/register` load under `AuthLayout` (`guestGuard` sends signed-in users to the dashboard, `authGuard` sends everyone else to login).
 
 | Path | Screen |
 |---|---|
@@ -126,9 +126,9 @@ netlify/functions/
 
 ```mermaid
 flowchart TD
-    A[AppComponent] --> B{Signed in?}
-    B -- No --> C[AuthLayout<br/>Login / Register]
-    B -- Yes --> D[AppShell]
+    A[AppComponent<br/>router-outlet] --> R{Route + guard}
+    R -- guestGuard<br/>/login /register --> C[AuthLayout]
+    R -- authGuard<br/>app routes --> D[AppShell]
     D --> E[Header<br/>brand · user menu · theme toggle]
     D --> F[Sidebar<br/>search · nav · app version]
     D --> G[router-outlet<br/>active feature page]
