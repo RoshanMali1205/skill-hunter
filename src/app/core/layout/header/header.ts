@@ -28,8 +28,9 @@ export class HeaderComponent {
     this.authService.logout();
     // Hard redirect (not router.navigate) so every root-scoped store
     // resets and re-reads fresh on the next login, instead of holding
-    // this session's data in memory.
-    window.location.href = '/login';
+    // this session's data in memory. replace() also drops the protected
+    // page from history so Back doesn't revive a logged-out session view.
+    window.location.replace('/login');
   }
 
   initials(name: string): string {

@@ -35,24 +35,29 @@ export class PracticeComponent {
   readonly subjects = toSignal(this.contentService.getSubjects(), { initialValue: [] });
 
   readonly filter = signal<PracticeFilter>({
-    difficulty: 'all',
+    difficulty: this.settingsService.settings().defaultDifficulty,
     questionType: 'all',
     onlyBookmarked: false,
     onlyWeak: false,
     random: true,
   });
 
+  /** True after route query params have been seeded into the filter once. */
+  private seededFromRoute = false;
+
   constructor() {
     effect(() => {
       const subjectId = this.subjectId();
       const topicId = this.topicId();
-      if (subjectId || topicId) {
-        this.filter.update((current) => ({
-          ...current,
-          subjectId: subjectId ?? current.subjectId,
-          topicId: topicId ?? current.topicId,
-        }));
-      }
+      // Seed once from deep-link params so clearing the topic lock sticks
+      // even while the URL still carries ?topicId=.
+      if (this.seededFromRoute || (!subjectId && !topicId)) return;
+      this.seededFromRoute = true;
+      this.filter.update((current) => ({
+        ...current,
+        subjectId: subjectId ?? current.subjectId,
+        topicId: topicId ?? current.topicId,
+      }));
     });
   }
 
@@ -73,6 +78,12 @@ export class PracticeComponent {
     ),
     { initialValue: [] },
   );
+
+  readonly lockedTopicTitle = computed(() => {
+    const topicId = this.filter().topicId;
+    if (!topicId) return null;
+    return this.availableTopics().find((t) => t.id === topicId)?.title ?? topicId;
+  });
 
   readonly weakTopicIds = computed(() => {
     const ids = new Set(this.progressStore.lowConfidenceTopicIds());
@@ -108,7 +119,19 @@ export class PracticeComponent {
   );
 
   updateFilter(partial: Partial<PracticeFilter>): void {
-    this.filter.update((current) => ({ ...current, ...partial }));
+    this.filter.update((current) => {
+      const next = { ...current, ...partial };
+      // Changing subject or category must clear a deep-linked topic lock,
+      // otherwise the pool stays silently stuck on one topic.
+      if (('subjectId' in partial || 'categoryId' in partial) && !('topicId' in partial)) {
+        next.topicId = undefined;
+      }
+      return next;
+    });
+  }
+
+  clearTopicLock(): void {
+    this.filter.update((current) => ({ ...current, topicId: undefined }));
   }
 
   startPractice(): void {
@@ -122,6 +145,8 @@ export class PracticeComponent {
     this.pool.set([]);
     this.currentIndex.set(0);
     this.started.set(false);
+    // Drop the topic lock so "Start New Session" returns to open filters.
+    this.clearTopicLock();
   }
 
   onAssessed(result: 'correct' | 'incorrect' | 'needs-revision'): void {

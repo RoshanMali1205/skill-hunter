@@ -47,13 +47,18 @@ export class RegisterComponent {
 
   async submit(): Promise<void> {
     if (!this.canSubmit()) return;
+    const email = this.email().trim().toLowerCase();
     const success = await this.authService.register({
       name: this.name(),
-      email: this.email(),
+      email,
       password: this.password(),
     });
     if (success) {
-      window.location.href = '/dashboard';
+      const params = new URLSearchParams({
+        registered: '1',
+        email,
+      });
+      window.location.replace(`/login?${params.toString()}`);
     }
   }
 }

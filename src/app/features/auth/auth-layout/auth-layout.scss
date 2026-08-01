@@ -1,6 +1,9 @@
 @use 'mixins' as *;
 
 .auth-shell {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -8,17 +11,96 @@
   justify-content: center;
   gap: var(--space-4);
   padding: var(--space-5);
-  background: var(--gradient-hero), var(--color-bg);
+  background:
+    radial-gradient(1200px 700px at 10% -10%, color-mix(in srgb, var(--color-primary) 28%, transparent), transparent 60%),
+    radial-gradient(900px 600px at 110% 10%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 55%),
+    radial-gradient(800px 500px at 50% 120%, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent 50%),
+    var(--color-bg);
+}
+
+.auth-shell__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.auth-shell__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(48px);
+  opacity: 0.7;
+  will-change: transform;
+}
+
+.auth-shell__orb--a {
+  width: min(52vw, 420px);
+  height: min(52vw, 420px);
+  top: -8%;
+  left: -6%;
+  background: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  animation: auth-orb-drift-a 18s ease-in-out infinite alternate;
+}
+
+.auth-shell__orb--b {
+  width: min(48vw, 380px);
+  height: min(48vw, 380px);
+  top: 18%;
+  right: -10%;
+  background: color-mix(in srgb, var(--color-accent) 50%, transparent);
+  animation: auth-orb-drift-b 22s ease-in-out infinite alternate;
+}
+
+.auth-shell__orb--c {
+  width: min(40vw, 300px);
+  height: min(40vw, 300px);
+  bottom: -6%;
+  left: 28%;
+  background: color-mix(in srgb, var(--color-primary-strong) 40%, transparent);
+  animation: auth-orb-drift-c 16s ease-in-out infinite alternate;
+}
+
+.auth-shell__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-border) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-border) 55%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 20%, transparent 75%);
+}
+
+.auth-shell__card,
+.auth-shell__note {
+  position: relative;
+  z-index: 1;
 }
 
 .auth-shell__card {
-  @include card;
   width: 100%;
   max-width: 420px;
   padding: var(--space-6) var(--space-5);
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 color-mix(in srgb, var(--color-text) 8%, transparent);
+  backdrop-filter: blur(18px) saturate(1.35);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  animation: auth-card-rise 0.55s ease both;
+}
+
+:root[data-theme='light'] .auth-shell__card,
+:root:not([data-theme='dark']) .auth-shell__card {
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 color-mix(in srgb, #ffffff 70%, transparent);
 }
 
 .auth-shell__brand {
@@ -51,4 +133,50 @@
   text-align: center;
   font-size: 0.8rem;
   color: var(--color-text-muted);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--color-surface) 40%, transparent);
+}
+
+@keyframes auth-orb-drift-a {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(36px, 28px, 0) scale(1.08);
+  }
+}
+
+@keyframes auth-orb-drift-b {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-42px, 34px, 0) scale(1.1);
+  }
+}
+
+@keyframes auth-orb-drift-c {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(24px, -30px, 0) scale(1.06);
+  }
+}
+
+@keyframes auth-card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-shell__orb,
+  .auth-shell__card {
+    animation: none;
+  }
 }
