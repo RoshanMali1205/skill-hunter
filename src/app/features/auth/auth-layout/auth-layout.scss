@@ -90,10 +90,17 @@
   background: color-mix(in srgb, var(--color-surface) 72%, transparent);
   box-shadow:
     var(--shadow-lg),
-    inset 0 1px 0 color-mix(in srgb, #ffffff 55%, transparent);
+    inset 0 1px 0 color-mix(in srgb, var(--color-text) 8%, transparent);
   backdrop-filter: blur(18px) saturate(1.35);
   -webkit-backdrop-filter: blur(18px) saturate(1.35);
   animation: auth-card-rise 0.55s ease both;
+}
+
+:root[data-theme='light'] .auth-shell__card,
+:root:not([data-theme='dark']) .auth-shell__card {
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 color-mix(in srgb, #ffffff 70%, transparent);
 }
 
 .auth-shell__brand {
