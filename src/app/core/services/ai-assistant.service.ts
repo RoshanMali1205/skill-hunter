@@ -22,8 +22,8 @@ export class AiAssistantService {
   }
 
   private describeError(err: HttpErrorResponse): string {
-    if (err.status === 0) {
-      return 'Could not reach the AI backend. Locally, run this app with `netlify dev` (not plain `ng serve`) so the /api/ai-chat function is available; on a deployed site, check that the Netlify function deployed successfully.';
+    if (err.status === 0 || err.status === 404) {
+      return 'Could not reach the AI backend. Locally, either run `npm run dev:ai` alongside `ng serve` (proxy.conf.json forwards /api), or use `npm run dev` (`netlify dev`). On a deployed site, check that the Netlify function deployed successfully.';
     }
     const body = err.error as AiChatError | undefined;
     return body?.error ?? `AI request failed (HTTP ${err.status}).`;

@@ -286,12 +286,18 @@ If the function isn't deployed/configured, the UI degrades gracefully — the ch
 ### Local setup
 
 ```bash
+cp .env.example .env         # then set a real GEMINI_API_KEY — .env is git-ignored
+
+# Option A — recommended: Angular + function together on :8888
 npm install -g netlify-cli   # one-time
-cp .env.example .env         # then fill in your real key — .env is git-ignored
-netlify dev
+npm run dev                  # netlify dev
+
+# Option B — keep plain ng serve on :4200
+npm run dev:ai               # local /api/ai-chat on :9999
+npm start                    # proxies /api → :9999 via proxy.conf.json
 ```
 
-`netlify dev` runs the Angular dev server *and* emulates the Netlify function together, proxied through `http://localhost:8888`, so `/api/ai-chat` actually works locally. Plain `ng serve` (port 4200) does **not** run the function — the AI Mentor page will show a "could not reach the AI backend" message, which is expected; everything else in the app works normally.
+`npm run dev` (`netlify dev`) runs the Angular dev server and emulates the Netlify function together on `http://localhost:8888`. Plain `ng serve` alone used to 404 on `/api/ai-chat`; with `proxy.conf.json` + `npm run dev:ai`, port 4200 can call the same function handler locally. Without a real `GEMINI_API_KEY` in `.env`, the Mentor returns a clear 503 instead of hanging.
 
 ### Production setup
 

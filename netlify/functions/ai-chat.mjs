@@ -116,11 +116,11 @@ export default async (req) => {
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
+  if (!apiKey || apiKey === '...' || apiKey.trim() === '') {
     return jsonResponse(
       {
         error:
-          "AI Mentor is not configured yet. Set GEMINI_API_KEY in your Netlify site's environment variables (or a local .env for `netlify dev`), then redeploy.",
+          "AI Mentor is not configured yet. Set GEMINI_API_KEY in your Netlify site's environment variables (or a local .env for `netlify dev` / `npm run dev:ai`), then redeploy or restart.",
       },
       503,
     );
