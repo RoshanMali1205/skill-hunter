@@ -13,7 +13,7 @@
     <h3>{{ question().title }}</h3>
   }
 
-  <p class="question-card__question">{{ question().question }}</p>
+  <p class="question-card__question" [innerHTML]="question().question | markdownInline"></p>
 
   @if (question().code) {
     <app-code-block [code]="question().code!" [language]="question().language ?? 'javascript'" />

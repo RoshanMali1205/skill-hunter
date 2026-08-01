@@ -4,6 +4,7 @@ import { CodeBlockComponent } from '../code-block/code-block';
 import { AnswerRevealComponent } from '../answer-reveal/answer-reveal';
 import { BookmarkButtonComponent } from '../bookmark-button/bookmark-button';
 import { IconComponent } from '../icon/icon';
+import { MarkdownInlinePipe } from '../../pipes/markdown-inline.pipe';
 
 const TYPE_LABELS: Record<QuestionBlock['type'], string> = {
   'output-question': 'Code Output Question',
@@ -21,7 +22,13 @@ const TYPE_ICONS: Record<QuestionBlock['type'], string> = {
 
 @Component({
   selector: 'app-question-card',
-  imports: [CodeBlockComponent, AnswerRevealComponent, BookmarkButtonComponent, IconComponent],
+  imports: [
+    CodeBlockComponent,
+    AnswerRevealComponent,
+    BookmarkButtonComponent,
+    IconComponent,
+    MarkdownInlinePipe,
+  ],
   templateUrl: './question-card.html',
   styleUrl: './question-card.scss',
 })

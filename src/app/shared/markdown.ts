@@ -5,6 +5,18 @@ function inline(text: string): string {
     .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
 }
 
+/**
+ * Renders only inline formatting (backtick code, bold, italic) without
+ * wrapping the result in a block element such as <p>. Source text is
+ * HTML-escaped first. Use this for single-line content that already sits
+ * inside its own element (a heading, a list item, a chip) where a nested
+ * <p> from the full renderMarkdown() would be invalid or unwanted.
+ */
+export function renderInlineMarkdown(raw: string): string {
+  const escaped = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return inline(escaped);
+}
+
 const CODE_TOKEN_LINE = /^CODEBLOCK(\d+)$/;
 const CODE_TOKEN_GLOBAL = /CODEBLOCK(\d+)/g;
 

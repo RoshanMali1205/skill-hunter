@@ -16,7 +16,7 @@
     <header class="topic-detail__header">
       <div>
         <h1>{{ topic.title }}</h1>
-        <p class="topic-detail__description">{{ topic.description }}</p>
+        <p class="topic-detail__description" [innerHTML]="topic.description | markdownInline"></p>
         <div class="cluster">
           <app-difficulty-chip [difficulty]="topic.difficulty" />
           <app-priority-chip [priority]="topic.interviewPriority" />
@@ -52,11 +52,11 @@
                 </span>
                 <h2>{{ block.title || 'Concept' }}</h2>
               </header>
-              <p>{{ block.content }}</p>
+              <div class="topic-detail__markdown" [innerHTML]="block.content | markdown"></div>
               @if (block.keyPoints && block.keyPoints.length > 0) {
                 <ul class="topic-detail__key-points">
                   @for (point of block.keyPoints; track point) {
-                    <li>{{ point }}</li>
+                    <li [innerHTML]="point | markdownInline"></li>
                   }
                 </ul>
               }
@@ -71,7 +71,7 @@
                 <h2>{{ block.title || 'Code Example' }}</h2>
               </header>
               <app-code-block [code]="block.code" [language]="block.language" />
-              <p class="topic-detail__explanation">{{ block.explanation }}</p>
+              <p class="topic-detail__explanation" [innerHTML]="block.explanation | markdownInline"></p>
             </section>
           }
           @case ('common-mistake') {
@@ -84,15 +84,15 @@
               </header>
               <div class="topic-detail__mistake-field">
                 <span class="topic-detail__mistake-label">Mistake</span>
-                <p>{{ block.mistake }}</p>
+                <p [innerHTML]="block.mistake | markdownInline"></p>
               </div>
               <div class="topic-detail__mistake-field">
                 <span class="topic-detail__mistake-label">Why it happens</span>
-                <p>{{ block.whyItHappens }}</p>
+                <p [innerHTML]="block.whyItHappens | markdownInline"></p>
               </div>
               <div class="topic-detail__mistake-field">
                 <span class="topic-detail__mistake-label">Correct approach</span>
-                <p>{{ block.correctApproach }}</p>
+                <p [innerHTML]="block.correctApproach | markdownInline"></p>
               </div>
             </section>
           }

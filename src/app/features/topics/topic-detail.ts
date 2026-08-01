@@ -21,6 +21,8 @@ import { NoteEditorComponent } from '../../shared/components/note-editor/note-ed
 import { CompletionButtonComponent } from '../../shared/components/completion-button/completion-button';
 import { ConfidenceSelectorComponent } from '../../shared/components/confidence-selector/confidence-selector';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
+import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
+import { MarkdownInlinePipe } from '../../shared/pipes/markdown-inline.pipe';
 
 @Component({
   selector: 'app-topic-detail',
@@ -38,6 +40,8 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
     CompletionButtonComponent,
     ConfidenceSelectorComponent,
     EmptyStateComponent,
+    MarkdownPipe,
+    MarkdownInlinePipe,
   ],
   templateUrl: './topic-detail.html',
   styleUrl: './topic-detail.scss',

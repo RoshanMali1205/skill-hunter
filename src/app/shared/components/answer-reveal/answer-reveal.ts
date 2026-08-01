@@ -1,7 +1,10 @@
 import { Component, computed, input, signal } from '@angular/core';
+import { MarkdownPipe } from '../../pipes/markdown.pipe';
+import { MarkdownInlinePipe } from '../../pipes/markdown-inline.pipe';
 
 @Component({
   selector: 'app-answer-reveal',
+  imports: [MarkdownPipe, MarkdownInlinePipe],
   templateUrl: './answer-reveal.html',
   styleUrl: './answer-reveal.scss',
 })

@@ -13,7 +13,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
@@ -23,6 +23,28 @@ body {
 
 a {
   color: var(--color-primary);
+}
+
+// Angular wraps every component in its own custom element, which is an
+// unstyled inline box by default. For a component whose only child uses
+// position: sticky, that wrapper auto-sizes to exactly that child's height
+// (there's nothing else inside it), which leaves the sticky child no room
+// to move within its containing block -- it silently behaves like
+// position: static instead of sticking. display: contents removes the
+// wrapper from the box tree so the sticky child's containing block is the
+// real (much taller) layout ancestor instead. Header and sidebar are both
+// single-sticky-child wrappers, so both need this.
+app-header,
+app-sidebar {
+  display: contents;
+}
+
+// The remaining shell-layout hosts just need a normal block box instead of
+// the browser's default display: inline for unstyled custom elements.
+app-root,
+app-shell,
+app-mobile-nav {
+  display: block;
 }
 
 button {

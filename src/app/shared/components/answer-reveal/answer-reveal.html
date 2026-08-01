@@ -2,16 +2,16 @@
   @if (hints().length > 0) {
     <ul class="answer-reveal__hints">
       @for (hint of hints(); track hint) {
-        <li>{{ hint }}</li>
+        <li [innerHTML]="hint | markdownInline"></li>
       }
     </ul>
   }
   <button type="button" class="btn btn--primary" (click)="toggle()">Show Answer</button>
 } @else {
   <div class="answer-reveal__content">
-    <p class="answer-reveal__answer">{{ answer() }}</p>
+    <div class="answer-reveal__answer answer-reveal__markdown" [innerHTML]="answer() | markdown"></div>
     @if (explanation()) {
-      <p class="answer-reveal__explanation">{{ explanation() }}</p>
+      <div class="answer-reveal__explanation answer-reveal__markdown" [innerHTML]="explanation() | markdown"></div>
     }
     <button type="button" class="btn btn--ghost" (click)="toggle()">Hide Answer</button>
   </div>

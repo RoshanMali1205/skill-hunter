@@ -13,6 +13,10 @@
   background: var(--color-surface-alt);
 }
 
+.answer-reveal__markdown {
+  @include markdown-content;
+}
+
 .answer-reveal__answer {
   font-weight: 600;
   margin-bottom: var(--space-2);

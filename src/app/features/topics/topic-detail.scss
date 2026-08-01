@@ -7,6 +7,15 @@
   font-weight: 500;
 }
 
+.topic-detail__markdown {
+  @include markdown-content;
+  color: var(--color-text);
+
+  > :first-child {
+    margin-top: 0;
+  }
+}
+
 .topic-detail__header {
   display: flex;
   flex-direction: column;
