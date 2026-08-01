@@ -102,6 +102,10 @@
       filter: brightness(1.06);
     }
   }
+
+  &--back {
+    align-self: flex-start;
+  }
 }
 
 .link-list {

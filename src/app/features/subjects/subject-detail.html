@@ -1,9 +1,9 @@
 @if (subject(); as subject) {
   <div class="stack">
-    <a class="btn subject-detail__back" [routerLink]="['/subjects']">
+    <button type="button" class="btn subject-detail__back" (click)="goBack()">
       <app-icon name="chevron-left" />
       Back
-    </a>
+    </button>
 
     <app-breadcrumb
       [items]="[{ label: 'Subjects', link: ['/subjects'] }, { label: subject.title }]"

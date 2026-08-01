@@ -1,5 +1,6 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, DestroyRef } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Location } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { combineLatest, switchMap } from 'rxjs';
 import { ContentService } from '../../core/services/content.service';
@@ -8,7 +9,10 @@ import { BookmarkService } from '../../core/services/bookmark.service';
 import { RevisionService } from '../../core/services/revision.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { NoteService } from '../../core/services/note.service';
+import { TextToSpeechService } from '../../core/services/text-to-speech.service';
 import { ConfidenceLevel } from '../../core/models';
+import { markdownToPlainText } from '../../shared/markdown';
+import { hasInAppHistory } from '../../shared/navigation';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb';
 import { IconComponent } from '../../shared/components/icon/icon';
 import { DifficultyChipComponent } from '../../shared/components/difficulty-chip/difficulty-chip';
@@ -17,6 +21,7 @@ import { CodeBlockComponent } from '../../shared/components/code-block/code-bloc
 import { QuestionCardComponent } from '../../shared/components/question-card/question-card';
 import { BookmarkButtonComponent } from '../../shared/components/bookmark-button/bookmark-button';
 import { NoteButtonComponent } from '../../shared/components/note-button/note-button';
+import { ReadAloudButtonComponent } from '../../shared/components/read-aloud-button/read-aloud-button';
 import { NoteEditorComponent } from '../../shared/components/note-editor/note-editor';
 import { CompletionButtonComponent } from '../../shared/components/completion-button/completion-button';
 import { ConfidenceSelectorComponent } from '../../shared/components/confidence-selector/confidence-selector';
@@ -36,6 +41,7 @@ import { MarkdownInlinePipe } from '../../shared/pipes/markdown-inline.pipe';
     QuestionCardComponent,
     BookmarkButtonComponent,
     NoteButtonComponent,
+    ReadAloudButtonComponent,
     NoteEditorComponent,
     CompletionButtonComponent,
     ConfidenceSelectorComponent,
@@ -53,7 +59,9 @@ export class TopicDetailComponent {
   private readonly revisionService = inject(RevisionService);
   private readonly settingsService = inject(SettingsService);
   private readonly noteService = inject(NoteService);
+  private readonly ttsService = inject(TextToSpeechService);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
 
   readonly settings = this.settingsService.settings;
 
@@ -92,14 +100,38 @@ export class TopicDetailComponent {
   readonly hasNote = computed(() => !!this.note());
   readonly noteEditorOpen = signal(false);
 
+  readonly ttsSupported = this.ttsService.supported;
+  readonly isSpeaking = computed(() => this.ttsService.speakingId() === this.topicId());
+
+  readonly readableText = computed(() => {
+    const topic = this.topic();
+    if (!topic) {
+      return '';
+    }
+    const parts = [topic.description];
+    for (const block of this.sortedBlocks()) {
+      if (block.type === 'concept') {
+        parts.push(block.title ?? '', block.content, ...(block.keyPoints ?? []));
+      } else if (block.type === 'code-example') {
+        parts.push(block.title ?? '', block.explanation);
+      } else if (block.type === 'common-mistake') {
+        parts.push('Common mistake', block.mistake, block.whyItHappens, block.correctApproach);
+      }
+    }
+    return markdownToPlainText(parts.filter(Boolean).join('\n\n'));
+  });
+
   constructor() {
     effect(() => {
       const topicId = this.topicId();
       const subjectId = this.subjectId();
+      this.ttsService.stop();
       if (topicId && subjectId) {
         this.progressStore.touchLastVisited(topicId, subjectId);
       }
     });
+
+    inject(DestroyRef).onDestroy(() => this.ttsService.stop());
   }
 
   toggleComplete(): void {
@@ -128,6 +160,18 @@ export class TopicDetailComponent {
 
   toggleRevision(): void {
     this.revisionService.toggleRevision(this.topicId());
+  }
+
+  goBack(): void {
+    if (hasInAppHistory()) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/subjects', this.subjectId()]);
+    }
+  }
+
+  toggleReadAloud(): void {
+    this.ttsService.toggle(this.topicId(), this.readableText());
   }
 
   toggleNoteEditor(): void {

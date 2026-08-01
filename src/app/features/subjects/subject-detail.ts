@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { ContentService } from '../../core/services/content.service';
 import { ProgressStore } from '../../core/services/progress.store';
@@ -15,11 +16,11 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar';
 import { IconComponent } from '../../shared/components/icon/icon';
 import { Category } from '../../core/models';
+import { hasInAppHistory } from '../../shared/navigation';
 
 @Component({
   selector: 'app-subject-detail',
   imports: [
-    RouterLink,
     TopicCardComponent,
     FilterPanelComponent,
     EmptyStateComponent,
@@ -35,6 +36,8 @@ export class SubjectDetailComponent {
   private readonly progressStore = inject(ProgressStore);
   private readonly bookmarkService = inject(BookmarkService);
   private readonly metricsService = inject(MetricsService);
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
 
   subjectId = input.required<string>();
 
@@ -81,6 +84,14 @@ export class SubjectDetailComponent {
   });
 
   private readonly expandedCategoryIds = signal<ReadonlySet<string>>(new Set());
+
+  goBack(): void {
+    if (hasInAppHistory()) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/subjects']);
+    }
+  }
 
   isCategoryOpen(categoryId: string): boolean {
     return this.hasActiveFilter() || this.expandedCategoryIds().has(categoryId);

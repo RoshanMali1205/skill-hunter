@@ -1,5 +1,7 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { combineLatest, forkJoin, map, of, switchMap } from 'rxjs';
 import { ContentService } from '../../core/services/content.service';
@@ -12,6 +14,7 @@ import { PracticeFilter } from '../../core/models/filters.models';
 import { QuestionCardComponent } from '../../shared/components/question-card/question-card';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { IconComponent } from '../../shared/components/icon/icon';
+import { hasInAppHistory } from '../../shared/navigation';
 
 @Component({
   selector: 'app-practice',
@@ -26,11 +29,15 @@ export class PracticeComponent {
   private readonly practiceService = inject(PracticeService);
   private readonly revisionService = inject(RevisionService);
   private readonly settingsService = inject(SettingsService);
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
 
   readonly settings = this.settingsService.settings;
 
   subjectId = input<string>();
   topicId = input<string>();
+
+  readonly cameFromTopic = computed(() => !!this.subjectId() && !!this.topicId());
 
   readonly subjects = toSignal(this.contentService.getSubjects(), { initialValue: [] });
 
@@ -117,6 +124,16 @@ export class PracticeComponent {
   readonly sessionComplete = computed(
     () => this.pool().length > 0 && this.currentIndex() >= this.pool().length,
   );
+
+  goBack(): void {
+    if (hasInAppHistory()) {
+      this.location.back();
+    } else if (this.cameFromTopic()) {
+      this.router.navigate(['/subjects', this.subjectId(), 'topics', this.topicId()]);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
+  }
 
   updateFilter(partial: Partial<PracticeFilter>): void {
     this.filter.update((current) => {

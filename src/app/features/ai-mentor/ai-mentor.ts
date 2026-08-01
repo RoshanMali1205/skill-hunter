@@ -1,10 +1,14 @@
 import { Component, computed, DestroyRef, effect, inject, input, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AiAssistantService } from '../../core/services/ai-assistant.service';
 import { NoteService } from '../../core/services/note.service';
 import { AiChatMessage } from '../../core/models';
 import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
+import { IconComponent } from '../../shared/components/icon/icon';
+import { hasInAppHistory } from '../../shared/navigation';
 
 interface QuickPrompt {
   label: string;
@@ -20,7 +24,7 @@ const QUICK_PROMPTS: QuickPrompt[] = [
 
 @Component({
   selector: 'app-ai-mentor',
-  imports: [FormsModule, MarkdownPipe],
+  imports: [FormsModule, MarkdownPipe, IconComponent],
   templateUrl: './ai-mentor.html',
   styleUrl: './ai-mentor.scss',
 })
@@ -28,6 +32,8 @@ export class AiMentorComponent {
   private readonly aiAssistantService = inject(AiAssistantService);
   private readonly noteService = inject(NoteService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
 
   subject = input<string>();
   topic = input<string>();
@@ -60,6 +66,16 @@ export class AiMentorComponent {
         }
       });
     });
+  }
+
+  goBack(): void {
+    if (hasInAppHistory()) {
+      this.location.back();
+    } else if (this.hasTopicContext()) {
+      this.router.navigate(['/subjects', this.subjectId(), 'topics', this.topicId()]);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
   }
 
   sendDraft(): void {

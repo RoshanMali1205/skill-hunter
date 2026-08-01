@@ -1,9 +1,9 @@
 @if (topic(); as topic) {
   <div class="stack">
-    <a class="btn topic-detail__back" [routerLink]="['/subjects', subjectId()]">
+    <button type="button" class="btn topic-detail__back" (click)="goBack()">
       <app-icon name="chevron-left" />
       Back
-    </a>
+    </button>
 
     <app-breadcrumb
       [items]="[
@@ -26,6 +26,9 @@
         </div>
       </div>
       <div class="cluster">
+        @if (ttsSupported) {
+          <app-read-aloud-button [speaking]="isSpeaking()" (toggled)="toggleReadAloud()" />
+        }
         <app-note-button [hasNote]="hasNote()" (clicked)="toggleNoteEditor()" />
         <app-bookmark-button [bookmarked]="isBookmarked()" (toggled)="toggleBookmark()" />
       </div>

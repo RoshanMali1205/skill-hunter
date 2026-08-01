@@ -95,3 +95,25 @@ export function renderMarkdown(raw: string): string {
 
   return html;
 }
+
+/**
+ * Strips the same constrained markdown subset back down to plain, spoken-
+ * friendly text (no `#`, `**`, backticks, list bullets, fenced code, or
+ * HTML). Intended for feeding topic content to the Speech Synthesis API,
+ * which cannot make use of markup.
+ */
+export function markdownToPlainText(raw: string): string {
+  return raw
+    .replace(/```(\w+)?\n?([\s\S]*?)```/g, '$2')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^[-*]\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '')
+    .replace(/^-{3,}$/gm, '')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '$1')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{2,}/g, '. ')
+    .replace(/\n/g, ' ')
+    .trim();
+}
