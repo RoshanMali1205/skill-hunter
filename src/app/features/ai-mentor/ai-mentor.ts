@@ -1,4 +1,5 @@
-import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, signal, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { AiAssistantService } from '../../core/services/ai-assistant.service';
 import { NoteService } from '../../core/services/note.service';
@@ -26,6 +27,7 @@ const QUICK_PROMPTS: QuickPrompt[] = [
 export class AiMentorComponent {
   private readonly aiAssistantService = inject(AiAssistantService);
   private readonly noteService = inject(NoteService);
+  private readonly destroyRef = inject(DestroyRef);
 
   subject = input<string>();
   topic = input<string>();
@@ -83,12 +85,19 @@ export class AiMentorComponent {
         subjectTitle: this.subject(),
         topicTitle: this.topic(),
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (reply) => {
           this.messages.update((all) => [...all, { role: 'assistant', content: reply }]);
           this.loading.set(false);
         },
         error: (err: Error) => {
+          // Roll back the pending user turn so a retry does not send
+          // consecutive user messages (which providers often reject).
+          this.messages.update((all) =>
+            all.length > 0 && all[all.length - 1]?.role === 'user' ? all.slice(0, -1) : all,
+          );
+          this.draft.set(text);
           this.errorMessage.set(err.message);
           this.loading.set(false);
         },

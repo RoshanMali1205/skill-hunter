@@ -133,8 +133,27 @@ export class AuthService {
     if (!raw) return DEFAULT_AUTH_STATE;
     try {
       const user = JSON.parse(raw) as AuthUser;
-      return { user, isAuthenticated: true, isLoading: false, error: null };
+      if (!user?.id || typeof user.id !== 'string') {
+        window.localStorage.removeItem(SESSION_KEY);
+        return DEFAULT_AUTH_STATE;
+      }
+      // Session is only valid if the user still exists in the local
+      // registry — prevents a forged session JSON from unlocking another
+      // account's scoped data on a shared browser.
+      const registered = this.getRegisteredUsers().find((u) => u.id === user.id);
+      if (!registered) {
+        window.localStorage.removeItem(SESSION_KEY);
+        return DEFAULT_AUTH_STATE;
+      }
+      const authUser: AuthUser = {
+        id: registered.id,
+        name: registered.name,
+        email: registered.email,
+        createdAt: registered.createdAt,
+      };
+      return { user: authUser, isAuthenticated: true, isLoading: false, error: null };
     } catch {
+      window.localStorage.removeItem(SESSION_KEY);
       return DEFAULT_AUTH_STATE;
     }
   }

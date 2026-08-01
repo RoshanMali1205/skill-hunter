@@ -31,8 +31,29 @@ export class LoginComponent {
       // Full reload (not router.navigate) so every root-scoped store
       // (progress, bookmarks, activity, ...) re-reads from this user's
       // namespaced storage keys instead of holding a previous session's data.
-      const redirect = this.route.snapshot.queryParamMap.get('redirect') || '/dashboard';
+      const redirect = this.safeRedirectPath(
+        this.route.snapshot.queryParamMap.get('redirect'),
+      );
       window.location.href = redirect;
+    }
+  }
+
+  /**
+   * Only allow same-origin relative paths. Rejects absolute URLs,
+   * protocol-relative (`//evil.com`), and non-path schemes.
+   */
+  private safeRedirectPath(raw: string | null): string {
+    if (!raw) return '/dashboard';
+    const path = raw.trim();
+    if (!path.startsWith('/') || path.startsWith('//') || path.includes('\\')) {
+      return '/dashboard';
+    }
+    try {
+      const url = new URL(path, window.location.origin);
+      if (url.origin !== window.location.origin) return '/dashboard';
+      return `${url.pathname}${url.search}${url.hash}`;
+    } catch {
+      return '/dashboard';
     }
   }
 }

@@ -8,6 +8,18 @@
     <section class="practice__setup">
       <h2><app-icon name="target" /> Filters</h2>
 
+      @if (filter().topicId) {
+        <div class="practice__topic-lock" role="status">
+          <span>
+            Locked to topic
+            <strong>{{ lockedTopicTitle() ?? filter().topicId }}</strong>
+          </span>
+          <button type="button" class="btn btn--ghost" (click)="clearTopicLock()">
+            Clear lock
+          </button>
+        </div>
+      }
+
       <div class="practice__grid">
         <label class="practice__field">
           <span><app-icon name="book-open" /> Subject</span>
