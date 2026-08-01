@@ -503,7 +503,7 @@ flowchart LR
 
 `StorageService.get/set/remove` all funnel through a private `scoped(key)` that calls `scopedKey(key, authService.currentUserId())` — `key::<userId>` if signed in, or the bare key if not. This one function is the entirety of the multi-account isolation mechanism; no individual service is aware accounts exist.
 
-Because each service's backing signal is initialized **once**, at construction time, from whatever account is current at that moment, switching accounts mid-session without a page reload would leave stale data in memory — which is exactly why login/logout/register all force `window.location.href` instead of `router.navigate` ([§2.1](#21-accounts--authentication)).
+Because each service's backing signal is initialized **once**, at construction time, from whatever account is current at that moment, switching accounts mid-session without a page reload would leave stale data in memory — which is exactly why login/logout force a full page navigation instead of `router.navigate` ([§2.1](#21-accounts--authentication)). Register redirects to `/login` without creating a session.
 
 ### 8.2 Storage key registry
 
@@ -567,9 +567,10 @@ sequenceDiagram
     A->>W: generate 16-byte random salt, deriveBits(password, salt, 120000, SHA-256)
     W-->>A: 256-bit password hash (hex)
     A->>L: (if first account) migrate unscoped keys to key::userId — §8.3
-    A->>L: append RegisteredUser to auth-users, write auth-session
+    A->>L: append RegisteredUser to auth-users (no auth-session yet)
     A-->>P: true
-    P->>P: window.location.href = '/dashboard'
+    P->>P: window.location.replace('/login?registered=1&email=...')
+    Note over P: user must sign in explicitly after registering
 ```
 
 ### 9.2 Login
@@ -589,7 +590,7 @@ sequenceDiagram
     A->>L: look up by lowercased email, recompute hash with stored salt, compare
     A->>L: write auth-session
     A-->>P: true
-    P->>P: window.location.href = redirect (from query param, default /dashboard)
+    P->>P: window.location.replace(redirect (from query param, default /dashboard))
     Note over P: hard redirect forces every root-scoped<br/>service to re-read from the new user's scoped keys
 ```
 

@@ -2,8 +2,14 @@
   <h1>Welcome back</h1>
   <p class="auth-form__subtitle">Sign in to continue your prep.</p>
 
+  @if (justRegistered()) {
+    <p class="auth-form__success" role="status">
+      Account created — sign in with your email and password.
+    </p>
+  }
+
   @if (error(); as message) {
-    <p class="auth-form__error">{{ message }}</p>
+    <p class="auth-form__error" role="alert">{{ message }}</p>
   }
 
   <form (ngSubmit)="submit()">

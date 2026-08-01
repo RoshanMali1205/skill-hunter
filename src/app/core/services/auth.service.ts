@@ -76,7 +76,9 @@ export class AuthService {
       this.migrateLegacyDataTo(newUser.id);
     }
 
-    this.completeAuth(newUser);
+    // Account is created — do not auto-sign-in. Caller should send the user
+    // to /login to authenticate explicitly.
+    this._state.update((s) => ({ ...s, isLoading: false, error: null }));
     return true;
   }
 

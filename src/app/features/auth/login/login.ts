@@ -14,9 +14,10 @@ export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
 
-  readonly email = signal('');
+  readonly email = signal(this.route.snapshot.queryParamMap.get('email') ?? '');
   readonly password = signal('');
   readonly showPassword = signal(false);
+  readonly justRegistered = signal(this.route.snapshot.queryParamMap.get('registered') === '1');
 
   readonly isLoading = this.authService.isLoading;
   readonly error = this.authService.error;
