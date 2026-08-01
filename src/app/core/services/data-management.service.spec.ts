@@ -7,6 +7,7 @@ import { RevisionService } from './revision.service';
 import { SettingsService } from './settings.service';
 import { ActivityService } from './activity.service';
 import { NoteService } from './note.service';
+import { AiChatStore } from './ai-chat.store';
 import { CURRENT_DATA_VERSION } from '../storage/storage-keys';
 import { DEFAULT_SETTINGS } from '../models';
 
@@ -39,6 +40,7 @@ describe('DataManagementService', () => {
         { provide: SettingsService, useValue: { ...settingsService, settings: () => DEFAULT_SETTINGS } },
         { provide: ActivityService, useValue: { ...activityService, activity: () => ({}), resetAll: vi.fn() } },
         { provide: NoteService, useValue: { ...noteService, notes: () => ({}), resetAll: vi.fn() } },
+        { provide: AiChatStore, useValue: { resetAll: vi.fn(), snapshot: () => ({ conversations: [], activeId: null }), replaceAll: vi.fn() } },
       ],
     });
 
