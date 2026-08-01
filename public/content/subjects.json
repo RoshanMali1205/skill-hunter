@@ -4041,7 +4041,7 @@
   {
     "id": "system-design",
     "title": "Frontend System Design",
-    "description": "25 lead-level architecture questions covering caching, performance, security, auth, state, platform architecture and delivery for Senior/Lead interviews.",
+    "description": "50 lead-level architecture questions covering domain architecture, caching, performance, security, auth, state, complex data flows, platform architecture, quality and delivery for Senior/Lead interviews.",
     "icon": "system-design",
     "order": 5,
     "categories": [
@@ -4049,20 +4049,135 @@
         "id": "sd-foundations",
         "subjectId": "system-design",
         "title": "Architecture Foundations",
-        "description": "Structuring a large frontend around business capabilities and team ownership.",
+        "description": "Structuring a large frontend around business capabilities, team ownership, API contracts, multi-tenancy and architecture governance.",
         "order": 1,
         "topics": [
           {
             "id": "sd-design-a-scalable-enterprise-frontend",
             "categoryId": "sd-foundations",
             "title": "Design a Scalable Enterprise Frontend",
-            "description": "Lead frontend system-design interview: Design a Scalable Enterprise Frontend, trade-offs, failure modes and production architecture.",
+            "description": "Senior/lead system-design scenario covering domain boundaries, team ownership, dependency direction, lazy delivery, shared infrastructure and long-term maintainability.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "design-a-scalable-enterprise-frontend",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "design-a-scalable-enterprise-frontend"
+            ]
+          },
+          {
+            "id": "sd-domain-boundaries-and-dependency-rules",
+            "categoryId": "sd-foundations",
+            "title": "Domain Boundaries and Dependency Rules",
+            "description": "How to divide a large frontend into business domains, prevent circular dependencies and make module boundaries enforceable.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "domain-boundaries-and-dependency-rules"
+            ]
+          },
+          {
+            "id": "sd-api-contracts-and-backward-compatibility",
+            "categoryId": "sd-foundations",
+            "title": "API Contracts and Backward Compatibility",
+            "description": "Designing typed frontend/backend contracts, compatible evolution, deprecation, validation and mixed-version deployments.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "api-contracts-and-backward-compatibility"
+            ]
+          },
+          {
+            "id": "sd-rest-graphql-or-bff-selection",
+            "categoryId": "sd-foundations",
+            "title": "Choosing REST, GraphQL or a BFF",
+            "description": "Selecting an API interaction model based on data ownership, aggregation, caching, security, client diversity and operational cost.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "rest-graphql-or-bff-selection"
+            ]
+          },
+          {
+            "id": "sd-multi-tenant-frontend-architecture",
+            "categoryId": "sd-foundations",
+            "title": "Multi-Tenant Frontend Architecture",
+            "description": "Designing tenant isolation, branding, runtime configuration, permissions, caching and observability for a SaaS frontend.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "multi-tenant-frontend-architecture"
+            ]
+          },
+          {
+            "id": "sd-architecture-decisions-and-fitness-functions",
+            "categoryId": "sd-foundations",
+            "title": "Architecture Decisions and Fitness Functions",
+            "description": "Making architectural choices explicit, measurable and continuously enforceable instead of relying on slide decks.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "architecture-decisions-and-fitness-functions"
+            ]
+          },
+          {
+            "id": "sd-build-vs-buy-and-third-party-dependencies",
+            "categoryId": "sd-foundations",
+            "title": "Build vs Buy and Third-Party Dependencies",
+            "description": "Evaluating libraries and SaaS widgets using product fit, accessibility, security, performance, maintenance and exit strategy.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "build-vs-buy-and-third-party-dependencies"
+            ]
+          },
+          {
+            "id": "sd-frontend-platform-and-golden-path",
+            "categoryId": "sd-foundations",
+            "title": "Frontend Platform and Golden Path",
+            "description": "Creating a paved road for teams: templates, CI, observability, security, design system, ownership and controlled extensibility.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "frontend-platform-and-golden-path"
             ]
           }
         ]
@@ -4071,72 +4186,167 @@
         "id": "sd-performance",
         "subjectId": "system-design",
         "title": "Caching & Performance",
-        "description": "Multi-layer caching, cache invalidation, bundle size, code splitting, and large dashboards/data grids.",
+        "description": "Multi-layer caching, cache invalidation, bundle size, code splitting, large dashboards/data grids, web workers, streaming uploads, media performance, memory leaks and edge/CDN resilience.",
         "order": 2,
         "topics": [
           {
             "id": "sd-caching-strategy",
             "categoryId": "sd-performance",
-            "title": "Caching Strategy",
-            "description": "Lead frontend system-design interview: Caching Strategy, trade-offs, failure modes and production architecture.",
+            "title": "Caching Strategy Across Browser, CDN and Client State",
+            "description": "Layered caching for static assets, API responses and client query state with explicit freshness, privacy and invalidation rules.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "caching-strategy",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "caching-strategy"
             ]
           },
           {
             "id": "sd-cache-invalidation-and-stale-data",
             "categoryId": "sd-performance",
             "title": "Cache Invalidation and Stale Data",
-            "description": "Lead frontend system-design interview: Cache Invalidation and Stale Data, trade-offs, failure modes and production architecture.",
+            "description": "Maintaining consistent entity and derived-query caches after writes, external changes, reconnects and optimistic updates.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "cache-invalidation-and-stale-data",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "cache-invalidation-and-stale-data"
             ]
           },
           {
             "id": "sd-performance-investigation-for-a-large-dashboard",
             "categoryId": "sd-performance",
             "title": "Performance Investigation for a Large Dashboard",
-            "description": "Lead frontend system-design interview: Performance Investigation for a Large Dashboard, trade-offs, failure modes and production architecture.",
+            "description": "An evidence-led workflow for separating network, JavaScript, Angular rendering, DOM, layout, paint and third-party costs.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "performance-investigation-for-a-large-dashboard",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "performance-investigation-for-a-large-dashboard"
             ]
           },
           {
             "id": "sd-bundle-size-and-code-splitting",
             "categoryId": "sd-performance",
             "title": "Bundle Size and Code Splitting",
-            "description": "Lead frontend system-design interview: Bundle Size and Code Splitting, trade-offs, failure modes and production architecture.",
+            "description": "Reducing initial JavaScript without creating route waterfalls, duplicated dependencies or unusable deferred interactions.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "bundle-size-and-code-splitting",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "bundle-size-and-code-splitting"
             ]
           },
           {
             "id": "sd-large-lists-and-data-grids",
             "categoryId": "sd-performance",
             "title": "Large Lists and Data Grids",
-            "description": "Lead frontend system-design interview: Large Lists and Data Grids, trade-offs, failure modes and production architecture.",
+            "description": "Server-side query design, virtualization, stable selection, aggregation, export and accessibility for very large datasets.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "large-lists-and-data-grids",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "large-lists-and-data-grids"
+            ]
+          },
+          {
+            "id": "sd-main-thread-cpu-and-web-workers",
+            "categoryId": "sd-performance",
+            "title": "Main-Thread CPU, Long Tasks and Web Workers",
+            "description": "Keeping interactions responsive when parsing, transforming, compressing or calculating large datasets.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "main-thread-cpu-and-web-workers"
+            ]
+          },
+          {
+            "id": "sd-large-file-upload-download-and-streaming",
+            "categoryId": "sd-performance",
+            "title": "Large File Upload, Download and Streaming",
+            "description": "Designing resumable transfers, progress, integrity, memory safety and asynchronous server processing.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "large-file-upload-download-and-streaming"
+            ]
+          },
+          {
+            "id": "sd-image-font-and-media-performance",
+            "categoryId": "sd-performance",
+            "title": "Image, Font and Media Performance",
+            "description": "Choosing formats, responsive sources, priority, lazy loading, dimensions, font strategy and CDN transformations.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "image-font-and-media-performance"
+            ]
+          },
+          {
+            "id": "sd-memory-leaks-and-long-running-sessions",
+            "categoryId": "sd-performance",
+            "title": "Memory Leaks and Long-Running Sessions",
+            "description": "Finding retained components, subscriptions, DOM nodes, caches, event listeners and third-party resources in enterprise SPAs.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "memory-leaks-and-long-running-sessions"
+            ]
+          },
+          {
+            "id": "sd-edge-cdn-and-network-resilience",
+            "categoryId": "sd-performance",
+            "title": "Edge/CDN Delivery and Network Resilience",
+            "description": "Static delivery, cache keys, compression, origin shielding, timeouts, retries and graceful behavior on slow or unstable networks.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "edge-cdn-and-network-resilience"
             ]
           }
         ]
@@ -4145,85 +4355,167 @@
         "id": "sd-security",
         "subjectId": "system-design",
         "title": "Security, Authentication & Authorization",
-        "description": "OIDC/OAuth, token storage, RBAC/ABAC, XSS/CSP/Trusted Types, CSRF/CORS, and threat modeling.",
+        "description": "OIDC/OAuth, token storage, RBAC/ABAC, XSS/CSP/Trusted Types, CSRF/CORS, threat modeling, supply-chain risk, secure file handling, secrets management and privacy/PII.",
         "order": 3,
         "topics": [
           {
             "id": "sd-authentication-with-oidc-oauth",
             "categoryId": "sd-security",
-            "title": "Authentication with OIDC/OAuth",
-            "description": "Lead frontend system-design interview: Authentication with OIDC/OAuth, trade-offs, failure modes and production architecture.",
+            "title": "Authentication with OIDC/OAuth for Browser Applications",
+            "description": "Choosing OIDC/OAuth flows and SPA/BFF architectures while protecting redirects, tokens, sessions and logout.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "authentication-with-oidc-oauth",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "authentication-with-oidc-oauth"
             ]
           },
           {
             "id": "sd-token-and-session-storage",
             "categoryId": "sd-security",
             "title": "Token and Session Storage",
-            "description": "Lead frontend system-design interview: Token and Session Storage, trade-offs, failure modes and production architecture.",
+            "description": "Evaluating memory, Web Storage and HttpOnly cookie designs based on XSS, CSRF, persistence, multi-tab behavior and operational constraints.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "token-and-session-storage",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "token-and-session-storage"
             ]
           },
           {
             "id": "sd-authorization-rbac-permissions-and-abac",
             "categoryId": "sd-security",
             "title": "Authorization: RBAC, Permissions and ABAC",
-            "description": "Lead frontend system-design interview: Authorization: RBAC, Permissions and ABAC, trade-offs, failure modes and production architecture.",
+            "description": "Designing capability-based UI behavior while keeping resource authorization authoritative on the server.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "authorization-rbac-permissions-and-abac",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "authorization-rbac-permissions-and-abac"
             ]
           },
           {
             "id": "sd-xss-csp-and-trusted-types",
             "categoryId": "sd-security",
             "title": "XSS, CSP and Trusted Types",
-            "description": "Lead frontend system-design interview: XSS, CSP and Trusted Types, trade-offs, failure modes and production architecture.",
+            "description": "Preventing injection through safe rendering, contextual handling, sanitization and browser-enforced defense in depth.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "xss-csp-and-trusted-types",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "xss-csp-and-trusted-types"
             ]
           },
           {
             "id": "sd-csrf-cors-and-samesite",
             "categoryId": "sd-security",
             "title": "CSRF, CORS and SameSite",
-            "description": "Lead frontend system-design interview: CSRF, CORS and SameSite, trade-offs, failure modes and production architecture.",
+            "description": "Understanding origin policy, cookie-based request forgery and layered server/client defenses.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "csrf-cors-and-samesite",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "csrf-cors-and-samesite"
             ]
           },
           {
             "id": "sd-frontend-security-threat-modeling",
             "categoryId": "sd-security",
             "title": "Frontend Security Threat Modeling",
-            "description": "Lead frontend system-design interview: Frontend Security Threat Modeling, trade-offs, failure modes and production architecture.",
+            "description": "Mapping assets, actors, entry points, trust boundaries and abuse cases before implementation.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "frontend-security-threat-modeling",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "frontend-security-threat-modeling"
+            ]
+          },
+          {
+            "id": "sd-third-party-script-and-supply-chain-security",
+            "categoryId": "sd-security",
+            "title": "Third-Party Script and Software Supply-Chain Security",
+            "description": "Controlling npm dependencies, remote scripts, integrity, privileges, updates, SBOM and incident response.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "third-party-script-and-supply-chain-security"
+            ]
+          },
+          {
+            "id": "sd-secure-file-upload-and-download",
+            "categoryId": "sd-security",
+            "title": "Secure File Upload and Download",
+            "description": "Protecting file workflows against malicious content, path tricks, authorization errors, active previews and data leakage.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "secure-file-upload-and-download"
+            ]
+          },
+          {
+            "id": "sd-secrets-runtime-configuration-and-environment-separation",
+            "categoryId": "sd-security",
+            "title": "Secrets, Runtime Configuration and Environment Separation",
+            "description": "Keeping secrets server-side while delivering safe public configuration and preventing environment mix-ups.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "secrets-runtime-configuration-and-environment-separation"
+            ]
+          },
+          {
+            "id": "sd-privacy-pii-logging-and-data-minimization",
+            "categoryId": "sd-security",
+            "title": "Privacy, PII, Logging and Data Minimization",
+            "description": "Designing browser storage, telemetry, analytics, masking, export and retention around sensitive user data.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "privacy-pii-logging-and-data-minimization"
             ]
           }
         ]
@@ -4232,46 +4524,168 @@
         "id": "sd-data-state",
         "subjectId": "system-design",
         "title": "Data, State & Realtime",
-        "description": "State management strategy, race conditions, and real-time update architecture.",
+        "description": "State management strategy, race conditions, optimistic UI, complex forms/autosave, search at scale, offline/PWA, real-time updates, multi-tab sync and data normalization.",
         "order": 4,
         "topics": [
           {
             "id": "sd-state-management-strategy",
             "categoryId": "sd-data-state",
             "title": "State Management Strategy",
-            "description": "Lead frontend system-design interview: State Management Strategy, trade-offs, failure modes and production architecture.",
+            "description": "Classifying local UI, URL, workflow and server state to avoid unnecessary global stores and duplicated truth.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "state-management-strategy",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "state-management-strategy"
             ]
           },
           {
             "id": "sd-concurrent-requests-and-race-conditions",
             "categoryId": "sd-data-state",
             "title": "Concurrent Requests and Race Conditions",
-            "description": "Lead frontend system-design interview: Concurrent Requests and Race Conditions, trade-offs, failure modes and production architecture.",
+            "description": "Preventing stale reads, duplicate writes and out-of-order responses using cancellation, request identity and server concurrency.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "concurrent-requests-and-race-conditions",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "concurrent-requests-and-race-conditions"
+            ]
+          },
+          {
+            "id": "sd-optimistic-ui-and-concurrency-control",
+            "categoryId": "sd-data-state",
+            "title": "Optimistic UI and Concurrency Control",
+            "description": "Using optimistic updates safely with rollback, versioning, dependent caches and conflict UX.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "optimistic-ui-and-concurrency-control"
+            ]
+          },
+          {
+            "id": "sd-complex-forms-drafts-and-autosave",
+            "categoryId": "sd-data-state",
+            "title": "Complex Forms, Drafts and Autosave",
+            "description": "Architecting large workflows with validation layers, draft persistence, versioning, partial save and safe navigation.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "complex-forms-drafts-and-autosave"
+            ]
+          },
+          {
+            "id": "sd-search-and-typeahead-at-scale",
+            "categoryId": "sd-data-state",
+            "title": "Search and Typeahead at Scale",
+            "description": "Designing debounced, cancellable, accessible search with ranking, caching, privacy and server limits.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "search-and-typeahead-at-scale"
+            ]
+          },
+          {
+            "id": "sd-offline-and-pwa-strategy",
+            "categoryId": "sd-data-state",
+            "title": "Offline and PWA Strategy",
+            "description": "Defining offline journeys, local persistence, outbox synchronization, conflicts, service-worker updates and sensitive-data policy.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "offline-and-pwa-strategy"
             ]
           },
           {
             "id": "sd-real-time-updates",
             "categoryId": "sd-data-state",
-            "title": "Real-time Updates",
-            "description": "Lead frontend system-design interview: Real-time Updates, trade-offs, failure modes and production architecture.",
+            "title": "Real-Time Updates, Reconnects and Backpressure",
+            "description": "Choosing polling, SSE or WebSockets and maintaining ordered, idempotent state under disconnects and event bursts.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "real-time-updates",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "real-time-updates-and-backpressure",
+              "real-time-updates"
+            ]
+          },
+          {
+            "id": "sd-multi-tab-synchronization",
+            "categoryId": "sd-data-state",
+            "title": "Multi-Tab Synchronization",
+            "description": "Coordinating logout, account switching, drafts, cache invalidation and singleton work across browser tabs.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "multi-tab-synchronization"
+            ]
+          },
+          {
+            "id": "sd-normalized-data-and-consistency",
+            "categoryId": "sd-data-state",
+            "title": "Normalized Data and Cross-View Consistency",
+            "description": "Using entity identity, query membership and derived selectors to keep multiple views consistent without one massive store.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "normalized-data-and-consistency"
+            ]
+          },
+          {
+            "id": "sd-background-jobs-progress-and-notifications",
+            "categoryId": "sd-data-state",
+            "title": "Background Jobs, Progress and Notifications",
+            "description": "Designing long-running exports, imports and calculations with idempotent submission, durable status and recovery.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "background-jobs-progress-and-notifications"
             ]
           }
         ]
@@ -4280,85 +4694,119 @@
         "id": "sd-platform",
         "subjectId": "system-design",
         "title": "Platform Architecture",
-        "description": "BFF, offline/PWA, micro-frontends, design systems, CSR/SSR/hydration, and feature flags.",
+        "description": "BFF, micro-frontends, design systems, CSR/SSR/hydration, feature flags, deployment/rollback and monorepo governance.",
         "order": 5,
         "topics": [
           {
             "id": "sd-backend-for-frontend-bff",
             "categoryId": "sd-platform",
             "title": "Backend for Frontend (BFF)",
-            "description": "Lead frontend system-design interview: Backend for Frontend (BFF), trade-offs, failure modes and production architecture.",
+            "description": "Using a frontend-owned server boundary for token isolation, aggregation, view models and resilient downstream orchestration.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "backend-for-frontend-bff",
-              "system-design"
-            ]
-          },
-          {
-            "id": "sd-offline-and-pwa-strategy",
-            "categoryId": "sd-platform",
-            "title": "Offline and PWA Strategy",
-            "description": "Lead frontend system-design interview: Offline and PWA Strategy, trade-offs, failure modes and production architecture.",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "offline-and-pwa-strategy",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "backend-for-frontend-bff"
             ]
           },
           {
             "id": "sd-micro-frontend-architecture",
             "categoryId": "sd-platform",
             "title": "Micro-Frontend Architecture",
-            "description": "Lead frontend system-design interview: Micro-Frontend Architecture, trade-offs, failure modes and production architecture.",
+            "description": "Evaluating independent deployment, runtime composition, contracts, shared dependencies, identity, design system and failure isolation.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "micro-frontend-architecture",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "micro-frontend-architecture"
             ]
           },
           {
             "id": "sd-design-system-at-scale",
             "categoryId": "sd-platform",
             "title": "Design System at Scale",
-            "description": "Lead frontend system-design interview: Design System at Scale, trade-offs, failure modes and production architecture.",
+            "description": "Building accessible tokens, components, patterns, documentation, governance, versioning and contribution workflows.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "design-system-at-scale",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "design-system-at-scale"
             ]
           },
           {
             "id": "sd-csr-ssr-and-hydration-strategy",
             "categoryId": "sd-platform",
-            "title": "CSR, SSR and Hydration Strategy",
-            "description": "Lead frontend system-design interview: CSR, SSR and Hydration Strategy, trade-offs, failure modes and production architecture.",
+            "title": "CSR, SSR, Prerendering and Hydration Strategy",
+            "description": "Choosing rendering per route based on SEO, first content, personalization, server cost, caching and interaction needs.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "csr-ssr-and-hydration-strategy",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "csr-ssr-and-hydration-strategy"
             ]
           },
           {
             "id": "sd-feature-flags-and-runtime-configuration",
             "categoryId": "sd-platform",
             "title": "Feature Flags and Runtime Configuration",
-            "description": "Lead frontend system-design interview: Feature Flags and Runtime Configuration, trade-offs, failure modes and production architecture.",
+            "description": "Separating deployment from release with safe defaults, ownership, targeting, testing, observability and cleanup.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "feature-flags-and-runtime-configuration",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "feature-flags-and-runtime-configuration"
+            ]
+          },
+          {
+            "id": "sd-frontend-deployment-versioning-and-rollback",
+            "categoryId": "sd-platform",
+            "title": "Frontend Deployment, Versioning and Rollback",
+            "description": "Immutable releases, atomic publication, old-tab compatibility, canaries, telemetry and rapid recovery.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "frontend-deployment-versioning-and-rollback"
+            ]
+          },
+          {
+            "id": "sd-monorepo-and-shared-library-governance",
+            "categoryId": "sd-platform",
+            "title": "Monorepo and Shared Library Governance",
+            "description": "Structuring packages, ownership, release/version strategy, dependency constraints and avoiding a shared-library monolith.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "monorepo-and-shared-library-governance"
             ]
           }
         ]
@@ -4367,59 +4815,87 @@
         "id": "sd-quality",
         "subjectId": "system-design",
         "title": "Quality, Observability & Delivery",
-        "description": "Error handling and resilience, observability/RUM, accessibility/i18n at scale, and deployment/rollback.",
+        "description": "Error handling and resilience, observability/RUM, accessibility/i18n at scale, testing strategy and browser compatibility.",
         "order": 6,
         "topics": [
           {
             "id": "sd-error-handling-and-resilience",
             "categoryId": "sd-quality",
             "title": "Error Handling and Resilience",
-            "description": "Lead frontend system-design interview: Error Handling and Resilience, trade-offs, failure modes and production architecture.",
+            "description": "Designing localized failure, retry policy, graceful degradation, correlation and recovery instead of global generic errors.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "error-handling-and-resilience",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "error-handling-and-resilience"
             ]
           },
           {
             "id": "sd-observability-and-real-user-monitoring",
             "categoryId": "sd-quality",
             "title": "Observability and Real User Monitoring",
-            "description": "Lead frontend system-design interview: Observability and Real User Monitoring, trade-offs, failure modes and production architecture.",
+            "description": "Connecting user journeys, browser errors, web vitals, API traces and release versions while controlling privacy and telemetry cost.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "observability-and-real-user-monitoring",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "observability-and-real-user-monitoring"
             ]
           },
           {
             "id": "sd-accessibility-and-internationalization-at-scale",
             "categoryId": "sd-quality",
             "title": "Accessibility and Internationalization at Scale",
-            "description": "Lead frontend system-design interview: Accessibility and Internationalization at Scale, trade-offs, failure modes and production architecture.",
+            "description": "Embedding semantic interaction, WCAG, focus, RTL, pluralization, locale formatting and translation workflows into architecture.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "accessibility-and-internationalization-at-scale",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "accessibility-and-internationalization-at-scale"
             ]
           },
           {
-            "id": "sd-frontend-deployment-versioning-and-rollback",
+            "id": "sd-frontend-testing-strategy",
             "categoryId": "sd-quality",
-            "title": "Frontend Deployment, Versioning and Rollback",
-            "description": "Lead frontend system-design interview: Frontend Deployment, Versioning and Rollback, trade-offs, failure modes and production architecture.",
+            "title": "Frontend Testing Strategy for Enterprise Systems",
+            "description": "Balancing unit, component, contract, integration, end-to-end, visual, accessibility, performance and production tests.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 30,
             "tags": [
-              "frontend-deployment-versioning-and-rollback",
-              "system-design"
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "frontend-testing-strategy"
+            ]
+          },
+          {
+            "id": "sd-browser-compatibility-and-progressive-enhancement",
+            "categoryId": "sd-quality",
+            "title": "Browser Compatibility and Progressive Enhancement",
+            "description": "Designing capability detection, supported-browser policy, polyfills, graceful fallback and enterprise webview testing.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "system-design",
+              "senior",
+              "scenario-based",
+              "architect",
+              "browser-compatibility-and-progressive-enhancement"
             ]
           }
         ]
