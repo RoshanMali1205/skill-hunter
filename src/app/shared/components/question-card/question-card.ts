@@ -3,6 +3,7 @@ import { QuestionBlock } from '../../../core/models';
 import { CodeBlockComponent } from '../code-block/code-block';
 import { AnswerRevealComponent } from '../answer-reveal/answer-reveal';
 import { BookmarkButtonComponent } from '../bookmark-button/bookmark-button';
+import { IconComponent } from '../icon/icon';
 
 const TYPE_LABELS: Record<QuestionBlock['type'], string> = {
   'output-question': 'Code Output Question',
@@ -11,9 +12,16 @@ const TYPE_LABELS: Record<QuestionBlock['type'], string> = {
   'scenario-question': 'Scenario Question',
 };
 
+const TYPE_ICONS: Record<QuestionBlock['type'], string> = {
+  'output-question': 'code',
+  'interview-question': 'target',
+  'tricky-question': 'flame',
+  'scenario-question': 'flag',
+};
+
 @Component({
   selector: 'app-question-card',
-  imports: [CodeBlockComponent, AnswerRevealComponent, BookmarkButtonComponent],
+  imports: [CodeBlockComponent, AnswerRevealComponent, BookmarkButtonComponent, IconComponent],
   templateUrl: './question-card.html',
   styleUrl: './question-card.scss',
 })
@@ -28,4 +36,5 @@ export class QuestionCardComponent {
   assessed = output<'correct' | 'incorrect' | 'needs-revision'>();
 
   readonly typeLabels = TYPE_LABELS;
+  readonly typeIcons = TYPE_ICONS;
 }

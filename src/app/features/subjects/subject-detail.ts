@@ -1,5 +1,6 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { ContentService } from '../../core/services/content.service';
 import { ProgressStore } from '../../core/services/progress.store';
@@ -11,10 +12,21 @@ import { TopicCardComponent } from '../../shared/components/topic-card/topic-car
 import { FilterPanelComponent } from '../../shared/components/filter-panel/filter-panel';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb';
+import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar';
+import { IconComponent } from '../../shared/components/icon/icon';
+import { Category } from '../../core/models';
 
 @Component({
   selector: 'app-subject-detail',
-  imports: [TopicCardComponent, FilterPanelComponent, EmptyStateComponent, BreadcrumbComponent],
+  imports: [
+    RouterLink,
+    TopicCardComponent,
+    FilterPanelComponent,
+    EmptyStateComponent,
+    BreadcrumbComponent,
+    ProgressBarComponent,
+    IconComponent,
+  ],
   templateUrl: './subject-detail.html',
   styleUrl: './subject-detail.scss',
 })
@@ -40,6 +52,17 @@ export class SubjectDetailComponent {
 
   readonly filter = signal<TopicFilter>({});
 
+  readonly hasActiveFilter = computed(() => {
+    const filter = this.filter();
+    return !!(
+      filter.searchTerm?.trim() ||
+      (filter.difficulty && filter.difficulty !== 'all') ||
+      (filter.priority && filter.priority !== 'all') ||
+      (filter.status && filter.status !== 'all') ||
+      filter.bookmarked
+    );
+  });
+
   readonly filteredCategories = computed(() => {
     const subject = this.subject();
     if (!subject) return [];
@@ -57,8 +80,34 @@ export class SubjectDetailComponent {
       .filter((entry) => entry.topics.length > 0);
   });
 
+  private readonly expandedCategoryIds = signal<ReadonlySet<string>>(new Set());
+
+  isCategoryOpen(categoryId: string): boolean {
+    return this.hasActiveFilter() || this.expandedCategoryIds().has(categoryId);
+  }
+
+  toggleCategory(categoryId: string): void {
+    const current = this.expandedCategoryIds();
+    const next = new Set(current);
+    if (next.has(categoryId)) {
+      next.delete(categoryId);
+    } else {
+      next.add(categoryId);
+    }
+    this.expandedCategoryIds.set(next);
+  }
+
   statusFor(topicId: string) {
     return this.progressStore.progress()[topicId]?.status ?? 'not-started';
+  }
+
+  categoryCompletion(category: Category): { completed: number; total: number; percentage: number } {
+    const progress = this.progressStore.progress();
+    const total = category.topics.length;
+    const completed = category.topics.filter(
+      (topic) => progress[topic.id]?.status === 'completed',
+    ).length;
+    return { completed, total, percentage: total === 0 ? 0 : Math.round((completed / total) * 100) };
   }
 
   isBookmarked(topicId: string): boolean {

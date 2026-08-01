@@ -17,6 +17,7 @@ export class TopicCardComponent {
   subjectId = input.required<string>();
   status = input<TopicStatus>('not-started');
   bookmarked = input<boolean>(false);
+  layout = input<'grid' | 'row'>('grid');
 
   readonly visual = computed(() => subjectVisual(this.subjectId()));
 }

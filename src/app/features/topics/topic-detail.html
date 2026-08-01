@@ -46,9 +46,12 @@
         @switch (block.type) {
           @case ('concept') {
             <section class="topic-detail__block">
-              @if (block.title) {
-                <h2>{{ block.title }}</h2>
-              }
+              <header class="topic-detail__block-header topic-detail__block-header--concept">
+                <span class="topic-detail__block-icon">
+                  <app-icon name="book-open" />
+                </span>
+                <h2>{{ block.title || 'Concept' }}</h2>
+              </header>
               <p>{{ block.content }}</p>
               @if (block.keyPoints && block.keyPoints.length > 0) {
                 <ul class="topic-detail__key-points">
@@ -61,19 +64,36 @@
           }
           @case ('code-example') {
             <section class="topic-detail__block">
-              @if (block.title) {
-                <h2>{{ block.title }}</h2>
-              }
+              <header class="topic-detail__block-header topic-detail__block-header--code">
+                <span class="topic-detail__block-icon">
+                  <app-icon name="code" />
+                </span>
+                <h2>{{ block.title || 'Code Example' }}</h2>
+              </header>
               <app-code-block [code]="block.code" [language]="block.language" />
               <p class="topic-detail__explanation">{{ block.explanation }}</p>
             </section>
           }
           @case ('common-mistake') {
             <section class="topic-detail__block topic-detail__block--mistake">
-              <h2>Common Mistake</h2>
-              <p><strong>Mistake:</strong> {{ block.mistake }}</p>
-              <p><strong>Why it happens:</strong> {{ block.whyItHappens }}</p>
-              <p><strong>Correct approach:</strong> {{ block.correctApproach }}</p>
+              <header class="topic-detail__block-header topic-detail__block-header--mistake">
+                <span class="topic-detail__block-icon">
+                  <app-icon name="triangle-alert" />
+                </span>
+                <h2>Common Mistake</h2>
+              </header>
+              <div class="topic-detail__mistake-field">
+                <span class="topic-detail__mistake-label">Mistake</span>
+                <p>{{ block.mistake }}</p>
+              </div>
+              <div class="topic-detail__mistake-field">
+                <span class="topic-detail__mistake-label">Why it happens</span>
+                <p>{{ block.whyItHappens }}</p>
+              </div>
+              <div class="topic-detail__mistake-field">
+                <span class="topic-detail__mistake-label">Correct approach</span>
+                <p>{{ block.correctApproach }}</p>
+              </div>
             </section>
           }
           @default {

@@ -1,3 +1,59 @@
+@use 'breakpoints' as *;
+@use 'mixins' as *;
+
+.subject-detail__back {
+  align-self: flex-start;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.subject-detail__category {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.subject-detail__category-toggle {
+  @include card-interactive;
+  @include focus-ring;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border-left: 3px solid transparent;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+
+  &:hover {
+    border-left-color: var(--color-primary);
+  }
+
+  &[aria-expanded='true'] {
+    border-left-color: var(--color-primary);
+  }
+}
+
+.subject-detail__category-chevron {
+  flex-shrink: 0;
+  font-size: 1.15rem;
+  color: var(--color-text-muted);
+  transition: transform 0.18s ease;
+
+  &--open {
+    transform: rotate(90deg);
+  }
+}
+
+.subject-detail__topic-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
 .subject-detail__description {
   color: var(--color-text-muted);
   margin-top: var(--space-1);
@@ -9,6 +65,43 @@
   color: var(--color-text-muted);
 }
 
-.subject-detail__category h2 {
-  margin-bottom: var(--space-3);
+.subject-detail__category-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+
+  h2 {
+    margin: 0;
+  }
+
+  @include respond-to(tablet) {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.subject-detail__category-description {
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.subject-detail__category-progress {
+  flex-shrink: 0;
+  width: 100%;
+
+  @include respond-to(tablet) {
+    width: 220px;
+  }
+}
+
+.subject-detail__category-count {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-align: right;
 }

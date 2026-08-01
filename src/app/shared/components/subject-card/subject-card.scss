@@ -9,9 +9,14 @@
   text-decoration: none;
   color: var(--color-text);
   border-top: 3px solid var(--accent, var(--color-primary));
+  height: 100%;
 
   h3 {
     letter-spacing: -0.01em;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
   }
 }
 
@@ -29,6 +34,14 @@
 .subject-card__description {
   color: var(--color-text-muted);
   font-size: 0.9rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+app-progress-bar {
+  margin-top: auto;
 }
 
 .subject-card__count {

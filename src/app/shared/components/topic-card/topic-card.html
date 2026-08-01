@@ -1,25 +1,31 @@
 <a
   class="topic-card"
   [class.topic-card--completed]="status() === 'completed'"
+  [class.topic-card--row]="layout() === 'row'"
   [style.--accent]="visual().color"
   [routerLink]="['/subjects', subjectId(), 'topics', topic().id]"
 >
-  <header class="topic-card__header">
-    <h4>{{ topic().title }}</h4>
-    @if (bookmarked()) {
-      <span class="topic-card__bookmark" aria-label="Bookmarked" title="Bookmarked">
-        <app-icon name="bookmark" [filled]="true" />
-      </span>
-    }
-  </header>
-  <p class="topic-card__description">{{ topic().description }}</p>
-  <div class="topic-card__meta">
-    <app-difficulty-chip [difficulty]="topic().difficulty" />
-    <app-priority-chip [priority]="topic().interviewPriority" />
-    @if (status() === 'completed') {
-      <span class="topic-card__status topic-card__status--completed">Completed</span>
-    } @else if (status() === 'in-progress') {
-      <span class="topic-card__status topic-card__status--progress">In Progress</span>
-    }
+  <div class="topic-card__body">
+    <header class="topic-card__header">
+      <h4>{{ topic().title }}</h4>
+      @if (bookmarked()) {
+        <span class="topic-card__bookmark" aria-label="Bookmarked" title="Bookmarked">
+          <app-icon name="bookmark" [filled]="true" />
+        </span>
+      }
+    </header>
+    <p class="topic-card__description">{{ topic().description }}</p>
+    <div class="topic-card__meta">
+      <app-difficulty-chip [difficulty]="topic().difficulty" />
+      <app-priority-chip [priority]="topic().interviewPriority" />
+      @if (status() === 'completed') {
+        <span class="topic-card__status topic-card__status--completed">Completed</span>
+      } @else if (status() === 'in-progress') {
+        <span class="topic-card__status topic-card__status--progress">In Progress</span>
+      }
+    </div>
   </div>
+  @if (layout() === 'row') {
+    <app-icon name="chevron-right" class="topic-card__chevron" />
+  }
 </a>

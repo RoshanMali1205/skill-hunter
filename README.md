@@ -10,7 +10,7 @@ For a deeper technical dive — architecture, data model, service catalog, and a
 
 - **Login / Register** — a real account system (register, sign in, log out) so progress, bookmarks, streaks, and settings are kept separate per person on a shared browser or deployment. Passwords are hashed client-side with PBKDF2-SHA256 via the Web Crypto API — see [Accounts & data](#accounts--data) for what this does and doesn't protect against.
 - **Dashboard** — overall progress donut, topics-by-difficulty breakdown, per-subject progress, study streak, continue learning, must-revise, recent bookmarks, practice summary, strong areas, most-revised and recently-studied topics.
-- **Subjects** — Angular, JavaScript, TypeScript, UI Engineering, and Frontend System Design, each with categories and topics (difficulty, interview priority, search/filter).
+- **Subjects** — Angular, JavaScript, TypeScript, UI Engineering, and Frontend System Design, each with categories and topics (difficulty, interview priority, search/filter). Categories render as collapsible rows — collapsed by default so the whole subject's outline fits on one screen, expanding to a compact single-column topic list on click (any active search/filter auto-expands the categories that match). A Back button on the subject page returns to the Subjects list.
 - **Topic pages** — concept explanations, code examples with copy-to-clipboard, tricky/interview/scenario/output questions with hide-and-reveal answers, common mistakes, confidence rating, mark-complete, bookmarking, add-to-revision, a private note, a Back button to the parent subject, and an "Ask AI" shortcut into the AI Mentor with the current topic pre-loaded as a ready-to-send question.
 - **Practice mode** — filter by subject/category/difficulty/question type/bookmarked/weak topics, with a live "N questions match your filters" count before you commit, then self-assess (correct / incorrect / needs revision).
 - **JavaScript Playground** — a real code editor (CodeMirror, syntax highlighting) that runs your JavaScript in a sandboxed Web Worker, so an infinite loop times out cleanly instead of freezing the tab. Comes preloaded with all 25 of the app's coding-practice questions as runnable snippets. See [JavaScript Playground](#javascript-playground).
@@ -21,7 +21,7 @@ For a deeper technical dive — architecture, data model, service catalog, and a
 - **Revision** — auto-surfaced weak topics (low confidence, incorrect attempts, bookmarks, manual adds) plus mark-revised tracking.
 - **Settings** — light/dark theme, default difficulty, auto-reveal answers, export/import progress (including notes) as JSON, reset progress.
 
-Starter content ships with 78 topics across five subjects: **Angular** (12), **JavaScript** (18, including a dedicated **Coding Practice** category with 25 predict-the-output / write-the-code drills covering hoisting, closures, references, array methods, `this`, and the event loop), **TypeScript** (11), **UI Engineering** (12), and **Frontend System Design** (25 lead-level scenario questions — caching, performance, auth, RBAC, XSS/CSRF/CORS, BFF, state, offline/PWA, micro-frontends, observability, deployment). See [Adding content](#adding-content) to extend it further.
+Content ships with **264 topics** across five subjects: **Angular** (48 across 9 categories), **JavaScript** (68 across 8 categories, including a dedicated **Coding Practice** category with predict-the-output / write-the-code drills covering hoisting, closures, references, array methods, `this`, and the event loop), **TypeScript** (61 across 6 categories), **UI Engineering** (62 across 6 categories), and **Frontend System Design** (25 lead-level scenario questions — caching, performance, auth, RBAC, XSS/CSRF/CORS, BFF, state, offline/PWA, micro-frontends, observability, deployment). Beyond the original beginner/intermediate topics, each subject now also carries a large senior/architect scenario set (production-incident-style questions — e.g. "an API can return 1,000,000 records," "a third-party SDK returns `any`," "a tooltip's `z-index: 999999` still renders behind a panel") with an architect-level framing, a runnable code example, a common-weak-answer callout, and a likely follow-up question. See [Adding content](#adding-content) to extend it further.
 
 ## Tech stack
 
@@ -262,6 +262,8 @@ The Playground (`/playground`) lets you write and run real JavaScript safely:
 - **Theming**: light/dark theme is driven by a `data-theme` attribute on `<html>`, set from `SettingsService` and persisted to `localStorage`.
 - **Sticky footer**: the app footer uses the classic `margin-top: auto` flexbox technique so it sits at the bottom of the viewport on short pages instead of floating mid-page, and scrolls normally below content on tall pages.
 - **Content vs. progress are separate concerns**: `ContentService` only ever reads static JSON; nothing it does can mutate a user's saved progress, and nothing in the progress/bookmark/practice/revision services depends on how content is loaded.
+- **Consistent card sizing**: subject cards and topic cards clamp title/description to a fixed number of lines (`-webkit-line-clamp`) so grid rows stay visually even regardless of content length, instead of cards stretching to fit whichever entry has the longest text.
+- **Topic list as rows, not a card grid**: `app-topic-card` takes a `layout: 'grid' | 'row'` input — the subject page uses `row` (a single-column list, matching the density of the Revision page) so a 68-topic subject like JavaScript doesn't turn into a multi-screen grid of uneven-height cards.
 
 ## AI Mentor
 
@@ -325,7 +327,7 @@ Static hosts other than Netlify (Vercel, GitHub Pages, S3 + CloudFront, etc.) wo
 
 - No cloud sync or database — progress is local to one browser, scoped per account. The one server-side exception is the AI Mentor proxy function, which holds no user data at all (it only forwards chat text to the AI provider).
 - Accounts are a real client-side implementation (hashed passwords, per-account data) but not a real security boundary — see [Accounts & data](#accounts--data).
-- The starter content set (78 topics) is intentionally a seed, not the full ~450-question target described in the original design doc — see [Adding content](#adding-content).
+- The content set (264 topics) is still a seed toward the full ~450-question target described in the original design doc, though the senior/architect scenario sets have closed most of that gap for Angular, JavaScript, TypeScript, and UI Engineering — see [Adding content](#adding-content).
 - AI Mentor responses are not streamed (a full reply arrives at once, not token-by-token) — see Roadmap.
 
 ## Roadmap

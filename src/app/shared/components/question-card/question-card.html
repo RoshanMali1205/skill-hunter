@@ -1,6 +1,9 @@
 <article class="question-card">
   <header class="question-card__header">
-    <span class="question-card__type">{{ typeLabels[question().type] }}</span>
+    <span class="question-card__type">
+      <app-icon [name]="typeIcons[question().type]" />
+      {{ typeLabels[question().type] }}
+    </span>
     @if (showBookmark()) {
       <app-bookmark-button [bookmarked]="bookmarked()" (toggled)="bookmarkToggled.emit()" />
     }

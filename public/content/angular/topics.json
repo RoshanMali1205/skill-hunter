@@ -5,10 +5,14 @@
     "categoryId": "angular-fundamentals",
     "title": "Standalone Components",
     "description": "Building Angular components without NgModules.",
-    "difficulty": "beginner",
+    "difficulty": "advanced",
     "interviewPriority": "high",
-    "estimatedMinutes": 15,
-    "tags": ["standalone", "components", "bootstrap"],
+    "estimatedMinutes": 55,
+    "tags": [
+      "standalone",
+      "components",
+      "bootstrap"
+    ],
     "blocks": [
       {
         "id": "standalone-concept-1",
@@ -53,6 +57,130 @@
         "question": "You need a route to lazy-load a standalone component that itself depends on three other standalone components and a service. How do you keep that route's chunk from bloating the initial bundle?",
         "answer": "Use `loadComponent: () => import('./feature.component').then(m => m.FeatureComponent)` in the route definition — the dynamic import puts the component and everything it statically imports (its child components, the service) into a separate chunk that only downloads when the route activates.",
         "explanation": "Because a standalone component's dependencies are just regular ES imports declared in its `imports` array, the bundler can trace and split them automatically — there's no NgModule boundary to configure separately, which is part of why standalone components made route-level code-splitting simpler."
+      },
+      {
+        "id": "senior-ng-03-standalone-migration-without-a-big-bang-rewrite-concept-1",
+        "type": "concept",
+        "title": "Architect-level framing",
+        "order": 6,
+        "content": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Begin with dependency analysis and baseline metrics. Identify leaf features with few inbound dependencies and migrate those first.\n\nFor implementation, Convert routes and components incrementally. Keep compatibility with existing NgModules where necessary; standalone and module-based code can coexist during migration. Move shared imports into small, purposeful libraries or direct standalone imports. Do not create one global import file that recreates the same coupling problem.\n\nAt enterprise scale, I would also cover After each feature, verify route behavior, providers, forms, dialogs, dynamic components, tests, bundle chunks, and production monitoring. Use schematics for mechanical changes, but review generated imports carefully. Add lint rules for circular dependencies and forbidden cross-feature imports.\n\nFinally, Deliver migration in slices with rollback-ready commits and compare build size, initial load, route load, and runtime behavior against the baseline.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "keyPoints": [
+          "Begin with dependency analysis and baseline metrics. Identify leaf features with few inbound dependencies and migrate those first.",
+          "Convert routes and components incrementally. Keep compatibility with existing NgModules where necessary; standalone and module-based code can coexist during migration.",
+          "Move shared imports into small, purposeful libraries or direct standalone imports. Do not create one global import file that recreates the same coupling problem.",
+          "After each feature, verify route behavior, providers, forms, dialogs, dynamic components, tests, bundle chunks, and production monitoring.",
+          "Use schematics for mechanical changes, but review generated imports carefully. Add lint rules for circular dependencies and forbidden cross-feature imports.",
+          "Deliver migration in slices with rollback-ready commits and compare build size, initial load, route load, and runtime behavior against the baseline."
+        ]
+      },
+      {
+        "id": "senior-ng-03-standalone-migration-without-a-big-bang-rewrite-scenario-1",
+        "type": "scenario-question",
+        "order": 7,
+        "question": "A large Angular application still uses NgModules and has circular imports. Management wants standalone components and lazy loading, but production work cannot stop. How would you migrate?",
+        "answer": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Begin with dependency analysis and baseline metrics. Identify leaf features with few inbound dependencies and migrate those first.\n\nFor implementation, Convert routes and components incrementally. Keep compatibility with existing NgModules where necessary; standalone and module-based code can coexist during migration. Move shared imports into small, purposeful libraries or direct standalone imports. Do not create one global import file that recreates the same coupling problem.\n\nAt enterprise scale, I would also cover After each feature, verify route behavior, providers, forms, dialogs, dynamic components, tests, bundle chunks, and production monitoring. Use schematics for mechanical changes, but review generated imports carefully. Add lint rules for circular dependencies and forbidden cross-feature imports.\n\nFinally, Deliver migration in slices with rollback-ready commits and compare build size, initial load, route load, and runtime behavior against the baseline.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ],
+        "explanation": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-03-standalone-migration-without-a-big-bang-rewrite-code-1",
+        "type": "code-example",
+        "title": "Practical code / design example",
+        "order": 8,
+        "language": "typescript",
+        "code": "export const routes: Routes = [\n  {\n    path: 'loan-enquiry',\n    loadComponent: () => import('./loan-enquiry.component')\n      .then(m => m.LoanEnquiryComponent)\n  }\n];\n\n@Component({\n  standalone: true,\n  imports: [ReactiveFormsModule, CurrencyPipe],\n  templateUrl: './loan-enquiry.component.html'\n})\nexport class LoanEnquiryComponent {}",
+        "explanation": "Standalone and module-based areas can coexist while features are migrated incrementally."
+      },
+      {
+        "id": "senior-ng-03-standalone-migration-without-a-big-bang-rewrite-mistake-1",
+        "type": "concept",
+        "title": "Common weak answer",
+        "order": 9,
+        "content": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-03-standalone-migration-without-a-big-bang-rewrite-practice-1",
+        "type": "concept",
+        "title": "Trade-offs and production validation",
+        "order": 10,
+        "content": "The strongest solution balances runtime cost, bundle size, team ownership, debugging, migration risk and operational complexity. Prefer incremental adoption with measurable acceptance criteria.",
+        "keyPoints": [
+          "Validate with production builds, Angular/Chrome profiling, network throttling, memory checks, automated tests, accessibility checks, telemetry and rollback rehearsal."
+        ]
+      },
+      {
+        "id": "senior-ng-03-standalone-migration-without-a-big-bang-rewrite-followup-1",
+        "type": "interview-question",
+        "order": 11,
+        "question": "What provider-scope bugs can occur when moving services from NgModules to route or component providers?",
+        "answer": "Answer the follow-up by making the hidden constraint explicit, comparing at least two valid options, and stating how you would measure the result.",
+        "explanation": "A strong follow-up answer names the hidden constraint, compares at least two valid options, and states how you would measure the result rather than repeating the primary answer."
+      },
+      {
+        "id": "senior-ng-19-route-level-lazy-loading-concept-1",
+        "type": "concept",
+        "title": "Architect-level framing",
+        "order": 12,
+        "content": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Start with bundle analysis. Identify large feature code, duplicate libraries, locale data, charting, editors, and accidental eager imports.\n\nFor implementation, Use loadComponent or loadChildren at business-route boundaries. Ensure shared index files do not re-export lazy feature code into the initial graph. Keep the application shell small: navigation, authentication bootstrap, minimal design-system primitives, and the first required route.\n\nAt enterprise scale, I would also cover Preload selectively based on user role, network quality, and likely navigation. Do not preload everything immediately. Lazy load heavy optional libraries inside the feature that uses them and verify tree-shaking.\n\nFinally, Set per-route and initial-bundle budgets in CI and monitor real-user route-load latency.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "keyPoints": [
+          "Start with bundle analysis. Identify large feature code, duplicate libraries, locale data, charting, editors, and accidental eager imports.",
+          "Use loadComponent or loadChildren at business-route boundaries. Ensure shared index files do not re-export lazy feature code into the initial graph.",
+          "Keep the application shell small: navigation, authentication bootstrap, minimal design-system primitives, and the first required route.",
+          "Preload selectively based on user role, network quality, and likely navigation. Do not preload everything immediately.",
+          "Lazy load heavy optional libraries inside the feature that uses them and verify tree-shaking.",
+          "Set per-route and initial-bundle budgets in CI and monitor real-user route-load latency."
+        ]
+      },
+      {
+        "id": "senior-ng-19-route-level-lazy-loading-scenario-1",
+        "type": "scenario-question",
+        "order": 13,
+        "question": "The initial JavaScript bundle is 8 MB. What is your route-splitting strategy?",
+        "answer": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Start with bundle analysis. Identify large feature code, duplicate libraries, locale data, charting, editors, and accidental eager imports.\n\nFor implementation, Use loadComponent or loadChildren at business-route boundaries. Ensure shared index files do not re-export lazy feature code into the initial graph. Keep the application shell small: navigation, authentication bootstrap, minimal design-system primitives, and the first required route.\n\nAt enterprise scale, I would also cover Preload selectively based on user role, network quality, and likely navigation. Do not preload everything immediately. Lazy load heavy optional libraries inside the feature that uses them and verify tree-shaking.\n\nFinally, Set per-route and initial-bundle budgets in CI and monitor real-user route-load latency.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ],
+        "explanation": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-19-route-level-lazy-loading-code-1",
+        "type": "code-example",
+        "title": "Practical code / design example",
+        "order": 14,
+        "language": "typescript",
+        "code": "export const routes: Routes = [{\n  path: 'analytics',\n  loadComponent: () => import('./analytics.page').then(m => m.AnalyticsPage),\n  providers: [AnalyticsStore]\n}];",
+        "explanation": "The route creates both a lazy code boundary and an optional feature-scoped provider lifetime."
+      },
+      {
+        "id": "senior-ng-19-route-level-lazy-loading-mistake-1",
+        "type": "concept",
+        "title": "Common weak answer",
+        "order": 15,
+        "content": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-19-route-level-lazy-loading-practice-1",
+        "type": "concept",
+        "title": "Trade-offs and production validation",
+        "order": 16,
+        "content": "The strongest solution balances runtime cost, bundle size, team ownership, debugging, migration risk and operational complexity. Prefer incremental adoption with measurable acceptance criteria.",
+        "keyPoints": [
+          "Validate with production builds, Angular/Chrome profiling, network throttling, memory checks, automated tests, accessibility checks, telemetry and rollback rehearsal."
+        ]
+      },
+      {
+        "id": "senior-ng-19-route-level-lazy-loading-followup-1",
+        "type": "interview-question",
+        "order": 17,
+        "question": "How can one innocent barrel-file import accidentally make a lazy feature eager?",
+        "answer": "Answer the follow-up by making the hidden constraint explicit, comparing at least two valid options, and stating how you would measure the result.",
+        "explanation": "A strong follow-up answer names the hidden constraint, compares at least two valid options, and states how you would measure the result rather than repeating the primary answer."
       }
     ]
   },
@@ -62,10 +190,14 @@
     "categoryId": "angular-fundamentals",
     "title": "Lifecycle Hooks",
     "description": "The sequence of hooks Angular calls as a component is created, updated, and destroyed.",
-    "difficulty": "beginner",
+    "difficulty": "advanced",
     "interviewPriority": "must-know",
-    "estimatedMinutes": 15,
-    "tags": ["lifecycle", "ngOnInit", "ngOnDestroy"],
+    "estimatedMinutes": 35,
+    "tags": [
+      "lifecycle",
+      "ngOnInit",
+      "ngOnDestroy"
+    ],
     "blocks": [
       {
         "id": "lifecycle-concept-1",
@@ -102,6 +234,68 @@
         "question": "Why should you avoid doing heavy DOM or child-component work in the constructor, and put it in ngOnInit instead?",
         "answer": "The constructor runs before Angular has set any @Input() bindings and before the view/child views exist, so anything that depends on input values or ViewChild/ContentChild queries isn't safe yet — ngOnInit runs after the first ngOnChanges, once inputs are populated.",
         "explanation": "A useful mental model: the constructor is for dependency injection only (`private readonly x = inject(X)`), ngOnInit is for initialization logic that needs inputs, and ngAfterViewInit is for logic that needs the rendered view/queried children."
+      },
+      {
+        "id": "senior-ng-18-preventing-angular-memory-leaks-concept-1",
+        "type": "concept",
+        "title": "Architect-level framing",
+        "order": 5,
+        "content": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Capture heap snapshots before and after repeated navigation, compare retained objects, and inspect detached DOM nodes, subscriptions, timers, observers, and chart instances.\n\nFor implementation, Use async pipe, takeUntilDestroyed, and framework-managed effects. Explicitly destroy third-party widgets and remove global listeners or observers. Avoid unbounded shareReplay caches, static collections holding components, and services that keep route-specific state forever.\n\nAt enterprise scale, I would also cover Check closures that capture large datasets and event handlers registered on window or document. Create an automated navigation stress test and define an acceptable retained-memory threshold.\n\nFinally, Fix ownership rather than adding manual unsubscribe calls everywhere.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "keyPoints": [
+          "Capture heap snapshots before and after repeated navigation, compare retained objects, and inspect detached DOM nodes, subscriptions, timers, observers, and chart instances.",
+          "Use async pipe, takeUntilDestroyed, and framework-managed effects. Explicitly destroy third-party widgets and remove global listeners or observers.",
+          "Avoid unbounded shareReplay caches, static collections holding components, and services that keep route-specific state forever.",
+          "Check closures that capture large datasets and event handlers registered on window or document.",
+          "Create an automated navigation stress test and define an acceptable retained-memory threshold.",
+          "Fix ownership rather than adding manual unsubscribe calls everywhere."
+        ]
+      },
+      {
+        "id": "senior-ng-18-preventing-angular-memory-leaks-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "question": "After navigating between a chart page and another route 30 times, memory keeps increasing. How do you investigate?",
+        "answer": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Capture heap snapshots before and after repeated navigation, compare retained objects, and inspect detached DOM nodes, subscriptions, timers, observers, and chart instances.\n\nFor implementation, Use async pipe, takeUntilDestroyed, and framework-managed effects. Explicitly destroy third-party widgets and remove global listeners or observers. Avoid unbounded shareReplay caches, static collections holding components, and services that keep route-specific state forever.\n\nAt enterprise scale, I would also cover Check closures that capture large datasets and event handlers registered on window or document. Create an automated navigation stress test and define an acceptable retained-memory threshold.\n\nFinally, Fix ownership rather than adding manual unsubscribe calls everywhere.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ],
+        "explanation": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-18-preventing-angular-memory-leaks-code-1",
+        "type": "code-example",
+        "title": "Practical code / design example",
+        "order": 7,
+        "language": "typescript",
+        "code": "private readonly destroyRef = inject(DestroyRef);\n\nngOnInit() {\n  fromEvent(window, 'resize').pipe(\n    auditTime(100),\n    takeUntilDestroyed(this.destroyRef)\n  ).subscribe(() => this.recalculate());\n}",
+        "explanation": "Lifecycle-bound teardown prevents global listeners and subscriptions from retaining the component."
+      },
+      {
+        "id": "senior-ng-18-preventing-angular-memory-leaks-mistake-1",
+        "type": "concept",
+        "title": "Common weak answer",
+        "order": 8,
+        "content": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-18-preventing-angular-memory-leaks-practice-1",
+        "type": "concept",
+        "title": "Trade-offs and production validation",
+        "order": 9,
+        "content": "The strongest solution balances runtime cost, bundle size, team ownership, debugging, migration risk and operational complexity. Prefer incremental adoption with measurable acceptance criteria.",
+        "keyPoints": [
+          "Validate with production builds, Angular/Chrome profiling, network throttling, memory checks, automated tests, accessibility checks, telemetry and rollback rehearsal."
+        ]
+      },
+      {
+        "id": "senior-ng-18-preventing-angular-memory-leaks-followup-1",
+        "type": "interview-question",
+        "order": 10,
+        "question": "Why can shareReplay without reset or bounded lifetime retain more data than expected?",
+        "answer": "Answer the follow-up by making the hidden constraint explicit, comparing at least two valid options, and stating how you would measure the result.",
+        "explanation": "A strong follow-up answer names the hidden constraint, compares at least two valid options, and states how you would measure the result rather than repeating the primary answer."
       }
     ]
   },
@@ -111,10 +305,15 @@
     "categoryId": "angular-fundamentals",
     "title": "Dependency Injection",
     "description": "How Angular's hierarchical injector resolves and provides services.",
-    "difficulty": "intermediate",
+    "difficulty": "advanced",
     "interviewPriority": "must-know",
-    "estimatedMinutes": 20,
-    "tags": ["di", "injector", "providedIn", "inject"],
+    "estimatedMinutes": 40,
+    "tags": [
+      "di",
+      "injector",
+      "providedIn",
+      "inject"
+    ],
     "blocks": [
       {
         "id": "di-concept-1",
@@ -151,6 +350,68 @@
         "question": "What do `@Optional()`, `@Self()`, and `@SkipSelf()` change about how a dependency is resolved?",
         "answer": "`@Optional()` returns null instead of throwing if no provider is found; `@Self()` only looks at the current element's own injector (no walking up the tree); `@SkipSelf()` starts the search at the parent injector, skipping the current element even if it has a matching provider.",
         "explanation": "These decorators are most often seen together in component libraries — e.g. a form control that optionally connects to a parent form group via `@Optional() @SkipSelf() parent?: ControlContainer`, so the component still works standalone when no parent is present."
+      },
+      {
+        "id": "senior-ng-11-dependency-injection-and-service-design-concept-1",
+        "type": "concept",
+        "title": "Architect-level framing",
+        "order": 5,
+        "content": "I use a service when logic or state has a lifecycle and responsibility that should not belong to a presentation component—for example API access, authentication, transaction calculation, logging, feature configuration, or a reusable workflow. A service is not simply a place to move every function; it should expose a cohesive contract and hide implementation details.\n\nDependency injection gives Angular a controlled way to construct and supply those collaborators. Instead of a component creating HttpClient, a repository, and a logger with new, the component asks for abstractions. Angular's injector resolves them according to provider configuration and scope. This reduces coupling, makes replacement and testing easier, and lets us control whether an instance is application-wide, route-scoped, or component-scoped.\n\nFor shared stateless infrastructure, providedIn: 'root' is usually appropriate and tree-shakable. For a feature workflow that must reset when the user leaves a route, I may provide the store at the route level. For isolated component instances, component providers can be correct—but I would explain that this creates a new instance for each component subtree and can accidentally duplicate caches, WebSockets, or token-refresh state.\n\nI use InjectionToken for interfaces, configuration objects, or multiple implementations because TypeScript interfaces do not exist at runtime. I also keep constructors light: services should not start uncontrolled network calls simply because they were injected. Side effects should begin through explicit methods and be cleaned up according to the provider lifecycle.\n\nIn tests, DI lets me substitute a fake repository or logger without changing production code. At architecture level, it also supports ports-and-adapters: domain-facing services depend on small tokens, while infrastructure implementations handle HTTP, storage, and telemetry.",
+        "keyPoints": [
+          "A service groups reusable behavior or state that does not belong to one view, such as API access, caching, authorization, orchestration, or telemetry.",
+          "Dependency injection separates object creation from object use. A consumer asks for a contract or token; an injector decides which implementation and lifetime to provide.",
+          "This reduces coupling, enables substitution in tests, supports environment-specific implementations, and centralizes lifecycle management.",
+          "Provider location defines scope: root for an application singleton, route for feature lifetime, and component for isolated instances. The scope must match ownership of state.",
+          "Avoid turning services into global dumping grounds. Keep APIs small, expose read-only state, and isolate side effects.",
+          "Use InjectionToken for configuration or interfaces that do not exist at runtime."
+        ]
+      },
+      {
+        "id": "senior-ng-11-dependency-injection-and-service-design-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "question": "An interviewer asks: What is the purpose of Angular services, and why is dependency injection used?",
+        "answer": "I use a service when logic or state has a lifecycle and responsibility that should not belong to a presentation component—for example API access, authentication, transaction calculation, logging, feature configuration, or a reusable workflow. A service is not simply a place to move every function; it should expose a cohesive contract and hide implementation details.\n\nDependency injection gives Angular a controlled way to construct and supply those collaborators. Instead of a component creating HttpClient, a repository, and a logger with new, the component asks for abstractions. Angular's injector resolves them according to provider configuration and scope. This reduces coupling, makes replacement and testing easier, and lets us control whether an instance is application-wide, route-scoped, or component-scoped.\n\nFor shared stateless infrastructure, providedIn: 'root' is usually appropriate and tree-shakable. For a feature workflow that must reset when the user leaves a route, I may provide the store at the route level. For isolated component instances, component providers can be correct—but I would explain that this creates a new instance for each component subtree and can accidentally duplicate caches, WebSockets, or token-refresh state.\n\nI use InjectionToken for interfaces, configuration objects, or multiple implementations because TypeScript interfaces do not exist at runtime. I also keep constructors light: services should not start uncontrolled network calls simply because they were injected. Side effects should begin through explicit methods and be cleaned up according to the provider lifecycle.\n\nIn tests, DI lets me substitute a fake repository or logger without changing production code. At architecture level, it also supports ports-and-adapters: domain-facing services depend on small tokens, while infrastructure implementations handle HTTP, storage, and telemetry.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ],
+        "explanation": "Creating a global singleton for every service, using services as unstructured shared mutable state, or providing the same service at several levels without understanding that Angular will create multiple instances."
+      },
+      {
+        "id": "senior-ng-11-dependency-injection-and-service-design-code-1",
+        "type": "code-example",
+        "title": "Practical code / design example",
+        "order": 7,
+        "language": "typescript",
+        "code": "export interface AuditPort { record(event: AuditEvent): void; }\nexport const AUDIT_PORT = new InjectionToken<AuditPort>('AUDIT_PORT');\n\n@Injectable({ providedIn: 'root' })\nexport class PaymentService {\n  private readonly audit = inject(AUDIT_PORT);\n  submit(command: PaymentCommand) {\n    this.audit.record({ type: 'payment-submit-started' });\n    // call repository...\n  }\n}",
+        "explanation": "InjectionToken represents a runtime abstraction; provider scope controls instance lifecycle."
+      },
+      {
+        "id": "senior-ng-11-dependency-injection-and-service-design-mistake-1",
+        "type": "concept",
+        "title": "Common weak answer",
+        "order": 8,
+        "content": "Creating a global singleton for every service, using services as unstructured shared mutable state, or providing the same service at several levels without understanding that Angular will create multiple instances."
+      },
+      {
+        "id": "senior-ng-11-dependency-injection-and-service-design-practice-1",
+        "type": "concept",
+        "title": "Trade-offs and production validation",
+        "order": 9,
+        "content": "DI adds indirection. The benefit is strongest at real boundaries—configuration, infrastructure, domain ports, testing, and lifecycle—not for tiny pure helper functions that can remain normal functions.",
+        "keyPoints": [
+          "Test provider scope, instance count, teardown, replacement with fakes, circular dependencies, tree shaking, and whether side effects begin only through explicit commands."
+        ]
+      },
+      {
+        "id": "senior-ng-11-dependency-injection-and-service-design-followup-1",
+        "type": "interview-question",
+        "order": 10,
+        "question": "Why can providing the same stateful service at both root and component level create difficult bugs?",
+        "answer": "Answer the follow-up by making the hidden constraint explicit, comparing at least two valid options, and stating how you would measure the result.",
+        "explanation": "A strong follow-up answer names the hidden constraint, compares at least two valid options, and states how you would measure the result rather than repeating the primary answer."
       }
     ]
   },
@@ -160,10 +421,14 @@
     "categoryId": "angular-change-detection",
     "title": "Change Detection",
     "description": "How Angular decides when to re-render a component's view.",
-    "difficulty": "intermediate",
+    "difficulty": "advanced",
     "interviewPriority": "must-know",
-    "estimatedMinutes": 25,
-    "tags": ["change-detection", "zone.js", "onpush"],
+    "estimatedMinutes": 65,
+    "tags": [
+      "change-detection",
+      "zone.js",
+      "onpush"
+    ],
     "blocks": [
       {
         "id": "cd-concept-1",
@@ -208,6 +473,130 @@
         "question": "A component receives data through a third-party callback (e.g. a Google Maps SDK event) that runs outside Angular's Zone.js patched APIs. The view doesn't update even though the underlying data changed. What's happening and how do you fix it?",
         "answer": "Third-party SDKs that schedule their own callbacks (via native timers, WebSockets, or their own event loop) can execute outside Zone.js's monkey-patched APIs, so Angular never gets notified to run change detection. Fix it by explicitly calling `this.ngZone.run(() => { ... })` around the state update, or by injecting `ChangeDetectorRef` and calling `markForCheck()`/`detectChanges()` after the callback.",
         "explanation": "This is the flip side of `NgZone.runOutsideAngular()` — code intentionally run outside the zone (e.g. a high-frequency animation loop) must explicitly re-enter the zone or trigger detection manually to reflect its results in the UI. In zoneless applications this problem disappears for signal-based state, since signal writes notify Angular directly regardless of which zone they happened in."
+      },
+      {
+        "id": "senior-ng-07-zoneless-change-detection-migration-concept-1",
+        "type": "concept",
+        "title": "Architect-level framing",
+        "order": 6,
+        "content": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Profile first. Confirm that unnecessary change-detection work is material; do not use zoneless mode to hide expensive template functions or large DOM trees.\n\nFor implementation, Audit all update sources: signals, event handlers, async pipe, explicit markForCheck, third-party widgets, timers, and custom callbacks. Code that relied only on Zone.js patching may stop updating the view. Migrate a representative feature, add tests for asynchronous rendering, and remove zone.js only after all update paths are explicit.\n\nAt enterprise scale, I would also cover Use signals, immutable inputs, OnPush-compatible patterns, and explicit notifications. Wrap incompatible third-party integrations with a small adapter. Compare CPU time, interaction latency, memory, and error reporting before and after. Verify SSR and hydration behavior separately.\n\nFinally, Roll out by application slice with monitoring and a documented fallback.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "keyPoints": [
+          "Profile first. Confirm that unnecessary change-detection work is material; do not use zoneless mode to hide expensive template functions or large DOM trees.",
+          "Audit all update sources: signals, event handlers, async pipe, explicit markForCheck, third-party widgets, timers, and custom callbacks. Code that relied only on Zone.js patching may stop updating the view.",
+          "Migrate a representative feature, add tests for asynchronous rendering, and remove zone.js only after all update paths are explicit.",
+          "Use signals, immutable inputs, OnPush-compatible patterns, and explicit notifications. Wrap incompatible third-party integrations with a small adapter.",
+          "Compare CPU time, interaction latency, memory, and error reporting before and after. Verify SSR and hydration behavior separately.",
+          "Roll out by application slice with monitoring and a documented fallback."
+        ]
+      },
+      {
+        "id": "senior-ng-07-zoneless-change-detection-migration-scenario-1",
+        "type": "scenario-question",
+        "order": 7,
+        "question": "A large Angular application spends too much time in change detection. Would you enable zoneless mode?",
+        "answer": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Profile first. Confirm that unnecessary change-detection work is material; do not use zoneless mode to hide expensive template functions or large DOM trees.\n\nFor implementation, Audit all update sources: signals, event handlers, async pipe, explicit markForCheck, third-party widgets, timers, and custom callbacks. Code that relied only on Zone.js patching may stop updating the view. Migrate a representative feature, add tests for asynchronous rendering, and remove zone.js only after all update paths are explicit.\n\nAt enterprise scale, I would also cover Use signals, immutable inputs, OnPush-compatible patterns, and explicit notifications. Wrap incompatible third-party integrations with a small adapter. Compare CPU time, interaction latency, memory, and error reporting before and after. Verify SSR and hydration behavior separately.\n\nFinally, Roll out by application slice with monitoring and a documented fallback.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ],
+        "explanation": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-07-zoneless-change-detection-migration-code-1",
+        "type": "code-example",
+        "title": "Practical code / design example",
+        "order": 8,
+        "language": "typescript",
+        "code": "bootstrapApplication(AppComponent, {\n  providers: [\n    provideZonelessChangeDetection(),\n    provideRouter(routes)\n  ]\n});",
+        "explanation": "With zoneless change detection, state changes must occur through Angular-aware notifications such as signals, template events, or explicit change detection."
+      },
+      {
+        "id": "senior-ng-07-zoneless-change-detection-migration-mistake-1",
+        "type": "concept",
+        "title": "Common weak answer",
+        "order": 9,
+        "content": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-07-zoneless-change-detection-migration-practice-1",
+        "type": "concept",
+        "title": "Trade-offs and production validation",
+        "order": 10,
+        "content": "The strongest solution balances runtime cost, bundle size, team ownership, debugging, migration risk and operational complexity. Prefer incremental adoption with measurable acceptance criteria.",
+        "keyPoints": [
+          "Validate with production builds, Angular/Chrome profiling, network throttling, memory checks, automated tests, accessibility checks, telemetry and rollback rehearsal."
+        ]
+      },
+      {
+        "id": "senior-ng-07-zoneless-change-detection-migration-followup-1",
+        "type": "interview-question",
+        "order": 11,
+        "question": "Which common code patterns silently depend on Zone.js?",
+        "answer": "Answer the follow-up by making the hidden constraint explicit, comparing at least two valid options, and stating how you would measure the result.",
+        "explanation": "A strong follow-up answer names the hidden constraint, compares at least two valid options, and states how you would measure the result rather than repeating the primary answer."
+      },
+      {
+        "id": "senior-ng-08-optimizing-change-detection-concept-1",
+        "type": "concept",
+        "title": "Architect-level framing",
+        "order": 12,
+        "content": "I would start with evidence, because 'Angular is slow' is not a diagnosis. I would reproduce the slow user journey in a production-like build, record Angular DevTools and Chrome Performance traces, and identify whether the cost comes from network, JavaScript execution, change detection, layout/paint, memory pressure, or oversized assets.\n\nFor Angular-specific runtime work, I would inspect which component subtrees are checked frequently and why. I would keep state changes explicit with signals or observable view models, use OnPush where it improves boundaries, avoid template methods that perform work on every check, provide stable identities for repeated rows, and move expensive derived calculations into computed signals or memoized selectors. In an Angular 22 application I would also evaluate zoneless change detection, but only after confirming that third-party libraries and manually scheduled async work notify Angular correctly.\n\nFor loading performance, I would split by route, defer heavy below-the-fold components, remove duplicate dependencies, and check parsed/executed JavaScript rather than only compressed bundle size. For very large calculations that are independent of the DOM, I would consider a Web Worker; for large datasets, I would reduce the data before it reaches the browser.\n\nI would make one change at a time and compare the same trace and real-user metric. The final answer should include before/after numbers—for example, reducing a 1.8-second interaction to 180 ms or lowering a route chunk from 1.2 MB to 420 KB—because optimization without measurement can easily move cost somewhere else.",
+        "keyPoints": [
+          "Use Angular DevTools and browser performance traces to identify which components re-render and which computations create long tasks.",
+          "Split the page into stable widget boundaries. Use immutable inputs, OnPush or signals, trackBy for repeated views, and computed selectors that return stable references.",
+          "Move expensive calculations out of templates. Memoize pure derivations, pre-aggregate data, and schedule non-urgent work when appropriate.",
+          "Lazy render off-screen widgets using route splitting, @defer, intersection observers, or virtualization. Destroy inactive charts rather than keeping all canvases alive.",
+          "Avoid broad shared-state emissions. Select only the data required by each widget and suppress equivalent emissions.",
+          "Set a performance budget and add a repeatable dashboard interaction benchmark to CI."
+        ]
+      },
+      {
+        "id": "senior-ng-08-optimizing-change-detection-scenario-1",
+        "type": "scenario-question",
+        "order": 13,
+        "question": "A dashboard with 80 widgets becomes slow whenever any filter changes. How would you diagnose and optimize it?",
+        "answer": "I would start with evidence, because 'Angular is slow' is not a diagnosis. I would reproduce the slow user journey in a production-like build, record Angular DevTools and Chrome Performance traces, and identify whether the cost comes from network, JavaScript execution, change detection, layout/paint, memory pressure, or oversized assets.\n\nFor Angular-specific runtime work, I would inspect which component subtrees are checked frequently and why. I would keep state changes explicit with signals or observable view models, use OnPush where it improves boundaries, avoid template methods that perform work on every check, provide stable identities for repeated rows, and move expensive derived calculations into computed signals or memoized selectors. In an Angular 22 application I would also evaluate zoneless change detection, but only after confirming that third-party libraries and manually scheduled async work notify Angular correctly.\n\nFor loading performance, I would split by route, defer heavy below-the-fold components, remove duplicate dependencies, and check parsed/executed JavaScript rather than only compressed bundle size. For very large calculations that are independent of the DOM, I would consider a Web Worker; for large datasets, I would reduce the data before it reaches the browser.\n\nI would make one change at a time and compare the same trace and real-user metric. The final answer should include before/after numbers—for example, reducing a 1.8-second interaction to 180 ms or lowering a route chunk from 1.2 MB to 420 KB—because optimization without measurement can easily move cost somewhere else.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ],
+        "explanation": "Applying OnPush, memoization, lazy loading, or a Web Worker everywhere without profiling. A smaller bundle can still execute slowly, and fewer change-detection passes can still leave expensive DOM/layout work."
+      },
+      {
+        "id": "senior-ng-08-optimizing-change-detection-code-1",
+        "type": "code-example",
+        "title": "Practical code / design example",
+        "order": 14,
+        "language": "typescript",
+        "code": "@Component({\n  changeDetection: ChangeDetectionStrategy.OnPush,\n  template: `@for (row of visibleRows(); track row.id) { <app-row [row]=\"row\" /> }`\n})\nexport class ResultsComponent {\n  readonly rows = input.required<readonly Row[]>();\n  readonly filter = signal('');\n  readonly visibleRows = computed(() => filterRows(this.rows(), this.filter()));\n}",
+        "explanation": "Stable identity and computed derivation prevent repeated work in templates."
+      },
+      {
+        "id": "senior-ng-08-optimizing-change-detection-mistake-1",
+        "type": "concept",
+        "title": "Common weak answer",
+        "order": 15,
+        "content": "Applying OnPush, memoization, lazy loading, or a Web Worker everywhere without profiling. A smaller bundle can still execute slowly, and fewer change-detection passes can still leave expensive DOM/layout work."
+      },
+      {
+        "id": "senior-ng-08-optimizing-change-detection-practice-1",
+        "type": "concept",
+        "title": "Trade-offs and production validation",
+        "order": 16,
+        "content": "Fine-grained optimization improves hot paths but increases architectural and debugging complexity. Optimize measured bottlenecks and keep the simplest design that meets the performance budget.",
+        "keyPoints": [
+          "Use Angular DevTools, Chrome Performance and Memory panels, bundle analysis, Core Web Vitals, interaction latency, long-task counts, heap snapshots, and real-user monitoring by route and app version."
+        ]
+      },
+      {
+        "id": "senior-ng-08-optimizing-change-detection-followup-1",
+        "type": "interview-question",
+        "order": 17,
+        "question": "How would you detect that a selector returns a new array on every emission and causes unnecessary rendering?",
+        "answer": "Answer the follow-up by making the hidden constraint explicit, comparing at least two valid options, and stating how you would measure the result.",
+        "explanation": "A strong follow-up answer names the hidden constraint, compares at least two valid options, and states how you would measure the result rather than repeating the primary answer."
       }
     ]
   },
@@ -217,10 +606,14 @@
     "categoryId": "angular-change-detection",
     "title": "Signals",
     "description": "Angular's fine-grained reactive primitive for local and shared state.",
-    "difficulty": "intermediate",
+    "difficulty": "advanced",
     "interviewPriority": "high",
-    "estimatedMinutes": 20,
-    "tags": ["signals", "computed", "effect"],
+    "estimatedMinutes": 40,
+    "tags": [
+      "signals",
+      "computed",
+      "effect"
+    ],
     "blocks": [
       {
         "id": "signals-concept-1",
@@ -257,6 +650,68 @@
         "question": "You call a signal-writing function inside `effect()`, and the effect also reads that same signal (directly or through a service method). What can go wrong?",
         "answer": "If the write happens as a tracked read-then-write within the same effect execution, the effect becomes dependent on the signal it just wrote to, which re-triggers the effect — potentially in an infinite loop if the written value is never identical to the previous one (e.g. it includes a fresh timestamp).",
         "explanation": "The fix is `untracked()`: wrap the read (or the whole write-path call) so it doesn't register as a dependency of the effect — `untracked(() => this.store.touch(id))`. This is a real, easy-to-hit bug: any service method that reads a signal internally before writing to it becomes unsafe to call from inside an effect unless that internal read is untracked."
+      },
+      {
+        "id": "senior-ng-06-signals-versus-rxjs-concept-1",
+        "type": "concept",
+        "title": "Architect-level framing",
+        "order": 5,
+        "content": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: No. Signals model synchronous reactive state and derived values very well; RxJS models asynchronous event streams, cancellation, retries, time, and complex stream composition.\n\nFor implementation, Use signals for component state, computed view models, and fine-grained template updates. Use observables for HTTP pipelines, WebSockets, user-event streams, and orchestration over time. Convert at clear boundaries using toSignal or toObservable rather than repeatedly converting inside components.\n\nAt enterprise scale, I would also cover Do not create effects for every derived value; use computed for pure derivation. Keep effects for real side effects such as persistence, analytics, or imperative integration. Define ownership and lifecycle. Avoid hidden subscriptions and avoid writing to several signals from one unstructured effect.\n\nFinally, Measure readability and behavior under cancellation, errors, and rapid updates instead of choosing based on fashion.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "keyPoints": [
+          "No. Signals model synchronous reactive state and derived values very well; RxJS models asynchronous event streams, cancellation, retries, time, and complex stream composition.",
+          "Use signals for component state, computed view models, and fine-grained template updates. Use observables for HTTP pipelines, WebSockets, user-event streams, and orchestration over time.",
+          "Convert at clear boundaries using toSignal or toObservable rather than repeatedly converting inside components.",
+          "Do not create effects for every derived value; use computed for pure derivation. Keep effects for real side effects such as persistence, analytics, or imperative integration.",
+          "Define ownership and lifecycle. Avoid hidden subscriptions and avoid writing to several signals from one unstructured effect.",
+          "Measure readability and behavior under cancellation, errors, and rapid updates instead of choosing based on fashion."
+        ]
+      },
+      {
+        "id": "senior-ng-06-signals-versus-rxjs-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "question": "Your Angular application is adopting signals. Should RxJS be removed?",
+        "answer": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: No. Signals model synchronous reactive state and derived values very well; RxJS models asynchronous event streams, cancellation, retries, time, and complex stream composition.\n\nFor implementation, Use signals for component state, computed view models, and fine-grained template updates. Use observables for HTTP pipelines, WebSockets, user-event streams, and orchestration over time. Convert at clear boundaries using toSignal or toObservable rather than repeatedly converting inside components.\n\nAt enterprise scale, I would also cover Do not create effects for every derived value; use computed for pure derivation. Keep effects for real side effects such as persistence, analytics, or imperative integration. Define ownership and lifecycle. Avoid hidden subscriptions and avoid writing to several signals from one unstructured effect.\n\nFinally, Measure readability and behavior under cancellation, errors, and rapid updates instead of choosing based on fashion.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ],
+        "explanation": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-06-signals-versus-rxjs-code-1",
+        "type": "code-example",
+        "title": "Practical code / design example",
+        "order": 7,
+        "language": "typescript",
+        "code": "readonly customerId = signal<string | null>(null);\nreadonly customer$ = toObservable(this.customerId).pipe(\n  filter((id): id is string => !!id),\n  switchMap(id => this.api.getCustomer(id))\n);\nreadonly customer = toSignal(this.customer$, { initialValue: null });",
+        "explanation": "Signals hold synchronous view state; RxJS handles cancellation and asynchronous composition."
+      },
+      {
+        "id": "senior-ng-06-signals-versus-rxjs-mistake-1",
+        "type": "concept",
+        "title": "Common weak answer",
+        "order": 8,
+        "content": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-06-signals-versus-rxjs-practice-1",
+        "type": "concept",
+        "title": "Trade-offs and production validation",
+        "order": 9,
+        "content": "The strongest solution balances runtime cost, bundle size, team ownership, debugging, migration risk and operational complexity. Prefer incremental adoption with measurable acceptance criteria.",
+        "keyPoints": [
+          "Validate with production builds, Angular/Chrome profiling, network throttling, memory checks, automated tests, accessibility checks, telemetry and rollback rehearsal."
+        ]
+      },
+      {
+        "id": "senior-ng-06-signals-versus-rxjs-followup-1",
+        "type": "interview-question",
+        "order": 10,
+        "question": "How would you implement typeahead search using both signals and RxJS?",
+        "answer": "Answer the follow-up by making the hidden constraint explicit, comparing at least two valid options, and stating how you would measure the result.",
+        "explanation": "A strong follow-up answer names the hidden constraint, compares at least two valid options, and states how you would measure the result rather than repeating the primary answer."
       }
     ]
   },
@@ -269,7 +724,12 @@
     "difficulty": "advanced",
     "interviewPriority": "must-know",
     "estimatedMinutes": 20,
-    "tags": ["rxjs", "switchMap", "mergeMap", "operators"],
+    "tags": [
+      "rxjs",
+      "switchMap",
+      "mergeMap",
+      "operators"
+    ],
     "blocks": [
       {
         "id": "rxjs-concept-1",
@@ -307,6 +767,68 @@
         "question": "A \"Submit\" button triggers an HTTP save on click. Users sometimes double-click it and create two records. Which flattening operator fixes this, and why not switchMap?",
         "answer": "exhaustMap — it ignores new clicks entirely while the in-flight save request hasn't completed, so a rapid second click is simply dropped rather than starting a second request.",
         "explanation": "switchMap would be wrong here: it cancels the *first* request's HTTP call when the second click fires, which for a POST doesn't actually stop the server from processing it — you could still end up with a duplicate record, just with the UI now tracking the wrong response. exhaustMap is the standard idiom for 'prevent duplicate submit' style interactions."
+      },
+      {
+        "id": "senior-ng-09-rxjs-request-cancellation-and-race-conditions-concept-1",
+        "type": "concept",
+        "title": "Architect-level framing",
+        "order": 5,
+        "content": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Model the filter as a stream and use switchMap so a new filter cancels the previous request subscription.\n\nFor implementation, Debounce only where the interaction permits it, apply distinctUntilChanged using a stable query comparison, and keep loading/error state tied to the active request. On the server, still support request cancellation where possible and make responses safe if cancellation arrives late.\n\nAt enterprise scale, I would also cover For actions that must not overlap, choose concatMap; for ignoring repeated clicks during one operation, choose exhaustMap; for parallel independent work, choose mergeMap with a concurrency limit. Never solve the problem only by comparing timestamps in the component unless the transport cannot be cancelled.\n\nFinally, Test with delayed responses returned out of order.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "keyPoints": [
+          "Model the filter as a stream and use switchMap so a new filter cancels the previous request subscription.",
+          "Debounce only where the interaction permits it, apply distinctUntilChanged using a stable query comparison, and keep loading/error state tied to the active request.",
+          "On the server, still support request cancellation where possible and make responses safe if cancellation arrives late.",
+          "For actions that must not overlap, choose concatMap; for ignoring repeated clicks during one operation, choose exhaustMap; for parallel independent work, choose mergeMap with a concurrency limit.",
+          "Never solve the problem only by comparing timestamps in the component unless the transport cannot be cancelled.",
+          "Test with delayed responses returned out of order."
+        ]
+      },
+      {
+        "id": "senior-ng-09-rxjs-request-cancellation-and-race-conditions-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "question": "A user changes a customer filter quickly. Older API responses sometimes overwrite the latest result. How do you fix it?",
+        "answer": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Model the filter as a stream and use switchMap so a new filter cancels the previous request subscription.\n\nFor implementation, Debounce only where the interaction permits it, apply distinctUntilChanged using a stable query comparison, and keep loading/error state tied to the active request. On the server, still support request cancellation where possible and make responses safe if cancellation arrives late.\n\nAt enterprise scale, I would also cover For actions that must not overlap, choose concatMap; for ignoring repeated clicks during one operation, choose exhaustMap; for parallel independent work, choose mergeMap with a concurrency limit. Never solve the problem only by comparing timestamps in the component unless the transport cannot be cancelled.\n\nFinally, Test with delayed responses returned out of order.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ],
+        "explanation": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-09-rxjs-request-cancellation-and-race-conditions-code-1",
+        "type": "code-example",
+        "title": "Practical code / design example",
+        "order": 7,
+        "language": "typescript",
+        "code": "readonly results$ = this.searchControl.valueChanges.pipe(\n  debounceTime(250),\n  distinctUntilChanged(),\n  switchMap(term => this.api.search(term).pipe(\n    catchError(error => of({ items: [], error }))\n  ))\n);",
+        "explanation": "switchMap unsubscribes from the previous HTTP request when a newer search starts."
+      },
+      {
+        "id": "senior-ng-09-rxjs-request-cancellation-and-race-conditions-mistake-1",
+        "type": "concept",
+        "title": "Common weak answer",
+        "order": 8,
+        "content": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-09-rxjs-request-cancellation-and-race-conditions-practice-1",
+        "type": "concept",
+        "title": "Trade-offs and production validation",
+        "order": 9,
+        "content": "The strongest solution balances runtime cost, bundle size, team ownership, debugging, migration risk and operational complexity. Prefer incremental adoption with measurable acceptance criteria.",
+        "keyPoints": [
+          "Validate with production builds, Angular/Chrome profiling, network throttling, memory checks, automated tests, accessibility checks, telemetry and rollback rehearsal."
+        ]
+      },
+      {
+        "id": "senior-ng-09-rxjs-request-cancellation-and-race-conditions-followup-1",
+        "type": "interview-question",
+        "order": 10,
+        "question": "Explain when switchMap would be dangerous for a payment submission.",
+        "answer": "Answer the follow-up by making the hidden constraint explicit, comparing at least two valid options, and stating how you would measure the result.",
+        "explanation": "A strong follow-up answer names the hidden constraint, compares at least two valid options, and states how you would measure the result rather than repeating the primary answer."
       }
     ]
   },
@@ -316,10 +838,14 @@
     "categoryId": "angular-rxjs",
     "title": "HTTP Interceptors",
     "description": "Intercepting and transforming outgoing requests and incoming responses.",
-    "difficulty": "intermediate",
+    "difficulty": "advanced",
     "interviewPriority": "high",
-    "estimatedMinutes": 15,
-    "tags": ["http", "interceptors", "functional-interceptors"],
+    "estimatedMinutes": 35,
+    "tags": [
+      "http",
+      "interceptors",
+      "functional-interceptors"
+    ],
     "blocks": [
       {
         "id": "interceptor-concept-1",
@@ -356,6 +882,68 @@
         "question": "An auth interceptor attaches an access token to every request. The token expires mid-session and the API starts returning 401s. How do you refresh the token and retry the original request transparently, without duplicating the refresh call for every simultaneous 401?",
         "answer": "Catch the 401 in the interceptor with `catchError`, and if a refresh isn't already in flight, call the refresh-token endpoint and share that single Observable (e.g. via `shareReplay(1)`) among all concurrently failing requests; once the refreshed token arrives, clone and retry each original request with the new token using `switchMap`.",
         "explanation": "The key detail interviewers look for is deduplication: without a shared in-flight refresh Observable, five simultaneous 401s would trigger five separate refresh-token calls, and some auth servers invalidate the previous refresh token as soon as a new one is issued, causing a race that logs the user out."
+      },
+      {
+        "id": "senior-ng-13-authentication-and-token-refresh-concept-1",
+        "type": "concept",
+        "title": "Architect-level framing",
+        "order": 5,
+        "content": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Serialize refresh so only one refresh request is active. Queue or replay eligible failed requests after refresh succeeds.\n\nFor implementation, Never refresh recursively for the refresh endpoint itself. Distinguish expired credentials from forbidden access, account lock, and backend outages. Prefer secure, HttpOnly, SameSite cookies when architecture permits; if tokens are held in browser memory, minimize lifetime and avoid persistent storage for sensitive tokens.\n\nAt enterprise scale, I would also cover On refresh failure, clear authentication state once, cancel queued work, redirect safely, and preserve only non-sensitive return navigation. Protect state-changing requests against CSRF according to the chosen credential mechanism.\n\nFinally, Test simultaneous failures, slow refresh, logout during refresh, multiple tabs, and clock skew.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "keyPoints": [
+          "Serialize refresh so only one refresh request is active. Queue or replay eligible failed requests after refresh succeeds.",
+          "Never refresh recursively for the refresh endpoint itself. Distinguish expired credentials from forbidden access, account lock, and backend outages.",
+          "Prefer secure, HttpOnly, SameSite cookies when architecture permits; if tokens are held in browser memory, minimize lifetime and avoid persistent storage for sensitive tokens.",
+          "On refresh failure, clear authentication state once, cancel queued work, redirect safely, and preserve only non-sensitive return navigation.",
+          "Protect state-changing requests against CSRF according to the chosen credential mechanism.",
+          "Test simultaneous failures, slow refresh, logout during refresh, multiple tabs, and clock skew."
+        ]
+      },
+      {
+        "id": "senior-ng-13-authentication-and-token-refresh-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "question": "Several requests fail with 401 when an access token expires. The current interceptor starts multiple refresh calls and sometimes logs the user out. How would you fix it?",
+        "answer": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Serialize refresh so only one refresh request is active. Queue or replay eligible failed requests after refresh succeeds.\n\nFor implementation, Never refresh recursively for the refresh endpoint itself. Distinguish expired credentials from forbidden access, account lock, and backend outages. Prefer secure, HttpOnly, SameSite cookies when architecture permits; if tokens are held in browser memory, minimize lifetime and avoid persistent storage for sensitive tokens.\n\nAt enterprise scale, I would also cover On refresh failure, clear authentication state once, cancel queued work, redirect safely, and preserve only non-sensitive return navigation. Protect state-changing requests against CSRF according to the chosen credential mechanism.\n\nFinally, Test simultaneous failures, slow refresh, logout during refresh, multiple tabs, and clock skew.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ],
+        "explanation": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-13-authentication-and-token-refresh-code-1",
+        "type": "code-example",
+        "title": "Practical code / design example",
+        "order": 7,
+        "language": "typescript",
+        "code": "export const authInterceptor: HttpInterceptorFn = (req, next) => {\n  const session = inject(SessionService);\n  const token = session.accessToken();\n  const authenticated = token\n    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })\n    : req;\n\n  return next(authenticated).pipe(\n    catchError(error => error.status === 401\n      ? session.refreshOnce().pipe(switchMap(() => next(req)))\n      : throwError(() => error))\n  );\n};",
+        "explanation": "Refresh must be single-flight and bounded; repeated 401 responses should end the session rather than loop."
+      },
+      {
+        "id": "senior-ng-13-authentication-and-token-refresh-mistake-1",
+        "type": "concept",
+        "title": "Common weak answer",
+        "order": 8,
+        "content": "Applying a fashionable Angular feature globally without profiling, lifecycle analysis, provider-scope review, or a rollback plan. Framework APIs do not replace API design, server authorization, accessibility, and production measurement."
+      },
+      {
+        "id": "senior-ng-13-authentication-and-token-refresh-practice-1",
+        "type": "concept",
+        "title": "Trade-offs and production validation",
+        "order": 9,
+        "content": "The strongest solution balances runtime cost, bundle size, team ownership, debugging, migration risk and operational complexity. Prefer incremental adoption with measurable acceptance criteria.",
+        "keyPoints": [
+          "Validate with production builds, Angular/Chrome profiling, network throttling, memory checks, automated tests, accessibility checks, telemetry and rollback rehearsal."
+        ]
+      },
+      {
+        "id": "senior-ng-13-authentication-and-token-refresh-followup-1",
+        "type": "interview-question",
+        "order": 10,
+        "question": "How would you avoid sending a refreshed request twice when the original operation is not idempotent?",
+        "answer": "Answer the follow-up by making the hidden constraint explicit, comparing at least two valid options, and stating how you would measure the result.",
+        "explanation": "A strong follow-up answer names the hidden constraint, compares at least two valid options, and states how you would measure the result rather than repeating the primary answer."
       }
     ]
   },
@@ -368,7 +956,12 @@
     "difficulty": "advanced",
     "interviewPriority": "high",
     "estimatedMinutes": 25,
-    "tags": ["performance", "architecture", "onpush", "trackby"],
+    "tags": [
+      "performance",
+      "architecture",
+      "onpush",
+      "trackby"
+    ],
     "blocks": [
       {
         "id": "onpush-perf-concept-1",
