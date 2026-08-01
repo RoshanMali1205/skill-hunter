@@ -6,6 +6,7 @@ import { RevisionService } from './revision.service';
 import { SettingsService } from './settings.service';
 import { ActivityService } from './activity.service';
 import { NoteService } from './note.service';
+import { AiChatStore } from './ai-chat.store';
 import { CURRENT_DATA_VERSION } from '../storage/storage-keys';
 import {
   ActivityLog,
@@ -36,6 +37,7 @@ export class DataManagementService {
   private readonly settingsService = inject(SettingsService);
   private readonly activityService = inject(ActivityService);
   private readonly noteService = inject(NoteService);
+  private readonly aiChatStore = inject(AiChatStore);
 
   buildExport(): StoredApplicationData {
     return {
@@ -86,6 +88,7 @@ export class DataManagementService {
     this.revisionService.resetAll();
     this.activityService.resetAll();
     this.noteService.resetAll();
+    this.aiChatStore.resetAll();
   }
 
   private parseStoredData(

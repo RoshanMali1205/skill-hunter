@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   revisionList: 'interview-prep.revision-list',
   activity: 'interview-prep.activity',
   notes: 'interview-prep.notes',
+  aiChats: 'interview-prep.ai-chats',
 } as const;
 
 export const CURRENT_DATA_VERSION = 1;
