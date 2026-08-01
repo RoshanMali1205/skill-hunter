@@ -21,7 +21,7 @@ For a deeper technical dive — architecture, data model, service catalog, and a
 - **Revision** — auto-surfaced weak topics (low confidence, incorrect attempts, bookmarks, manual adds) plus mark-revised tracking.
 - **Settings** — light/dark theme, default difficulty, auto-reveal answers, export/import progress (including notes) as JSON, reset progress.
 
-Content ships with **264 topics** across five subjects: **Angular** (48 across 9 categories), **JavaScript** (68 across 8 categories, including a dedicated **Coding Practice** category with predict-the-output / write-the-code drills covering hoisting, closures, references, array methods, `this`, and the event loop), **TypeScript** (61 across 6 categories), **UI Engineering** (62 across 6 categories), and **Frontend System Design** (25 lead-level scenario questions — caching, performance, auth, RBAC, XSS/CSRF/CORS, BFF, state, offline/PWA, micro-frontends, observability, deployment). Beyond the original beginner/intermediate topics, each subject now also carries a large senior/architect scenario set (production-incident-style questions — e.g. "an API can return 1,000,000 records," "a third-party SDK returns `any`," "a tooltip's `z-index: 999999` still renders behind a panel") with an architect-level framing, a runnable code example, a common-weak-answer callout, and a likely follow-up question. See [Adding content](#adding-content) to extend it further.
+Content ships with **289 topics** across five subjects: **Angular** (48 across 9 categories), **JavaScript** (68 across 8 categories, including a dedicated **Coding Practice** category with predict-the-output / write-the-code drills covering hoisting, closures, references, array methods, `this`, and the event loop), **TypeScript** (61 across 6 categories), **UI Engineering** (62 across 6 categories), and **Frontend System Design** (50 lead/architect-level scenario questions across 6 categories — architecture foundations, caching & performance, security/auth, data/state/realtime, platform architecture, and quality/observability/delivery). Beyond the original beginner/intermediate topics, each subject now also carries a large senior/architect scenario set (production-incident-style questions — e.g. "an API can return 1,000,000 records," "a third-party SDK returns `any`," "a tooltip's `z-index: 999999` still renders behind a panel") with an architect-level framing, a runnable code example, a common-weak-answer callout, and a likely follow-up question. See [Adding content](#adding-content) to extend it further.
 
 ## Tech stack
 
@@ -113,7 +113,7 @@ public/content/
   javascript/topics.json, javascript/coding-practice.json, javascript/topics-extended.json
   typescript/topics.json, typescript/topics-extended.json
   ui/topics.json, ui/topics-extended.json
-  system-design/topics.json   25 lead-level frontend system-design scenarios
+  system-design/topics.json   50 lead/architect-level frontend system-design scenarios
 
 netlify/functions/
   ai-chat.mjs    Serverless proxy that holds the AI provider's API key server-side
@@ -327,7 +327,7 @@ Static hosts other than Netlify (Vercel, GitHub Pages, S3 + CloudFront, etc.) wo
 
 - No cloud sync or database — progress is local to one browser, scoped per account. The one server-side exception is the AI Mentor proxy function, which holds no user data at all (it only forwards chat text to the AI provider).
 - Accounts are a real client-side implementation (hashed passwords, per-account data) but not a real security boundary — see [Accounts & data](#accounts--data).
-- The content set (264 topics) is still a seed toward the full ~450-question target described in the original design doc, though the senior/architect scenario sets have closed most of that gap for Angular, JavaScript, TypeScript, and UI Engineering — see [Adding content](#adding-content).
+- The content set (289 topics) is still a seed toward the full ~450-question target described in the original design doc, though the senior/architect scenario sets have closed most of that gap for Angular, JavaScript, TypeScript, UI Engineering, and Frontend System Design — see [Adding content](#adding-content).
 - AI Mentor responses are not streamed (a full reply arrives at once, not token-by-token) — see Roadmap.
 
 ## Roadmap

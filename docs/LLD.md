@@ -1027,7 +1027,7 @@ netlify dev
 
 - No cloud sync/database — all progress is local to one browser, scoped per account (§8.1). The only server-side component is the stateless AI proxy function, which persists no user data.
 - The account system is a real client-side implementation but not a real security boundary (§11.2).
-- Content (264 topics) is still a seed toward the full target library — extending it is JSON-only, no code changes required (see the "Adding content" section of the [README](../README.md)).
+- Content (289 topics) is still a seed toward the full target library — extending it is JSON-only, no code changes required (see the "Adding content" section of the [README](../README.md)).
 - AI Mentor responses are not streamed — a full reply arrives at once.
 - No automated test coverage beyond the default scaffold (§11.6).
 - No accessibility audit has been performed (§11.5).
