@@ -108,7 +108,9 @@
 
   .md-code {
     @include custom-scrollbar;
+    box-sizing: border-box;
     margin-top: var(--space-3);
+    max-width: 100%;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
@@ -116,9 +118,11 @@
     overflow-x: auto;
 
     code {
+      display: block;
       background: none;
       padding: 0;
       font-size: 0.85em;
+      white-space: pre;
     }
   }
 }

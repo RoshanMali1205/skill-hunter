@@ -14,7 +14,7 @@
 }
 
 .answer-reveal__markdown {
-  @include markdown-content;
+  // Block markdown styles live in global styles.scss (encapsulation-safe).
 }
 
 .answer-reveal__answer {

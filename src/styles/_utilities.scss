@@ -66,6 +66,7 @@
     background-color 0.15s ease,
     border-color 0.15s ease,
     box-shadow 0.15s ease,
+    filter 0.15s ease,
     transform 0.1s ease;
 
   &:hover {
@@ -84,6 +85,7 @@
 
     &:hover {
       filter: brightness(1.06);
+      border-color: transparent;
     }
   }
 
@@ -100,12 +102,24 @@
 
     &:hover {
       filter: brightness(1.06);
+      border-color: transparent;
     }
   }
 
   &--back {
     align-self: flex-start;
   }
+}
+
+.tile-gradient {
+  background: var(--gradient-tile);
+  border-color: color-mix(in srgb, var(--palette-ice-200) 70%, var(--color-border));
+}
+
+.tile-gradient-strong {
+  background: var(--gradient-tile-strong);
+  border-color: transparent;
+  color: var(--color-primary-contrast);
 }
 
 .link-list {

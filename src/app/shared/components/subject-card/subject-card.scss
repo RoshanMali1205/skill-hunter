@@ -2,6 +2,7 @@
 
 .subject-card {
   @include card-interactive;
+  background: var(--gradient-tile);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -28,7 +29,9 @@
   height: 44px;
   border-radius: var(--radius-md);
   font-size: 1.4rem;
-  background: color-mix(in srgb, var(--accent, var(--color-primary)) 16%, transparent);
+  background: var(--gradient-primary);
+  color: var(--color-primary-contrast);
+  box-shadow: var(--shadow-primary);
 }
 
 .subject-card__description {

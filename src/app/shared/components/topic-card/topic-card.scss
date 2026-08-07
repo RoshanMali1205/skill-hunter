@@ -3,6 +3,7 @@
 
 .topic-card {
   @include card-interactive;
+  background: var(--gradient-tile);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
