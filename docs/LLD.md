@@ -126,7 +126,7 @@ Each feature below is described as: **purpose → user flow → business rules**
 **Business rules:**
 - All requests proxy through a Netlify serverless function (`ai-chat.mjs`) — the Gemini API key lives only there, never in the built JS bundle.
 - Responses render as real markdown (headings, code, lists) via a small hand-rolled, escape-first parser — never raw `innerHTML` of untrusted content.
-- Distinct, human-readable error states for: function not configured (503), daily quota exhausted (429), reply cut off at the token limit, and "can't reach the backend at all" (when running plain `ng serve` without `netlify dev`).
+- Distinct, human-readable error states for: function not configured (503), daily quota exhausted (429), reply cut off at the token limit, and "can't reach the backend at all" (when the local AI stand-in / Netlify function isn't running).
 
 ### 2.7 Personal notes
 
@@ -973,11 +973,13 @@ The project uses **Vitest** as its test runner (Angular 22's default), but actua
 
 | Script | Command | Purpose |
 |---|---|---|
-| `npm start` | `ng serve` | Dev server, port 4200, live reload — AI Mentor will show a "can't reach backend" message here since the Netlify function isn't running |
+| `npm start` | `node scripts/dev.mjs` | Starts local AI API on :9999 + `ng serve` on :4200; Vite proxy (`/api/**`) forwards AI Mentor calls |
+| `npm run start:app` | `ng serve` | Angular only (used by `netlify dev`) |
+| `npm run dev:ai` | `node scripts/local-ai-api.mjs` | Local `/api/ai-chat` stand-in alone on :9999 |
 | `ng build` | production build | Output to `dist/skill-hunter` |
 | `ng build --configuration development` | unminified build | Debugging a deployed build |
 | `ng test` | Vitest | Runs the (currently minimal) unit test suite |
-| `netlify dev` | Angular dev server + emulated function, proxied on port 8888 | Only way to exercise `/api/ai-chat` locally |
+| `netlify dev` / `npm run dev` | Angular + emulated function on port 8888 | Full Netlify-local stack including `/api/ai-chat` |
 
 ### 12.2 `netlify.toml`
 

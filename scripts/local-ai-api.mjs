@@ -5,8 +5,9 @@
  *
  * Usage:
  *   1. Copy .env.example → .env and set GEMINI_API_KEY (+ APP_SHARED_TOKEN)
- *   2. node scripts/local-ai-api.mjs
- *   3. ng serve  (proxies /api → this server on :9999)
+ *   2. Prefer `npm start` (scripts/dev.mjs starts this + ng serve together)
+ *      or run this alone: node scripts/local-ai-api.mjs
+ *   3. ng serve proxies /api/** → this server on :9999 (Vite needs /**)
  *
  * Or use `netlify dev` instead, which runs Angular + the function together.
  */

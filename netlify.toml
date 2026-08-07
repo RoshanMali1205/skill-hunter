@@ -4,7 +4,9 @@
   functions = "netlify/functions"
 
 [dev]
-  command = "npm start"
+  # Use start:app (ng serve only) — netlify emulates /api functions itself.
+  # Plain `npm start` also boots scripts/local-ai-api.mjs for localhost:4200.
+  command = "npm run start:app"
   targetPort = 4200
   port = 8888
   publish = "dist/skill-hunter/browser"
