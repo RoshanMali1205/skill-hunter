@@ -50,3 +50,14 @@ app-mobile-nav {
 button {
   font-family: inherit;
 }
+
+// Markdown from [innerHTML] (markdown pipe) is not covered by Angular's
+// emulated encapsulation — component selectors get [_ngcontent] on the
+// last compound piece, so .md-code rules inside a component never match
+// the injected <pre class="md-code">. Keep markdown styles global.
+.ai-mentor__markdown,
+.topic-detail__markdown,
+.answer-reveal__markdown,
+.markdown-body {
+  @include markdown-content;
+}

@@ -1,15 +1,24 @@
 :root {
-  --color-bg: #f4f5fb;
+  /* Brand palette */
+  --palette-navy-950: #001d39;
+  --palette-navy-800: #0a4174;
+  --palette-slate-600: #49769f;
+  --palette-teal-500: #4e8ea2;
+  --palette-dust-400: #6ea2b3;
+  --palette-sky-300: #7bbde8;
+  --palette-ice-200: #bdd8e9;
+
+  --color-bg: #eef5fa;
   --color-surface: #ffffff;
-  --color-surface-alt: #eef0f6;
+  --color-surface-alt: #e4eef6;
   --color-surface-raised: #ffffff;
-  --color-border: #e2e5f0;
-  --color-text: #14151f;
-  --color-text-muted: #656b7e;
-  --color-primary: #4f46e5;
-  --color-primary-strong: #4338ca;
+  --color-border: #c5d9e8;
+  --color-text: #001d39;
+  --color-text-muted: #49769f;
+  --color-primary: #0a4174;
+  --color-primary-strong: #001d39;
   --color-primary-contrast: #ffffff;
-  --color-accent: #0891b2;
+  --color-accent: #4e8ea2;
   --color-success: #16a34a;
   --color-warning: #d97706;
   --color-danger: #dc2626;
@@ -19,14 +28,21 @@
   --color-difficulty-intermediate: #d97706;
   --color-difficulty-advanced: #dc2626;
 
-  --gradient-primary: linear-gradient(135deg, #6366f1 0%, #4f46e5 55%, #4338ca 100%);
-  --gradient-hero: linear-gradient(120deg, rgba(79, 70, 229, 0.12), rgba(8, 145, 178, 0.1));
+  --gradient-primary: linear-gradient(135deg, #7bbde8 0%, #4e8ea2 42%, #0a4174 100%);
+  --gradient-hero: linear-gradient(
+    135deg,
+    rgba(123, 189, 232, 0.32) 0%,
+    rgba(189, 216, 233, 0.55) 48%,
+    rgba(78, 142, 162, 0.2) 100%
+  );
+  --gradient-tile: linear-gradient(165deg, #ffffff 0%, #bdd8e9 100%);
+  --gradient-tile-strong: linear-gradient(145deg, #0a4174 0%, #49769f 55%, #4e8ea2 100%);
   --gradient-danger: linear-gradient(135deg, #f87171 0%, #dc2626 55%, #b91c1c 100%);
 
-  --shadow-sm: 0 1px 2px rgba(20, 21, 40, 0.05);
-  --shadow-md: 0 6px 16px rgba(20, 21, 40, 0.08);
-  --shadow-lg: 0 16px 32px rgba(20, 21, 40, 0.12);
-  --shadow-primary: 0 8px 20px rgba(79, 70, 229, 0.28);
+  --shadow-sm: 0 1px 2px rgba(0, 29, 57, 0.06);
+  --shadow-md: 0 6px 16px rgba(0, 29, 57, 0.08);
+  --shadow-lg: 0 16px 32px rgba(0, 29, 57, 0.12);
+  --shadow-primary: 0 8px 20px rgba(10, 65, 116, 0.28);
   --shadow-danger: 0 8px 20px rgba(220, 38, 38, 0.28);
 
   --radius-sm: 8px;
@@ -50,30 +66,37 @@
 }
 
 :root[data-theme='dark'] {
-  --color-bg: #0d0e14;
-  --color-surface: #191a24;
-  --color-surface-alt: #232636;
-  --color-surface-raised: #20222f;
-  --color-border: #2f3346;
-  --color-text: #f1f2f8;
-  --color-text-muted: #9ba1b5;
-  --color-primary: #818cf8;
-  --color-primary-strong: #a5b4fc;
-  --color-primary-contrast: #12131a;
-  --color-accent: #22d3ee;
+  --color-bg: #001d39;
+  --color-surface: #062845;
+  --color-surface-alt: #0a4174;
+  --color-surface-raised: #0d355c;
+  --color-border: #2a5578;
+  --color-text: #bdd8e9;
+  --color-text-muted: #6ea2b3;
+  --color-primary: #7bbde8;
+  --color-primary-strong: #bdd8e9;
+  --color-primary-contrast: #001d39;
+  --color-accent: #6ea2b3;
   --color-success: #4ade80;
   --color-warning: #fbbf24;
   --color-danger: #f87171;
-  --color-danger-contrast: #12131a;
+  --color-danger-contrast: #001d39;
 
-  --gradient-primary: linear-gradient(135deg, #818cf8 0%, #6366f1 55%, #4f46e5 100%);
-  --gradient-hero: linear-gradient(120deg, rgba(129, 140, 248, 0.16), rgba(34, 211, 238, 0.1));
+  --gradient-primary: linear-gradient(135deg, #bdd8e9 0%, #7bbde8 40%, #4e8ea2 100%);
+  --gradient-hero: linear-gradient(
+    135deg,
+    rgba(123, 189, 232, 0.22) 0%,
+    rgba(10, 65, 116, 0.55) 55%,
+    rgba(0, 29, 57, 0.9) 100%
+  );
+  --gradient-tile: linear-gradient(165deg, #0a4174 0%, #001d39 100%);
+  --gradient-tile-strong: linear-gradient(145deg, #7bbde8 0%, #4e8ea2 50%, #0a4174 100%);
   --gradient-danger: linear-gradient(135deg, #fca5a5 0%, #f87171 55%, #ef4444 100%);
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.45);
-  --shadow-primary: 0 8px 24px rgba(129, 140, 248, 0.35);
+  --shadow-primary: 0 8px 24px rgba(123, 189, 232, 0.28);
   --shadow-danger: 0 8px 24px rgba(248, 113, 113, 0.35);
 
   color-scheme: dark;
@@ -81,30 +104,37 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']):not([data-theme='dark']) {
-    --color-bg: #0d0e14;
-    --color-surface: #191a24;
-    --color-surface-alt: #232636;
-    --color-surface-raised: #20222f;
-    --color-border: #2f3346;
-    --color-text: #f1f2f8;
-    --color-text-muted: #9ba1b5;
-    --color-primary: #818cf8;
-    --color-primary-strong: #a5b4fc;
-    --color-primary-contrast: #12131a;
-    --color-accent: #22d3ee;
+    --color-bg: #001d39;
+    --color-surface: #062845;
+    --color-surface-alt: #0a4174;
+    --color-surface-raised: #0d355c;
+    --color-border: #2a5578;
+    --color-text: #bdd8e9;
+    --color-text-muted: #6ea2b3;
+    --color-primary: #7bbde8;
+    --color-primary-strong: #bdd8e9;
+    --color-primary-contrast: #001d39;
+    --color-accent: #6ea2b3;
     --color-success: #4ade80;
     --color-warning: #fbbf24;
     --color-danger: #f87171;
-    --color-danger-contrast: #12131a;
+    --color-danger-contrast: #001d39;
 
-    --gradient-primary: linear-gradient(135deg, #818cf8 0%, #6366f1 55%, #4f46e5 100%);
-    --gradient-hero: linear-gradient(120deg, rgba(129, 140, 248, 0.16), rgba(34, 211, 238, 0.1));
+    --gradient-primary: linear-gradient(135deg, #bdd8e9 0%, #7bbde8 40%, #4e8ea2 100%);
+    --gradient-hero: linear-gradient(
+      135deg,
+      rgba(123, 189, 232, 0.22) 0%,
+      rgba(10, 65, 116, 0.55) 55%,
+      rgba(0, 29, 57, 0.9) 100%
+    );
+    --gradient-tile: linear-gradient(165deg, #0a4174 0%, #001d39 100%);
+    --gradient-tile-strong: linear-gradient(145deg, #7bbde8 0%, #4e8ea2 50%, #0a4174 100%);
     --gradient-danger: linear-gradient(135deg, #fca5a5 0%, #f87171 55%, #ef4444 100%);
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.35);
     --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.45);
-    --shadow-primary: 0 8px 24px rgba(129, 140, 248, 0.35);
+    --shadow-primary: 0 8px 24px rgba(123, 189, 232, 0.28);
     --shadow-danger: 0 8px 24px rgba(248, 113, 113, 0.35);
 
     color-scheme: dark;

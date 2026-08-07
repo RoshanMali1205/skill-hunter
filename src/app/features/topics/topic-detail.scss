@@ -8,7 +8,7 @@
 }
 
 .topic-detail__markdown {
-  @include markdown-content;
+  // Block markdown styles live in global styles.scss (encapsulation-safe).
   color: var(--color-text);
 
   > :first-child {
