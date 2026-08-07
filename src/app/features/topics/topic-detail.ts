@@ -116,6 +116,10 @@ export class TopicDetailComponent {
         parts.push(block.title ?? '', block.explanation);
       } else if (block.type === 'common-mistake') {
         parts.push('Common mistake', block.mistake, block.whyItHappens, block.correctApproach);
+      } else if (block.type === 'best-practice') {
+        parts.push(block.title ?? '', block.content, ...(block.keyPoints ?? []));
+      } else if (block.type === 'summary') {
+        parts.push(block.title ?? '', block.content);
       }
     }
     return markdownToPlainText(parts.filter(Boolean).join('\n\n'));

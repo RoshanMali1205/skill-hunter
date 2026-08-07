@@ -9,7 +9,9 @@ export type ContentBlockType =
   | 'interview-question'
   | 'tricky-question'
   | 'scenario-question'
-  | 'common-mistake';
+  | 'common-mistake'
+  | 'best-practice'
+  | 'summary';
 
 export interface Subject {
   id: string;
@@ -89,7 +91,24 @@ export interface CommonMistakeBlock extends BaseContentBlock {
   correctApproach: string;
 }
 
-export type ContentBlock = ConceptBlock | CodeExampleBlock | QuestionBlock | CommonMistakeBlock;
+export interface BestPracticeBlock extends BaseContentBlock {
+  type: 'best-practice';
+  content: string;
+  keyPoints?: string[];
+}
+
+export interface SummaryBlock extends BaseContentBlock {
+  type: 'summary';
+  content: string;
+}
+
+export type ContentBlock =
+  | ConceptBlock
+  | CodeExampleBlock
+  | QuestionBlock
+  | CommonMistakeBlock
+  | BestPracticeBlock
+  | SummaryBlock;
 
 export interface SearchResult {
   subjectId: string;

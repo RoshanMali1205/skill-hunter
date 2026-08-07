@@ -4901,5 +4901,784 @@
         ]
       }
     ]
+  },
+  {
+    "id": "design-patterns",
+    "title": "Design Patterns",
+    "description": "JavaScript and Angular design patterns, SOLID principles, dependency injection, trade-offs and simple practical implementations.",
+    "icon": "design-patterns",
+    "order": 6,
+    "categories": [
+      {
+        "id": "dp-foundations",
+        "subjectId": "design-patterns",
+        "title": "Pattern Foundations",
+        "description": "What patterns are, when they help, and when they add unnecessary indirection.",
+        "order": 1,
+        "topics": [
+          {
+            "id": "dp-design-patterns-what-why-and-when",
+            "categoryId": "dp-foundations",
+            "title": "Design Patterns: What, Why and When",
+            "description": "A design pattern is a reusable way of organizing collaborating functions or objects for a recurring design problem; it is a decision template, not copy-paste code.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "design-patterns",
+              "foundations",
+              "design-patterns-what-why-and-when"
+            ]
+          },
+          {
+            "id": "dp-pattern-vs-principle-vs-architecture",
+            "categoryId": "dp-foundations",
+            "title": "Pattern vs Principle vs Architecture",
+            "description": "A principle guides judgment, a design pattern structures a local collaboration, and architecture defines system-wide boundaries, deployment and ownership.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "design-patterns",
+              "foundations",
+              "pattern-vs-principle-vs-architecture"
+            ]
+          },
+          {
+            "id": "dp-coupling-cohesion-and-change",
+            "categoryId": "dp-foundations",
+            "title": "Coupling, Cohesion and Change",
+            "description": "Coupling is the dependency between units, while cohesion is how strongly the responsibilities inside one unit belong together.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "foundations",
+              "coupling-cohesion-and-change"
+            ]
+          },
+          {
+            "id": "dp-composition-over-inheritance",
+            "categoryId": "dp-foundations",
+            "title": "Composition Over Inheritance",
+            "description": "Composition builds behavior by combining small collaborators, while inheritance reuses behavior through an is-a hierarchy.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "foundations",
+              "composition-over-inheritance"
+            ]
+          },
+          {
+            "id": "dp-choosing-patterns-without-overengineering",
+            "categoryId": "dp-foundations",
+            "title": "Choosing Patterns Without Overengineering",
+            "description": "A pattern is justified by a concrete force such as multiple implementations, volatile policy, lifecycle complexity or cross-cutting behavior.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "design-patterns",
+              "foundations",
+              "choosing-patterns-without-overengineering"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "dp-solid",
+        "subjectId": "design-patterns",
+        "title": "SOLID Principles",
+        "description": "The five SOLID principles used as practical review questions, not just definitions.",
+        "order": 2,
+        "topics": [
+          {
+            "id": "dp-solid-principles-overview",
+            "categoryId": "dp-solid",
+            "title": "SOLID Principles Overview",
+            "description": "SOLID combines Single Responsibility, Open Closed, Liskov Substitution, Interface Segregation and Dependency Inversion as tools for managing change.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "solid",
+              "solid-principles-overview"
+            ]
+          },
+          {
+            "id": "dp-single-responsibility-principle",
+            "categoryId": "dp-solid",
+            "title": "Single Responsibility Principle",
+            "description": "SRP means one cohesive responsibility or one primary reason to change, not literally one method per class.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "solid",
+              "single-responsibility-principle"
+            ]
+          },
+          {
+            "id": "dp-open-closed-principle",
+            "categoryId": "dp-solid",
+            "title": "Open Closed Principle",
+            "description": "OCP means stable workflow code supports new behavior through controlled extension points instead of repeated edits.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "solid",
+              "open-closed-principle"
+            ]
+          },
+          {
+            "id": "dp-liskov-substitution-principle",
+            "categoryId": "dp-solid",
+            "title": "Liskov Substitution Principle",
+            "description": "LSP means every implementation can safely replace the contract it claims to implement without surprising the caller.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "solid",
+              "liskov-substitution-principle"
+            ]
+          },
+          {
+            "id": "dp-interface-segregation-principle",
+            "categoryId": "dp-solid",
+            "title": "Interface Segregation Principle",
+            "description": "ISP means consumers depend only on the capabilities they actually use.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "solid",
+              "interface-segregation-principle"
+            ]
+          },
+          {
+            "id": "dp-dependency-inversion-principle",
+            "categoryId": "dp-solid",
+            "title": "Dependency Inversion Principle",
+            "description": "DIP says high-level policy should depend on stable abstractions rather than concrete infrastructure such as HttpClient, localStorage or a vendor SDK.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "solid",
+              "dependency-inversion-principle"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "dp-creational",
+        "subjectId": "design-patterns",
+        "title": "Creational Patterns",
+        "description": "Factory Method, Abstract Factory, Builder, Singleton and Prototype for controlled object creation.",
+        "order": 3,
+        "topics": [
+          {
+            "id": "dp-factory-method-pattern",
+            "categoryId": "dp-creational",
+            "title": "Factory Method Pattern",
+            "description": "Factory Method centralizes creation and returns a common contract while hiding which concrete implementation was selected.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "creational",
+              "factory-method-pattern"
+            ]
+          },
+          {
+            "id": "dp-abstract-factory-pattern",
+            "categoryId": "dp-creational",
+            "title": "Abstract Factory Pattern",
+            "description": "Abstract Factory creates a compatible family of related collaborators without exposing their concrete classes.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "creational",
+              "abstract-factory-pattern"
+            ]
+          },
+          {
+            "id": "dp-builder-pattern",
+            "categoryId": "dp-creational",
+            "title": "Builder Pattern",
+            "description": "Builder constructs a complex value through named steps and validates it before returning the final result.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "creational",
+              "builder-pattern"
+            ]
+          },
+          {
+            "id": "dp-singleton-pattern",
+            "categoryId": "dp-creational",
+            "title": "Singleton Pattern",
+            "description": "Singleton represents one instance for a defined scope, but the scope may be an app, route, component subtree, worker or server request.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "creational",
+              "singleton-pattern"
+            ]
+          },
+          {
+            "id": "dp-prototype-pattern",
+            "categoryId": "dp-creational",
+            "title": "Prototype Pattern",
+            "description": "Prototype creates new configured values by cloning an existing example instead of rebuilding every property.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "creational",
+              "prototype-pattern"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "dp-structural",
+        "subjectId": "design-patterns",
+        "title": "Structural Patterns",
+        "description": "Adapter, Facade, Decorator, Proxy and Composite for composing and simplifying object relationships.",
+        "order": 4,
+        "topics": [
+          {
+            "id": "dp-adapter-pattern",
+            "categoryId": "dp-structural",
+            "title": "Adapter Pattern",
+            "description": "Adapter converts an external or incompatible interface into the contract the application wants to consume.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "structural",
+              "adapter-pattern"
+            ]
+          },
+          {
+            "id": "dp-facade-pattern",
+            "categoryId": "dp-structural",
+            "title": "Facade Pattern",
+            "description": "Facade exposes a small cohesive use-case API over a more complicated group of services.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "structural",
+              "facade-pattern"
+            ]
+          },
+          {
+            "id": "dp-decorator-pattern",
+            "categoryId": "dp-structural",
+            "title": "Decorator Pattern",
+            "description": "Decorator wraps an object through the same contract and adds behavior before or after delegating to the original.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "structural",
+              "decorator-pattern"
+            ]
+          },
+          {
+            "id": "dp-proxy-pattern",
+            "categoryId": "dp-structural",
+            "title": "Proxy Pattern",
+            "description": "Proxy stands in place of a target and controls access through caching, validation, lazy creation, measurement or restrictions.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "structural",
+              "proxy-pattern"
+            ]
+          },
+          {
+            "id": "dp-composite-pattern",
+            "categoryId": "dp-structural",
+            "title": "Composite Pattern",
+            "description": "Composite gives leaf items and groups a useful common contract so tree structures can be processed recursively.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "structural",
+              "composite-pattern"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "dp-behavioral",
+        "subjectId": "design-patterns",
+        "title": "Behavioral Patterns",
+        "description": "Strategy, Observer, Command, State and other patterns for coordinating behavior and communication.",
+        "order": 5,
+        "topics": [
+          {
+            "id": "dp-strategy-pattern",
+            "categoryId": "dp-behavioral",
+            "title": "Strategy Pattern",
+            "description": "Strategy encapsulates interchangeable algorithms behind one behavior contract.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "behavioral",
+              "strategy-pattern"
+            ]
+          },
+          {
+            "id": "dp-observer-pattern",
+            "categoryId": "dp-behavioral",
+            "title": "Observer Pattern",
+            "description": "Observer creates a one-to-many relationship in which dependent observers react when a subject emits or changes.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "behavioral",
+              "observer-pattern"
+            ]
+          },
+          {
+            "id": "dp-publish-subscribe-pattern",
+            "categoryId": "dp-behavioral",
+            "title": "Publish Subscribe Pattern",
+            "description": "Publish Subscribe routes events through a broker so publishers and subscribers do not reference one another directly.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "behavioral",
+              "publish-subscribe-pattern"
+            ]
+          },
+          {
+            "id": "dp-command-pattern",
+            "categoryId": "dp-behavioral",
+            "title": "Command Pattern",
+            "description": "Command represents an action as a value that can be executed, queued, logged, retried or undone.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "behavioral",
+              "command-pattern"
+            ]
+          },
+          {
+            "id": "dp-state-pattern",
+            "categoryId": "dp-behavioral",
+            "title": "State Pattern",
+            "description": "State represents meaningful lifecycle stages explicitly so behavior changes according to the current state.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "behavioral",
+              "state-pattern"
+            ]
+          },
+          {
+            "id": "dp-chain-of-responsibility-pattern",
+            "categoryId": "dp-behavioral",
+            "title": "Chain of Responsibility Pattern",
+            "description": "Chain of Responsibility passes a request through ordered handlers that may inspect, transform, stop or forward it.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "behavioral",
+              "chain-of-responsibility-pattern"
+            ]
+          },
+          {
+            "id": "dp-template-method-pattern",
+            "categoryId": "dp-behavioral",
+            "title": "Template Method Pattern",
+            "description": "Template Method defines a stable algorithm sequence in a base class while subclasses override selected steps.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "behavioral",
+              "template-method-pattern"
+            ]
+          },
+          {
+            "id": "dp-mediator-pattern",
+            "categoryId": "dp-behavioral",
+            "title": "Mediator Pattern",
+            "description": "Mediator centralizes coordination among participants that would otherwise hold many peer-to-peer references.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "behavioral",
+              "mediator-pattern"
+            ]
+          },
+          {
+            "id": "dp-null-object-pattern",
+            "categoryId": "dp-behavioral",
+            "title": "Null Object Pattern",
+            "description": "Null Object provides a safe no-op or neutral implementation when absence is valid behavior.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "design-patterns",
+              "behavioral",
+              "null-object-pattern"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "dp-javascript",
+        "subjectId": "design-patterns",
+        "title": "JavaScript Patterns",
+        "description": "Modules, closures, mixins, composition, memoization and other everyday JavaScript idioms.",
+        "order": 6,
+        "topics": [
+          {
+            "id": "dp-es-module-pattern",
+            "categoryId": "dp-javascript",
+            "title": "ES Module Pattern",
+            "description": "ES modules provide lexical scope plus explicit imports and exports that define a public API.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "javascript",
+              "es-module-pattern"
+            ]
+          },
+          {
+            "id": "dp-closure-based-encapsulation",
+            "categoryId": "dp-javascript",
+            "title": "Closure Based Encapsulation",
+            "description": "A closure lets returned functions retain access to private variables from the scope where they were created.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "javascript",
+              "closure-based-encapsulation"
+            ]
+          },
+          {
+            "id": "dp-mixin-pattern",
+            "categoryId": "dp-javascript",
+            "title": "Mixin Pattern",
+            "description": "A mixin adds a focused reusable capability to otherwise unrelated types without claiming a deep is-a hierarchy.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "javascript",
+              "mixin-pattern"
+            ]
+          },
+          {
+            "id": "dp-function-composition-and-pipeline",
+            "categoryId": "dp-javascript",
+            "title": "Function Composition and Pipeline",
+            "description": "Function composition connects focused transformations so the output of one step becomes the input of the next.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "javascript",
+              "function-composition-and-pipeline"
+            ]
+          },
+          {
+            "id": "dp-memoization-pattern",
+            "categoryId": "dp-javascript",
+            "title": "Memoization Pattern",
+            "description": "Memoization caches a deterministic function result by input so repeated calls can reuse previous work.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "javascript",
+              "memoization-pattern"
+            ]
+          },
+          {
+            "id": "dp-event-delegation-pattern",
+            "categoryId": "dp-javascript",
+            "title": "Event Delegation Pattern",
+            "description": "Event delegation handles similar descendant events through one stable ancestor listener using DOM bubbling.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "javascript",
+              "event-delegation-pattern"
+            ]
+          },
+          {
+            "id": "dp-repository-and-data-mapper-pattern",
+            "categoryId": "dp-javascript",
+            "title": "Repository and Data Mapper Pattern",
+            "description": "Repository exposes domain-oriented data operations while Data Mapper translates external records into application models.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "javascript",
+              "repository-and-data-mapper-pattern"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "dp-angular",
+        "subjectId": "design-patterns",
+        "title": "Patterns Used in Angular",
+        "description": "How dependency injection, facades, adapters, RxJS and Signals map to classic design patterns in Angular.",
+        "order": 7,
+        "topics": [
+          {
+            "id": "dp-why-dependency-injection-is-used-in-angular",
+            "categoryId": "dp-angular",
+            "title": "Why Dependency Injection Is Used in Angular",
+            "description": "Dependency Injection means a class declares the capability it needs while Angular provider configuration decides which instance or implementation supplies it.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "angular",
+              "why-dependency-injection-is-used-in-angular",
+              "dependency-injection",
+              "angular-di"
+            ]
+          },
+          {
+            "id": "dp-angular-hierarchical-injector-and-provider-scope",
+            "categoryId": "dp-angular",
+            "title": "Angular Hierarchical Injector and Provider Scope",
+            "description": "Angular resolves dependencies through hierarchical environment and element injectors, so provider location determines sharing and lifetime.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "angular",
+              "angular-hierarchical-injector-and-provider-scope"
+            ]
+          },
+          {
+            "id": "dp-angular-provider-strategies-and-injectiontoken",
+            "categoryId": "dp-angular",
+            "title": "Angular Provider Strategies and InjectionToken",
+            "description": "Angular providers connect a token to useClass, useValue, useExisting or useFactory creation and selection rules.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "angular",
+              "angular-provider-strategies-and-injectiontoken",
+              "factory",
+              "injection-token"
+            ]
+          },
+          {
+            "id": "dp-facade-pattern-in-angular",
+            "categoryId": "dp-angular",
+            "title": "Facade Pattern in Angular",
+            "description": "An Angular facade gives components a small feature-oriented API over repositories, state, permissions and asynchronous orchestration.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "angular",
+              "facade-pattern-in-angular"
+            ]
+          },
+          {
+            "id": "dp-adapter-pattern-at-the-angular-api-boundary",
+            "categoryId": "dp-angular",
+            "title": "Adapter Pattern at the Angular API Boundary",
+            "description": "An Angular adapter maps backend DTOs and transport codes into stable feature models.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "angular",
+              "adapter-pattern-at-the-angular-api-boundary"
+            ]
+          },
+          {
+            "id": "dp-strategy-pattern-with-angular-dependency-injection",
+            "categoryId": "dp-angular",
+            "title": "Strategy Pattern with Angular Dependency Injection",
+            "description": "Angular DI can select one implementation of a strategy contract for a route, tenant, product or component subtree.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "angular",
+              "strategy-pattern-with-angular-dependency-injection"
+            ]
+          },
+          {
+            "id": "dp-observer-pattern-with-rxjs-and-angular-signals",
+            "categoryId": "dp-angular",
+            "title": "Observer Pattern with RxJS and Angular Signals",
+            "description": "Signals model current reactive state and derivation, while RxJS models asynchronous streams with time, cancellation, errors and completion.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "angular",
+              "observer-pattern-with-rxjs-and-angular-signals"
+            ]
+          },
+          {
+            "id": "dp-chain-of-responsibility-with-angular-http-interceptors",
+            "categoryId": "dp-angular",
+            "title": "Chain of Responsibility with Angular HTTP Interceptors",
+            "description": "Angular HTTP interceptors form an ordered middleware chain around HttpClient requests and responses.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "angular",
+              "chain-of-responsibility-with-angular-http-interceptors"
+            ]
+          },
+          {
+            "id": "dp-decorator-pattern-with-angular-directives-and-pipes",
+            "categoryId": "dp-angular",
+            "title": "Decorator Pattern with Angular Directives and Pipes",
+            "description": "Angular attribute directives can layer reusable host behavior and pipes can layer reusable template transformations.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "angular",
+              "decorator-pattern-with-angular-directives-and-pipes"
+            ]
+          },
+          {
+            "id": "dp-state-pattern-with-angular-signals",
+            "categoryId": "dp-angular",
+            "title": "State Pattern with Angular Signals",
+            "description": "Signals can hold an explicit discriminated-union state so the feature has one valid status at a time.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "angular",
+              "state-pattern-with-angular-signals"
+            ]
+          },
+          {
+            "id": "dp-command-and-use-case-services-in-angular",
+            "categoryId": "dp-angular",
+            "title": "Command and Use Case Services in Angular",
+            "description": "A use-case service exposes a business action such as approveInvoice or submitOrder and coordinates its required collaborators.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "design-patterns",
+              "angular",
+              "command-and-use-case-services-in-angular"
+            ]
+          },
+          {
+            "id": "dp-smart-and-presentational-component-pattern",
+            "categoryId": "dp-angular",
+            "title": "Smart and Presentational Component Pattern",
+            "description": "A smart component connects to feature state and services, while a presentational component receives view data and emits semantic user intent.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "design-patterns",
+              "angular",
+              "smart-and-presentational-component-pattern"
+            ]
+          },
+          {
+            "id": "dp-dynamic-component-factory-and-plugin-registry-in-angular",
+            "categoryId": "dp-angular",
+            "title": "Dynamic Component Factory and Plugin Registry in Angular",
+            "description": "Dynamic rendering is factory-like: a controlled registry selects a component type and Angular creates it with inputs and injector context.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "design-patterns",
+              "angular",
+              "dynamic-component-factory-and-plugin-registry-in-angular",
+              "factory",
+              "dynamic-components",
+              "plugin-registry"
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]

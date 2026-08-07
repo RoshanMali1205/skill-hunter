@@ -87,6 +87,11 @@
     color: var(--color-warning);
     background: color-mix(in srgb, var(--color-warning) 18%, transparent);
   }
+
+  .topic-detail__block-header--practice & {
+    color: var(--color-success);
+    background: color-mix(in srgb, var(--color-success) 16%, transparent);
+  }
 }
 
 .topic-detail__key-points {
