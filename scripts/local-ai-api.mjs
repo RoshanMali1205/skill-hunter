@@ -5,8 +5,9 @@
  *
  * Usage:
  *   1. Copy .env.example → .env and set GEMINI_API_KEY (+ APP_SHARED_TOKEN)
- *   2. node scripts/local-ai-api.mjs
- *   3. ng serve  (proxies /api → this server on :9999)
+ *   2. Prefer `npm start` (scripts/dev.mjs starts this + ng serve together)
+ *      or run this alone: node scripts/local-ai-api.mjs
+ *   3. ng serve proxies /api/** → this server on :9999 (Vite needs /**)
  *
  * Or use `netlify dev` instead, which runs Angular + the function together.
  */
@@ -18,14 +19,23 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
+const envPath = resolve(root, '.env');
 const PORT = Number(process.env.LOCAL_AI_PORT || 9999);
 
+/**
+ * Load KEY=VALUE pairs from a .env file into process.env.
+ * Local DX: values from the file always win (including overwriting a previous
+ * empty value), so editing .env while the server runs takes effect on the
+ * next request — no manual restart required for key changes.
+ */
 function loadEnvFile(filePath) {
-  if (!existsSync(filePath)) return;
-  const text = readFileSync(filePath, 'utf8');
+  if (!existsSync(filePath)) return false;
+  // Strip UTF-8 BOM so the first key is not silently renamed.
+  const text = readFileSync(filePath, 'utf8').replace(/^\uFEFF/, '');
   for (const line of text.split(/\r?\n/)) {
-    const trimmed = line.trim();
+    let trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('#')) continue;
+    if (trimmed.startsWith('export ')) trimmed = trimmed.slice(7).trim();
     const eq = trimmed.indexOf('=');
     if (eq <= 0) continue;
     const key = trimmed.slice(0, eq).trim();
@@ -36,13 +46,18 @@ function loadEnvFile(filePath) {
     ) {
       value = value.slice(1, -1);
     }
-    if (process.env[key] === undefined) {
-      process.env[key] = value;
-    }
+    process.env[key] = value;
   }
+  return true;
 }
 
-loadEnvFile(resolve(root, '.env'));
+function geminiKeyStatus() {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key || key === '...' || key.trim() === '') return 'MISSING (requests will 503)';
+  return `set (length ${key.trim().length})`;
+}
+
+const envFound = loadEnvFile(envPath);
 
 const handlerModule = await import(pathToFileURL(resolve(root, 'netlify/functions/ai-chat.mjs')).href);
 const handler = handlerModule.default;
@@ -63,6 +78,10 @@ function collectBody(req) {
 
 const server = createServer(async (req, res) => {
   try {
+    // Re-read .env every request so adding/rotating GEMINI_API_KEY does not
+    // require killing the process (the classic "I set the key but still 503").
+    loadEnvFile(envPath);
+
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
         'access-control-allow-origin': '*',
@@ -108,10 +127,10 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, '127.0.0.1', () => {
-  const hasKey = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== '...');
   const hasToken = Boolean(process.env.APP_SHARED_TOKEN);
   console.log(`[local-ai-api] listening on http://127.0.0.1:${PORT}`);
+  console.log(`[local-ai-api] .env: ${envFound ? envPath : `NOT FOUND at ${envPath}`}`);
   console.log(`[local-ai-api] APP_SHARED_TOKEN: ${hasToken ? 'set' : 'MISSING (requests will 503)'}`);
-  console.log(`[local-ai-api] GEMINI_API_KEY: ${hasKey ? 'set' : 'MISSING (requests will 503)'}`);
-  console.log('[local-ai-api] Point ng serve at this via proxy.conf.json (/api → :9999)');
+  console.log(`[local-ai-api] GEMINI_API_KEY: ${geminiKeyStatus()}`);
+  console.log('[local-ai-api] Point ng serve at this via proxy.conf.json (/api/** → :9999)');
 });
