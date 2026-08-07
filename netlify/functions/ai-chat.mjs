@@ -120,7 +120,7 @@ export default async (req) => {
     return jsonResponse(
       {
         error:
-          "AI Mentor is not configured yet. Set GEMINI_API_KEY in your Netlify site's environment variables (or a local .env for `npm start` / `netlify dev`), then redeploy or restart.",
+          "AI Mentor is not configured yet — GEMINI_API_KEY is missing in the running process. Locally: put the key in a project-root `.env` file (not `.env.example`) and restart `npm start` (or just retry — the local stand-in reloads `.env` on each request). On Netlify: set Site configuration → Environment variables → GEMINI_API_KEY, then redeploy.",
       },
       503,
     );

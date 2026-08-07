@@ -286,7 +286,7 @@ If the function isn't deployed/configured, the UI degrades gracefully — the ch
 ### Local setup
 
 ```bash
-cp .env.example .env         # then set a real GEMINI_API_KEY — .env is git-ignored
+cp .env.example .env         # then set a real GEMINI_API_KEY in `.env` only — never in `.env.example`
 
 # Option A — recommended: Angular + function together on :8888
 npm install -g netlify-cli   # one-time
