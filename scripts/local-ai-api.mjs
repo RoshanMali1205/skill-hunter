@@ -114,5 +114,5 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(`[local-ai-api] listening on http://127.0.0.1:${PORT}`);
   console.log(`[local-ai-api] APP_SHARED_TOKEN: ${hasToken ? 'set' : 'MISSING (requests will 503)'}`);
   console.log(`[local-ai-api] GEMINI_API_KEY: ${hasKey ? 'set' : 'MISSING (requests will 503)'}`);
-  console.log('[local-ai-api] Point ng serve at this via proxy.conf.json (/api → :9999)');
+  console.log('[local-ai-api] Point ng serve at this via proxy.conf.json (/api/** → :9999)');
 });
