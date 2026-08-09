@@ -1,9 +1,8 @@
 <div class="stack playground">
-  <div>
+  <div class="playground__intro">
     <h1>JavaScript Playground</h1>
     <p class="playground__subtitle">
-      Write and run real JavaScript — sandboxed in a Web Worker, so an infinite loop can't freeze
-      the page.
+      Write and run real JavaScript — sandboxed so an infinite loop can't freeze the page.
     </p>
   </div>
 
@@ -18,14 +17,14 @@
       />
     </label>
 
-    <div class="cluster playground__actions">
+    <div class="playground__actions">
       <button type="button" class="btn" (click)="reset()">
         <app-icon name="repeat" /> Reset
       </button>
       <button type="button" class="btn btn--primary" (click)="run()" [disabled]="running()">
         <app-icon name="play" [filled]="true" />
         {{ running() ? 'Running…' : 'Run' }}
-        <span class="playground__shortcut">Ctrl+Enter</span>
+        <span class="playground__shortcut" aria-hidden="true">Ctrl+Enter</span>
       </button>
     </div>
   </div>
