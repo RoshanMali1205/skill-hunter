@@ -4,6 +4,9 @@
       type="button"
       class="confidence-selector__option"
       [class.confidence-selector__option--active]="confidence() === option.value"
+      [class.confidence-selector__option--low]="option.value === 'low'"
+      [class.confidence-selector__option--medium]="option.value === 'medium'"
+      [class.confidence-selector__option--high]="option.value === 'high'"
       [attr.aria-pressed]="confidence() === option.value"
       (click)="changed.emit(option.value)"
     >

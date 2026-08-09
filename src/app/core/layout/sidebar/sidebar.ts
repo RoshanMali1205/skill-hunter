@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { IconComponent } from '../../../shared/components/icon/icon';
-import { SearchComponent } from '../search/search';
 import { APP_VERSION } from '../../../shared/app-version';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
@@ -28,7 +27,7 @@ const NAV_ITEMS: NavItem[] = [
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, RouterLinkActive, IconComponent, SearchComponent, TooltipDirective],
+  imports: [RouterLink, RouterLinkActive, IconComponent, TooltipDirective],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })

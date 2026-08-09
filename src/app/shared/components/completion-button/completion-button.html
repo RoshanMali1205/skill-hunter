@@ -1,7 +1,6 @@
 <button
   type="button"
-  class="btn"
-  [class.btn--primary]="status() === 'completed'"
+  class="btn btn--primary"
   (click)="toggled.emit()"
 >
   @if (status() === 'completed') {

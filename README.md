@@ -1,6 +1,6 @@
 # Skill Hunter
 
-An interview preparation hub for **Angular, JavaScript, TypeScript, UI Engineering** (HTML5, CSS, SCSS, Responsive Design), and **Frontend System Design**. Built with Angular 22 (standalone components, Signals). The app is still frontend-first — all content ships as static JSON, all progress lives in the browser (scoped per account, no database) — with two optional add-ons that go beyond a static content site: a real, sandboxed **JavaScript Playground**, and an **AI Mentor** chat backed by a single serverless function.
+An interview preparation hub for **Angular, JavaScript, TypeScript, UI Engineering** (HTML5, CSS, SCSS, Responsive Design), **Frontend System Design**, **Design Patterns**, and **AI Concepts**. Built with Angular 22 (standalone components, Signals). The app is still frontend-first — all content ships as static JSON, all progress lives in the browser (scoped per account, no database) — with two optional add-ons that go beyond a static content site: a real, sandboxed **JavaScript Playground**, and an **AI Mentor** chat backed by a single serverless function.
 
 **Author:** Roshan Mali
 
@@ -8,20 +8,22 @@ For a deeper technical dive — architecture, data model, service catalog, and a
 
 ## What's in the box
 
-- **Login / Register** — a real account system (register, sign in, log out) so progress, bookmarks, streaks, and settings are kept separate per person on a shared browser or deployment. Passwords are hashed client-side with PBKDF2-SHA256 via the Web Crypto API — see [Accounts & data](#accounts--data) for what this does and doesn't protect against.
-- **Dashboard** — overall progress donut, topics-by-difficulty breakdown, per-subject progress, study streak, continue learning, must-revise, recent bookmarks, practice summary, strong areas, most-revised and recently-studied topics.
-- **Subjects** — Angular, JavaScript, TypeScript, UI Engineering, and Frontend System Design, each with categories and topics (difficulty, interview priority, search/filter). Categories render as collapsible rows — collapsed by default so the whole subject's outline fits on one screen, expanding to a compact single-column topic list on click (any active search/filter auto-expands the categories that match). A Back button on the subject page returns to the Subjects list.
-- **Topic pages** — concept explanations, code examples with copy-to-clipboard, tricky/interview/scenario/output questions with hide-and-reveal answers, common mistakes, confidence rating, mark-complete, bookmarking, add-to-revision, a private note, a Back button to the parent subject, and an "Ask AI" shortcut into the AI Mentor with the current topic pre-loaded as a ready-to-send question.
+- **Login / Register** — a real account system (register, sign in, log out) so progress, bookmarks, streaks, settings, profile, and achievements are kept separate per person on a shared browser or deployment. Passwords are hashed client-side with PBKDF2-SHA256 via the Web Crypto API — see [Accounts & data](#accounts--data) for what this does and doesn't protect against.
+- **Dashboard** — personalized “Welcome back” greeting, **Hunter Card** (photo or initials inside a completion ring, streak, badge count), recent achievements, overall progress donut, topics-by-difficulty breakdown, per-subject progress, study streak, continue learning, must-revise, recent bookmarks, practice summary, strong areas, most-revised and recently-studied topics.
+- **Profile** — editable display name and profile photo (compressed and stored locally) under Settings; photo powers the Hunter Card and header avatar.
+- **Achievements** — badge milestones unlocked from real study signals (completed topics, streaks, practice volume/accuracy, notes, bookmarks, profile photo). Browse locked/unlocked badges on `/achievements`.
+- **Subjects** — Angular, JavaScript, TypeScript, UI Engineering, Frontend System Design, Design Patterns, and AI Concepts, each with categories and topics (difficulty, interview priority, search/filter). Categories render as collapsible rows — collapsed by default so the whole subject's outline fits on one screen, expanding to a compact single-column topic list on click (any active search/filter auto-expands the categories that match). A Back button on the subject page returns to the Subjects list.
+- **Topic pages** — concept explanations, code examples with copy-to-clipboard, tricky/interview/scenario/output questions with hide-and-reveal answers, common mistakes, best practices, summaries, confidence rating, mark-complete, **Listen** (text-to-speech), notes, save/bookmark, add-to-revision, a Back button to the parent subject, and an "Ask AI" shortcut into the AI Mentor with the current topic pre-loaded as a ready-to-send question.
 - **Practice mode** — filter by subject/category/difficulty/question type/bookmarked/weak topics, with a live "N questions match your filters" count before you commit, then self-assess (correct / incorrect / needs revision).
-- **JavaScript Playground** — a real code editor (CodeMirror, syntax highlighting) that runs your JavaScript in a sandboxed Web Worker, so an infinite loop times out cleanly instead of freezing the tab. Comes preloaded with all 25 of the app's coding-practice questions as runnable snippets. See [JavaScript Playground](#javascript-playground).
+- **JavaScript Playground** — a real code editor (CodeMirror, syntax highlighting) that runs your JavaScript in a sandboxed Web Worker, so an infinite loop times out cleanly instead of freezing the tab. Comes preloaded with the app's coding-practice questions as runnable snippets. See [JavaScript Playground](#javascript-playground).
 - **Study Calendar** — automatic daily study-time tracking, current/longest streaks with milestone messages, a GitHub-style contribution heatmap, and a navigable month calendar where clicking a day shows exactly which topics you touched. See [Study Calendar](#study-calendar).
 - **AI Mentor** — a chat interface for on-demand explanations, generated practice questions, and feedback on your own answers, backed by a serverless proxy function (see [AI Mentor](#ai-mentor)). Conversations are saved in the browser (per account) with a history sidebar; "Ask AI" from a topic resumes that topic's thread. Responses render as formatted markdown. Every message has a Copy button, and AI answers can be saved into that topic's note.
 - **Notes** — a private markdown note on any topic (edit/preview, save/delete). Start one from a topic page, or from the Notes page itself via **+ Add Note** (pick a subject, then a topic); every note is listed with a rendered preview, and clicking one reopens the same editor to update or delete it.
 - **Bookmarks** — bookmarked topics and questions in one place.
 - **Revision** — auto-surfaced weak topics (low confidence, incorrect attempts, bookmarks, manual adds) plus mark-revised tracking.
-- **Settings** — light/dark theme, default difficulty, auto-reveal answers, export/import progress (including notes) as JSON, reset progress.
+- **Settings** — profile (name + photo), light/dark theme, default difficulty, auto-reveal answers, export/import progress (including notes, profile, and achievements) as JSON, reset progress.
 
-Content ships with **289 topics** across five subjects: **Angular** (48 across 9 categories), **JavaScript** (68 across 8 categories, including a dedicated **Coding Practice** category with predict-the-output / write-the-code drills covering hoisting, closures, references, array methods, `this`, and the event loop), **TypeScript** (61 across 6 categories), **UI Engineering** (62 across 6 categories), and **Frontend System Design** (50 lead/architect-level scenario questions across 6 categories — architecture foundations, caching & performance, security/auth, data/state/realtime, platform architecture, and quality/observability/delivery). Beyond the original beginner/intermediate topics, each subject now also carries a large senior/architect scenario set (production-incident-style questions — e.g. "an API can return 1,000,000 records," "a third-party SDK returns `any`," "a tooltip's `z-index: 999999` still renders behind a panel") with an architect-level framing, a runnable code example, a common-weak-answer callout, and a likely follow-up question. See [Adding content](#adding-content) to extend it further.
+Content ships with **389 topics** across **seven subjects**: **Angular** (48 across 9 categories), **JavaScript** (68 across 8 categories, including a dedicated **Coding Practice** category with predict-the-output / write-the-code drills covering hoisting, closures, references, array methods, `this`, and the event loop — core fundamentals topics were expanded into deeper interview-ready lessons), **TypeScript** (61 across 6 categories), **UI Engineering** (62 across 6 categories), **Frontend System Design** (50 lead/architect-level scenario questions across 6 categories), **Design Patterns** (50 across 7 categories), and **AI Concepts** (50 across 10 categories). Beyond beginner/intermediate foundations, several subjects also carry senior/architect scenario sets (production-incident-style questions) with architect-level framing, runnable examples, weak-answer callouts, and follow-up prompts. See [Adding content](#adding-content) to extend it further.
 
 ## Tech stack
 
@@ -31,7 +33,7 @@ Content ships with **289 topics** across five subjects: **Angular** (48 across 9
 - [CodeMirror 6](https://codemirror.net/) for the Playground editor, lazy-loaded only on that route
 - Web Crypto API (`crypto.subtle`) for PBKDF2 password hashing — no auth library or backend
 - Static JSON content under `public/content/`, fetched with `HttpClient`
-- `localStorage` for progress, bookmarks, notes, practice history, revision list, settings, activity, and the account list (see `src/app/core/storage`)
+- `localStorage` for progress, bookmarks, notes, practice history, revision list, settings, activity, profile, achievements, and the account list (see `src/app/core/storage`)
 - Google Analytics (`gtag.js`) for basic usage analytics — see [Accounts & data](#accounts--data)
 
 ## Development server
@@ -87,33 +89,40 @@ All feature routes are lazy-loaded (`loadComponent`) so the initial bundle only 
 | `/bookmarks` | Bookmarked topics and questions |
 | `/notes` | Your private per-topic notes |
 | `/revision` | Auto-surfaced revision list |
-| `/settings` | Theme, preferences, export/import/reset |
+| `/achievements` | Study badges / milestones |
+| `/settings` | Profile, theme, preferences, export/import/reset |
 
 ## Project structure
 
 ```text
 src/app/
   core/
-    models/       Shared TypeScript interfaces (content, progress, filters, auth)
+    models/       Shared TypeScript interfaces (content, progress, filters, auth, profile, achievements)
     storage/      localStorage wrapper (scoped per account) + versioned storage keys
     guards/       authGuard, guestGuard
     services/     ContentService, ProgressStore, BookmarkService, NoteService, PracticeService,
                   RevisionService, SettingsService, MetricsService, DataManagementService,
-                  AiAssistantService, AuthService, ActivityService, CodeRunnerService
-    layout/       App shell, header (user menu), sidebar (search + nav), mobile nav, theme toggle
+                  AiAssistantService, AuthService, ActivityService, CodeRunnerService,
+                  ProfileService, AchievementsService, TextToSpeechService
+    layout/       App shell, header (user menu · photo avatar · theme toggle), sidebar (search + nav),
+                  mobile nav, tooltips
   shared/
-    components/   Reusable UI: cards, chips, code block, question card, note editor, charts, icon, filters, etc.
+    components/   Reusable UI: cards, chips, code block, question card, note editor, charts, icon,
+                  filters, profile card, listen/note/save action buttons, etc.
+    directives/   TooltipDirective (viewport-safe fixed tooltips)
   features/
     auth/  dashboard/  subjects/  topics/  practice/  playground/  ai-mentor/
-    calendar/  bookmarks/  notes/  revision/  settings/
+    calendar/  bookmarks/  notes/  revision/  achievements/  settings/
 
 public/content/
-  subjects.json         Subject + category + topic-summary metadata (all 5 subjects)
+  subjects.json         Subject + category + topic-summary metadata (all 7 subjects)
   angular/topics.json, angular/topics-extended.json
   javascript/topics.json, javascript/coding-practice.json, javascript/topics-extended.json
   typescript/topics.json, typescript/topics-extended.json
   ui/topics.json, ui/topics-extended.json
-  system-design/topics.json   50 lead/architect-level frontend system-design scenarios
+  system-design/topics.json
+  design-patterns/topics.json
+  ai-concepts/topics.json
 
 netlify/functions/
   ai-chat.mjs    Serverless proxy that holds the AI provider's API key server-side
@@ -129,8 +138,8 @@ flowchart TD
     A[AppComponent<br/>router-outlet] --> R{Route + guard}
     R -- guestGuard<br/>/login /register --> C[AuthLayout]
     R -- authGuard<br/>app routes --> D[AppShell]
-    D --> E[Header<br/>brand · user menu · theme toggle]
-    D --> F[Sidebar<br/>search · nav · app version]
+    D --> E[Header<br/>brand · search · streak · account · theme]
+    D --> F[Sidebar<br/>nav · app version]
     D --> G[router-outlet<br/>active feature page]
     D --> H[Mobile Nav<br/>bottom bar + More sheet]
     G --> I[Dashboard]
@@ -139,7 +148,7 @@ flowchart TD
     G --> L[Playground]
     G --> M[AI Mentor]
     G --> N[Calendar]
-    G --> O[Bookmarks · Notes · Revision · Settings]
+    G --> O[Bookmarks · Notes · Revision · Achievements · Settings]
 ```
 
 ### Per-account data flow
@@ -226,7 +235,7 @@ As a subject's content grows, its `topics.json` can be split into multiple files
 
 Registering creates an account entirely in `localStorage` — there's no backend, no database, and nothing is sent anywhere. Passwords are hashed with **PBKDF2-SHA256** (120,000 iterations, a random per-user salt) via the browser's native Web Crypto API before ever touching storage; the plaintext password itself is never persisted.
 
-Every account gets its **own** namespaced progress, bookmarks, notes, practice history, revision list, settings, and study activity — `StorageService` transparently prefixes every key by the signed-in user's id, so two people using the same browser (or the same deployed link) don't see each other's data. The very first account ever created on a browser automatically inherits whatever progress already existed there from before accounts existed, so switching this on doesn't look like data loss.
+Every account gets its **own** namespaced progress, bookmarks, notes, practice history, revision list, settings, study activity, profile, and achievements — `StorageService` transparently prefixes every key by the signed-in user's id, so two people using the same browser (or the same deployed link) don't see each other's data. The very first account ever created on a browser automatically inherits whatever progress already existed there from before accounts existed, so switching this on doesn't look like data loss.
 
 **This is real hashing, not real security.** There's no server validating anything — someone with access to the same browser's dev tools could inspect the account list directly in `localStorage`. That's an inherent limit of a backend-free app, not a bug: treat this like any other local-only demo account, and don't reuse a password here that protects something that actually matters.
 
@@ -252,18 +261,27 @@ The Playground (`/playground`) lets you write and run real JavaScript safely:
 
 - Code executes inside a **Web Worker** — its own thread, no DOM access, isolated from the rest of the app. `console.log/warn/error` are captured and streamed back as structured messages.
 - If a run doesn't finish within **4 seconds**, the worker is terminated and the console shows a clear "execution timed out — check for an infinite loop" message. Verified against an actual `while (true) {}`: the UI stays fully responsive throughout.
-- The snippet picker loads all 25 of the app's existing coding-practice questions (hoisting, closures, `this`/call/apply/bind, promises, the event loop, group-by, etc.), grouped by topic — so it's tied to real interview content, not a blank editor.
+- The snippet picker loads the app's coding-practice questions (hoisting, closures, `this`/call/apply/bind, promises, the event loop, group-by, etc.), grouped by topic — so it's tied to real interview content, not a blank editor.
 - The editor is [CodeMirror 6](https://codemirror.net/), lazy-loaded only on this route so it doesn't affect the app's initial bundle size.
 
 ## Design & UX notes
 
-- **State**: Signals are used for all local/reactive app state (`ProgressStore`, `BookmarkService`, `PracticeService`, `RevisionService`, `SettingsService`, `AuthService`, `ActivityService`); RxJS is reserved for genuinely asynchronous work — loading content over HTTP and debouncing the search box.
+- **State**: Signals are used for all local/reactive app state (`ProgressStore`, `BookmarkService`, `PracticeService`, `RevisionService`, `SettingsService`, `AuthService`, `ActivityService`, `ProfileService`, `AchievementsService`); RxJS is reserved for genuinely asynchronous work — loading content over HTTP and debouncing the search box.
+- **Visual system**: energetic blue brand palette with shared CSS gradients (`--gradient-primary`, `--gradient-page`, `--gradient-brand-text`) and light/dark token sets in `src/styles/_variables.scss`.
 - **Responsive layout**: mobile-first SCSS via `src/styles/_breakpoints.scss`'s `respond-to()` mixin. The sidebar (desktop) and bottom nav (mobile, with a "More" sheet for overflow items) are both in the DOM; CSS media queries decide which one is visible, so there's no layout flash on resize.
-- **Theming**: light/dark theme is driven by a `data-theme` attribute on `<html>`, set from `SettingsService` and persisted to `localStorage`.
+- **Theming**: light/dark theme is driven by a `data-theme` attribute on `<html>`, set from `SettingsService` and persisted to `localStorage`. Dark-mode branding uses a brighter brand-text gradient so “Skill Hunter” stays readable in the header.
+- **Tooltips**: `TooltipDirective` renders lightweight, viewport-clamped tooltips on `document.body` (so sidebar overflow cannot clip them). Used on nav, theme toggle, and topic action buttons.
+- **Topic action buttons**: Listen / Add Note / Save share a pill `action-button` mixin with icon chips and clear active states.
 - **Sticky footer**: the app footer uses the classic `margin-top: auto` flexbox technique so it sits at the bottom of the viewport on short pages instead of floating mid-page, and scrolls normally below content on tall pages.
 - **Content vs. progress are separate concerns**: `ContentService` only ever reads static JSON; nothing it does can mutate a user's saved progress, and nothing in the progress/bookmark/practice/revision services depends on how content is loaded.
 - **Consistent card sizing**: subject cards and topic cards clamp title/description to a fixed number of lines (`-webkit-line-clamp`) so grid rows stay visually even regardless of content length, instead of cards stretching to fit whichever entry has the longest text.
-- **Topic list as rows, not a card grid**: `app-topic-card` takes a `layout: 'grid' | 'row'` input — the subject page uses `row` (a single-column list, matching the density of the Revision page) so a 68-topic subject like JavaScript doesn't turn into a multi-screen grid of uneven-height cards.
+- **Topic list as rows, not a card grid**: `app-topic-card` takes a `layout: 'grid' | 'row'` input — the subject page uses `row` (a single-column list, matching the density of the Revision page) so a large subject like JavaScript doesn't turn into a multi-screen grid of uneven-height cards.
+
+## Profile & achievements
+
+- **ProfileService** stores `displayName` + compressed `photoDataUrl` per account. Display name syncs back into the auth registry so header and greeting stay consistent.
+- **Hunter Card** on the dashboard shows avatar (photo or initials), completion ring, streak, and badge counts, with shortcuts to Achievements and Settings.
+- **AchievementsService** evaluates unlock rules from live progress/activity/practice/notes/bookmarks/profile signals and persists unlock timestamps. Badges cover momentum, consistency, practice, and identity milestones.
 
 ## AI Mentor
 
@@ -333,7 +351,7 @@ Static hosts other than Netlify (Vercel, GitHub Pages, S3 + CloudFront, etc.) wo
 
 - No cloud sync or database — progress is local to one browser, scoped per account. The one server-side exception is the AI Mentor proxy function, which holds no user data at all (it only forwards chat text to the AI provider).
 - Accounts are a real client-side implementation (hashed passwords, per-account data) but not a real security boundary — see [Accounts & data](#accounts--data).
-- The content set (289 topics) is still a seed toward the full ~450-question target described in the original design doc, though the senior/architect scenario sets have closed most of that gap for Angular, JavaScript, TypeScript, UI Engineering, and Frontend System Design — see [Adding content](#adding-content).
+- The content set (**389 topics** across seven subjects) continues to grow toward a broader interview-prep catalog — Design Patterns and AI Concepts are now first-class subjects alongside Angular, JavaScript, TypeScript, UI Engineering, and Frontend System Design — see [Adding content](#adding-content).
 - AI Mentor responses are not streamed (a full reply arrives at once, not token-by-token) — see Roadmap.
 
 ## Roadmap

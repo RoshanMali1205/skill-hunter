@@ -1,14 +1,24 @@
-<div class="search">
+<div class="search" [class.search--header]="variant() === 'header'">
+  @if (variant() === 'header') {
+    <span class="search__icon" aria-hidden="true"><app-icon name="search" /></span>
+  }
+
   <input
+    #searchInput
     type="search"
     class="search__input"
-    placeholder="Search topics, tags, questions..."
+    [placeholder]="variant() === 'header' ? 'Search topics…' : 'Search topics, tags, questions...'"
     [value]="term()"
     (input)="onInput($any($event.target).value)"
     (focus)="isOpen.set(true)"
     (blur)="close()"
     aria-label="Search interview content"
+    autocomplete="off"
   />
+
+  @if (variant() === 'header') {
+    <kbd class="search__hint" aria-hidden="true">/</kbd>
+  }
 
   @if (isOpen() && term().trim().length > 1) {
     <div class="search__results">
@@ -16,7 +26,7 @@
         <p class="search__empty">No results for "{{ term() }}"</p>
       } @else {
         @for (result of results(); track result.topicId + result.matchedIn) {
-          <app-search-result [result]="result" (selected)="isOpen.set(false)" />
+          <app-search-result [result]="result" (selected)="onResultSelected()" />
         }
       }
     </div>
