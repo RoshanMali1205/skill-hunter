@@ -92,18 +92,20 @@ export class ProfileService {
       const image = new Image();
       image.onload = () => {
         URL.revokeObjectURL(objectUrl);
-        const scale = Math.min(1, MAX_PHOTO_EDGE / Math.max(image.width, image.height));
-        const width = Math.max(1, Math.round(image.width * scale));
-        const height = Math.max(1, Math.round(image.height * scale));
+        // Center-crop to a square so circular avatars don't clip faces oddly.
+        const sourceSize = Math.min(image.width, image.height);
+        const sx = Math.max(0, Math.round((image.width - sourceSize) / 2));
+        const sy = Math.max(0, Math.round((image.height - sourceSize) / 2));
+        const edge = Math.min(MAX_PHOTO_EDGE, sourceSize);
         const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = edge;
+        canvas.height = edge;
         const ctx = canvas.getContext('2d');
         if (!ctx) {
           reject(new Error('canvas'));
           return;
         }
-        ctx.drawImage(image, 0, 0, width, height);
+        ctx.drawImage(image, sx, sy, sourceSize, sourceSize, 0, 0, edge, edge);
         resolve(canvas.toDataURL('image/jpeg', JPEG_QUALITY));
       };
       image.onerror = () => {

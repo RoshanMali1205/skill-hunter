@@ -14,11 +14,11 @@
       />
     </svg>
 
-    <div class="profile-card__avatar" aria-hidden="true">
+    <div class="profile-card__avatar" [attr.aria-hidden]="photoDataUrl() ? null : true">
       @if (photoDataUrl(); as photo) {
-        <img [src]="photo" alt="" />
+        <img [src]="photo" [alt]="name() + ' profile photo'" />
       } @else {
-        <span>{{ initials() }}</span>
+        <span aria-hidden="true">{{ initials() }}</span>
       }
     </div>
 
@@ -26,7 +26,7 @@
   </div>
 
   <div class="profile-card__body">
-    <p class="profile-card__eyebrow">Hunter card</p>
+    <p class="profile-card__eyebrow">Prep profile</p>
     <h2 class="profile-card__name">{{ name() }}</h2>
     <p class="profile-card__meta">
       {{ completedTopics() }} / {{ totalTopics() }} topics · {{ streak() }} day streak

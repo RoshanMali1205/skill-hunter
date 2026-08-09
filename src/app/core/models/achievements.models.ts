@@ -148,7 +148,7 @@ export const ACHIEVEMENT_DEFINITIONS: AchievementDefinition[] = [
   {
     id: 'profile-photo',
     title: 'Face of Progress',
-    description: 'Add a profile photo to your hunter card.',
+    description: 'Add a profile photo to your prep profile.',
     icon: 'user',
     category: 'identity',
   },

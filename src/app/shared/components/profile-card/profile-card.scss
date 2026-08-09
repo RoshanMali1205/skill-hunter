@@ -79,12 +79,17 @@
   color: var(--color-primary-contrast);
   font-size: 1.6rem;
   font-weight: 800;
-  box-shadow: var(--shadow-primary);
+  // Separate the photo from the progress ring.
+  box-shadow:
+    0 0 0 3px var(--color-surface),
+    var(--shadow-sm);
 
   img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
   }
 }
 
