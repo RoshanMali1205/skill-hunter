@@ -497,10 +497,12 @@
 }
 
 .ai-mentor__send {
-  width: 100%;
+  width: auto;
+  align-self: flex-end;
+  min-width: 5.5rem;
 
   @include respond-to(tablet) {
-    width: auto;
+    align-self: stretch;
     flex-shrink: 0;
   }
 }
