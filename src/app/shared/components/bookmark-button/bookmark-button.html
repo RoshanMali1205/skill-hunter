@@ -3,9 +3,11 @@
   class="bookmark-button"
   [class.bookmark-button--active]="bookmarked()"
   [attr.aria-pressed]="bookmarked()"
-  [attr.aria-label]="bookmarked() ? 'Remove bookmark' : 'Add bookmark'"
+  [attr.aria-label]="bookmarked() ? 'Remove bookmark' : 'Save bookmark'"
+  [appTooltip]="bookmarked() ? 'Remove bookmark' : 'Save for later'"
+  tooltipPos="bottom"
   (click)="toggled.emit()"
 >
   <app-icon name="bookmark" [filled]="bookmarked()" />
-  <span>{{ bookmarked() ? 'Bookmarked' : 'Bookmark' }}</span>
+  <span>{{ bookmarked() ? 'Saved' : 'Save' }}</span>
 </button>

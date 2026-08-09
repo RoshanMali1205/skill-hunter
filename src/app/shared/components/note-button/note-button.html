@@ -4,8 +4,10 @@
   [class.note-button--active]="hasNote()"
   [attr.aria-pressed]="hasNote()"
   [attr.aria-label]="hasNote() ? 'Edit your note' : 'Add a note'"
+  [appTooltip]="hasNote() ? 'Edit your note' : 'Add a note'"
+  tooltipPos="bottom"
   (click)="clicked.emit()"
 >
   <app-icon name="pencil" [filled]="hasNote()" />
-  <span>{{ hasNote() ? 'Note' : 'Add Note' }}</span>
+  <span>{{ hasNote() ? 'Edit Note' : 'Add Note' }}</span>
 </button>

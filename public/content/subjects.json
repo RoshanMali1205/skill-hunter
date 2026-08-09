@@ -854,29 +854,35 @@
             "id": "js-var-let-const",
             "categoryId": "js-scope-functions",
             "title": "var, let, and const",
-            "description": "Differences in scoping and reassignment rules between the three declaration keywords.",
+            "description": "A practical, interview-ready explanation of JavaScript variable declarations, scope, reassignment, mutation, the temporal dead zone, and modern declaration choices.",
             "difficulty": "beginner",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 10,
+            "estimatedMinutes": 30,
             "tags": [
               "scope",
               "var",
               "let",
-              "const"
+              "const",
+              "tdz",
+              "immutability",
+              "interview"
             ]
           },
           {
             "id": "js-hoisting-tdz",
             "categoryId": "js-scope-functions",
             "title": "Hoisting and the Temporal Dead Zone",
-            "description": "How declarations are processed before code executes.",
+            "description": "A precise and practical explanation of how JavaScript creates bindings before execution, why declarations behave differently, and how the TDZ prevents unsafe early access.",
             "difficulty": "intermediate",
-            "interviewPriority": "high",
-            "estimatedMinutes": 15,
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
             "tags": [
               "hoisting",
               "tdz",
-              "scope"
+              "scope",
+              "function-declaration",
+              "class",
+              "interview"
             ]
           },
           {
@@ -986,42 +992,51 @@
             "id": "js-closures",
             "categoryId": "js-closures-async",
             "title": "Closures",
-            "description": "Understand lexical scope and closures in JavaScript.",
+            "description": "A human-friendly but deep explanation of lexical scope, retained state, practical encapsulation, callbacks, factories, and closure-related memory risks.",
             "difficulty": "intermediate",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 20,
+            "estimatedMinutes": 40,
             "tags": [
               "closure",
               "scope",
-              "functions"
+              "functions",
+              "encapsulation",
+              "memory",
+              "factory"
             ]
           },
           {
             "id": "js-event-loop",
             "categoryId": "js-closures-async",
             "title": "The Event Loop",
-            "description": "How the call stack, task queue, and microtask queue coordinate to run asynchronous code.",
+            "description": "A correct browser-focused mental model for the call stack, tasks, microtasks, rendering opportunities, requestAnimationFrame, UI blocking, and practical async performance.",
             "difficulty": "advanced",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 45,
             "tags": [
               "event-loop",
               "microtask",
-              "macrotask"
+              "task",
+              "rendering",
+              "requestAnimationFrame",
+              "performance"
             ]
           },
           {
             "id": "js-promises-async-await",
             "categoryId": "js-closures-async",
             "title": "Promises and async/await",
-            "description": "Modeling asynchronous operations without callback pyramids.",
+            "description": "A production-oriented explanation of Promise states, chaining, async/await, concurrency methods, error handling, HTTP behavior, cancellation, timeouts, and stale requests.",
             "difficulty": "intermediate",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 20,
+            "estimatedMinutes": 45,
             "tags": [
               "promises",
               "async-await",
-              "error-handling"
+              "error-handling",
+              "concurrency",
+              "abortcontroller",
+              "fetch"
             ]
           },
           {
@@ -1181,30 +1196,35 @@
             "id": "js-prototype-chain",
             "categoryId": "js-objects-prototypes",
             "title": "Prototypes and the Prototype Chain",
-            "description": "How JavaScript objects inherit properties and methods.",
+            "description": "A clear explanation of own properties, internal prototypes, constructor prototypes, class syntax, property lookup, method sharing, null-prototype objects, and security considerations.",
             "difficulty": "intermediate",
-            "interviewPriority": "high",
-            "estimatedMinutes": 15,
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
             "tags": [
               "prototype",
               "inheritance",
-              "classes"
+              "classes",
+              "objects",
+              "property-lookup",
+              "security"
             ]
           },
           {
             "id": "js-this-keyword",
             "categoryId": "js-objects-prototypes",
             "title": "Understanding this, call, apply, and bind",
-            "description": "How the value of `this` is determined at call time, and how to control it explicitly.",
+            "description": "A practical explanation of call-site-based `this`, arrow-function lexical `this`, detached methods, explicit binding, constructor calls, callbacks, and class design trade-offs.",
             "difficulty": "intermediate",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 15,
+            "estimatedMinutes": 40,
             "tags": [
               "this",
               "call",
               "apply",
               "bind",
-              "arrow-functions"
+              "arrow-functions",
+              "callbacks",
+              "classes"
             ]
           },
           {
@@ -1298,14 +1318,18 @@
             "id": "js-debounce-throttle",
             "categoryId": "js-performance-patterns",
             "title": "Debounce and Throttle",
-            "description": "Rate-limiting patterns for expensive or frequent event handlers.",
+            "description": "A practical explanation of rate-limiting noisy events, leading and trailing behavior, preserving callback context, cancelling timers, stale API requests, and choosing requestAnimationFrame for visual updates.",
             "difficulty": "intermediate",
             "interviewPriority": "high",
-            "estimatedMinutes": 15,
+            "estimatedMinutes": 40,
             "tags": [
               "debounce",
               "throttle",
-              "performance"
+              "performance",
+              "search",
+              "scroll",
+              "timers",
+              "abortcontroller"
             ]
           },
           {

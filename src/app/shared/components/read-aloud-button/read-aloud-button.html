@@ -4,9 +4,11 @@
   [class.read-aloud-button--active]="speaking()"
   [disabled]="disabled()"
   [attr.aria-pressed]="speaking()"
-  [attr.aria-label]="speaking() ? 'Stop reading aloud' : 'Read aloud'"
+  [attr.aria-label]="speaking() ? 'Stop listening' : 'Listen to this topic'"
+  [appTooltip]="speaking() ? 'Stop narration' : 'Listen to this topic'"
+  tooltipPos="bottom"
   (click)="toggled.emit()"
 >
   <app-icon [name]="speaking() ? 'square' : 'volume-2'" [filled]="speaking()" />
-  <span>{{ speaking() ? 'Stop' : 'Read Aloud' }}</span>
+  <span>{{ speaking() ? 'Stop' : 'Listen' }}</span>
 </button>

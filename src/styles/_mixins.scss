@@ -31,6 +31,75 @@
   min-width: 44px;
 }
 
+/** Shared chrome for topic toolbar controls (listen / note / bookmark). */
+@mixin action-button {
+  @include touch-target;
+  @include focus-ring;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: 0 var(--space-3) 0 var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--color-border) 80%, var(--color-primary) 20%);
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-surface-raised) 88%, transparent),
+      color-mix(in srgb, var(--color-surface) 96%, var(--color-surface-alt))
+    );
+  color: var(--color-text);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--color-text) 6%, transparent),
+    var(--shadow-sm);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.12s ease;
+
+  app-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+    color: var(--color-primary);
+    font-size: 0.95rem;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--color-primary) 50%, var(--color-border));
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, var(--color-text) 8%, transparent),
+      var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+
 @mixin custom-scrollbar {
   scrollbar-width: thin;
 
