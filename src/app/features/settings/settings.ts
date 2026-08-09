@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { SettingsService } from '../../core/services/settings.service';
 import { DataManagementService } from '../../core/services/data-management.service';
 import { ProfileService } from '../../core/services/profile.service';
+import { PwaService } from '../../core/services/pwa.service';
 import { AppSettings } from '../../core/models';
 import { SelectComponent } from '../../shared/components/select/select';
 import { SelectOption } from '../../shared/components/select/select.models';
@@ -19,6 +20,7 @@ export class SettingsComponent {
   private readonly settingsService = inject(SettingsService);
   private readonly dataManagementService = inject(DataManagementService);
   private readonly profileService = inject(ProfileService);
+  readonly pwa = inject(PwaService);
 
   readonly settings = this.settingsService.settings;
   readonly displayName = this.profileService.displayName;
@@ -29,6 +31,7 @@ export class SettingsComponent {
   readonly resetConfirmText = signal('');
   readonly canConfirmReset = computed(() => this.resetConfirmText().trim().toUpperCase() === 'RESET');
   readonly importMessage = signal<{ text: string; success: boolean } | null>(null);
+  readonly installMessage = signal<string | null>(null);
 
   readonly initials = computed(() =>
     this.displayName()
@@ -87,6 +90,19 @@ export class SettingsComponent {
 
   setShowAnswersAutomatically(value: boolean): void {
     this.settingsService.setShowAnswersAutomatically(value);
+  }
+
+  async installApp(): Promise<void> {
+    const outcome = await this.pwa.promptInstall();
+    if (outcome === 'accepted') {
+      this.installMessage.set('Skill Hunter was added to your device.');
+    } else if (outcome === 'dismissed') {
+      this.installMessage.set('Install canceled.');
+    } else {
+      this.installMessage.set(
+        'Use your browser menu → “Install app” / “Add to Home Screen” if the button is unavailable.',
+      );
+    }
   }
 
   exportProgress(): void {
