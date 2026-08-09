@@ -122,8 +122,13 @@ export class PlaygroundComponent implements AfterViewInit, OnDestroy {
         basicSetup,
         keymap.of([indentWithTab, { key: 'Mod-Enter', run: () => (this.run(), true) }]),
         javascript(),
+        EditorView.lineWrapping,
         this.themeCompartment.of(isDark ? [oneDark] : []),
-        EditorView.theme({ '&': { height: '100%', fontSize: '0.9rem' } }),
+        EditorView.theme({
+          '&': { height: '100%', fontSize: '0.95rem' },
+          '.cm-content': { paddingBottom: '1rem' },
+          '.cm-scroller': { lineHeight: '1.5' },
+        }),
       ],
     });
   }
@@ -133,6 +138,10 @@ export class PlaygroundComponent implements AfterViewInit, OnDestroy {
   }
 
   loadSnippet(id: string): void {
+    if (!id) {
+      this.reset();
+      return;
+    }
     this.selectedSnippetId.set(id);
     const snippet = this.snippets().find((s) => s.id === id);
     if (!snippet || !this.view) return;
@@ -140,6 +149,7 @@ export class PlaygroundComponent implements AfterViewInit, OnDestroy {
     this.hasRun.set(false);
     this.logs.set([]);
     this.runError.set(null);
+    this.elapsedMs.set(null);
   }
 
   reset(): void {

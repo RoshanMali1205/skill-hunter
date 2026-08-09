@@ -1,5 +1,7 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, map, startWith } from 'rxjs';
 import { IconComponent } from '../../../shared/components/icon/icon';
 
 interface NavItem {
@@ -31,9 +33,26 @@ const MORE_ITEMS: NavItem[] = [
   styleUrl: './mobile-nav.scss',
 })
 export class MobileNavComponent {
+  private readonly router = inject(Router);
+
   readonly navItems = NAV_ITEMS;
   readonly moreItems = MORE_ITEMS;
   readonly moreOpen = signal(false);
+
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map(() => this.router.url),
+      startWith(this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  /** Keep More highlighted when viewing Playground / Notes / Settings / etc. */
+  readonly moreActive = computed(() => {
+    const url = this.currentUrl();
+    return this.moreItems.some((item) => url === item.path || url.startsWith(`${item.path}/`));
+  });
 
   toggleMore(): void {
     this.moreOpen.update((open) => !open);

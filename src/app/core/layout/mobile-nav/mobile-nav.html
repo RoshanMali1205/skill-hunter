@@ -31,7 +31,7 @@
   <button
     type="button"
     class="mobile-nav__link"
-    [class.mobile-nav__link--active]="moreOpen()"
+    [class.mobile-nav__link--active]="moreOpen() || moreActive()"
     [attr.aria-expanded]="moreOpen()"
     (click)="toggleMore()"
   >

@@ -15,6 +15,7 @@
   flex-direction: column;
   flex-wrap: wrap;
   gap: var(--space-3);
+  min-width: 0;
 
   @include respond-to(tablet) {
     flex-direction: row;
@@ -36,41 +37,63 @@
     flex-direction: row;
     align-items: center;
     width: auto;
+    flex: 1;
   }
 
-  select {
-    @include touch-target;
-    @include focus-ring;
+  app-select {
     width: 100%;
-    max-width: 100%;
     min-width: 0;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    padding: var(--space-2) var(--space-3);
-    background: var(--color-surface);
-    color: var(--color-text);
-    font-size: 0.85rem;
 
     @include respond-to(tablet) {
-      max-width: 320px;
+      width: min(320px, 42vw);
+    }
+  }
+}
+
+.playground__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+
+  .btn {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  @include respond-to(tablet) {
+    width: auto;
+
+    .btn {
+      flex: 0 0 auto;
     }
   }
 }
 
 .playground__shortcut {
+  display: none;
   font-size: 0.7rem;
   font-weight: 600;
   opacity: 0.7;
   margin-left: var(--space-1);
+
+  // Hide on phones; show from tablet up when a fine pointer is available.
+  @include respond-to(tablet) {
+    @media (hover: hover) and (pointer: fine) {
+      display: inline;
+    }
+  }
 }
 
 .playground__workspace {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
+  min-width: 0;
 
   @include respond-to(desktop) {
-    grid-template-columns: 3fr 2fr;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   }
 }
 
@@ -80,7 +103,28 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: min(480px, 55dvh);
+  min-width: 0;
+}
+
+// Phones: keep both panels usable without a huge page scroll.
+.playground__editor-card {
+  height: min(340px, 42dvh);
+
+  @include respond-to(tablet) {
+    height: min(420px, 50dvh);
+  }
+
+  @include respond-to(desktop) {
+    height: 480px;
+  }
+}
+
+.playground__console-card {
+  height: min(220px, 30dvh);
+
+  @include respond-to(tablet) {
+    height: min(320px, 40dvh);
+  }
 
   @include respond-to(desktop) {
     height: 480px;
@@ -90,16 +134,24 @@
 .playground__editor {
   flex: 1;
   min-height: 0;
+  min-width: 0;
 
   // CodeMirror injects its DOM imperatively (not through Angular's
   // template compiler), so it never receives the component's
   // encapsulation attribute — ::ng-deep is required to reach it.
   ::ng-deep .cm-editor {
     height: 100%;
+    max-width: 100%;
   }
 
   ::ng-deep .cm-scroller {
     overflow: auto;
+    font-size: 0.95rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  ::ng-deep .cm-content {
+    max-width: 100%;
   }
 }
 
@@ -125,10 +177,12 @@
   @include custom-scrollbar;
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: var(--space-3) var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  -webkit-overflow-scrolling: touch;
 }
 
 .playground__console-placeholder {
@@ -141,6 +195,7 @@
   font-family: var(--font-family-mono);
   font-size: 0.82rem;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   word-break: break-word;
   color: var(--color-text);
   padding-bottom: var(--space-2);
