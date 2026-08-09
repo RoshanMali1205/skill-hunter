@@ -49,38 +49,43 @@
 
   <section class="ai-mentor__main">
     <header class="ai-mentor__header">
-      <div class="ai-mentor__header-copy">
-        <div class="ai-mentor__title-row">
-          <button type="button" class="btn btn--ghost" (click)="goBack()">
-            <app-icon name="chevron-left" />
-            Back
-          </button>
-          <button
-            type="button"
-            class="btn btn--ghost ai-mentor__history-toggle"
-            (click)="toggleHistory()"
-            [attr.aria-expanded]="historyOpen()"
-            aria-controls="ai-mentor-history"
-          >
-            <app-icon name="message-square" />
-            History
-          </button>
-          <h1>{{ activeConversation()?.title || 'AI Mentor' }}</h1>
-        </div>
+      <div class="ai-mentor__toolbar">
+        <button type="button" class="btn btn--ghost ai-mentor__nav-btn" (click)="goBack()">
+          <app-icon name="chevron-left" />
+          <span>Back</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn--ghost ai-mentor__history-toggle"
+          (click)="toggleHistory()"
+          [attr.aria-expanded]="historyOpen()"
+          aria-controls="ai-mentor-history-panel"
+        >
+          <app-icon name="message-square" />
+          <span>History</span>
+        </button>
+        <button type="button" class="btn btn--primary ai-mentor__new-chat" (click)="startNewChat()">
+          <app-icon name="plus" />
+          <span>New</span>
+        </button>
+      </div>
+      <h1 class="ai-mentor__title">{{ activeConversation()?.title || 'AI Mentor' }}</h1>
+
+      @if (messages().length === 0 && !loading()) {
         <p class="ai-mentor__subtitle">
-          Ask for explanations, practice questions, or feedback on your own answers.
+          Ask for explanations, practice questions, or feedback on your answers.
           @if (contextLabel(); as ctx) {
             <span class="ai-mentor__context">{{ ctx }}</span>
           }
         </p>
-      </div>
-      <button type="button" class="btn" (click)="startNewChat()">
-        <app-icon name="plus" />
-        New chat
-      </button>
+      } @else if (contextLabel(); as ctx) {
+        <p class="ai-mentor__context-row">
+          <span class="ai-mentor__context">{{ ctx }}</span>
+        </p>
+      }
     </header>
 
-    <div class="ai-mentor__chat" #chatScroll id="ai-mentor-history">
+    <div class="ai-mentor__chat" #chatScroll id="ai-mentor-history-panel">
       @if (messages().length === 0 && !loading()) {
         <div class="ai-mentor__starter">
           <p>Try one of these, or type your own question below:</p>
@@ -96,32 +101,40 @@
 
       @for (message of messages(); track $index) {
         <div class="ai-mentor__bubble" [class.ai-mentor__bubble--user]="message.role === 'user'">
-          <span class="ai-mentor__role">{{ message.role === 'user' ? 'You' : 'AI Mentor' }}</span>
+          <div class="ai-mentor__bubble-head">
+            <span class="ai-mentor__role">{{ message.role === 'user' ? 'You' : 'AI Mentor' }}</span>
+            <div class="ai-mentor__actions">
+              <button
+                type="button"
+                class="ai-mentor__action"
+                (click)="copyMessage($index, message.content)"
+              >
+                {{ copiedIndex() === $index ? 'Copied!' : 'Copy' }}
+              </button>
+              @if (message.role === 'assistant' && hasTopicContext()) {
+                <button
+                  type="button"
+                  class="ai-mentor__action"
+                  (click)="saveToNotes($index, message.content)"
+                >
+                  {{ savedIndex() === $index ? 'Saved!' : 'Save note' }}
+                </button>
+              }
+            </div>
+          </div>
           @if (message.role === 'assistant') {
             <div class="ai-mentor__markdown" [innerHTML]="message.content | markdown"></div>
           } @else {
             <p>{{ message.content }}</p>
           }
-          <div class="ai-mentor__actions">
-            <button type="button" class="ai-mentor__action" (click)="copyMessage($index, message.content)">
-              {{ copiedIndex() === $index ? 'Copied!' : 'Copy' }}
-            </button>
-            @if (message.role === 'assistant' && hasTopicContext()) {
-              <button
-                type="button"
-                class="ai-mentor__action"
-                (click)="saveToNotes($index, message.content)"
-              >
-                {{ savedIndex() === $index ? 'Saved to Note!' : 'Save to Note' }}
-              </button>
-            }
-          </div>
         </div>
       }
 
       @if (loading()) {
         <div class="ai-mentor__bubble">
-          <span class="ai-mentor__role">AI Mentor</span>
+          <div class="ai-mentor__bubble-head">
+            <span class="ai-mentor__role">AI Mentor</span>
+          </div>
           <p class="ai-mentor__thinking">Thinking…</p>
         </div>
       }
@@ -132,15 +145,17 @@
     </div>
 
     <form class="ai-mentor__composer" (submit)="$event.preventDefault(); sendDraft()">
+      <label class="visually-hidden" for="ai-mentor-draft">Message</label>
       <textarea
+        id="ai-mentor-draft"
         [ngModel]="draft()"
         (ngModelChange)="draft.set($event)"
         name="draft"
         rows="2"
-        placeholder="Ask about a concept, request a practice question, or paste your answer for review..."
+        placeholder="Ask about a concept, request a practice question, or paste your answer…"
         (keydown)="onComposerKeydown($event)"
       ></textarea>
-      <button type="submit" class="btn btn--primary" [disabled]="loading() || !draft().trim()">
+      <button type="submit" class="btn btn--primary ai-mentor__send" [disabled]="loading() || !draft().trim()">
         Send
       </button>
     </form>
