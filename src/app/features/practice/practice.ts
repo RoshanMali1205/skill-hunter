@@ -2,7 +2,6 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { combineLatest, forkJoin, map, of, switchMap } from 'rxjs';
 import { ContentService } from '../../core/services/content.service';
 import { ProgressStore } from '../../core/services/progress.store';
@@ -14,11 +13,13 @@ import { PracticeFilter } from '../../core/models/filters.models';
 import { QuestionCardComponent } from '../../shared/components/question-card/question-card';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { IconComponent } from '../../shared/components/icon/icon';
+import { SelectComponent } from '../../shared/components/select/select';
+import { SelectOption } from '../../shared/components/select/select.models';
 import { hasInAppHistory } from '../../shared/navigation';
 
 @Component({
   selector: 'app-practice',
-  imports: [FormsModule, QuestionCardComponent, EmptyStateComponent, IconComponent],
+  imports: [QuestionCardComponent, EmptyStateComponent, IconComponent, SelectComponent],
   templateUrl: './practice.html',
   styleUrl: './practice.scss',
 })
@@ -72,6 +73,31 @@ export class PracticeComponent {
     const subject = this.subjects().find((s) => s.id === this.filter().subjectId);
     return subject?.categories ?? [];
   });
+
+  readonly subjectOptions = computed<SelectOption[]>(() => [
+    { value: '', label: 'All Subjects' },
+    ...this.subjects().map((s) => ({ value: s.id, label: s.title })),
+  ]);
+
+  readonly categoryOptions = computed<SelectOption[]>(() => [
+    { value: '', label: 'All Categories' },
+    ...this.selectedSubjectCategories().map((c) => ({ value: c.id, label: c.title })),
+  ]);
+
+  readonly difficultyOptions: SelectOption[] = [
+    { value: 'all', label: 'All' },
+    { value: 'beginner', label: 'Beginner' },
+    { value: 'intermediate', label: 'Intermediate' },
+    { value: 'advanced', label: 'Advanced' },
+  ];
+
+  readonly questionTypeOptions: SelectOption[] = [
+    { value: 'all', label: 'All' },
+    { value: 'output-question', label: 'Code Output' },
+    { value: 'interview-question', label: 'Interview Question' },
+    { value: 'tricky-question', label: 'Tricky Question' },
+    { value: 'scenario-question', label: 'Scenario Question' },
+  ];
 
   private readonly availableTopics = toSignal(
     combineLatest([toObservable(this.filter), toObservable(this.subjects)]).pipe(

@@ -28,57 +28,44 @@
       <div class="practice__grid">
         <label class="practice__field">
           <span><app-icon name="book-open" /> Subject</span>
-          <select
-            [ngModel]="filter().subjectId ?? ''"
-            (ngModelChange)="updateFilter({ subjectId: $event || undefined, categoryId: undefined })"
-          >
-            <option value="">All Subjects</option>
-            @for (subject of subjects(); track subject.id) {
-              <option [value]="subject.id">{{ subject.title }}</option>
-            }
-          </select>
+          <app-select
+            [value]="filter().subjectId ?? ''"
+            [options]="subjectOptions()"
+            ariaLabel="Subject"
+            (valueChange)="updateFilter({ subjectId: $event || undefined, categoryId: undefined })"
+          />
         </label>
 
         @if (selectedSubjectCategories().length > 0) {
           <label class="practice__field">
             <span><app-icon name="pie-chart" /> Category</span>
-            <select
-              [ngModel]="filter().categoryId ?? ''"
-              (ngModelChange)="updateFilter({ categoryId: $event || undefined })"
-            >
-              <option value="">All Categories</option>
-              @for (category of selectedSubjectCategories(); track category.id) {
-                <option [value]="category.id">{{ category.title }}</option>
-              }
-            </select>
+            <app-select
+              [value]="filter().categoryId ?? ''"
+              [options]="categoryOptions()"
+              ariaLabel="Category"
+              (valueChange)="updateFilter({ categoryId: $event || undefined })"
+            />
           </label>
         }
 
         <label class="practice__field">
           <span><app-icon name="bar-chart" /> Difficulty</span>
-          <select
-            [ngModel]="filter().difficulty ?? 'all'"
-            (ngModelChange)="updateFilter({ difficulty: $event })"
-          >
-            <option value="all">All</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
+          <app-select
+            [value]="filter().difficulty ?? 'all'"
+            [options]="difficultyOptions"
+            ariaLabel="Difficulty"
+            (valueChange)="updateFilter({ difficulty: $any($event) })"
+          />
         </label>
 
         <label class="practice__field">
           <span><app-icon name="code" /> Question Type</span>
-          <select
-            [ngModel]="filter().questionType ?? 'all'"
-            (ngModelChange)="updateFilter({ questionType: $event })"
-          >
-            <option value="all">All</option>
-            <option value="output-question">Code Output</option>
-            <option value="interview-question">Interview Question</option>
-            <option value="tricky-question">Tricky Question</option>
-            <option value="scenario-question">Scenario Question</option>
-          </select>
+          <app-select
+            [value]="filter().questionType ?? 'all'"
+            [options]="questionTypeOptions"
+            ariaLabel="Question Type"
+            (valueChange)="updateFilter({ questionType: $any($event) })"
+          />
         </label>
       </div>
 

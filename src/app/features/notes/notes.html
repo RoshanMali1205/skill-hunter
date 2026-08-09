@@ -12,25 +12,22 @@
       <div class="notes__picker-row">
         <label class="notes__picker-field">
           <span>Subject</span>
-          <select [ngModel]="pickerSubjectId()" (ngModelChange)="onPickerSubjectChange($event)">
-            <option value="">Choose a subject…</option>
-            @for (s of subjects(); track s.id) {
-              <option [value]="s.id">{{ s.title }}</option>
-            }
-          </select>
+          <app-select
+            [value]="pickerSubjectId()"
+            [options]="subjectOptions()"
+            ariaLabel="Subject"
+            (valueChange)="onPickerSubjectChange($event)"
+          />
         </label>
         <label class="notes__picker-field">
           <span>Topic</span>
-          <select
-            [ngModel]="pickerTopicId()"
-            (ngModelChange)="pickerTopicId.set($event)"
+          <app-select
+            [value]="pickerTopicId()"
+            [options]="topicOptions()"
             [disabled]="!pickerSubjectId()"
-          >
-            <option value="">Choose a topic…</option>
-            @for (t of pickerTopics(); track t.topicId) {
-              <option [value]="t.topicId">{{ t.topicTitle }}</option>
-            }
-          </select>
+            ariaLabel="Topic"
+            (valueChange)="pickerTopicId.set($event)"
+          />
         </label>
       </div>
       <div class="cluster">

@@ -20,15 +20,12 @@
     <h2>Study Preferences</h2>
     <label class="settings__field">
       <span>Default difficulty filter</span>
-      <select
-        [ngModel]="settings().defaultDifficulty"
-        (ngModelChange)="setDefaultDifficulty($event)"
-      >
-        <option value="all">All</option>
-        <option value="beginner">Beginner</option>
-        <option value="intermediate">Intermediate</option>
-        <option value="advanced">Advanced</option>
-      </select>
+      <app-select
+        [value]="settings().defaultDifficulty"
+        [options]="difficultyOptions"
+        ariaLabel="Default difficulty filter"
+        (valueChange)="setDefaultDifficulty($any($event))"
+      />
     </label>
 
     <label class="settings__field settings__field--checkbox">

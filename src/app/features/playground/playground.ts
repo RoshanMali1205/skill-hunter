@@ -20,6 +20,8 @@ import { CodeRunnerService, LogEntry } from '../../core/services/code-runner.ser
 import { ContentService } from '../../core/services/content.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { IconComponent } from '../../shared/components/icon/icon';
+import { SelectComponent } from '../../shared/components/select/select';
+import { SelectOptionGroup } from '../../shared/components/select/select.models';
 
 interface Snippet {
   id: string;
@@ -40,7 +42,7 @@ console.log(greet('Skill Hunter'));
 
 @Component({
   selector: 'app-playground',
-  imports: [IconComponent],
+  imports: [IconComponent, SelectComponent],
   templateUrl: './playground.html',
   styleUrl: './playground.scss',
 })
@@ -89,6 +91,17 @@ export class PlaygroundComponent implements AfterViewInit, OnDestroy {
     }
     return Array.from(groups.entries()).map(([groupLabel, items]) => ({ groupLabel, items }));
   });
+
+  readonly snippetSelectGroups = computed<SelectOptionGroup[]>(() => [
+    {
+      label: 'Templates',
+      options: [{ value: '', label: '— Starter template —' }],
+    },
+    ...this.snippetGroups().map((group) => ({
+      label: group.groupLabel,
+      options: group.items.map((item) => ({ value: item.id, label: item.label })),
+    })),
+  ]);
 
   constructor() {
     effect(() => {
