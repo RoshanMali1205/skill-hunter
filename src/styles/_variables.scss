@@ -61,6 +61,10 @@
   --header-height: 68px;
   --sidebar-width: 268px;
   --mobile-nav-height: 60px;
+  /* Sticky header + notch / Dynamic Island inset. */
+  --header-offset: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+  /* Total bottom chrome on phones (nav bar + home-indicator inset). */
+  --mobile-nav-offset: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px));
 
   color-scheme: light;
 }

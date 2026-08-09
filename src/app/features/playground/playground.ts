@@ -20,6 +20,8 @@ import { CodeRunnerService, LogEntry } from '../../core/services/code-runner.ser
 import { ContentService } from '../../core/services/content.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { IconComponent } from '../../shared/components/icon/icon';
+import { SelectComponent } from '../../shared/components/select/select';
+import { SelectOptionGroup } from '../../shared/components/select/select.models';
 
 interface Snippet {
   id: string;
@@ -40,7 +42,7 @@ console.log(greet('Skill Hunter'));
 
 @Component({
   selector: 'app-playground',
-  imports: [IconComponent],
+  imports: [IconComponent, SelectComponent],
   templateUrl: './playground.html',
   styleUrl: './playground.scss',
 })
@@ -90,6 +92,17 @@ export class PlaygroundComponent implements AfterViewInit, OnDestroy {
     return Array.from(groups.entries()).map(([groupLabel, items]) => ({ groupLabel, items }));
   });
 
+  readonly snippetSelectGroups = computed<SelectOptionGroup[]>(() => [
+    {
+      label: 'Templates',
+      options: [{ value: '', label: '— Starter template —' }],
+    },
+    ...this.snippetGroups().map((group) => ({
+      label: group.groupLabel,
+      options: group.items.map((item) => ({ value: item.id, label: item.label })),
+    })),
+  ]);
+
   constructor() {
     effect(() => {
       const isDark = this.settingsService.settings().theme === 'dark';
@@ -109,8 +122,13 @@ export class PlaygroundComponent implements AfterViewInit, OnDestroy {
         basicSetup,
         keymap.of([indentWithTab, { key: 'Mod-Enter', run: () => (this.run(), true) }]),
         javascript(),
+        EditorView.lineWrapping,
         this.themeCompartment.of(isDark ? [oneDark] : []),
-        EditorView.theme({ '&': { height: '100%', fontSize: '0.9rem' } }),
+        EditorView.theme({
+          '&': { height: '100%', fontSize: '0.95rem' },
+          '.cm-content': { paddingBottom: '1rem' },
+          '.cm-scroller': { lineHeight: '1.5' },
+        }),
       ],
     });
   }
@@ -120,6 +138,10 @@ export class PlaygroundComponent implements AfterViewInit, OnDestroy {
   }
 
   loadSnippet(id: string): void {
+    if (!id) {
+      this.reset();
+      return;
+    }
     this.selectedSnippetId.set(id);
     const snippet = this.snippets().find((s) => s.id === id);
     if (!snippet || !this.view) return;
@@ -127,6 +149,7 @@ export class PlaygroundComponent implements AfterViewInit, OnDestroy {
     this.hasRun.set(false);
     this.logs.set([]);
     this.runError.set(null);
+    this.elapsedMs.set(null);
   }
 
   reset(): void {

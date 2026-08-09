@@ -11,33 +11,32 @@
 
   <label class="filter-panel__field">
     <span>Difficulty</span>
-    <select [ngModel]="filter().difficulty ?? 'all'" (ngModelChange)="update({ difficulty: $event })">
-      <option value="all">All</option>
-      <option value="beginner">Beginner</option>
-      <option value="intermediate">Intermediate</option>
-      <option value="advanced">Advanced</option>
-    </select>
+    <app-select
+      [value]="filter().difficulty ?? 'all'"
+      [options]="difficultyOptions"
+      ariaLabel="Difficulty"
+      (valueChange)="update({ difficulty: $any($event) })"
+    />
   </label>
 
   <label class="filter-panel__field">
     <span>Priority</span>
-    <select [ngModel]="filter().priority ?? 'all'" (ngModelChange)="update({ priority: $event })">
-      <option value="all">All</option>
-      <option value="must-know">Must Know</option>
-      <option value="high">High</option>
-      <option value="medium">Medium</option>
-      <option value="low">Low</option>
-    </select>
+    <app-select
+      [value]="filter().priority ?? 'all'"
+      [options]="priorityOptions"
+      ariaLabel="Priority"
+      (valueChange)="update({ priority: $any($event) })"
+    />
   </label>
 
   <label class="filter-panel__field">
     <span>Status</span>
-    <select [ngModel]="filter().status ?? 'all'" (ngModelChange)="update({ status: $event })">
-      <option value="all">All</option>
-      <option value="not-started">Not Started</option>
-      <option value="in-progress">In Progress</option>
-      <option value="completed">Completed</option>
-    </select>
+    <app-select
+      [value]="filter().status ?? 'all'"
+      [options]="statusOptions"
+      ariaLabel="Status"
+      (valueChange)="update({ status: $any($event) })"
+    />
   </label>
 
   <label class="filter-panel__field filter-panel__field--checkbox">

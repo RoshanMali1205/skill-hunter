@@ -209,6 +209,22 @@ h2 {
   padding-bottom: var(--space-2);
 }
 
+.calendar__month-weekday-full {
+  display: none;
+
+  @include respond-to(tablet) {
+    display: inline;
+  }
+}
+
+.calendar__month-weekday-short {
+  display: inline;
+
+  @include respond-to(tablet) {
+    display: none;
+  }
+}
+
 .calendar__month-day {
   @include focus-ring;
   height: 56px;

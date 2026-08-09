@@ -1,11 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ContentService } from '../../core/services/content.service';
 import { NoteService } from '../../core/services/note.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { NoteEditorComponent } from '../../shared/components/note-editor/note-editor';
+import { SelectComponent } from '../../shared/components/select/select';
+import { SelectOption } from '../../shared/components/select/select.models';
 import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
 
 interface TopicRef {
@@ -17,7 +18,7 @@ interface TopicRef {
 
 @Component({
   selector: 'app-notes',
-  imports: [RouterLink, FormsModule, EmptyStateComponent, NoteEditorComponent, MarkdownPipe],
+  imports: [RouterLink, EmptyStateComponent, NoteEditorComponent, MarkdownPipe, SelectComponent],
   templateUrl: './notes.html',
   styleUrl: './notes.scss',
 })
@@ -68,6 +69,16 @@ export class NotesComponent {
   readonly pickerTopics = computed(() =>
     this.topicRefs().filter((ref) => ref.subjectId === this.pickerSubjectId()),
   );
+
+  readonly subjectOptions = computed<SelectOption[]>(() => [
+    { value: '', label: 'Choose a subject…' },
+    ...this.subjects().map((s) => ({ value: s.id, label: s.title })),
+  ]);
+
+  readonly topicOptions = computed<SelectOption[]>(() => [
+    { value: '', label: 'Choose a topic…' },
+    ...this.pickerTopics().map((t) => ({ value: t.topicId, label: t.topicTitle })),
+  ]);
 
   // Currently open note editor (accordion-style — one at a time)
   readonly editingTopicId = signal<string | null>(null);

@@ -6,15 +6,21 @@
   position: relative;
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-4);
-  height: calc(100vh - var(--header-height) - var(--space-6) * 2);
-  min-height: 520px;
+  gap: var(--space-3);
+  // Fit the visible mobile viewport: header + bottom nav + page padding + footer line.
+  height: calc(
+    100dvh - var(--header-offset) - var(--mobile-nav-offset) - var(--space-5) * 2 - 2.5rem
+  );
+  min-height: 280px;
   min-width: 0;
   width: 100%;
   overflow: hidden;
 
   @include respond-to(desktop) {
     grid-template-columns: var(--ai-sidebar-width) minmax(0, 1fr);
+    gap: var(--space-4);
+    height: calc(100dvh - var(--header-offset) - var(--space-6) * 2 - 2.5rem);
+    min-height: 420px;
   }
 }
 
@@ -101,23 +107,18 @@
   @include focus-ring;
   position: relative;
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
+  align-items: stretch;
+  gap: var(--space-1);
   width: 100%;
-  text-align: left;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text);
-  padding: var(--space-2);
-  cursor: pointer;
+  padding: 0;
+  cursor: default;
 
   &:hover {
     background: var(--color-surface-alt);
-
-    .ai-mentor__thread-delete {
-      opacity: 1;
-    }
   }
 
   &--active {
@@ -125,6 +126,22 @@
     border-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
     box-shadow: inset 3px 0 0 var(--color-primary);
   }
+}
+
+.ai-mentor__thread-main {
+  @include focus-ring;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: var(--space-2);
+  cursor: pointer;
+  font: inherit;
 }
 
 .ai-mentor__thread-icon {
@@ -159,13 +176,15 @@
 }
 
 .ai-mentor__thread-delete {
+  @include touch-target;
   @include focus-ring;
-  opacity: 0;
+  opacity: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 44px;
+  height: 44px;
+  margin: auto var(--space-1);
   border: none;
   background: transparent;
   border-radius: var(--radius-sm);
@@ -176,6 +195,15 @@
   &:hover {
     color: var(--color-danger);
     background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    opacity: 0;
+
+    .ai-mentor__thread:hover &,
+    .ai-mentor__thread:focus-within & {
+      opacity: 1;
+    }
   }
 }
 
@@ -193,6 +221,7 @@
   align-items: flex-start;
   gap: var(--space-3);
   min-width: 0;
+  flex-wrap: wrap;
 
   .btn {
     display: inline-flex;
@@ -336,7 +365,8 @@
   @include focus-ring;
   background: none;
   border: none;
-  padding: 0;
+  padding: var(--space-2) 0;
+  min-height: 44px;
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--color-text-muted);

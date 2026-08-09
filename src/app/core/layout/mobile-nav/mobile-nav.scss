@@ -6,15 +6,18 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: var(--mobile-nav-height);
+  // Keep the 60px control row intact — add safe-area below it instead of
+  // eating into the bar (box-sizing: border-box would otherwise shrink icons).
+  height: var(--mobile-nav-offset);
+  padding-bottom: env(safe-area-inset-bottom, 0);
   display: flex;
+  align-items: stretch;
   background: color-mix(in srgb, var(--color-surface) 92%, transparent);
   backdrop-filter: blur(10px) saturate(1.4);
   -webkit-backdrop-filter: blur(10px) saturate(1.4);
   border-top: 1px solid var(--color-border);
   box-shadow: 0 -4px 16px rgba(20, 21, 40, 0.06);
   z-index: 20;
-  padding-bottom: env(safe-area-inset-bottom, 0);
 
   @include respond-to(desktop) {
     display: none;
@@ -76,7 +79,7 @@
   position: fixed;
   left: var(--space-3);
   right: var(--space-3);
-  bottom: calc(var(--mobile-nav-height) + var(--space-3));
+  bottom: calc(var(--mobile-nav-offset) + var(--space-3));
   z-index: 22;
   background: var(--color-surface);
   border: 1px solid var(--color-border);

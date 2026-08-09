@@ -3,10 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../../core/services/settings.service';
 import { DataManagementService } from '../../core/services/data-management.service';
 import { AppSettings } from '../../core/models';
+import { SelectComponent } from '../../shared/components/select/select';
+import { SelectOption } from '../../shared/components/select/select.models';
 
 @Component({
   selector: 'app-settings',
-  imports: [FormsModule],
+  imports: [FormsModule, SelectComponent],
   templateUrl: './settings.html',
   styleUrl: './settings.scss',
 })
@@ -19,6 +21,13 @@ export class SettingsComponent {
   readonly resetConfirmText = signal('');
   readonly canConfirmReset = computed(() => this.resetConfirmText().trim().toUpperCase() === 'RESET');
   readonly importMessage = signal<{ text: string; success: boolean } | null>(null);
+
+  readonly difficultyOptions: SelectOption[] = [
+    { value: 'all', label: 'All' },
+    { value: 'beginner', label: 'Beginner' },
+    { value: 'intermediate', label: 'Intermediate' },
+    { value: 'advanced', label: 'Advanced' },
+  ];
 
   setTheme(theme: AppSettings['theme']): void {
     if (theme !== this.settings().theme) {

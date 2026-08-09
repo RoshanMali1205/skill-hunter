@@ -2,7 +2,8 @@
 @use 'mixins' as *;
 
 .header {
-  height: var(--header-height);
+  height: var(--header-offset);
+  padding-top: env(safe-area-inset-top, 0px);
   display: flex;
   align-items: center;
   gap: var(--space-4);
@@ -58,6 +59,7 @@
 }
 
 .header__user-trigger {
+  @include touch-target;
   @include focus-ring;
   display: inline-flex;
   align-items: center;

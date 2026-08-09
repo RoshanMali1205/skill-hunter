@@ -39,6 +39,7 @@ interface SelectedDayTopic {
 const MILESTONES = [7, 14, 30, 60, 100, 180, 365];
 const HEATMAP_WEEKS = 18;
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const WEEKDAY_LABELS_SHORT = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 @Component({
   selector: 'app-calendar',
@@ -55,6 +56,7 @@ export class CalendarComponent {
   private readonly subjects = toSignal(this.contentService.getSubjects(), { initialValue: [] });
 
   readonly weekdayLabels = WEEKDAY_LABELS;
+  readonly weekdayLabelsShort = WEEKDAY_LABELS_SHORT;
 
   readonly settings = this.settingsService.settings;
   readonly todayMinutes = this.activityService.todayMinutes;

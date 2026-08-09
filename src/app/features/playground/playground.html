@@ -1,35 +1,30 @@
 <div class="stack playground">
-  <div>
+  <div class="playground__intro">
     <h1>JavaScript Playground</h1>
     <p class="playground__subtitle">
-      Write and run real JavaScript — sandboxed in a Web Worker, so an infinite loop can't freeze
-      the page.
+      Write and run real JavaScript — sandboxed so an infinite loop can't freeze the page.
     </p>
   </div>
 
   <div class="playground__toolbar">
     <label class="playground__snippet-picker">
       <span>Practice snippet</span>
-      <select [value]="selectedSnippetId()" (change)="loadSnippet($any($event.target).value)">
-        <option value="">— Starter template —</option>
-        @for (group of snippetGroups(); track group.groupLabel) {
-          <optgroup [label]="group.groupLabel">
-            @for (item of group.items; track item.id) {
-              <option [value]="item.id">{{ item.label }}</option>
-            }
-          </optgroup>
-        }
-      </select>
+      <app-select
+        [value]="selectedSnippetId()"
+        [groups]="snippetSelectGroups()"
+        ariaLabel="Practice snippet"
+        (valueChange)="loadSnippet($event)"
+      />
     </label>
 
-    <div class="cluster">
+    <div class="playground__actions">
       <button type="button" class="btn" (click)="reset()">
         <app-icon name="repeat" /> Reset
       </button>
       <button type="button" class="btn btn--primary" (click)="run()" [disabled]="running()">
         <app-icon name="play" [filled]="true" />
         {{ running() ? 'Running…' : 'Run' }}
-        <span class="playground__shortcut">Ctrl+Enter</span>
+        <span class="playground__shortcut" aria-hidden="true">Ctrl+Enter</span>
       </button>
     </div>
   </div>
