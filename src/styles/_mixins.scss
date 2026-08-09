@@ -185,6 +185,7 @@
     border-radius: var(--radius-sm);
     padding: var(--space-3);
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 
     code {
       display: block;
@@ -192,6 +193,13 @@
       padding: 0;
       font-size: 0.85em;
       white-space: pre;
+      max-width: 100%;
     }
+  }
+
+  // Long tokens / URLs in normal text must wrap on phones.
+  a {
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 }

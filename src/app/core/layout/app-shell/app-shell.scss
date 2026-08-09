@@ -21,6 +21,20 @@
   @include respond-to(desktop) {
     padding: var(--space-6) var(--space-6);
   }
+
+  // Give AI Mentor a near full-viewport chat surface.
+  &:has(app-ai-mentor) {
+    padding-top: var(--space-3);
+    padding-bottom: calc(var(--mobile-nav-offset) + var(--space-3));
+
+    @include respond-to(desktop) {
+      padding: var(--space-6);
+    }
+
+    .app-footer {
+      display: none;
+    }
+  }
 }
 
 .app-footer {

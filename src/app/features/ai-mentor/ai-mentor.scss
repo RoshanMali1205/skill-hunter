@@ -6,11 +6,9 @@
   position: relative;
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-3);
-  // Fit the visible mobile viewport: header + bottom nav + page padding + footer line.
-  height: calc(
-    100dvh - var(--header-offset) - var(--mobile-nav-offset) - var(--space-5) * 2 - 2.5rem
-  );
+  gap: var(--space-2);
+  // Footer is hidden on this page — use nearly the full shell viewport.
+  height: calc(100dvh - var(--header-offset) - var(--mobile-nav-offset) - var(--space-3) * 2);
   min-height: 280px;
   min-width: 0;
   width: 100%;
@@ -19,7 +17,7 @@
   @include respond-to(desktop) {
     grid-template-columns: var(--ai-sidebar-width) minmax(0, 1fr);
     gap: var(--space-4);
-    height: calc(100dvh - var(--header-offset) - var(--space-6) * 2 - 2.5rem);
+    height: calc(100dvh - var(--header-offset) - var(--space-6) * 2);
     min-height: 420px;
   }
 }
@@ -210,77 +208,116 @@
 .ai-mentor__main {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
   min-width: 0;
   min-height: 0;
+  height: 100%;
+
+  @include respond-to(desktop) {
+    gap: var(--space-3);
+  }
 }
 
 .ai-mentor__header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-3);
-  min-width: 0;
-  flex-wrap: wrap;
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-    flex-shrink: 0;
-  }
-}
-
-.ai-mentor__header-copy {
-  min-width: 0;
-  flex: 1;
-}
-
-.ai-mentor__title-row {
-  display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-2);
-  flex-wrap: wrap;
   min-width: 0;
+  flex-shrink: 0;
+}
 
-  h1 {
-    font-size: 1.35rem;
-    margin: 0;
-    flex: 1 1 12rem;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+.ai-mentor__toolbar {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.ai-mentor__nav-btn,
+.ai-mentor__history-toggle,
+.ai-mentor__new-chat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: 40px;
+  padding-inline: var(--space-2);
+  font-size: 0.82rem;
+  flex-shrink: 0;
 }
 
 .ai-mentor__history-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: 0.85rem;
-
   @include respond-to(desktop) {
     display: none;
   }
 }
 
+.ai-mentor__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+
+  @include respond-to(desktop) {
+    font-size: 1.35rem;
+    text-align: left;
+    padding-inline: var(--space-2);
+  }
+}
+
+.ai-mentor__new-chat {
+  span {
+    @media (max-width: 379px) {
+      // Keep the control tappable but shorter on very narrow phones.
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+  }
+
+  @include respond-to(desktop) {
+    span::after {
+      content: ' chat';
+    }
+  }
+}
+
 .ai-mentor__subtitle {
   color: var(--color-text-muted);
-  margin-top: var(--space-1);
+  margin: 0;
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
   align-items: center;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.ai-mentor__context-row {
+  margin: 0;
+  min-width: 0;
 }
 
 .ai-mentor__context {
-  font-size: 0.75rem;
+  display: inline-block;
+  max-width: 100%;
+  font-size: 0.72rem;
   font-weight: 600;
   padding: 2px 10px;
   border-radius: 999px;
   background: var(--color-surface-alt);
   color: var(--color-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
 .ai-mentor__chat {
@@ -289,12 +326,17 @@
   flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: var(--space-4);
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-3);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   min-width: 0;
   min-height: 0;
+
+  @include respond-to(desktop) {
+    padding: var(--space-4);
+  }
 }
 
 .ai-mentor__starter {
@@ -307,6 +349,14 @@
   flex-wrap: wrap;
   gap: var(--space-2);
   margin-top: var(--space-3);
+
+  .btn {
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
+    height: auto;
+    min-height: 44px;
+  }
 }
 
 .ai-mentor__bubble {
@@ -318,31 +368,42 @@
   background: var(--color-surface-alt);
   border-radius: var(--radius-md);
   padding: var(--space-3);
-  overflow-x: auto;
+  // Keep overflow inside code blocks — never scroll the whole bubble sideways.
+  overflow-x: hidden;
   overflow-wrap: anywhere;
   word-break: break-word;
 
-  p {
+  > p {
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     word-break: break-word;
-    margin-top: var(--space-1);
+    margin: var(--space-1) 0 0;
   }
 
   &--user {
     width: fit-content;
+    max-width: min(100%, 720px);
     align-self: flex-end;
     background: color-mix(in srgb, var(--color-primary) 12%, transparent);
   }
+}
+
+.ai-mentor__bubble-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .ai-mentor__markdown {
   // Block markdown styles live in global styles.scss (encapsulation-safe).
   margin-top: var(--space-1);
   font-size: 0.92rem;
-  line-height: 1.6;
+  line-height: 1.55;
   min-width: 0;
   max-width: 100%;
+  overflow-x: hidden;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -353,21 +414,24 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--color-text-muted);
+  flex-shrink: 0;
 }
 
 .ai-mentor__actions {
   display: flex;
-  gap: var(--space-3);
-  margin-top: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-1) var(--space-2);
+  min-width: 0;
 }
 
 .ai-mentor__action {
   @include focus-ring;
   background: none;
   border: none;
-  padding: var(--space-2) 0;
-  min-height: 44px;
-  font-size: 0.78rem;
+  padding: var(--space-1) 0;
+  min-height: 32px;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-text-muted);
   cursor: pointer;
@@ -380,6 +444,7 @@
 .ai-mentor__thinking {
   color: var(--color-text-muted);
   font-style: italic;
+  margin: var(--space-1) 0 0;
 }
 
 .ai-mentor__error {
@@ -389,29 +454,56 @@
   border-radius: var(--radius-sm);
   padding: var(--space-3);
   font-size: 0.9rem;
+  overflow-wrap: anywhere;
 }
 
 .ai-mentor__composer {
   @include card;
   display: flex;
-  gap: var(--space-3);
+  flex-direction: column;
+  gap: var(--space-2);
   padding: var(--space-3);
-  align-items: flex-end;
+  align-items: stretch;
   min-width: 0;
+  flex-shrink: 0;
+
+  @include respond-to(tablet) {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: var(--space-3);
+  }
 
   textarea {
     @include focus-ring;
     flex: 1;
+    width: 100%;
     min-width: 0;
     resize: none;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
-    padding: var(--space-2) var(--space-3);
+    padding: var(--space-3);
     background: var(--color-surface);
     color: var(--color-text);
     font-family: inherit;
-    font-size: 0.9rem;
-    min-height: 64px;
+    // 16px avoids iOS focus zoom.
+    font-size: 16px;
+    line-height: 1.4;
+    min-height: 72px;
+    max-height: 160px;
+
+    @include respond-to(tablet) {
+      font-size: 0.95rem;
+      min-height: 64px;
+    }
+  }
+}
+
+.ai-mentor__send {
+  width: 100%;
+
+  @include respond-to(tablet) {
+    width: auto;
+    flex-shrink: 0;
   }
 }
 
