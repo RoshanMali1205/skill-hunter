@@ -118,8 +118,11 @@
 
     <div class="calendar__month-card">
       <div class="calendar__month-grid">
-        @for (label of weekdayLabels; track label) {
-          <div class="calendar__month-weekday">{{ label }}</div>
+        @for (label of weekdayLabelsShort; track $index) {
+          <div class="calendar__month-weekday" [attr.aria-label]="weekdayLabels[$index]">
+            <span class="calendar__month-weekday-full">{{ weekdayLabels[$index] }}</span>
+            <span class="calendar__month-weekday-short" aria-hidden="true">{{ label }}</span>
+          </div>
         }
         @for (day of monthGrid(); track day.key) {
           <button

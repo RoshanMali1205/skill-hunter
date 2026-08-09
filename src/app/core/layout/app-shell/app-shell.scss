@@ -2,7 +2,8 @@
 
 .app-shell {
   display: flex;
-  min-height: calc(100vh - var(--header-height));
+  min-height: calc(100vh - var(--header-offset));
+  min-height: calc(100dvh - var(--header-offset));
 }
 
 .app-shell__content {
@@ -11,10 +12,11 @@
   width: 100%;
   max-width: 1400px;
   margin-inline: auto;
-  padding: var(--space-5) var(--space-4) calc(var(--mobile-nav-height) + var(--space-5));
+  padding: var(--space-5) var(--space-4) calc(var(--mobile-nav-offset) + var(--space-5));
   display: flex;
   flex-direction: column;
-  min-height: calc(100dvh - var(--header-height));
+  min-height: calc(100vh - var(--header-offset));
+  min-height: calc(100dvh - var(--header-offset));
 
   @include respond-to(desktop) {
     padding: var(--space-6) var(--space-6);

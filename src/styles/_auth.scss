@@ -48,16 +48,17 @@
 }
 
 .auth-form__toggle {
+  @include touch-target;
   @include focus-ring;
   position: absolute;
-  right: var(--space-2);
+  right: var(--space-1);
   top: 50%;
   translate: 0 -50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border: none;
   background: transparent;
   color: var(--color-text-muted);

@@ -14,11 +14,21 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100%;
+  overflow-x: clip;
 }
 
 body {
   background: var(--color-bg);
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+// Prevent iOS Safari from zooming focused form controls (< 16px).
+@media (max-width: 1023px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
 }
 
 a {

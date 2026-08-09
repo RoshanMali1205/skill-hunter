@@ -15,19 +15,23 @@
         @for (group of groupedConversations(); track group.label) {
           <p class="ai-mentor__group-label">{{ group.label }}</p>
           @for (conversation of group.items; track conversation.id) {
-            <button
-              type="button"
+            <div
               class="ai-mentor__thread"
               [class.ai-mentor__thread--active]="conversation.id === activeId()"
-              (click)="selectConversation(conversation.id)"
             >
-              <span class="ai-mentor__thread-icon" aria-hidden="true">
-                <app-icon name="message-square" />
-              </span>
-              <span class="ai-mentor__thread-body">
-                <span class="ai-mentor__thread-title">{{ conversation.title }}</span>
-                <span class="ai-mentor__thread-preview">{{ previewText(conversation) }}</span>
-              </span>
+              <button
+                type="button"
+                class="ai-mentor__thread-main"
+                (click)="selectConversation(conversation.id)"
+              >
+                <span class="ai-mentor__thread-icon" aria-hidden="true">
+                  <app-icon name="message-square" />
+                </span>
+                <span class="ai-mentor__thread-body">
+                  <span class="ai-mentor__thread-title">{{ conversation.title }}</span>
+                  <span class="ai-mentor__thread-preview">{{ previewText(conversation) }}</span>
+                </span>
+              </button>
               <button
                 type="button"
                 class="ai-mentor__thread-delete"
@@ -36,7 +40,7 @@
               >
                 <app-icon name="trash" />
               </button>
-            </button>
+            </div>
           }
         }
       </div>

@@ -3,14 +3,19 @@
 .auth-shell {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: safe center;
   gap: var(--space-4);
-  padding: var(--space-5);
+  padding:
+    max(var(--space-5), env(safe-area-inset-top, 0px))
+    max(var(--space-5), env(safe-area-inset-right, 0px))
+    max(var(--space-5), env(safe-area-inset-bottom, 0px))
+    max(var(--space-5), env(safe-area-inset-left, 0px));
   background:
     radial-gradient(1200px 700px at 10% -10%, color-mix(in srgb, var(--color-primary) 28%, transparent), transparent 60%),
     radial-gradient(900px 600px at 110% 10%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 55%),
