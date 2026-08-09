@@ -104,6 +104,12 @@ export const routes: Routes = [
         title: 'Revision · Skill Hunter',
       },
       {
+        path: 'achievements',
+        loadComponent: () =>
+          import('./features/achievements/achievements').then((m) => m.AchievementsComponent),
+        title: 'Achievements · Skill Hunter',
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./features/settings/settings').then((m) => m.SettingsComponent),

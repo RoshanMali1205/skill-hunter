@@ -5,6 +5,60 @@
   </div>
 
   <section class="settings__card">
+    <h2>Profile</h2>
+    <p class="settings__muted">
+      Your name appears on the dashboard welcome, and your photo powers the hunter progress card.
+    </p>
+
+    <div class="settings__profile">
+      <div class="settings__avatar" aria-hidden="true">
+        @if (photoDataUrl(); as photo) {
+          <img [src]="photo" alt="" />
+        } @else {
+          <span>{{ initials() }}</span>
+        }
+      </div>
+
+      <div class="settings__profile-actions">
+        <label class="btn btn--primary">
+          <app-icon name="user" /> Upload photo
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            class="settings__file-input"
+            (change)="onPhotoSelected($event)"
+          />
+        </label>
+        @if (photoDataUrl()) {
+          <button type="button" class="btn" (click)="removePhoto()">Remove photo</button>
+        }
+        <a class="btn" routerLink="/achievements">View achievements</a>
+      </div>
+    </div>
+
+    <label class="settings__field">
+      <span>Display name</span>
+      <div class="settings__name-row">
+        <input
+          type="text"
+          class="settings__text-input"
+          [ngModel]="nameDraft()"
+          (ngModelChange)="nameDraft.set($event)"
+          maxlength="60"
+          autocomplete="name"
+        />
+        <button type="button" class="btn btn--primary" (click)="saveDisplayName()">Save name</button>
+      </div>
+    </label>
+
+    @if (profileMessage(); as message) {
+      <p [class.settings__success]="message.success" [class.settings__error]="!message.success">
+        {{ message.text }}
+      </p>
+    }
+  </section>
+
+  <section class="settings__card">
     <h2>Appearance</h2>
     <label class="settings__field settings__field--checkbox">
       <input

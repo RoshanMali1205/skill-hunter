@@ -6,6 +6,8 @@
         [routerLink]="item.path"
         routerLinkActive="mobile-nav__sheet-link--active"
         class="mobile-nav__sheet-link"
+        [appTooltip]="item.hint"
+        tooltipPos="top"
         (click)="closeMore()"
       >
         <app-icon [name]="item.icon" />

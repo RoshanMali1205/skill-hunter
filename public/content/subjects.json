@@ -5680,5 +5680,804 @@
         ]
       }
     ]
+  },
+  {
+    "id": "ai-concepts",
+    "title": "AI Concepts",
+    "description": "AI and LLM fundamentals explained in simple human language, including transformers, prompting, embeddings, vector search, RAG types, agents, evaluation, security and production design.",
+    "icon": "🤖",
+    "order": 7,
+    "categories": [
+      {
+        "id": "ai-foundations",
+        "subjectId": "ai-concepts",
+        "title": "AI & LLM Foundations",
+        "description": "Core vocabulary for how large language models are built, sized and run.",
+        "order": 1,
+        "topics": [
+          {
+            "id": "ai-what-is-a-language-model",
+            "categoryId": "ai-foundations",
+            "title": "What Is a Language Model",
+            "description": "A language model is a system trained to predict the next token in a sequence, and every higher-level LLM behavior is built on top of that single prediction task.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 15,
+            "tags": [
+              "ai-concepts",
+              "foundations",
+              "what-is-a-language-model"
+            ]
+          },
+          {
+            "id": "ai-tokens-and-tokenization",
+            "categoryId": "ai-foundations",
+            "title": "Tokens and Tokenization",
+            "description": "Tokenization splits text into sub-word units before a model ever sees it, which is why token count, not word count, drives cost, latency and context limits.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 15,
+            "tags": [
+              "ai-concepts",
+              "foundations",
+              "tokens-and-tokenization"
+            ]
+          },
+          {
+            "id": "ai-context-window-and-limits",
+            "categoryId": "ai-foundations",
+            "title": "Context Window and Its Limits",
+            "description": "The context window is the fixed number of tokens a model can attend to at once, and everything that does not fit must be summarized, retrieved or dropped.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 15,
+            "tags": [
+              "ai-concepts",
+              "foundations",
+              "context-window-and-its-limits"
+            ]
+          },
+          {
+            "id": "ai-training-vs-inference",
+            "categoryId": "ai-foundations",
+            "title": "Training vs Inference",
+            "description": "Training adjusts model weights over large datasets and heavy compute, while inference is the comparatively cheap, weight-frozen step of generating a response to one prompt.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 15,
+            "tags": [
+              "ai-concepts",
+              "foundations",
+              "training-vs-inference"
+            ]
+          },
+          {
+            "id": "ai-model-scale-and-capability",
+            "categoryId": "ai-foundations",
+            "title": "Model Scale and Capability",
+            "description": "Parameter count, training data and compute jointly determine capability, but bigger is not always better once latency, cost and task fit are considered.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "foundations",
+              "model-scale-and-capability"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ai-transformers",
+        "subjectId": "ai-concepts",
+        "title": "Transformer Architecture",
+        "description": "Attention, positional encoding and the architectural choices behind modern LLMs.",
+        "order": 2,
+        "topics": [
+          {
+            "id": "ai-self-attention-explained",
+            "categoryId": "ai-transformers",
+            "title": "Self-Attention Explained",
+            "description": "Self-attention lets every token look at every other token in the sequence and weigh how much each one matters for predicting the next token.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "transformers",
+              "self-attention-explained"
+            ]
+          },
+          {
+            "id": "ai-multi-head-attention",
+            "categoryId": "ai-transformers",
+            "title": "Multi-Head Attention",
+            "description": "Multi-head attention runs several attention computations in parallel so the model can track different kinds of relationships, such as syntax and long-range reference, at once.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "transformers",
+              "multi-head-attention"
+            ]
+          },
+          {
+            "id": "ai-positional-encoding",
+            "categoryId": "ai-transformers",
+            "title": "Positional Encoding",
+            "description": "Because self-attention has no built-in sense of order, positional encoding injects position information into token representations so word order still matters.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "transformers",
+              "positional-encoding"
+            ]
+          },
+          {
+            "id": "ai-encoder-decoder-vs-decoder-only",
+            "categoryId": "ai-transformers",
+            "title": "Encoder-Decoder vs Decoder-Only Models",
+            "description": "Encoder-decoder models separate understanding the input from generating output, while decoder-only models like GPT do both with a single autoregressive stack.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "transformers",
+              "encoder-decoder-vs-decoder-only"
+            ]
+          },
+          {
+            "id": "ai-why-transformers-replaced-rnns",
+            "categoryId": "ai-transformers",
+            "title": "Why Transformers Replaced RNNs",
+            "description": "Transformers process a whole sequence in parallel through attention instead of one token at a time, which fixed the vanishing-gradient and long-range-dependency problems that limited RNNs.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "transformers",
+              "why-transformers-replaced-rnns"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ai-prompting",
+        "subjectId": "ai-concepts",
+        "title": "Prompting & Prompt Engineering",
+        "description": "Practical techniques for controlling what a model does and how it responds.",
+        "order": 3,
+        "topics": [
+          {
+            "id": "ai-zero-shot-vs-few-shot-prompting",
+            "categoryId": "ai-prompting",
+            "title": "Zero-Shot vs Few-Shot Prompting",
+            "description": "Zero-shot prompting asks a model to perform a task from instructions alone, while few-shot prompting adds a handful of worked examples to steer format and reasoning.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 15,
+            "tags": [
+              "ai-concepts",
+              "prompting",
+              "zero-shot-vs-few-shot-prompting"
+            ]
+          },
+          {
+            "id": "ai-chain-of-thought-prompting",
+            "categoryId": "ai-prompting",
+            "title": "Chain-of-Thought Prompting",
+            "description": "Chain-of-thought prompting asks a model to reason in intermediate steps before answering, which measurably improves accuracy on multi-step problems.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "prompting",
+              "chain-of-thought-prompting"
+            ]
+          },
+          {
+            "id": "ai-system-vs-user-prompts",
+            "categoryId": "ai-prompting",
+            "title": "System vs User Prompts",
+            "description": "The system prompt sets durable behavior, role and constraints for the whole conversation, while user prompts carry the specific, per-turn request.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 15,
+            "tags": [
+              "ai-concepts",
+              "prompting",
+              "system-vs-user-prompts"
+            ]
+          },
+          {
+            "id": "ai-sampling-temperature-and-top-p",
+            "categoryId": "ai-prompting",
+            "title": "Sampling: Temperature and Top-p",
+            "description": "Temperature and top-p control how much randomness is allowed when the model samples the next token, trading determinism for creativity.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "prompting",
+              "sampling-temperature-and-top-p"
+            ]
+          },
+          {
+            "id": "ai-structured-output-and-json-mode",
+            "categoryId": "ai-prompting",
+            "title": "Structured Output and JSON Mode",
+            "description": "Structured output constrains a model's response to a schema, using either prompt-level instructions or a grammar-constrained decoding mode, so downstream code can parse it reliably.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "prompting",
+              "structured-output-and-json-mode"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ai-embeddings",
+        "subjectId": "ai-concepts",
+        "title": "Embeddings & Vector Search",
+        "description": "Turning text into vectors and searching them efficiently at scale.",
+        "order": 4,
+        "topics": [
+          {
+            "id": "ai-what-are-embeddings",
+            "categoryId": "ai-embeddings",
+            "title": "What Are Embeddings",
+            "description": "An embedding is a dense numeric vector that represents the meaning of text so that semantically similar inputs end up close together in vector space.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 15,
+            "tags": [
+              "ai-concepts",
+              "embeddings",
+              "what-are-embeddings"
+            ]
+          },
+          {
+            "id": "ai-similarity-metrics",
+            "categoryId": "ai-embeddings",
+            "title": "Similarity Metrics",
+            "description": "Cosine similarity, dot product and Euclidean distance each answer how close two vectors are slightly differently, and the embedding model you use usually dictates which one to pick.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "embeddings",
+              "similarity-metrics"
+            ]
+          },
+          {
+            "id": "ai-vector-databases",
+            "categoryId": "ai-embeddings",
+            "title": "Vector Databases",
+            "description": "A vector database indexes embeddings for fast approximate nearest-neighbor search at scale, trading a little recall for the speed a linear scan cannot provide.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "embeddings",
+              "vector-databases"
+            ]
+          },
+          {
+            "id": "ai-chunking-strategies",
+            "categoryId": "ai-embeddings",
+            "title": "Chunking Strategies",
+            "description": "Chunking splits source documents into retrievable pieces, and the size, overlap and boundary rules you choose directly control retrieval quality.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "embeddings",
+              "chunking-strategies"
+            ]
+          },
+          {
+            "id": "ai-hybrid-search",
+            "categoryId": "ai-embeddings",
+            "title": "Hybrid Search",
+            "description": "Hybrid search combines keyword (lexical) search with vector (semantic) search so exact terms like IDs and acronyms are not lost to purely semantic matching.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "embeddings",
+              "hybrid-search"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ai-rag",
+        "subjectId": "ai-concepts",
+        "title": "Retrieval-Augmented Generation (RAG)",
+        "description": "Grounding model answers in retrieved data, and the trade-offs between RAG architectures.",
+        "order": 5,
+        "topics": [
+          {
+            "id": "ai-what-is-rag-and-why",
+            "categoryId": "ai-rag",
+            "title": "What Is RAG and Why It Matters",
+            "description": "RAG grounds a model's answer in retrieved documents at request time, which reduces hallucination and lets an application answer from private or fast-changing data without retraining.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "rag",
+              "what-is-rag-and-why-it-matters"
+            ]
+          },
+          {
+            "id": "ai-naive-rag-pipeline",
+            "categoryId": "ai-rag",
+            "title": "The Naive RAG Pipeline",
+            "description": "A naive RAG pipeline chunks and embeds documents ahead of time, then at query time retrieves the top matches and stuffs them into the prompt before generation.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "rag",
+              "the-naive-rag-pipeline"
+            ]
+          },
+          {
+            "id": "ai-reranking-and-retrieval-quality",
+            "categoryId": "ai-rag",
+            "title": "Reranking and Retrieval Quality",
+            "description": "A reranker re-scores the initial retrieved candidates with a more accurate but slower model, fixing the common case where the right chunk is retrieved but ranked too low to matter.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "rag",
+              "reranking-and-retrieval-quality"
+            ]
+          },
+          {
+            "id": "ai-agentic-and-graph-rag",
+            "categoryId": "ai-rag",
+            "title": "Agentic RAG and Graph RAG",
+            "description": "Agentic RAG lets the model decide when and what to retrieve across multiple steps, while graph RAG retrieves through explicit entity relationships instead of flat chunk similarity.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "rag",
+              "agentic-rag-and-graph-rag"
+            ]
+          },
+          {
+            "id": "ai-evaluating-rag-quality",
+            "categoryId": "ai-rag",
+            "title": "Evaluating RAG Quality",
+            "description": "RAG evaluation has to separately measure retrieval quality and generation quality, because good retrieval with a bad answer looks identical to bad retrieval from the outside.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "rag",
+              "evaluating-rag-quality"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ai-agents",
+        "subjectId": "ai-concepts",
+        "title": "AI Agents & Tool Use",
+        "description": "Giving models the ability to act: tool calling, planning loops and multi-agent coordination.",
+        "order": 6,
+        "topics": [
+          {
+            "id": "ai-what-is-an-agent",
+            "categoryId": "ai-agents",
+            "title": "What Is an AI Agent",
+            "description": "An AI agent is a model wrapped in a loop that can choose actions, call tools and observe results across multiple steps instead of answering in a single pass.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "agents",
+              "what-is-an-ai-agent"
+            ]
+          },
+          {
+            "id": "ai-react-pattern",
+            "categoryId": "ai-agents",
+            "title": "The ReAct Pattern",
+            "description": "ReAct interleaves reasoning traces with tool actions and their observations, letting the model adjust its plan based on what a tool actually returned.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "agents",
+              "the-react-pattern"
+            ]
+          },
+          {
+            "id": "ai-function-and-tool-calling",
+            "categoryId": "ai-agents",
+            "title": "Function and Tool Calling",
+            "description": "Tool calling lets a model emit a structured request to invoke a named function with arguments, and the calling application executes it and returns the result for the model to continue with.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "agents",
+              "function-and-tool-calling"
+            ]
+          },
+          {
+            "id": "ai-multi-agent-systems",
+            "categoryId": "ai-agents",
+            "title": "Multi-Agent Systems",
+            "description": "Multi-agent systems split a task across specialized agents, such as a planner and several workers, which improves focus per agent but adds coordination and failure-handling overhead.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "agents",
+              "multi-agent-systems"
+            ]
+          },
+          {
+            "id": "ai-agent-memory-and-mcp",
+            "categoryId": "ai-agents",
+            "title": "Agent Memory and the Model Context Protocol",
+            "description": "Agent memory persists useful state across turns or sessions, and protocols like MCP standardize how an agent discovers and calls external tools and data sources.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "agents",
+              "agent-memory-and-the-model-context-protocol"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ai-fine-tuning",
+        "subjectId": "ai-concepts",
+        "title": "Fine-Tuning & Model Customization",
+        "description": "When to fine-tune instead of prompting or retrieving, and how modern fine-tuning actually works.",
+        "order": 7,
+        "topics": [
+          {
+            "id": "ai-fine-tuning-vs-prompting-vs-rag",
+            "categoryId": "ai-fine-tuning",
+            "title": "Fine-Tuning vs Prompting vs RAG",
+            "description": "Prompting changes behavior instantly with no training, RAG adds fresh or private knowledge at query time, and fine-tuning bakes a skill or style into the weights themselves.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "fine-tuning",
+              "fine-tuning-vs-prompting-vs-rag"
+            ]
+          },
+          {
+            "id": "ai-lora-and-peft",
+            "categoryId": "ai-fine-tuning",
+            "title": "LoRA and Parameter-Efficient Fine-Tuning",
+            "description": "LoRA and other PEFT methods train a small number of additional low-rank parameters instead of the whole model, making customization far cheaper and easier to swap per use case.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "fine-tuning",
+              "lora-and-parameter-efficient-fine-tuning"
+            ]
+          },
+          {
+            "id": "ai-rlhf-and-alignment",
+            "categoryId": "ai-fine-tuning",
+            "title": "RLHF and Alignment",
+            "description": "Reinforcement learning from human feedback trains a model to prefer the responses humans rate as better, which is how raw next-token predictors become helpful, instruction-following assistants.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "fine-tuning",
+              "rlhf-and-alignment"
+            ]
+          },
+          {
+            "id": "ai-distillation-and-smaller-models",
+            "categoryId": "ai-fine-tuning",
+            "title": "Distillation and Smaller Models",
+            "description": "Distillation trains a smaller student model to mimic a larger teacher model's outputs, recovering much of the capability at a fraction of the inference cost.",
+            "difficulty": "advanced",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "fine-tuning",
+              "distillation-and-smaller-models"
+            ]
+          },
+          {
+            "id": "ai-choosing-a-model-for-a-task",
+            "categoryId": "ai-fine-tuning",
+            "title": "Choosing a Model for a Task",
+            "description": "Model choice is a trade-off between capability, latency, cost and data sensitivity, and the right answer is often a smaller model plus good context rather than the largest model available.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "fine-tuning",
+              "choosing-a-model-for-a-task"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ai-evaluation",
+        "subjectId": "ai-concepts",
+        "title": "Evaluating AI Systems",
+        "description": "Measuring whether an LLM feature actually works, and catching regressions before users do.",
+        "order": 8,
+        "topics": [
+          {
+            "id": "ai-evaluating-llm-outputs",
+            "categoryId": "ai-evaluation",
+            "title": "Evaluating LLM Outputs",
+            "description": "Evaluating an LLM feature means defining task-specific success criteria upfront, because generic fluency says nothing about whether the answer was actually correct or useful.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "evaluation",
+              "evaluating-llm-outputs"
+            ]
+          },
+          {
+            "id": "ai-llm-as-judge",
+            "categoryId": "ai-evaluation",
+            "title": "LLM-as-Judge",
+            "description": "Using one model to grade another model's outputs against a rubric scales evaluation cheaply, but the judge itself needs calibration against human ratings to be trusted.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "evaluation",
+              "llm-as-judge"
+            ]
+          },
+          {
+            "id": "ai-hallucination-detection",
+            "categoryId": "ai-evaluation",
+            "title": "Hallucination Detection",
+            "description": "A hallucination is a fluent, confident statement that is not supported by the model's training data or provided context, and catching it requires checking claims against a source, not just checking that the text sounds right.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "evaluation",
+              "hallucination-detection"
+            ]
+          },
+          {
+            "id": "ai-golden-datasets-and-regression-testing",
+            "categoryId": "ai-evaluation",
+            "title": "Golden Datasets and Regression Testing",
+            "description": "A golden dataset is a curated, versioned set of inputs with known-good outputs that lets you detect when a prompt, model or pipeline change silently breaks something that used to work.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "evaluation",
+              "golden-datasets-and-regression-testing"
+            ]
+          },
+          {
+            "id": "ai-benchmarks-and-their-limits",
+            "categoryId": "ai-evaluation",
+            "title": "Benchmarks and Their Limits",
+            "description": "Public benchmarks are useful for comparing raw model capability, but they rarely resemble your actual task closely enough to substitute for evaluation on your own data.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 15,
+            "tags": [
+              "ai-concepts",
+              "evaluation",
+              "benchmarks-and-their-limits"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ai-security",
+        "subjectId": "ai-concepts",
+        "title": "AI Security & Safety",
+        "description": "Prompt injection, jailbreaks, data leakage and the guardrails production AI systems need.",
+        "order": 9,
+        "topics": [
+          {
+            "id": "ai-prompt-injection",
+            "categoryId": "ai-security",
+            "title": "Prompt Injection",
+            "description": "Prompt injection is untrusted content, such as a document or webpage, that tries to override a model's instructions, and it has to be treated as an attacker-controlled input, not just noisy data.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "security",
+              "prompt-injection"
+            ]
+          },
+          {
+            "id": "ai-jailbreaks-and-guardrails",
+            "categoryId": "ai-security",
+            "title": "Jailbreaks and Guardrails",
+            "description": "A jailbreak is a crafted input designed to bypass a model's safety training, and guardrails are the layered checks, filters and policies that catch what the model's own training misses.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "security",
+              "jailbreaks-and-guardrails"
+            ]
+          },
+          {
+            "id": "ai-data-leakage-and-pii",
+            "categoryId": "ai-security",
+            "title": "Data Leakage and PII",
+            "description": "Sensitive data can leak through prompts sent to a third-party model, through retrieved context surfaced to the wrong user, or through logs, so PII handling has to be designed at every stage of the pipeline.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "security",
+              "data-leakage-and-pii"
+            ]
+          },
+          {
+            "id": "ai-content-moderation",
+            "categoryId": "ai-security",
+            "title": "Content Moderation",
+            "description": "Content moderation screens both user input and model output for disallowed content, and doing it on both sides matters because a safe prompt can still produce an unsafe response.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "security",
+              "content-moderation"
+            ]
+          },
+          {
+            "id": "ai-sandboxing-tool-execution",
+            "categoryId": "ai-security",
+            "title": "Sandboxing Tool Execution",
+            "description": "Because an agent's tool calls are ultimately driven by model output, every tool needs the same isolation, permission scoping and validation you would apply to any other untrusted caller.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "security",
+              "sandboxing-tool-execution"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ai-production",
+        "subjectId": "ai-concepts",
+        "title": "Production AI System Design",
+        "description": "Latency, cost, caching, streaming, observability and routing for real-world AI systems.",
+        "order": 10,
+        "topics": [
+          {
+            "id": "ai-latency-and-cost-tradeoffs",
+            "categoryId": "ai-production",
+            "title": "Latency and Cost Trade-offs",
+            "description": "Every LLM feature trades off latency, cost and quality against model size, context length and number of calls, and production systems have to make that trade-off explicit rather than defaulting to the biggest model.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "production",
+              "latency-and-cost-tradeoffs"
+            ]
+          },
+          {
+            "id": "ai-caching-llm-responses",
+            "categoryId": "ai-production",
+            "title": "Caching LLM Responses",
+            "description": "Caching identical or near-identical prompts avoids paying for and waiting on repeated generation, but it requires care around personalization, freshness and prompt-key design.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "production",
+              "caching-llm-responses"
+            ]
+          },
+          {
+            "id": "ai-streaming-responses",
+            "categoryId": "ai-production",
+            "title": "Streaming Responses",
+            "description": "Streaming tokens back to the client as they are generated cuts perceived latency dramatically even when total generation time is unchanged, which is why almost every production chat UI streams.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "production",
+              "streaming-responses"
+            ]
+          },
+          {
+            "id": "ai-observability-and-tracing",
+            "categoryId": "ai-production",
+            "title": "Observability and Tracing for LLM Pipelines",
+            "description": "LLM observability traces every prompt, retrieval, tool call and response in a request so you can debug a bad answer instead of only seeing the final text.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "production",
+              "observability-and-tracing-for-llm-pipelines"
+            ]
+          },
+          {
+            "id": "ai-model-routing-and-fallback",
+            "categoryId": "ai-production",
+            "title": "Model Routing and Fallback",
+            "description": "Model routing sends each request to the cheapest model that can handle it and falls back to a stronger model or a cached/default response when a call fails or a provider is down.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "production",
+              "model-routing-and-fallback"
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]

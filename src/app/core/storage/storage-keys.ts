@@ -7,6 +7,8 @@ export const STORAGE_KEYS = {
   activity: 'interview-prep.activity',
   notes: 'interview-prep.notes',
   aiChats: 'interview-prep.ai-chats',
+  profile: 'interview-prep.profile',
+  achievements: 'interview-prep.achievements',
 } as const;
 
 export const CURRENT_DATA_VERSION = 1;

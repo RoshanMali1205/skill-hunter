@@ -9,6 +9,8 @@
           routerLinkActive="sidebar__link--active"
           [routerLinkActiveOptions]="{ exact: false }"
           class="sidebar__link"
+          [appTooltip]="item.hint"
+          tooltipPos="right"
         >
           <app-icon [name]="item.icon" />
           <span>{{ item.label }}</span>

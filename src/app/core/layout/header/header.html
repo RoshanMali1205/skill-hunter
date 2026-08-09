@@ -1,11 +1,16 @@
 <header class="header">
-  <a class="header__brand" routerLink="/dashboard">
+  <a
+    class="header__brand"
+    routerLink="/dashboard"
+    appTooltip="Go to dashboard"
+    tooltipPos="bottom"
+  >
     <span class="header__logo" aria-hidden="true"><app-icon name="target" /></span>
     <span class="header__brand-text">Skill Hunter</span>
   </a>
 
   <div class="header__actions">
-    @if (user(); as currentUser) {
+    @if (user()) {
       <div class="header__user">
         <button
           type="button"
@@ -13,9 +18,18 @@
           [class.header__user-trigger--open]="menuOpen()"
           (click)="toggleMenu()"
           [attr.aria-expanded]="menuOpen()"
+          appTooltip="Account menu"
+          tooltipPos="bottom"
+          tooltipAlign="end"
         >
-          <span class="header__user-avatar" aria-hidden="true">{{ initials(currentUser.name) }}</span>
-          <span class="header__user-name">{{ currentUser.name }}</span>
+          <span class="header__user-avatar" aria-hidden="true">
+            @if (photoDataUrl(); as photo) {
+              <img [src]="photo" alt="" />
+            } @else {
+              {{ initials() }}
+            }
+          </span>
+          <span class="header__user-name">{{ displayName() }}</span>
           <app-icon name="chevron-right" class="header__user-chevron" />
         </button>
 
@@ -27,8 +41,11 @@
             (click)="closeMenu()"
           ></button>
           <div class="header__user-menu">
+            <a routerLink="/achievements" class="header__user-menu-item" (click)="closeMenu()">
+              <app-icon name="medal" /> Achievements
+            </a>
             <a routerLink="/settings" class="header__user-menu-item" (click)="closeMenu()">
-              <app-icon name="settings" /> Settings
+              <app-icon name="user-pen" /> Edit profile
             </a>
             <button
               type="button"

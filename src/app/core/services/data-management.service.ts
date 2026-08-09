@@ -7,19 +7,27 @@ import { SettingsService } from './settings.service';
 import { ActivityService } from './activity.service';
 import { NoteService } from './note.service';
 import { AiChatStore } from './ai-chat.store';
+import { ProfileService } from './profile.service';
+import { AchievementsService } from './achievements.service';
 import { CURRENT_DATA_VERSION } from '../storage/storage-keys';
 import {
+  AchievementId,
+  AchievementsState,
   ActivityLog,
   AppSettings,
   Bookmark,
   ConfidenceLevel,
+  DEFAULT_ACHIEVEMENTS,
+  DEFAULT_PROFILE,
   DEFAULT_SETTINGS,
   Note,
   PracticeAttempt,
   StoredApplicationData,
   TopicProgress,
   TopicStatus,
+  UserProfile,
 } from '../models';
+import { ACHIEVEMENT_DEFINITIONS } from '../models/achievements.models';
 
 const TOPIC_STATUSES: TopicStatus[] = ['not-started', 'in-progress', 'completed'];
 const CONFIDENCE_LEVELS: ConfidenceLevel[] = ['not-rated', 'low', 'medium', 'high'];
@@ -27,6 +35,7 @@ const BOOKMARK_TYPES = ['topic', 'question'] as const;
 const PRACTICE_RESULTS = ['correct', 'incorrect', 'needs-revision'] as const;
 const THEMES = ['light', 'dark'] as const;
 const DIFFICULTIES = ['all', 'beginner', 'intermediate', 'advanced'] as const;
+const ACHIEVEMENT_IDS = ACHIEVEMENT_DEFINITIONS.map((def) => def.id);
 
 @Injectable({ providedIn: 'root' })
 export class DataManagementService {
@@ -38,6 +47,8 @@ export class DataManagementService {
   private readonly activityService = inject(ActivityService);
   private readonly noteService = inject(NoteService);
   private readonly aiChatStore = inject(AiChatStore);
+  private readonly profileService = inject(ProfileService);
+  private readonly achievementsService = inject(AchievementsService);
 
   buildExport(): StoredApplicationData {
     return {
@@ -49,6 +60,8 @@ export class DataManagementService {
       settings: this.settingsService.settings(),
       activity: this.activityService.activity(),
       notes: this.noteService.notes(),
+      profile: this.profileService.profile(),
+      achievements: this.achievementsService.state(),
     };
   }
 
@@ -77,6 +90,8 @@ export class DataManagementService {
     this.settingsService.replaceAll(data.settings);
     this.activityService.replaceAll(data.activity ?? {});
     this.noteService.replaceAll(data.notes ?? {});
+    this.profileService.replaceAll(data.profile ?? DEFAULT_PROFILE);
+    this.achievementsService.replaceAll(data.achievements ?? DEFAULT_ACHIEVEMENTS);
 
     return { success: true };
   }
@@ -89,6 +104,7 @@ export class DataManagementService {
     this.activityService.resetAll();
     this.noteService.resetAll();
     this.aiChatStore.resetAll();
+    this.achievementsService.resetAll();
   }
 
   private parseStoredData(
@@ -152,6 +168,24 @@ export class DataManagementService {
       notes = parsedNotes;
     }
 
+    let profile: UserProfile | undefined;
+    if (candidate['profile'] !== undefined) {
+      const parsedProfile = this.parseProfile(candidate['profile']);
+      if (!parsedProfile) {
+        return { ok: false, error: 'Export has invalid profile data.' };
+      }
+      profile = parsedProfile;
+    }
+
+    let achievements: AchievementsState | undefined;
+    if (candidate['achievements'] !== undefined) {
+      const parsedAchievements = this.parseAchievements(candidate['achievements']);
+      if (!parsedAchievements) {
+        return { ok: false, error: 'Export has invalid achievements data.' };
+      }
+      achievements = parsedAchievements;
+    }
+
     return {
       ok: true,
       data: {
@@ -163,6 +197,8 @@ export class DataManagementService {
         settings,
         activity,
         notes,
+        profile,
+        achievements,
       },
     };
   }
@@ -333,6 +369,41 @@ export class DataManagementService {
       };
     }
     return result;
+  }
+
+  private parseProfile(value: unknown): UserProfile | null {
+    if (!this.isPlainObject(value)) return null;
+    if (typeof value['displayName'] !== 'string') return null;
+    if (value['photoDataUrl'] !== null && typeof value['photoDataUrl'] !== 'string') return null;
+    if (typeof value['updatedAt'] !== 'string') return null;
+    if (
+      typeof value['photoDataUrl'] === 'string' &&
+      value['photoDataUrl'] &&
+      !value['photoDataUrl'].startsWith('data:image/')
+    ) {
+      return null;
+    }
+    return {
+      displayName: value['displayName'],
+      photoDataUrl: value['photoDataUrl'],
+      updatedAt: value['updatedAt'],
+    };
+  }
+
+  private parseAchievements(value: unknown): AchievementsState | null {
+    if (!this.isPlainObject(value)) return null;
+    if (!Array.isArray(value['unlocked'])) return null;
+    const unlocked = [];
+    for (const entry of value['unlocked']) {
+      if (!this.isPlainObject(entry)) return null;
+      if (!this.isOneOf(entry['id'], ACHIEVEMENT_IDS)) return null;
+      if (typeof entry['unlockedAt'] !== 'string') return null;
+      unlocked.push({
+        id: entry['id'] as AchievementId,
+        unlockedAt: entry['unlockedAt'],
+      });
+    }
+    return { unlocked };
   }
 
   private parseStringArray(value: unknown): string[] | null {

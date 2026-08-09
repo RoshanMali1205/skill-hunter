@@ -1,9 +1,40 @@
 <div class="stack">
   <div class="dashboard__hero">
     <span class="eyebrow">Interview Prep</span>
-    <h1>Welcome back</h1>
+    <h1>Welcome back, {{ firstName() }}</h1>
     <p class="dashboard__subtitle">Here's where your interview preparation stands today.</p>
   </div>
+
+  <app-profile-card
+    [name]="displayName()"
+    [photoDataUrl]="photoDataUrl()"
+    [percentage]="metrics().completionPercentage"
+    [completedTopics]="metrics().completedTopics"
+    [totalTopics]="metrics().totalTopics"
+    [streak]="currentStreak()"
+    [unlockedAchievements]="unlockedAchievements()"
+    [totalAchievements]="totalAchievements"
+  />
+
+  @if (recentAchievements().length > 0) {
+    <section class="dashboard__recent-achievements">
+      <div class="dashboard__recent-achievements-head">
+        <h2><app-icon name="medal" /> Recent achievements</h2>
+        <a class="dashboard__card-link" routerLink="/achievements">View all →</a>
+      </div>
+      <div class="dashboard__recent-achievements-list">
+        @for (item of recentAchievements(); track item.id) {
+          <div class="dashboard__badge">
+            <span class="dashboard__badge-icon" aria-hidden="true"><app-icon [name]="item.icon" /></span>
+            <div>
+              <p class="dashboard__badge-title">{{ item.title }}</p>
+              <p class="dashboard__badge-desc">{{ item.description }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
 
   <section class="dashboard__overall">
     <app-donut-chart

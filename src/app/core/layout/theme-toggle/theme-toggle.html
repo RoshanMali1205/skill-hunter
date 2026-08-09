@@ -3,6 +3,9 @@
   class="theme-toggle"
   [attr.aria-label]="settings().theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
   [attr.aria-pressed]="settings().theme === 'dark'"
+  [appTooltip]="settings().theme === 'dark' ? 'Light mode' : 'Dark mode'"
+  tooltipPos="bottom"
+  tooltipAlign="end"
   (click)="toggle()"
 >
   @if (settings().theme === 'dark') {

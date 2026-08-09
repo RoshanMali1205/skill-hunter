@@ -1,0 +1,49 @@
+<div class="stack">
+  <div class="achievements__hero">
+    <span class="eyebrow">Milestones</span>
+    <h1>Achievements</h1>
+    <p class="achievements__subtitle">
+      Earn badges as you study, practice, and build interview confidence.
+    </p>
+  </div>
+
+  <section class="achievements__summary">
+    <div>
+      <p class="achievements__summary-label">Unlocked</p>
+      <p class="achievements__summary-value">
+        {{ unlockedCount() }} <span>/ {{ totalCount }}</span>
+      </p>
+    </div>
+    <div class="achievements__summary-bar" role="progressbar" [attr.aria-valuenow]="progressPct()" aria-valuemin="0" aria-valuemax="100">
+      <span [style.width.%]="progressPct()"></span>
+    </div>
+    <a class="btn" routerLink="/settings">Update profile photo</a>
+  </section>
+
+  @for (group of grouped(); track group.category) {
+    <section class="achievements__group">
+      <h2>{{ group.label }}</h2>
+      <div class="achievements__grid">
+        @for (item of group.items; track item.id) {
+          <article
+            class="achievements__card"
+            [class.achievements__card--locked]="!item.unlocked"
+          >
+            <span class="achievements__icon" aria-hidden="true">
+              <app-icon [name]="item.icon" />
+            </span>
+            <div class="achievements__card-body">
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.description }}</p>
+              @if (item.unlocked) {
+                <span class="achievements__earned">Earned {{ formatDate(item.unlockedAt) }}</span>
+              } @else {
+                <span class="achievements__locked">Locked</span>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+</div>

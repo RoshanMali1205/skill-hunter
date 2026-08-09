@@ -3,6 +3,7 @@
 @use 'styles/typography';
 @use 'styles/mixins' as *;
 @use 'styles/utilities';
+@use 'styles/tooltips';
 @use 'styles/auth';
 
 * {
@@ -18,7 +19,8 @@ body {
 }
 
 body {
-  background: var(--color-bg);
+  background: var(--gradient-page), var(--color-bg);
+  background-attachment: fixed;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -33,6 +35,17 @@ body {
 
 a {
   color: var(--color-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+a.btn,
+a.btn:hover,
+a.btn:focus-visible {
+  text-decoration: none;
 }
 
 // Angular wraps every component in its own custom element, which is an

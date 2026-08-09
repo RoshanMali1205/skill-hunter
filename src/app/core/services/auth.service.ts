@@ -109,6 +109,25 @@ export class AuthService {
     this._state.set(DEFAULT_AUTH_STATE);
   }
 
+  /** Updates the signed-in user's display name in registry + session. */
+  updateDisplayName(name: string): boolean {
+    const trimmed = name.trim();
+    if (!trimmed) return false;
+
+    const current = this._state().user;
+    if (!current) return false;
+
+    const users = this.getRegisteredUsers();
+    const index = users.findIndex((u) => u.id === current.id);
+    if (index < 0) return false;
+
+    const updated: RegisteredUser = { ...users[index]!, name: trimmed };
+    users[index] = updated;
+    this.saveRegisteredUsers(users);
+    this.completeAuth(updated);
+    return true;
+  }
+
   private completeAuth(user: RegisteredUser): void {
     const authUser: AuthUser = {
       id: user.id,

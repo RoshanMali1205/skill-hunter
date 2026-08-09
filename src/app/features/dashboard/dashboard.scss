@@ -25,7 +25,11 @@ h2 {
 
 .dashboard__overall {
   @include card;
-  background: var(--gradient-hero), var(--gradient-tile);
+  background:
+    radial-gradient(900px 280px at 0% 0%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 55%),
+    radial-gradient(700px 240px at 100% 100%, color-mix(in srgb, var(--color-primary) 16%, transparent), transparent 50%),
+    var(--gradient-hero),
+    var(--gradient-tile);
   padding: var(--space-5);
   display: flex;
   align-items: center;
@@ -199,7 +203,8 @@ h2 {
   margin-top: auto;
 
   &:hover {
-    text-decoration: underline;
+    text-decoration: none;
+    color: var(--color-accent);
   }
 }
 
@@ -218,4 +223,68 @@ h2 {
     font-weight: 700;
     font-size: 1.2rem;
   }
+}
+
+.dashboard__recent-achievements {
+  @include card;
+  padding: var(--space-4);
+  background: var(--gradient-tile);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.dashboard__recent-achievements-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+
+  h2 {
+    margin: 0;
+  }
+
+  .dashboard__card-link {
+    margin-top: 0;
+  }
+}
+
+.dashboard__recent-achievements-list {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.dashboard__badge {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 75%, transparent);
+}
+
+.dashboard__badge-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  background: var(--gradient-primary);
+  color: var(--color-primary-contrast);
+  box-shadow: var(--shadow-primary);
+}
+
+.dashboard__badge-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.dashboard__badge-desc {
+  margin: 2px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
 }

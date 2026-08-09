@@ -6,11 +6,14 @@ import { ProgressStore } from '../../core/services/progress.store';
 import { MetricsService } from '../../core/services/metrics.service';
 import { BookmarkService } from '../../core/services/bookmark.service';
 import { ActivityService } from '../../core/services/activity.service';
+import { ProfileService } from '../../core/services/profile.service';
+import { AchievementsService } from '../../core/services/achievements.service';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar';
 import { DonutChartComponent } from '../../shared/components/donut-chart/donut-chart';
 import { BarChartComponent } from '../../shared/components/bar-chart/bar-chart';
 import { DifficultyChipComponent } from '../../shared/components/difficulty-chip/difficulty-chip';
 import { IconComponent } from '../../shared/components/icon/icon';
+import { ProfileCardComponent } from '../../shared/components/profile-card/profile-card';
 import { subjectVisual } from '../../shared/subject-visuals';
 import { Subject, TopicSummary } from '../../core/models';
 
@@ -36,6 +39,7 @@ function findTopic(
     BarChartComponent,
     DifficultyChipComponent,
     IconComponent,
+    ProfileCardComponent,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -46,10 +50,18 @@ export class DashboardComponent {
   private readonly metricsService = inject(MetricsService);
   private readonly bookmarkService = inject(BookmarkService);
   private readonly activityService = inject(ActivityService);
+  private readonly profileService = inject(ProfileService);
+  private readonly achievementsService = inject(AchievementsService);
 
   readonly subjectVisual = subjectVisual;
   readonly currentStreak = this.activityService.currentStreak;
   readonly todayMinutes = this.activityService.todayMinutes;
+  readonly displayName = this.profileService.displayName;
+  readonly firstName = this.profileService.firstName;
+  readonly photoDataUrl = this.profileService.photoDataUrl;
+  readonly unlockedAchievements = this.achievementsService.unlockedCount;
+  readonly totalAchievements = this.achievementsService.totalCount;
+  readonly recentAchievements = this.achievementsService.recentlyUnlocked;
 
   private readonly subjects = toSignal(this.contentService.getSubjects(), { initialValue: [] });
 

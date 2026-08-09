@@ -1,3 +1,6 @@
+import type { UserProfile } from './profile.models';
+import type { AchievementsState } from './achievements.models';
+
 export type TopicStatus = 'not-started' | 'in-progress' | 'completed';
 
 export type ConfidenceLevel = 'not-rated' | 'low' | 'medium' | 'high';
@@ -67,4 +70,6 @@ export interface StoredApplicationData {
   settings: AppSettings;
   activity?: ActivityLog;
   notes?: Record<string, Note>;
+  profile?: UserProfile;
+  achievements?: AchievementsState;
 }

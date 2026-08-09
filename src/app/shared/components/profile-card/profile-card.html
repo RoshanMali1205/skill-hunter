@@ -1,0 +1,69 @@
+<article class="profile-card">
+  <div class="profile-card__glow" aria-hidden="true"></div>
+
+  <div class="profile-card__avatar-wrap">
+    <svg class="profile-card__ring" viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="profile-card__ring-track" cx="60" cy="60" r="54" />
+      <circle
+        class="profile-card__ring-fill"
+        cx="60"
+        cy="60"
+        r="54"
+        [attr.stroke-dasharray]="339.292"
+        [attr.stroke-dashoffset]="ringOffset()"
+      />
+    </svg>
+
+    <div class="profile-card__avatar" aria-hidden="true">
+      @if (photoDataUrl(); as photo) {
+        <img [src]="photo" alt="" />
+      } @else {
+        <span>{{ initials() }}</span>
+      }
+    </div>
+
+    <span class="profile-card__pct">{{ clampedPercentage() }}%</span>
+  </div>
+
+  <div class="profile-card__body">
+    <p class="profile-card__eyebrow">Hunter card</p>
+    <h2 class="profile-card__name">{{ name() }}</h2>
+    <p class="profile-card__meta">
+      {{ completedTopics() }} / {{ totalTopics() }} topics · {{ streak() }} day streak
+    </p>
+
+    <div class="profile-card__stats">
+      <div>
+        <span class="profile-card__stat-value">{{ unlockedAchievements() }}</span>
+        <span class="profile-card__stat-label">Badges</span>
+      </div>
+      <div>
+        <span class="profile-card__stat-value">{{ clampedPercentage() }}%</span>
+        <span class="profile-card__stat-label">Complete</span>
+      </div>
+      <div>
+        <span class="profile-card__stat-value">{{ streak() }}</span>
+        <span class="profile-card__stat-label">Streak</span>
+      </div>
+    </div>
+
+    <div class="profile-card__actions">
+      <a
+        class="btn btn--primary"
+        routerLink="/achievements"
+        appTooltip="View your earned badges"
+        tooltipPos="top"
+      >
+        <app-icon name="medal" /> Achievements
+      </a>
+      <a
+        class="btn"
+        routerLink="/settings"
+        appTooltip="Update name and photo"
+        tooltipPos="top"
+      >
+        <app-icon name="user-pen" /> Edit profile
+      </a>
+    </div>
+  </div>
+</article>

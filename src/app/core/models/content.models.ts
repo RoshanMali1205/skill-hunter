@@ -63,7 +63,7 @@ export interface ConceptBlock extends BaseContentBlock {
 
 export interface CodeExampleBlock extends BaseContentBlock {
   type: 'code-example';
-  language: 'typescript' | 'javascript' | 'html' | 'scss' | 'css';
+  language: 'typescript' | 'javascript' | 'html' | 'scss' | 'css' | 'python' | 'json' | 'bash';
   code: string;
   explanation: string;
 }

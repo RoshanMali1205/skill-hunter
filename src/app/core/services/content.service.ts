@@ -14,6 +14,7 @@ const SUBJECT_CONTENT_FILES: Record<string, string[]> = {
   ui: ['content/ui/topics.json', 'content/ui/topics-extended.json'],
   'system-design': ['content/system-design/topics.json'],
   'design-patterns': ['content/design-patterns/topics.json'],
+  'ai-concepts': ['content/ai-concepts/topics.json'],
 };
 
 @Injectable({ providedIn: 'root' })
