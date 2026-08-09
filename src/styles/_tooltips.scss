@@ -27,6 +27,13 @@
     var(--shadow-md);
 }
 
+/* Touch devices: never leave sticky tooltips under header controls. */
+@media (hover: none), (pointer: coarse) {
+  .app-tooltip {
+    display: none !important;
+  }
+}
+
 :root[data-theme='dark'] .app-tooltip {
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, #ffffff 12%, transparent),

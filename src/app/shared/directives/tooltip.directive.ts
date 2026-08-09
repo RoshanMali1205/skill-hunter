@@ -13,6 +13,9 @@ type TooltipAlign = 'center' | 'end';
 /**
  * Fixed-position tooltip that escapes overflow containers (sidebar, cards)
  * and stays inside the viewport.
+ *
+ * On touch / coarse-pointer devices tooltips are suppressed — aria-labels
+ * already cover accessibility, and tap+focus otherwise leaves sticky tips.
  */
 @Directive({
   selector: '[appTooltip]',
@@ -35,8 +38,48 @@ export class TooltipDirective implements OnDestroy {
   }
 
   @HostListener('mouseenter')
+  onMouseEnter(): void {
+    if (!this.supportsHoverTooltips()) return;
+    this.show();
+  }
+
   @HostListener('focus')
-  show(): void {
+  onFocus(): void {
+    // Keyboard focus only — ignore post-tap focus on phones.
+    if (!this.supportsHoverTooltips()) return;
+    this.show();
+  }
+
+  @HostListener('mouseleave')
+  @HostListener('blur')
+  @HostListener('click')
+  @HostListener('pointerdown')
+  hide(): void {
+    if (!this.tipEl) return;
+    this.tipEl.remove();
+    this.tipEl = null;
+  }
+
+  @HostListener('window:scroll', ['$event'])
+  onScroll(event: Event): void {
+    // Ignore scroll inside nested panes; reposition only for page scroll.
+    if (event.target !== document && event.target !== document.documentElement) {
+      this.hide();
+      return;
+    }
+    if (this.tipEl) this.place(this.tipEl);
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.hide();
+  }
+
+  ngOnDestroy(): void {
+    this.hide();
+  }
+
+  private show(): void {
     const text = this.appTooltip()?.trim();
     if (!text || this.tipEl) return;
 
@@ -52,22 +95,11 @@ export class TooltipDirective implements OnDestroy {
     requestAnimationFrame(() => tip.classList.add('app-tooltip--visible'));
   }
 
-  @HostListener('mouseleave')
-  @HostListener('blur')
-  hide(): void {
-    if (!this.tipEl) return;
-    this.tipEl.remove();
-    this.tipEl = null;
-  }
-
-  @HostListener('window:scroll')
-  @HostListener('window:resize')
-  onViewportChange(): void {
-    if (this.tipEl) this.place(this.tipEl);
-  }
-
-  ngOnDestroy(): void {
-    this.hide();
+  private supportsHoverTooltips(): boolean {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return false;
+    }
+    return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   }
 
   private place(tip: HTMLDivElement): void {
