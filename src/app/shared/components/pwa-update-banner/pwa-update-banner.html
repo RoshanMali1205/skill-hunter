@@ -1,0 +1,11 @@
+@if (pwa.updateAvailable()) {
+  <div class="pwa-update" role="status" aria-live="polite">
+    <p class="pwa-update__text">
+      <app-icon name="repeat" />
+      A new version of Skill Hunter is ready.
+    </p>
+    <div class="pwa-update__actions">
+      <button type="button" class="btn btn--primary" (click)="refresh()">Update now</button>
+    </div>
+  </div>
+}

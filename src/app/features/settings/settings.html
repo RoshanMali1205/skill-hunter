@@ -93,6 +93,32 @@
   </section>
 
   <section class="settings__card">
+    <h2>Install App</h2>
+    <p class="settings__muted">
+      Install Skill Hunter as a Progressive Web App for a full-screen experience and faster repeat
+      visits — progress still stays in this browser.
+    </p>
+    @if (pwa.isInstalled()) {
+      <p class="settings__success">Skill Hunter is installed on this device.</p>
+    } @else if (pwa.canInstall()) {
+      <button type="button" class="btn btn--primary" (click)="installApp()">
+        <app-icon name="download" /> Install Skill Hunter
+      </button>
+    } @else {
+      <p class="settings__muted">
+        On mobile, open the browser menu and choose <strong>Add to Home Screen</strong> / 
+        <strong>Install app</strong>. On desktop Chrome/Edge, use the install icon in the address bar.
+      </p>
+      <button type="button" class="btn" (click)="installApp()">
+        <app-icon name="download" /> Try install prompt
+      </button>
+    }
+    @if (installMessage(); as message) {
+      <p class="settings__muted">{{ message }}</p>
+    }
+  </section>
+
+  <section class="settings__card">
     <h2>Backup Your Progress</h2>
     <p class="settings__muted">
       Progress is stored only in this browser. Export it to back it up or move it to another device.
