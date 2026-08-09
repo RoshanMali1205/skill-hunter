@@ -64,12 +64,12 @@
           <app-icon name="message-square" />
           <span>History</span>
         </button>
-        <h1 class="ai-mentor__title">{{ activeConversation()?.title || 'AI Mentor' }}</h1>
         <button type="button" class="btn btn--primary ai-mentor__new-chat" (click)="startNewChat()">
           <app-icon name="plus" />
           <span>New</span>
         </button>
       </div>
+      <h1 class="ai-mentor__title">{{ activeConversation()?.title || 'AI Mentor' }}</h1>
 
       @if (messages().length === 0 && !loading()) {
         <p class="ai-mentor__subtitle">
