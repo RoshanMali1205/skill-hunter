@@ -37,6 +37,33 @@
   flex-shrink: 0;
 }
 
+.topic-detail__export {
+  @include action-button;
+  text-decoration: none;
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &--link {
+    color: var(--color-text-muted);
+  }
+}
+
+.topic-detail__export-msg {
+  margin: 0;
+  font-size: 0.88rem;
+
+  &--ok {
+    color: var(--color-success);
+  }
+
+  &--err {
+    color: var(--color-danger);
+  }
+}
+
 .topic-detail__description {
   color: var(--color-text-muted);
   margin: var(--space-1) 0 var(--space-3);

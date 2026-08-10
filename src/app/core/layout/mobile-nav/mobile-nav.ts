@@ -25,6 +25,7 @@ const MORE_ITEMS: NavItem[] = [
   { label: 'Bookmarks', path: '/bookmarks', icon: 'bookmark', hint: 'Saved topics & questions' },
   { label: 'Notes', path: '/notes', icon: 'pencil', hint: 'Your study notes' },
   { label: 'Revision', path: '/revision', icon: 'repeat', hint: 'Topics to revisit' },
+  { label: 'Export PDF', path: '/export', icon: 'download', hint: 'Print or save study packs' },
   { label: 'Achievements', path: '/achievements', icon: 'medal', hint: 'Badges you have earned' },
   { label: 'Settings', path: '/settings', icon: 'settings', hint: 'Profile and preferences' },
 ];

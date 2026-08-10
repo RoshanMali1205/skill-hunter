@@ -31,8 +31,40 @@
         }
         <app-note-button [hasNote]="hasNote()" (clicked)="toggleNoteEditor()" />
         <app-bookmark-button [bookmarked]="isBookmarked()" (toggled)="toggleBookmark()" />
+        <button
+          type="button"
+          class="topic-detail__export"
+          [disabled]="exporting()"
+          [appTooltip]="exporting() ? 'Preparing PDF…' : 'Export this topic as PDF'"
+          tooltipPos="bottom"
+          (click)="exportTopicPdf()"
+        >
+          <app-icon name="download" />
+          <span>{{ exporting() ? 'Exporting…' : 'Export PDF' }}</span>
+        </button>
+        <a
+          class="topic-detail__export topic-detail__export--link"
+          [routerLink]="['/export']"
+          [queryParams]="{ subjectId: subjectId(), topicId: topicId() }"
+          appTooltip="Build a multi-topic study pack"
+          tooltipPos="bottom"
+        >
+          <app-icon name="plus" />
+          <span>More topics</span>
+        </a>
       </div>
     </header>
+
+    @if (exportMessage(); as exportMsg) {
+      <p
+        class="topic-detail__export-msg"
+        [class.topic-detail__export-msg--ok]="exportMsg.success"
+        [class.topic-detail__export-msg--err]="!exportMsg.success"
+        role="status"
+      >
+        {{ exportMsg.text }}
+      </p>
+    }
 
     @if (noteEditorOpen()) {
       <app-note-editor

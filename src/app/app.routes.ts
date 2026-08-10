@@ -110,6 +110,11 @@ export const routes: Routes = [
         title: 'Achievements · Skill Hunter',
       },
       {
+        path: 'export',
+        loadComponent: () => import('./features/export/export').then((m) => m.ExportComponent),
+        title: 'Export PDF · Skill Hunter',
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./features/settings/settings').then((m) => m.SettingsComponent),

@@ -10,7 +10,7 @@ import { RevisionService } from '../../core/services/revision.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { NoteService } from '../../core/services/note.service';
 import { TextToSpeechService } from '../../core/services/text-to-speech.service';
-import { ConfidenceLevel } from '../../core/models';
+import { ConfidenceLevel, DEFAULT_TOPIC_EXPORT_OPTIONS } from '../../core/models';
 import { markdownToPlainText } from '../../shared/markdown';
 import { hasInAppHistory } from '../../shared/navigation';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb';
@@ -28,6 +28,8 @@ import { ConfidenceSelectorComponent } from '../../shared/components/confidence-
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
 import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
 import { MarkdownInlinePipe } from '../../shared/pipes/markdown-inline.pipe';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import { TopicExportService } from '../../core/services/topic-export.service';
 
 @Component({
   selector: 'app-topic-detail',
@@ -48,6 +50,7 @@ import { MarkdownInlinePipe } from '../../shared/pipes/markdown-inline.pipe';
     EmptyStateComponent,
     MarkdownPipe,
     MarkdownInlinePipe,
+    TooltipDirective,
   ],
   templateUrl: './topic-detail.html',
   styleUrl: './topic-detail.scss',
@@ -60,10 +63,13 @@ export class TopicDetailComponent {
   private readonly settingsService = inject(SettingsService);
   private readonly noteService = inject(NoteService);
   private readonly ttsService = inject(TextToSpeechService);
+  private readonly topicExport = inject(TopicExportService);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
 
   readonly settings = this.settingsService.settings;
+  readonly exporting = signal(false);
+  readonly exportMessage = signal<{ text: string; success: boolean } | null>(null);
 
   subjectId = input.required<string>();
   topicId = input.required<string>();
@@ -152,6 +158,28 @@ export class TopicDetailComponent {
 
   toggleBookmark(): void {
     this.bookmarkService.toggleTopicBookmark(this.topicId(), this.subjectId());
+  }
+
+  async exportTopicPdf(): Promise<void> {
+    if (this.exporting()) return;
+    this.exporting.set(true);
+    this.exportMessage.set(null);
+    const result = await this.topicExport.exportTopics(
+      [{ subjectId: this.subjectId(), topicId: this.topicId() }],
+      {
+        ...DEFAULT_TOPIC_EXPORT_OPTIONS,
+        includeNotes: this.hasNote(),
+      },
+    );
+    this.exporting.set(false);
+    this.exportMessage.set(
+      result.ok
+        ? {
+            text: 'Print dialog opened — choose “Save as PDF”.',
+            success: true,
+          }
+        : { text: result.error, success: false },
+    );
   }
 
   isQuestionBookmarked(questionId: string): boolean {
