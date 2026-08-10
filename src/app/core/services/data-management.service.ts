@@ -34,6 +34,7 @@ const CONFIDENCE_LEVELS: ConfidenceLevel[] = ['not-rated', 'low', 'medium', 'hig
 const BOOKMARK_TYPES = ['topic', 'question'] as const;
 const PRACTICE_RESULTS = ['correct', 'incorrect', 'needs-revision'] as const;
 const THEMES = ['light', 'dark'] as const;
+const COLOR_THEMES = ['ocean', 'forest'] as const;
 const DIFFICULTIES = ['all', 'beginner', 'intermediate', 'advanced'] as const;
 const ACHIEVEMENT_IDS = ACHIEVEMENT_DEFINITIONS.map((def) => def.id);
 
@@ -290,6 +291,9 @@ export class DataManagementService {
   private parseSettings(value: unknown): AppSettings | null {
     if (!this.isPlainObject(value)) return null;
     const theme = this.isOneOf(value['theme'], THEMES) ? value['theme'] : DEFAULT_SETTINGS.theme;
+    const colorTheme = this.isOneOf(value['colorTheme'], COLOR_THEMES)
+      ? value['colorTheme']
+      : DEFAULT_SETTINGS.colorTheme;
     const defaultDifficulty = this.isOneOf(value['defaultDifficulty'], DIFFICULTIES)
       ? value['defaultDifficulty']
       : DEFAULT_SETTINGS.defaultDifficulty;
@@ -309,6 +313,12 @@ export class DataManagementService {
     if (
       value['theme'] !== undefined &&
       !this.isOneOf(value['theme'], THEMES)
+    ) {
+      return null;
+    }
+    if (
+      value['colorTheme'] !== undefined &&
+      !this.isOneOf(value['colorTheme'], COLOR_THEMES)
     ) {
       return null;
     }
@@ -335,6 +345,7 @@ export class DataManagementService {
 
     return {
       theme,
+      colorTheme,
       defaultDifficulty,
       showAnswersAutomatically,
       dailyGoalMinutes,

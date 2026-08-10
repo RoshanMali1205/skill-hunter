@@ -1,29 +1,42 @@
 import { Injectable, effect, inject, signal } from '@angular/core';
 import { StorageService } from '../storage/storage.service';
 import { STORAGE_KEYS } from '../storage/storage-keys';
-import { AppSettings, DEFAULT_SETTINGS } from '../models';
+import { AppSettings, ColorTheme, DEFAULT_SETTINGS } from '../models';
+
+const THEME_COLORS: Record<ColorTheme, { light: string; dark: string }> = {
+  ocean: { light: '#007bb8', dark: '#0095d9' },
+  forest: { light: '#66BB6A', dark: '#66BB6A' },
+};
 
 @Injectable({ providedIn: 'root' })
 export class SettingsService {
   private readonly storage = inject(StorageService);
 
-  private readonly _settings = signal<AppSettings>(
-    this.storage.get(STORAGE_KEYS.settings, DEFAULT_SETTINGS),
-  );
+  private readonly _settings = signal<AppSettings>(this.loadSettings());
 
   readonly settings = this._settings.asReadonly();
 
   constructor() {
     effect(() => {
-      const theme = this._settings().theme;
-      if (typeof document !== 'undefined') {
-        document.documentElement.setAttribute('data-theme', theme);
+      const { theme, colorTheme } = this._settings();
+      if (typeof document === 'undefined') return;
+
+      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.setAttribute('data-color-theme', colorTheme);
+
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) {
+        meta.setAttribute('content', THEME_COLORS[colorTheme][theme]);
       }
     });
   }
 
   toggleTheme(): void {
     this.update({ theme: this._settings().theme === 'dark' ? 'light' : 'dark' });
+  }
+
+  setColorTheme(colorTheme: ColorTheme): void {
+    this.update({ colorTheme });
   }
 
   setDefaultDifficulty(defaultDifficulty: AppSettings['defaultDifficulty']): void {
@@ -39,13 +52,18 @@ export class SettingsService {
   }
 
   replaceAll(settings: AppSettings): void {
-    this._settings.set(settings);
+    this._settings.set({ ...DEFAULT_SETTINGS, ...settings });
     this.persist();
   }
 
   resetAll(): void {
     this._settings.set(DEFAULT_SETTINGS);
     this.persist();
+  }
+
+  private loadSettings(): AppSettings {
+    const stored = this.storage.get(STORAGE_KEYS.settings, DEFAULT_SETTINGS);
+    return { ...DEFAULT_SETTINGS, ...stored };
   }
 
   private update(partial: Partial<AppSettings>): void {

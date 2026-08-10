@@ -44,8 +44,12 @@ export interface PracticeAttempt {
   timeSpentSeconds?: number;
 }
 
+export type ColorTheme = 'ocean' | 'forest';
+
 export interface AppSettings {
   theme: 'light' | 'dark';
+  /** Accent / brand color family. Independent of light/dark. */
+  colorTheme: ColorTheme;
   defaultDifficulty: 'all' | 'beginner' | 'intermediate' | 'advanced';
   showAnswersAutomatically: boolean;
   dailyGoalMinutes: number;
@@ -53,6 +57,7 @@ export interface AppSettings {
 
 export const DEFAULT_SETTINGS: AppSettings = {
   theme: 'light',
+  colorTheme: 'ocean',
   defaultDifficulty: 'all',
   showAnswersAutomatically: false,
   dailyGoalMinutes: 20,

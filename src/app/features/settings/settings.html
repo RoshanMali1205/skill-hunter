@@ -68,6 +68,33 @@
       />
       <span>Dark theme</span>
     </label>
+
+    <div class="settings__field">
+      <span>Color theme</span>
+      <p class="settings__muted">Choose the accent palette for buttons, gradients, and highlights.</p>
+      <div class="settings__color-themes" role="radiogroup" aria-label="Color theme">
+        @for (option of colorThemeOptions; track option.id) {
+          <button
+            type="button"
+            class="settings__color-theme"
+            role="radio"
+            [attr.aria-checked]="settings().colorTheme === option.id"
+            [class.settings__color-theme--active]="settings().colorTheme === option.id"
+            (click)="setColorTheme(option.id)"
+          >
+            <span class="settings__color-swatches" aria-hidden="true">
+              @for (swatch of option.swatches; track swatch) {
+                <span class="settings__color-swatch" [style.background]="swatch"></span>
+              }
+            </span>
+            <span class="settings__color-theme-meta">
+              <strong>{{ option.label }}</strong>
+              <span>{{ option.description }}</span>
+            </span>
+          </button>
+        }
+      </div>
+    </div>
   </section>
 
   <section class="settings__card">
