@@ -8,10 +8,11 @@
 
 .progress-bar {
   width: 100%;
-  height: 8px;
+  height: 10px;
   border-radius: 999px;
-  background: var(--color-surface-alt);
-  box-shadow: inset 0 1px 2px rgba(20, 21, 40, 0.06);
+  background: var(--color-progress-track);
+  border: 1px solid color-mix(in srgb, var(--color-primary-strong) 18%, var(--color-border));
+  box-shadow: inset 0 1px 2px rgba(27, 43, 73, 0.08);
   overflow: hidden;
 }
 
