@@ -67,6 +67,36 @@ export class SettingsComponent {
       description: 'Mint to deep green',
       swatches: ['#e8f5e9', '#a5d6a7', '#66bb6a', '#1b5e20'],
     },
+    {
+      id: 'ember',
+      label: 'Ember',
+      description: 'Warm crimson red',
+      swatches: ['#ffebee', '#ef9a9a', '#e53935', '#b71c1c'],
+    },
+    {
+      id: 'sunset',
+      label: 'Sunset',
+      description: 'Amber orange glow',
+      swatches: ['#fff7ed', '#fdba74', '#f97316', '#c2410c'],
+    },
+    {
+      id: 'blush',
+      label: 'Blush',
+      description: 'Soft baby pink',
+      swatches: ['#fdf2f8', '#f9a8d4', '#ec4899', '#9d174d'],
+    },
+    {
+      id: 'pearl',
+      label: 'Pearl',
+      description: 'Light cream champagne',
+      swatches: ['#fbf8f4', '#e2c4a8', '#b07d57', '#5c4033'],
+    },
+    {
+      id: 'midnight',
+      label: 'Midnight',
+      description: 'Deep ink slate',
+      swatches: ['#f4f6f8', '#94a3b8', '#475569', '#0f172a'],
+    },
   ];
 
   saveDisplayName(): void {
