@@ -175,7 +175,7 @@ export class TopicDetailComponent {
     this.exportMessage.set(
       result.ok
         ? {
-            text: 'Print dialog opened — choose “Save as PDF”.',
+            text: 'Print sheet opened — choose Save as PDF. Cancel to stay in Skill Hunter.',
             success: true,
           }
         : { text: result.error, success: false },
