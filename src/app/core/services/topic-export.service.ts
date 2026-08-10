@@ -26,8 +26,9 @@ export class TopicExportService {
   private readonly notes = inject(NoteService);
 
   /**
-   * Opens a print-ready study pack. The browser “Save as PDF” dialog is the
-   * delivery mechanism — no PDF library required, and it works in the PWA.
+   * Prints a study pack via a hidden iframe. Important for the installed PWA:
+   * `window.open()` replaces the app shell in standalone mode and leaves users
+   * stuck on a blank print document. Iframe printing keeps Skill Hunter mounted.
    */
   async exportTopics(
     refs: TopicExportRef[],
@@ -45,11 +46,11 @@ export class TopicExportService {
       }
 
       const html = this.buildDocument(resolved, options);
-      const opened = this.openPrintDocument(html);
-      if (!opened) {
+      const printed = this.printViaHiddenIframe(html);
+      if (!printed) {
         return {
           ok: false,
-          error: 'Pop-up blocked. Allow pop-ups for Skill Hunter, then try again.',
+          error: 'Could not open the print dialog. Try again, or use Share → Print from your browser menu.',
         };
       }
       return { ok: true };
@@ -149,11 +150,6 @@ export class TopicExportService {
   </header>
   ${toc}
   <main>${body}</main>
-  <script>
-    window.addEventListener('load', function () {
-      setTimeout(function () { window.focus(); window.print(); }, 250);
-    });
-  </script>
 </body>
 </html>`;
   }
@@ -289,12 +285,64 @@ export class TopicExportService {
       .replace(/"/g, '&quot;');
   }
 
-  private openPrintDocument(html: string): boolean {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return false;
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
+  private printViaHiddenIframe(html: string): boolean {
+    if (typeof document === 'undefined') return false;
+
+    // Remove any leftover frame from a previous export.
+    document.querySelectorAll('[data-skill-hunter-print-frame]').forEach((node) => node.remove());
+
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('data-skill-hunter-print-frame', 'true');
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.title = 'Skill Hunter PDF export';
+    // Keep a tiny on-screen footprint — some mobile WebViews skip print for display:none frames.
+    iframe.style.cssText =
+      'position:fixed;right:0;bottom:0;width:1px;height:1px;opacity:0;border:0;pointer-events:none;';
+
+    document.body.appendChild(iframe);
+
+    const frameWindow = iframe.contentWindow;
+    const frameDocument = iframe.contentDocument ?? frameWindow?.document;
+    if (!frameWindow || !frameDocument) {
+      iframe.remove();
+      return false;
+    }
+
+    frameDocument.open();
+    frameDocument.write(html);
+    frameDocument.close();
+
+    const cleanup = () => {
+      iframe.remove();
+    };
+
+    const triggerPrint = () => {
+      try {
+        frameWindow.focus();
+        frameWindow.print();
+      } catch {
+        cleanup();
+        return;
+      }
+    };
+
+    frameWindow.addEventListener('afterprint', cleanup, { once: true });
+    // Fallback if afterprint never fires (some Android WebViews).
+    window.setTimeout(cleanup, 60_000);
+
+    // Wait a tick so styles/layout settle before the system print sheet.
+    if (frameDocument.readyState === 'complete') {
+      window.setTimeout(triggerPrint, 150);
+    } else {
+      iframe.addEventListener(
+        'load',
+        () => {
+          window.setTimeout(triggerPrint, 150);
+        },
+        { once: true },
+      );
+    }
+
     return true;
   }
 
