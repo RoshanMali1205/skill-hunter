@@ -26,9 +26,11 @@
   &:has(app-ai-mentor) {
     padding-top: var(--space-3);
     padding-bottom: calc(var(--mobile-nav-offset) + var(--space-3));
+    // Prevent the page itself from scrolling; the chat panel owns scroll.
+    overflow: hidden;
 
     @include respond-to(desktop) {
-      padding: var(--space-6);
+      padding: var(--space-5) var(--space-6);
     }
 
     .app-footer {
