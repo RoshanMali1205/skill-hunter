@@ -6,6 +6,11 @@ import { AppSettings, ColorTheme, DEFAULT_SETTINGS } from '../models';
 const THEME_COLORS: Record<ColorTheme, { light: string; dark: string }> = {
   ocean: { light: '#007bb8', dark: '#0095d9' },
   forest: { light: '#66BB6A', dark: '#66BB6A' },
+  ember: { light: '#E53935', dark: '#EF5350' },
+  sunset: { light: '#F97316', dark: '#FB923C' },
+  blush: { light: '#EC4899', dark: '#F472B6' },
+  pearl: { light: '#B07D57', dark: '#C9895A' },
+  midnight: { light: '#334155', dark: '#94A3B8' },
 };
 
 @Injectable({ providedIn: 'root' })

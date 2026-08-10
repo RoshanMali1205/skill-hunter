@@ -34,7 +34,7 @@ const CONFIDENCE_LEVELS: ConfidenceLevel[] = ['not-rated', 'low', 'medium', 'hig
 const BOOKMARK_TYPES = ['topic', 'question'] as const;
 const PRACTICE_RESULTS = ['correct', 'incorrect', 'needs-revision'] as const;
 const THEMES = ['light', 'dark'] as const;
-const COLOR_THEMES = ['ocean', 'forest'] as const;
+const COLOR_THEMES = ['ocean', 'forest', 'ember', 'sunset', 'blush', 'pearl', 'midnight'] as const;
 const DIFFICULTIES = ['all', 'beginner', 'intermediate', 'advanced'] as const;
 const ACHIEVEMENT_IDS = ACHIEVEMENT_DEFINITIONS.map((def) => def.id);
 

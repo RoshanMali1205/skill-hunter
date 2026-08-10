@@ -44,7 +44,14 @@ export interface PracticeAttempt {
   timeSpentSeconds?: number;
 }
 
-export type ColorTheme = 'ocean' | 'forest';
+export type ColorTheme =
+  | 'ocean'
+  | 'forest'
+  | 'ember'
+  | 'sunset'
+  | 'blush'
+  | 'pearl'
+  | 'midnight';
 
 export interface AppSettings {
   theme: 'light' | 'dark';
