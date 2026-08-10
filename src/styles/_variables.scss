@@ -20,6 +20,8 @@
   --color-surface-alt: #e5f4fd;
   --color-surface-raised: #ffffff;
   --color-border: #c5d9eb;
+  /* Visible against light tile/card washes (not the same as surface-alt). */
+  --color-progress-track: #c5d9eb;
   --color-text: #1b2b49;
   --color-text-muted: #5a8bb0;
   --color-primary: #007bb8;
@@ -94,6 +96,7 @@
   --color-surface-alt: #243656;
   --color-surface-raised: #2a3f63;
   --color-border: #3a5278;
+  --color-progress-track: #3a5278;
   --color-text: #e5f4fd;
   --color-text-muted: #a3c1da;
   --color-primary: #0095d9;
@@ -139,6 +142,7 @@
     --color-surface-alt: #243656;
     --color-surface-raised: #2a3f63;
     --color-border: #3a5278;
+    --color-progress-track: #3a5278;
     --color-text: #e5f4fd;
     --color-text-muted: #a3c1da;
     --color-primary: #0095d9;
