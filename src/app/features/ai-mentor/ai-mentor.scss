@@ -20,7 +20,6 @@
     gap: var(--space-4);
     height: calc(100dvh - var(--header-offset) - var(--space-5) * 2);
     min-height: 480px;
-    align-items: stretch;
   }
 }
 
@@ -227,10 +226,6 @@
   gap: var(--space-2);
   min-width: 0;
   flex-shrink: 0;
-
-  @include respond-to(desktop) {
-    gap: var(--space-2);
-  }
 }
 
 .ai-mentor__toolbar {
@@ -238,10 +233,6 @@
   align-items: center;
   gap: var(--space-1);
   min-width: 0;
-
-  @include respond-to(desktop) {
-    gap: var(--space-2);
-  }
 }
 
 .ai-mentor__nav-btn,
@@ -373,11 +364,10 @@
 
 .ai-mentor__bubble {
   box-sizing: border-box;
-  // Never shrink inside the chat flex column — that was collapsing bubbles
-  // into tiny scroll areas (overflow-x:hidden forces overflow-y:auto).
+  // Prevent flex shrinkage + overflow-x:hidden→overflow-y:auto from collapsing bubbles.
   flex: 0 0 auto;
   width: 100%;
-  max-width: min(100%, 720px);
+  max-width: min(100%, 760px);
   min-width: 0;
   align-self: flex-start;
   background: var(--color-surface-alt);
@@ -388,7 +378,6 @@
   word-break: break-word;
 
   @include respond-to(desktop) {
-    max-width: min(100%, 760px);
     padding: var(--space-4);
   }
 
@@ -401,13 +390,9 @@
 
   &--user {
     width: fit-content;
-    max-width: min(100%, 640px);
+    max-width: min(100%, 560px);
     align-self: flex-end;
     background: color-mix(in srgb, var(--color-primary) 12%, transparent);
-
-    @include respond-to(desktop) {
-      max-width: min(100%, 560px);
-    }
   }
 }
 
@@ -420,7 +405,6 @@
 }
 
 .ai-mentor__markdown {
-  // Block markdown styles live in global styles.scss (encapsulation-safe).
   margin-top: var(--space-2);
   font-size: 0.92rem;
   line-height: 1.55;
@@ -429,11 +413,6 @@
   overflow: visible;
   overflow-wrap: anywhere;
   word-break: break-word;
-
-  @include respond-to(desktop) {
-    font-size: 0.95rem;
-    line-height: 1.6;
-  }
 }
 
 .ai-mentor__role {
@@ -527,10 +506,6 @@
     @include respond-to(tablet) {
       font-size: 0.95rem;
       min-height: 64px;
-    }
-
-    @include respond-to(desktop) {
-      min-height: 72px;
       max-height: 200px;
     }
   }
