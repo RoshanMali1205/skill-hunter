@@ -5,7 +5,7 @@ import { SettingsService } from '../../core/services/settings.service';
 import { DataManagementService } from '../../core/services/data-management.service';
 import { ProfileService } from '../../core/services/profile.service';
 import { PwaService } from '../../core/services/pwa.service';
-import { AppSettings } from '../../core/models';
+import { AppSettings, ColorTheme } from '../../core/models';
 import { SelectComponent } from '../../shared/components/select/select';
 import { SelectOption } from '../../shared/components/select/select.models';
 import { IconComponent } from '../../shared/components/icon/icon';
@@ -49,6 +49,26 @@ export class SettingsComponent {
     { value: 'advanced', label: 'Advanced' },
   ];
 
+  readonly colorThemeOptions: {
+    id: ColorTheme;
+    label: string;
+    description: string;
+    swatches: string[];
+  }[] = [
+    {
+      id: 'ocean',
+      label: 'Ocean',
+      description: 'Cerulean blues (default)',
+      swatches: ['#e5f4fd', '#a3c1da', '#0095d9', '#003366'],
+    },
+    {
+      id: 'forest',
+      label: 'Forest',
+      description: 'Mint to deep green',
+      swatches: ['#e8f5e9', '#a5d6a7', '#66bb6a', '#1b5e20'],
+    },
+  ];
+
   saveDisplayName(): void {
     const ok = this.profileService.setDisplayName(this.nameDraft());
     this.profileMessage.set({
@@ -82,6 +102,10 @@ export class SettingsComponent {
     if (theme !== this.settings().theme) {
       this.settingsService.toggleTheme();
     }
+  }
+
+  setColorTheme(colorTheme: ColorTheme): void {
+    this.settingsService.setColorTheme(colorTheme);
   }
 
   setDefaultDifficulty(value: AppSettings['defaultDifficulty']): void {
