@@ -1,503 +1,147 @@
-/* Extra accent families (Ocean stays default in _variables.scss).
- * Each theme mirrors the same CSS variable surface so UI tokens stay consistent.
- */
+/* Accent families layered on shared neutrals from _variables.scss.
+ * Body text, borders, and page chrome stay charcoal/slate — only CTAs,
+ * links, progress, and soft washes follow the selected accent. */
 
-/* Ember — warm crimson red */
-:root[data-color-theme='ember'] {
-  --palette-navy-950: #b71c1c;
-  --palette-navy-900: #7f1d1d;
-  --palette-ocean-600: #e53935;
-  --palette-cerulean-500: #ef5350;
-  --palette-steel-300: #ef9a9a;
-  --palette-sky-100: #ffebee;
-  --palette-ice-50: #fff7f7;
-  --palette-navy-800: #e53935;
-  --palette-slate-600: #c62828;
-  --palette-teal-500: #ef5350;
-  --palette-dust-400: #e57373;
-  --palette-sky-300: #ef9a9a;
-  --palette-ice-200: #ffcdd2;
+@mixin light-accents($primary, $strong, $accent, $tint, $mid, $deep, $sr, $sg, $sb) {
+  --palette-navy-950: #{$deep};
+  --palette-navy-900: #{$strong};
+  --palette-ocean-600: #{$primary};
+  --palette-cerulean-500: #{$accent};
+  --palette-steel-300: #{$mid};
+  --palette-sky-100: #{$tint};
+  --palette-ice-50: #f6f7f9;
+  --palette-navy-800: #{$primary};
+  --palette-slate-600: #{$strong};
+  --palette-teal-500: #{$accent};
+  --palette-dust-400: #{$mid};
+  --palette-sky-300: #{$accent};
+  --palette-ice-200: #{$mid};
 
-  --color-bg: #fff7f7;
-  --color-surface: #ffffff;
-  --color-surface-alt: #ffebee;
-  --color-surface-raised: #ffffff;
-  --color-border: #f5c2c2;
-  --color-progress-track: #f5c2c2;
-  --color-text: #7f1d1d;
-  --color-text-muted: #b44a4a;
-  --color-primary: #e53935;
-  --color-primary-strong: #b71c1c;
+  --color-surface-alt: color-mix(in srgb, #{$tint} 62%, #eef1f4);
+  --color-primary: #{$primary};
+  --color-primary-strong: #{$strong};
   --color-primary-contrast: #ffffff;
-  --color-accent: #ef5350;
+  --color-accent: #{$accent};
 
-  --gradient-primary: linear-gradient(135deg, #ef9a9a 0%, #e53935 48%, #b71c1c 100%);
+  --gradient-primary: linear-gradient(135deg, #{$accent} 0%, #{$primary} 50%, #{$deep} 100%);
   --gradient-hero: linear-gradient(
     135deg,
-    rgba(229, 57, 53, 0.18) 0%,
-    rgba(255, 235, 238, 0.9) 42%,
-    rgba(239, 154, 154, 0.3) 100%
+    color-mix(in srgb, #{$primary} 12%, transparent) 0%,
+    color-mix(in srgb, #{$tint} 55%, #ffffff) 48%,
+    color-mix(in srgb, #{$mid} 14%, transparent) 100%
   );
-  --gradient-tile: linear-gradient(165deg, #ffffff 0%, #ffebee 58%, #ffd6d6 100%);
-  --gradient-tile-strong: linear-gradient(145deg, #b71c1c 0%, #e53935 52%, #ef9a9a 100%);
-  --gradient-page: linear-gradient(180deg, #ffebee 0%, #fff7f7 28%, #fff7f7 100%);
-  --gradient-brand-text: linear-gradient(90deg, #b71c1c 0%, #e53935 55%, #ef5350 100%);
+  --gradient-tile: linear-gradient(
+    165deg,
+    #ffffff 0%,
+    color-mix(in srgb, #{$tint} 35%, #ffffff) 62%,
+    #f1f3f5 100%
+  );
+  --gradient-tile-strong: linear-gradient(145deg, #{$deep} 0%, #{$primary} 52%, #{$accent} 100%);
+  --gradient-page: linear-gradient(
+    180deg,
+    color-mix(in srgb, #{$tint} 45%, #f6f7f9) 0%,
+    #f6f7f9 26%,
+    #f6f7f9 100%
+  );
+  --gradient-brand-text: linear-gradient(90deg, #{$deep} 0%, #{$primary} 55%, #{$accent} 100%);
   --header-wash: linear-gradient(
     180deg,
-    color-mix(in srgb, #ffebee 55%, transparent) 0%,
+    color-mix(in srgb, #{$tint} 42%, transparent) 0%,
     transparent 100%
   );
+  --shadow-primary: 0 8px 22px rgba(#{$sr}, #{$sg}, #{$sb}, 0.26);
+}
 
-  --shadow-sm: 0 1px 2px rgba(127, 29, 29, 0.06);
-  --shadow-md: 0 6px 16px rgba(127, 29, 29, 0.08);
-  --shadow-lg: 0 16px 32px rgba(127, 29, 29, 0.12);
-  --shadow-primary: 0 8px 22px rgba(229, 57, 53, 0.34);
+@mixin dark-accents($primary, $strong, $accent, $mid, $deep, $sr, $sg, $sb) {
+  --palette-navy-950: #0f1419;
+  --palette-navy-900: #171d25;
+  --palette-ocean-600: #{$primary};
+  --palette-cerulean-500: #{$accent};
+  --palette-steel-300: #{$mid};
+  --palette-sky-100: #{$deep};
+  --palette-ice-50: #0f1419;
+  --palette-navy-800: #{$primary};
+  --palette-slate-600: #{$mid};
+  --palette-teal-500: #{$accent};
+  --palette-dust-400: #{$mid};
+  --palette-sky-300: #{$mid};
+  --palette-ice-200: #{$accent};
+
+  --color-surface-alt: color-mix(in srgb, #{$primary} 12%, #222a35);
+  --color-primary: #{$primary};
+  --color-primary-strong: #{$strong};
+  --color-primary-contrast: #0f1419;
+  --color-accent: #{$accent};
+
+  --gradient-primary: linear-gradient(135deg, #{$mid} 0%, #{$primary} 45%, #{$deep} 100%);
+  --gradient-hero: linear-gradient(
+    135deg,
+    color-mix(in srgb, #{$primary} 20%, transparent) 0%,
+    color-mix(in srgb, #171d25 88%, transparent) 55%,
+    #0f1419 100%
+  );
+  --gradient-tile: linear-gradient(165deg, #222a35 0%, #171d25 55%, #0f1419 100%);
+  --gradient-tile-strong: linear-gradient(145deg, #{$primary} 0%, #{$deep} 55%, #0f1419 100%);
+  --gradient-page: linear-gradient(180deg, #171d25 0%, #0f1419 42%, #0f1419 100%);
+  --gradient-brand-text: linear-gradient(90deg, #ffffff 0%, #e8edf2 42%, #{$mid} 100%);
+  --header-wash: linear-gradient(
+    180deg,
+    color-mix(in srgb, #{$primary} 12%, transparent) 0%,
+    transparent 100%
+  );
+  --shadow-primary: 0 8px 24px rgba(#{$sr}, #{$sg}, #{$sb}, 0.28);
+}
+
+/* Forest — deep green CTAs, mint washes (user greens preserved as accent) */
+:root[data-color-theme='forest'] {
+  @include light-accents(#2e7d32, #1b5e20, #66bb6a, #e8f5e9, #a5d6a7, #145a1a, 46, 125, 50);
+}
+
+:root[data-theme='dark'][data-color-theme='forest'] {
+  @include dark-accents(#66bb6a, #a5d6a7, #81c784, #a5d6a7, #1b5e20, 102, 187, 106);
+}
+
+/* Ember — professional crimson */
+:root[data-color-theme='ember'] {
+  @include light-accents(#c62828, #8e0000, #e53935, #fdecec, #ef9a9a, #7f1d1d, 198, 40, 40);
 }
 
 :root[data-theme='dark'][data-color-theme='ember'] {
-  --palette-navy-950: #1a0f0f;
-  --palette-navy-900: #2a1515;
-  --palette-ocean-600: #ef5350;
-  --palette-cerulean-500: #ef9a9a;
-  --palette-steel-300: #ffcdd2;
-  --palette-sky-100: #7f1d1d;
-  --palette-ice-50: #1a0f0f;
-  --palette-navy-800: #ef5350;
-  --palette-slate-600: #ef9a9a;
-  --palette-teal-500: #ef9a9a;
-  --palette-dust-400: #ffcdd2;
-  --palette-sky-300: #ffcdd2;
-  --palette-ice-200: #ef9a9a;
-
-  --color-bg: #140c0c;
-  --color-surface: #2a1515;
-  --color-surface-alt: #3b1c1c;
-  --color-surface-raised: #4a2424;
-  --color-border: #5c2e2e;
-  --color-progress-track: #5c2e2e;
-  --color-text: #ffebee;
-  --color-text-muted: #ef9a9a;
-  --color-primary: #ef5350;
-  --color-primary-strong: #ffcdd2;
-  --color-primary-contrast: #1a0f0f;
-  --color-accent: #ef9a9a;
-
-  --gradient-primary: linear-gradient(135deg, #ffcdd2 0%, #ef5350 45%, #b71c1c 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    rgba(239, 83, 80, 0.3) 0%,
-    rgba(42, 21, 21, 0.78) 55%,
-    rgba(20, 12, 12, 0.96) 100%
-  );
-  --gradient-tile: linear-gradient(165deg, #3b1c1c 0%, #2a1515 55%, #140c0c 100%);
-  --gradient-tile-strong: linear-gradient(145deg, #ef5350 0%, #b71c1c 50%, #1a0f0f 100%);
-  --gradient-page: linear-gradient(180deg, #2a1515 0%, #140c0c 40%, #140c0c 100%);
-  --gradient-brand-text: linear-gradient(90deg, #ffffff 0%, #ffebee 42%, #ef9a9a 100%);
-  --header-wash: linear-gradient(
-    180deg,
-    color-mix(in srgb, #ef5350 16%, transparent) 0%,
-    transparent 100%
-  );
-
-  --shadow-primary: 0 8px 24px rgba(239, 83, 80, 0.32);
+  @include dark-accents(#ef5350, #ffcdd2, #f87171, #ef9a9a, #b71c1c, 239, 83, 80);
 }
 
-/* Sunset — amber / orange */
+/* Sunset — amber / burnt orange */
 :root[data-color-theme='sunset'] {
-  --palette-navy-950: #e65100;
-  --palette-navy-900: #7c2d12;
-  --palette-ocean-600: #f97316;
-  --palette-cerulean-500: #fb923c;
-  --palette-steel-300: #fdba74;
-  --palette-sky-100: #fff7ed;
-  --palette-ice-50: #fffaf5;
-  --palette-navy-800: #f97316;
-  --palette-slate-600: #c2410c;
-  --palette-teal-500: #fb923c;
-  --palette-dust-400: #fdba74;
-  --palette-sky-300: #fdba74;
-  --palette-ice-200: #fed7aa;
-
-  --color-bg: #fffaf5;
-  --color-surface: #ffffff;
-  --color-surface-alt: #fff7ed;
-  --color-surface-raised: #ffffff;
-  --color-border: #f5d0b0;
-  --color-progress-track: #f5d0b0;
-  --color-text: #7c2d12;
-  --color-text-muted: #c2410c;
-  --color-primary: #f97316;
-  --color-primary-strong: #c2410c;
-  --color-primary-contrast: #ffffff;
-  --color-accent: #fb923c;
-
-  --gradient-primary: linear-gradient(135deg, #fdba74 0%, #f97316 48%, #c2410c 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    rgba(249, 115, 22, 0.18) 0%,
-    rgba(255, 247, 237, 0.9) 42%,
-    rgba(253, 186, 116, 0.32) 100%
-  );
-  --gradient-tile: linear-gradient(165deg, #ffffff 0%, #fff7ed 58%, #ffe8d1 100%);
-  --gradient-tile-strong: linear-gradient(145deg, #c2410c 0%, #f97316 52%, #fdba74 100%);
-  --gradient-page: linear-gradient(180deg, #fff7ed 0%, #fffaf5 28%, #fffaf5 100%);
-  --gradient-brand-text: linear-gradient(90deg, #c2410c 0%, #f97316 55%, #fb923c 100%);
-  --header-wash: linear-gradient(
-    180deg,
-    color-mix(in srgb, #fff7ed 55%, transparent) 0%,
-    transparent 100%
-  );
-
-  --shadow-sm: 0 1px 2px rgba(124, 45, 18, 0.06);
-  --shadow-md: 0 6px 16px rgba(124, 45, 18, 0.08);
-  --shadow-lg: 0 16px 32px rgba(124, 45, 18, 0.12);
-  --shadow-primary: 0 8px 22px rgba(249, 115, 22, 0.34);
+  @include light-accents(#e65100, #bf360c, #fb8c00, #fff4e8, #fdba74, #9a3412, 230, 81, 0);
 }
 
 :root[data-theme='dark'][data-color-theme='sunset'] {
-  --palette-navy-950: #1a1208;
-  --palette-navy-900: #2a1a0c;
-  --palette-ocean-600: #fb923c;
-  --palette-cerulean-500: #fdba74;
-  --palette-steel-300: #fed7aa;
-  --palette-sky-100: #7c2d12;
-  --palette-ice-50: #1a1208;
-  --palette-navy-800: #fb923c;
-  --palette-slate-600: #fdba74;
-  --palette-teal-500: #fdba74;
-  --palette-dust-400: #fed7aa;
-  --palette-sky-300: #fed7aa;
-  --palette-ice-200: #fdba74;
-
-  --color-bg: #140e08;
-  --color-surface: #2a1a0c;
-  --color-surface-alt: #3d2610;
-  --color-surface-raised: #4d3014;
-  --color-border: #5c3a1a;
-  --color-progress-track: #5c3a1a;
-  --color-text: #fff7ed;
-  --color-text-muted: #fdba74;
-  --color-primary: #fb923c;
-  --color-primary-strong: #fed7aa;
-  --color-primary-contrast: #1a1208;
-  --color-accent: #fdba74;
-
-  --gradient-primary: linear-gradient(135deg, #fed7aa 0%, #fb923c 45%, #c2410c 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    rgba(251, 146, 60, 0.3) 0%,
-    rgba(42, 26, 12, 0.78) 55%,
-    rgba(20, 14, 8, 0.96) 100%
-  );
-  --gradient-tile: linear-gradient(165deg, #3d2610 0%, #2a1a0c 55%, #140e08 100%);
-  --gradient-tile-strong: linear-gradient(145deg, #fb923c 0%, #c2410c 50%, #1a1208 100%);
-  --gradient-page: linear-gradient(180deg, #2a1a0c 0%, #140e08 40%, #140e08 100%);
-  --gradient-brand-text: linear-gradient(90deg, #ffffff 0%, #fff7ed 42%, #fdba74 100%);
-  --header-wash: linear-gradient(
-    180deg,
-    color-mix(in srgb, #fb923c 16%, transparent) 0%,
-    transparent 100%
-  );
-
-  --shadow-primary: 0 8px 24px rgba(251, 146, 60, 0.32);
+  @include dark-accents(#fb923c, #fed7aa, #fdba74, #fdba74, #c2410c, 251, 146, 60);
 }
 
-/* Blush — soft baby pink / rose */
+/* Blush — refined rose (not candy pink) */
 :root[data-color-theme='blush'] {
-  --palette-navy-950: #9d174d;
-  --palette-navy-900: #831843;
-  --palette-ocean-600: #ec4899;
-  --palette-cerulean-500: #f472b6;
-  --palette-steel-300: #f9a8d4;
-  --palette-sky-100: #fdf2f8;
-  --palette-ice-50: #fff7fa;
-  --palette-navy-800: #ec4899;
-  --palette-slate-600: #db2777;
-  --palette-teal-500: #f472b6;
-  --palette-dust-400: #f9a8d4;
-  --palette-sky-300: #f9a8d4;
-  --palette-ice-200: #fbcfe8;
-
-  --color-bg: #fff7fa;
-  --color-surface: #ffffff;
-  --color-surface-alt: #fdf2f8;
-  --color-surface-raised: #ffffff;
-  --color-border: #f5c6dc;
-  --color-progress-track: #f5c6dc;
-  --color-text: #831843;
-  --color-text-muted: #be185d;
-  --color-primary: #ec4899;
-  --color-primary-strong: #9d174d;
-  --color-primary-contrast: #ffffff;
-  --color-accent: #f472b6;
-
-  --gradient-primary: linear-gradient(135deg, #f9a8d4 0%, #ec4899 48%, #9d174d 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    rgba(236, 72, 153, 0.16) 0%,
-    rgba(253, 242, 248, 0.9) 42%,
-    rgba(249, 168, 212, 0.3) 100%
-  );
-  --gradient-tile: linear-gradient(165deg, #ffffff 0%, #fdf2f8 58%, #fce7f3 100%);
-  --gradient-tile-strong: linear-gradient(145deg, #9d174d 0%, #ec4899 52%, #f9a8d4 100%);
-  --gradient-page: linear-gradient(180deg, #fdf2f8 0%, #fff7fa 28%, #fff7fa 100%);
-  --gradient-brand-text: linear-gradient(90deg, #9d174d 0%, #ec4899 55%, #f472b6 100%);
-  --header-wash: linear-gradient(
-    180deg,
-    color-mix(in srgb, #fdf2f8 55%, transparent) 0%,
-    transparent 100%
-  );
-
-  --shadow-sm: 0 1px 2px rgba(131, 24, 67, 0.06);
-  --shadow-md: 0 6px 16px rgba(131, 24, 67, 0.08);
-  --shadow-lg: 0 16px 32px rgba(131, 24, 67, 0.12);
-  --shadow-primary: 0 8px 22px rgba(236, 72, 153, 0.32);
+  @include light-accents(#c2185b, #880e4f, #ec407a, #fceef4, #f8bbd0, #6d0f3a, 194, 24, 91);
 }
 
 :root[data-theme='dark'][data-color-theme='blush'] {
-  --palette-navy-950: #1a0f14;
-  --palette-navy-900: #2a1520;
-  --palette-ocean-600: #f472b6;
-  --palette-cerulean-500: #f9a8d4;
-  --palette-steel-300: #fbcfe8;
-  --palette-sky-100: #831843;
-  --palette-ice-50: #1a0f14;
-  --palette-navy-800: #f472b6;
-  --palette-slate-600: #f9a8d4;
-  --palette-teal-500: #f9a8d4;
-  --palette-dust-400: #fbcfe8;
-  --palette-sky-300: #fbcfe8;
-  --palette-ice-200: #f9a8d4;
-
-  --color-bg: #140c10;
-  --color-surface: #2a1520;
-  --color-surface-alt: #3b1d2c;
-  --color-surface-raised: #4a2538;
-  --color-border: #5c2e44;
-  --color-progress-track: #5c2e44;
-  --color-text: #fdf2f8;
-  --color-text-muted: #f9a8d4;
-  --color-primary: #f472b6;
-  --color-primary-strong: #fbcfe8;
-  --color-primary-contrast: #1a0f14;
-  --color-accent: #f9a8d4;
-
-  --gradient-primary: linear-gradient(135deg, #fbcfe8 0%, #f472b6 45%, #9d174d 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    rgba(244, 114, 182, 0.3) 0%,
-    rgba(42, 21, 32, 0.78) 55%,
-    rgba(20, 12, 16, 0.96) 100%
-  );
-  --gradient-tile: linear-gradient(165deg, #3b1d2c 0%, #2a1520 55%, #140c10 100%);
-  --gradient-tile-strong: linear-gradient(145deg, #f472b6 0%, #9d174d 50%, #1a0f14 100%);
-  --gradient-page: linear-gradient(180deg, #2a1520 0%, #140c10 40%, #140c10 100%);
-  --gradient-brand-text: linear-gradient(90deg, #ffffff 0%, #fdf2f8 42%, #f9a8d4 100%);
-  --header-wash: linear-gradient(
-    180deg,
-    color-mix(in srgb, #f472b6 16%, transparent) 0%,
-    transparent 100%
-  );
-
-  --shadow-primary: 0 8px 24px rgba(244, 114, 182, 0.32);
+  @include dark-accents(#f472b6, #fbcfe8, #f9a8d4, #f9a8d4, #9d174d, 244, 114, 182);
 }
 
-/* Pearl — soft light cream / champagne */
+/* Pearl — warm taupe / champagne */
 :root[data-color-theme='pearl'] {
-  --palette-navy-950: #5c4033;
-  --palette-navy-900: #3f2e24;
-  --palette-ocean-600: #b07d57;
-  --palette-cerulean-500: #c9895a;
-  --palette-steel-300: #e2c4a8;
-  --palette-sky-100: #f3ede6;
-  --palette-ice-50: #fbf8f4;
-  --palette-navy-800: #b07d57;
-  --palette-slate-600: #8b6f5c;
-  --palette-teal-500: #c9895a;
-  --palette-dust-400: #d4a574;
-  --palette-sky-300: #d4a574;
-  --palette-ice-200: #e8d5c4;
-
-  --color-bg: #fbf8f4;
-  --color-surface: #ffffff;
-  --color-surface-alt: #f3ede6;
-  --color-surface-raised: #ffffff;
-  --color-border: #e5d9cc;
-  --color-progress-track: #e5d9cc;
-  --color-text: #3f2e24;
-  --color-text-muted: #8b6f5c;
-  --color-primary: #b07d57;
-  --color-primary-strong: #5c4033;
-  --color-primary-contrast: #ffffff;
-  --color-accent: #c9895a;
-
-  --gradient-primary: linear-gradient(135deg, #e2c4a8 0%, #b07d57 48%, #5c4033 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    rgba(176, 125, 87, 0.16) 0%,
-    rgba(243, 237, 230, 0.92) 42%,
-    rgba(226, 196, 168, 0.32) 100%
-  );
-  --gradient-tile: linear-gradient(165deg, #ffffff 0%, #f3ede6 58%, #ebe0d4 100%);
-  --gradient-tile-strong: linear-gradient(145deg, #5c4033 0%, #b07d57 52%, #e2c4a8 100%);
-  --gradient-page: linear-gradient(180deg, #f3ede6 0%, #fbf8f4 28%, #fbf8f4 100%);
-  --gradient-brand-text: linear-gradient(90deg, #5c4033 0%, #b07d57 55%, #c9895a 100%);
-  --header-wash: linear-gradient(
-    180deg,
-    color-mix(in srgb, #f3ede6 55%, transparent) 0%,
-    transparent 100%
-  );
-
-  --shadow-sm: 0 1px 2px rgba(63, 46, 36, 0.06);
-  --shadow-md: 0 6px 16px rgba(63, 46, 36, 0.08);
-  --shadow-lg: 0 16px 32px rgba(63, 46, 36, 0.12);
-  --shadow-primary: 0 8px 22px rgba(176, 125, 87, 0.3);
+  @include light-accents(#795548, #5d4037, #a1887f, #f5f0eb, #d7ccc8, #3e2723, 121, 85, 72);
 }
 
 :root[data-theme='dark'][data-color-theme='pearl'] {
-  --palette-navy-950: #1a1410;
-  --palette-navy-900: #2a211a;
-  --palette-ocean-600: #c9895a;
-  --palette-cerulean-500: #d4a574;
-  --palette-steel-300: #e2c4a8;
-  --palette-sky-100: #5c4033;
-  --palette-ice-50: #1a1410;
-  --palette-navy-800: #c9895a;
-  --palette-slate-600: #d4a574;
-  --palette-teal-500: #d4a574;
-  --palette-dust-400: #e2c4a8;
-  --palette-sky-300: #e2c4a8;
-  --palette-ice-200: #d4a574;
-
-  --color-bg: #12100e;
-  --color-surface: #2a211a;
-  --color-surface-alt: #3a2e24;
-  --color-surface-raised: #4a3a2e;
-  --color-border: #5a4a3c;
-  --color-progress-track: #5a4a3c;
-  --color-text: #f3ede6;
-  --color-text-muted: #d4a574;
-  --color-primary: #c9895a;
-  --color-primary-strong: #e2c4a8;
-  --color-primary-contrast: #1a1410;
-  --color-accent: #d4a574;
-
-  --gradient-primary: linear-gradient(135deg, #e2c4a8 0%, #c9895a 45%, #5c4033 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    rgba(201, 137, 90, 0.28) 0%,
-    rgba(42, 33, 26, 0.78) 55%,
-    rgba(18, 16, 14, 0.96) 100%
-  );
-  --gradient-tile: linear-gradient(165deg, #3a2e24 0%, #2a211a 55%, #12100e 100%);
-  --gradient-tile-strong: linear-gradient(145deg, #c9895a 0%, #5c4033 50%, #1a1410 100%);
-  --gradient-page: linear-gradient(180deg, #2a211a 0%, #12100e 40%, #12100e 100%);
-  --gradient-brand-text: linear-gradient(90deg, #ffffff 0%, #f3ede6 42%, #d4a574 100%);
-  --header-wash: linear-gradient(
-    180deg,
-    color-mix(in srgb, #c9895a 16%, transparent) 0%,
-    transparent 100%
-  );
-
-  --shadow-primary: 0 8px 24px rgba(201, 137, 90, 0.3);
+  @include dark-accents(#bcaaa4, #d7ccc8, #a1887f, #d7ccc8, #5d4037, 188, 170, 164);
 }
 
-/* Midnight — deep ink / slate */
+/* Midnight — ink slate */
 :root[data-color-theme='midnight'] {
-  --palette-navy-950: #0f172a;
-  --palette-navy-900: #1e293b;
-  --palette-ocean-600: #475569;
-  --palette-cerulean-500: #64748b;
-  --palette-steel-300: #94a3b8;
-  --palette-sky-100: #e8ecf0;
-  --palette-ice-50: #f4f6f8;
-  --palette-navy-800: #475569;
-  --palette-slate-600: #64748b;
-  --palette-teal-500: #64748b;
-  --palette-dust-400: #94a3b8;
-  --palette-sky-300: #94a3b8;
-  --palette-ice-200: #cbd5e1;
-
-  --color-bg: #f4f6f8;
-  --color-surface: #ffffff;
-  --color-surface-alt: #e8ecf0;
-  --color-surface-raised: #ffffff;
-  --color-border: #cfd6de;
-  --color-progress-track: #cfd6de;
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
-  --color-primary: #334155;
-  --color-primary-strong: #0f172a;
-  --color-primary-contrast: #ffffff;
-  --color-accent: #64748b;
-
-  --gradient-primary: linear-gradient(135deg, #94a3b8 0%, #475569 48%, #0f172a 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    rgba(71, 85, 105, 0.16) 0%,
-    rgba(232, 236, 240, 0.92) 42%,
-    rgba(148, 163, 184, 0.28) 100%
-  );
-  --gradient-tile: linear-gradient(165deg, #ffffff 0%, #e8ecf0 58%, #d9e0e8 100%);
-  --gradient-tile-strong: linear-gradient(145deg, #0f172a 0%, #475569 52%, #94a3b8 100%);
-  --gradient-page: linear-gradient(180deg, #e8ecf0 0%, #f4f6f8 28%, #f4f6f8 100%);
-  --gradient-brand-text: linear-gradient(90deg, #0f172a 0%, #475569 55%, #64748b 100%);
-  --header-wash: linear-gradient(
-    180deg,
-    color-mix(in srgb, #e8ecf0 55%, transparent) 0%,
-    transparent 100%
-  );
-
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 6px 16px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 16px 32px rgba(15, 23, 42, 0.12);
-  --shadow-primary: 0 8px 22px rgba(51, 65, 85, 0.28);
+  @include light-accents(#334155, #0f172a, #64748b, #eef2f6, #94a3b8, #020617, 51, 65, 85);
 }
 
 :root[data-theme='dark'][data-color-theme='midnight'] {
-  --palette-navy-950: #020617;
-  --palette-navy-900: #0f172a;
-  --palette-ocean-600: #64748b;
-  --palette-cerulean-500: #94a3b8;
-  --palette-steel-300: #cbd5e1;
-  --palette-sky-100: #1e293b;
-  --palette-ice-50: #020617;
-  --palette-navy-800: #64748b;
-  --palette-slate-600: #94a3b8;
-  --palette-teal-500: #94a3b8;
-  --palette-dust-400: #cbd5e1;
-  --palette-sky-300: #cbd5e1;
-  --palette-ice-200: #94a3b8;
-
-  --color-bg: #020617;
-  --color-surface: #0f172a;
-  --color-surface-alt: #1e293b;
-  --color-surface-raised: #273549;
-  --color-border: #334155;
-  --color-progress-track: #334155;
-  --color-text: #f1f5f9;
-  --color-text-muted: #94a3b8;
-  --color-primary: #94a3b8;
-  --color-primary-strong: #e2e8f0;
-  --color-primary-contrast: #020617;
-  --color-accent: #cbd5e1;
-
-  --gradient-primary: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 45%, #334155 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    rgba(148, 163, 184, 0.28) 0%,
-    rgba(15, 23, 42, 0.8) 55%,
-    rgba(2, 6, 23, 0.96) 100%
-  );
-  --gradient-tile: linear-gradient(165deg, #1e293b 0%, #0f172a 55%, #020617 100%);
-  --gradient-tile-strong: linear-gradient(145deg, #94a3b8 0%, #334155 50%, #020617 100%);
-  --gradient-page: linear-gradient(180deg, #0f172a 0%, #020617 40%, #020617 100%);
-  --gradient-brand-text: linear-gradient(90deg, #ffffff 0%, #f1f5f9 42%, #94a3b8 100%);
-  --header-wash: linear-gradient(
-    180deg,
-    color-mix(in srgb, #94a3b8 14%, transparent) 0%,
-    transparent 100%
-  );
-
-  --shadow-primary: 0 8px 24px rgba(148, 163, 184, 0.28);
+  @include dark-accents(#94a3b8, #e2e8f0, #cbd5e1, #cbd5e1, #334155, 148, 163, 184);
 }
