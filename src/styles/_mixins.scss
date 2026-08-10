@@ -199,7 +199,14 @@
 
   // Long tokens / URLs in normal text must wrap on phones.
   a {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
     overflow-wrap: anywhere;
     word-break: break-word;
+
+    &:hover {
+      color: var(--color-primary-strong);
+    }
   }
 }
