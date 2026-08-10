@@ -9,8 +9,8 @@
   "scope": "/",
   "start_url": "/dashboard",
   "id": "/",
-  "theme_color": "#007bb8",
-  "background_color": "#007bb8",
+  "theme_color": "#0B6E99",
+  "background_color": "#F6F7F9",
   "categories": ["education", "productivity"],
   "icons": [
     {
