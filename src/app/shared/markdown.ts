@@ -1,8 +1,79 @@
+function escapeAttr(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+/**
+ * Only allow http(s) destinations. Input may already be HTML-escaped
+ * (e.g. `&amp;` in query strings), so decode those before URL parsing.
+ */
+function safeHttpHref(raw: string): string | null {
+  const decoded = raw.replace(/&amp;/g, '&');
+  try {
+    const parsed = new URL(decoded);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+    return parsed.href;
+  } catch {
+    return null;
+  }
+}
+
+function externalAnchor(href: string, labelHtml: string): string {
+  const safe = safeHttpHref(href);
+  if (!safe) return labelHtml;
+  return `<a href="${escapeAttr(safe)}" target="_blank" rel="noopener noreferrer">${labelHtml}</a>`;
+}
+
+/** Split trailing punctuation that is usually not part of a bare URL. */
+function splitTrailingPunctuation(value: string): { url: string; trailing: string } {
+  let url = value;
+  let trailing = '';
+  while (/[.,;:!?'"]$/.test(url)) {
+    trailing = url.slice(-1) + trailing;
+    url = url.slice(0, -1);
+  }
+  while (url.endsWith(')')) {
+    const opens = (url.match(/\(/g) ?? []).length;
+    const closes = (url.match(/\)/g) ?? []).length;
+    if (opens >= closes) break;
+    trailing = `)${trailing}`;
+    url = url.slice(0, -1);
+  }
+  return { url, trailing };
+}
+
+function linkify(text: string): string {
+  // Protect inline code so URLs inside backticks stay plain text.
+  const protectedSpans: string[] = [];
+  const protect = (match: string): string => {
+    const index = protectedSpans.length;
+    protectedSpans.push(match);
+    return `\0PROT${index}\0`;
+  };
+
+  let withPlaceholders = text.replace(/<code>[\s\S]*?<\/code>/g, protect);
+
+  // Markdown links: [label](https://…)
+  withPlaceholders = withPlaceholders.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
+    (_match, label: string, href: string) => protect(externalAnchor(href, label)),
+  );
+
+  // Bare http(s) URLs
+  withPlaceholders = withPlaceholders.replace(/https?:\/\/[^\s<]+/g, (match) => {
+    const { url, trailing } = splitTrailingPunctuation(match);
+    if (!url) return match;
+    return `${externalAnchor(url, url)}${trailing}`;
+  });
+
+  return withPlaceholders.replace(/\0PROT(\d+)\0/g, (_match, index: string) => protectedSpans[Number(index)]!);
+}
+
 function inline(text: string): string {
-  return text
+  const withCode = text
     .replace(/`([^`]+)`/g, '<code>$1</code>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+  return linkify(withCode);
 }
 
 /**
@@ -22,10 +93,14 @@ const CODE_TOKEN_GLOBAL = /CODEBLOCK(\d+)/g;
 
 /**
  * Converts a constrained subset of markdown (headings, bold/italic, inline
- * and fenced code, bullet/numbered lists, horizontal rules) into HTML.
- * All source text is HTML-escaped before any tag is introduced, so the
- * output only ever contains the whitelisted tags this function builds —
+ * and fenced code, bullet/numbered lists, horizontal rules, http(s) links)
+ * into HTML. All source text is HTML-escaped before any tag is introduced, so
+ * the output only ever contains the whitelisted tags this function builds —
  * safe to render as trusted HTML even though the source is LLM output.
+ *
+ * External links always open in a new tab (`target="_blank"`) with
+ * `rel="noopener noreferrer"` so installed PWA / standalone mode keeps the
+ * Skill Hunter shell and docs open in the system browser.
  */
 export function renderMarkdown(raw: string): string {
   let text = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -109,6 +184,7 @@ export function markdownToPlainText(raw: string): string {
     .replace(/^[-*]\s+/gm, '')
     .replace(/^\d+\.\s+/gm, '')
     .replace(/^-{3,}$/gm, '')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '$1')
     .replace(/`([^`]+)`/g, '$1')
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '$1')
