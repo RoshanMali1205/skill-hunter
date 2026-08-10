@@ -1,0 +1,119 @@
+<div class="export stack">
+  <div>
+    <h1>Export PDF</h1>
+    <p class="export__subtitle">
+      Build a printable study pack from one or more topics. Use your browser’s
+      <strong>Save as PDF</strong> option in the print dialog.
+    </p>
+  </div>
+
+  <section class="export__card">
+    <h2>1. Choose topics</h2>
+    <label class="export__field">
+      <span>Subject</span>
+      <app-select
+        [value]="activeSubject()?.id ?? ''"
+        [options]="subjectOptions()"
+        ariaLabel="Subject"
+        (valueChange)="setSubject($event)"
+      />
+    </label>
+
+    <div class="export__presets cluster">
+      <button type="button" class="btn" (click)="selectAllInSubject()">Select all in subject</button>
+      <button type="button" class="btn" (click)="selectBookmarks()">Bookmarks in subject</button>
+      <button type="button" class="btn" (click)="selectRevision()">Revision list</button>
+      <button type="button" class="btn" (click)="clearSelection()" [disabled]="selectedCount() === 0">
+        Clear
+      </button>
+    </div>
+
+    <p class="export__count">
+      <strong>{{ selectedCount() }}</strong> topic{{ selectedCount() === 1 ? '' : 's' }} selected
+    </p>
+
+    @if (showLargePackWarning()) {
+      <p class="export__warn">
+        Large packs can take a moment to render. Consider exporting by category if printing feels slow.
+      </p>
+    }
+
+    <div class="export__tree">
+      @for (group of groupedRows(); track group.title) {
+        <section class="export__group">
+          <label class="export__group-head">
+            <input
+              type="checkbox"
+              [checked]="categoryFullySelected(group.items)"
+              (change)="toggleCategory(group.items, $any($event.target).checked)"
+            />
+            <span>{{ group.title }}</span>
+            <span class="export__group-count">{{ group.items.length }}</span>
+          </label>
+          <div class="export__topics">
+            @for (row of group.items; track row.topic.id) {
+              <label class="export__topic">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(row.topic.id)"
+                  (change)="toggleTopic(row.topic.id, $any($event.target).checked)"
+                />
+                <span class="export__topic-title">{{ row.topic.title }}</span>
+                <span class="export__topic-meta">{{ row.topic.difficulty }}</span>
+              </label>
+            }
+          </div>
+        </section>
+      } @empty {
+        <p class="export__muted">Pick a subject to see topics.</p>
+      }
+    </div>
+  </section>
+
+  <section class="export__card">
+    <h2>2. Export options</h2>
+    <label class="export__check">
+      <input
+        type="checkbox"
+        [ngModel]="options().includeAnswers"
+        (ngModelChange)="setOption('includeAnswers', $event)"
+      />
+      <span>Include answers &amp; explanations</span>
+    </label>
+    <label class="export__check">
+      <input
+        type="checkbox"
+        [ngModel]="options().includeCode"
+        (ngModelChange)="setOption('includeCode', $event)"
+      />
+      <span>Include code samples</span>
+    </label>
+    <label class="export__check">
+      <input
+        type="checkbox"
+        [ngModel]="options().includeNotes"
+        (ngModelChange)="setOption('includeNotes', $event)"
+      />
+      <span>Include my notes (when present)</span>
+    </label>
+  </section>
+
+  <section class="export__card export__card--actions">
+    <button
+      type="button"
+      class="btn btn--primary"
+      [disabled]="exporting() || selectedCount() === 0"
+      (click)="exportSelected()"
+    >
+      <app-icon name="download" />
+      {{ exporting() ? 'Preparing…' : 'Export PDF' }}
+    </button>
+    <p class="export__muted">
+      Tip: from any topic page you can also export that topic alone in one click.
+      <a routerLink="/subjects">Browse subjects</a>
+    </p>
+    @if (message(); as msg) {
+      <p [class.export__success]="msg.success" [class.export__error]="!msg.success">{{ msg.text }}</p>
+    }
+  </section>
+</div>
