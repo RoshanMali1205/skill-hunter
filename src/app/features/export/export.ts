@@ -26,6 +26,9 @@ interface TopicRow {
   topic: TopicSummary;
 }
 
+/** topicId → subjectId for selections that can span multiple subjects. */
+type SelectionMap = Map<string, string>;
+
 @Component({
   selector: 'app-export',
   imports: [FormsModule, RouterLink, IconComponent, SelectComponent],
@@ -41,7 +44,8 @@ export class ExportComponent {
 
   readonly subjects = toSignal(this.content.getSubjects(), { initialValue: [] as Subject[] });
   readonly selectedSubjectId = signal('');
-  readonly selectedTopicIds = signal<Set<string>>(new Set());
+  /** Selected topics across all subjects (topicId → subjectId). */
+  readonly selectedTopics = signal<SelectionMap>(new Map());
   readonly options = signal<TopicExportOptions>({ ...DEFAULT_TOPIC_EXPORT_OPTIONS });
   readonly exporting = signal(false);
   readonly message = signal<{ text: string; success: boolean } | null>(null);
@@ -92,7 +96,20 @@ export class ExportComponent {
     return [...groups.entries()].map(([title, items]) => ({ title, items }));
   });
 
-  readonly selectedCount = computed(() => this.selectedTopicIds().size);
+  readonly selectedCount = computed(() => this.selectedTopics().size);
+  readonly selectedSubjectCount = computed(() => {
+    const subjects = new Set(this.selectedTopics().values());
+    return subjects.size;
+  });
+  readonly selectedInActiveSubjectCount = computed(() => {
+    const subjectId = this.activeSubject()?.id;
+    if (!subjectId) return 0;
+    let count = 0;
+    for (const sid of this.selectedTopics().values()) {
+      if (sid === subjectId) count += 1;
+    }
+    return count;
+  });
   readonly showLargePackWarning = computed(() => this.selectedCount() >= TOPIC_EXPORT_WARN_COUNT);
 
   constructor() {
@@ -104,35 +121,35 @@ export class ExportComponent {
       this.selectedSubjectId.set(subjectId);
       const topicId = this.queryTopic();
       if (topicId) {
-        this.selectedTopicIds.set(new Set([topicId]));
+        this.selectedTopics.set(new Map([[topicId, subjectId]]));
       }
     });
   }
 
+  /** Switch the browsed subject without clearing cross-subject selections. */
   setSubject(subjectId: string): void {
     this.selectedSubjectId.set(subjectId);
-    this.selectedTopicIds.set(new Set());
     this.message.set(null);
   }
 
   isSelected(topicId: string): boolean {
-    return this.selectedTopicIds().has(topicId);
+    return this.selectedTopics().has(topicId);
   }
 
-  toggleTopic(topicId: string, checked: boolean): void {
-    this.selectedTopicIds.update((current) => {
-      const next = new Set(current);
-      if (checked) next.add(topicId);
+  toggleTopic(subjectId: string, topicId: string, checked: boolean): void {
+    this.selectedTopics.update((current) => {
+      const next = new Map(current);
+      if (checked) next.set(topicId, subjectId);
       else next.delete(topicId);
       return next;
     });
   }
 
   toggleCategory(rows: TopicRow[], checked: boolean): void {
-    this.selectedTopicIds.update((current) => {
-      const next = new Set(current);
+    this.selectedTopics.update((current) => {
+      const next = new Map(current);
       for (const row of rows) {
-        if (checked) next.add(row.topic.id);
+        if (checked) next.set(row.topic.id, row.subjectId);
         else next.delete(row.topic.id);
       }
       return next;
@@ -140,23 +157,38 @@ export class ExportComponent {
   }
 
   categoryFullySelected(rows: TopicRow[]): boolean {
-    return rows.length > 0 && rows.every((row) => this.selectedTopicIds().has(row.topic.id));
+    return rows.length > 0 && rows.every((row) => this.selectedTopics().has(row.topic.id));
   }
 
+  /** Add every topic in the active subject; keep selections from other subjects. */
   selectAllInSubject(): void {
-    this.selectedTopicIds.set(new Set(this.topicRows().map((row) => row.topic.id)));
+    this.selectedTopics.update((current) => {
+      const next = new Map(current);
+      for (const row of this.topicRows()) {
+        next.set(row.topic.id, row.subjectId);
+      }
+      return next;
+    });
   }
 
   clearSelection(): void {
-    this.selectedTopicIds.set(new Set());
+    this.selectedTopics.set(new Map());
   }
 
+  /**
+   * Replace active-subject picks with bookmarked topics in that subject;
+   * selections from other subjects stay.
+   */
   selectBookmarks(): void {
+    const subjectId = this.activeSubject()?.id;
+    if (!subjectId) return;
+
     const bookmarked = this.bookmarks.bookmarkedTopicIds();
     const inSubject = this.topicRows()
       .map((row) => row.topic.id)
       .filter((id) => bookmarked.has(id));
-    this.selectedTopicIds.set(new Set(inSubject));
+
+    this.replaceActiveSubjectSelection(subjectId, inSubject);
     this.message.set(
       inSubject.length === 0
         ? { text: 'No bookmarked topics in this subject.', success: false }
@@ -164,12 +196,20 @@ export class ExportComponent {
     );
   }
 
+  /**
+   * Replace active-subject picks with revision-list topics in that subject;
+   * selections from other subjects stay.
+   */
   selectRevision(): void {
+    const subjectId = this.activeSubject()?.id;
+    if (!subjectId) return;
+
     const revision = new Set(this.revision.revisionTopicIds());
     const inSubject = this.topicRows()
       .map((row) => row.topic.id)
       .filter((id) => revision.has(id));
-    this.selectedTopicIds.set(new Set(inSubject));
+
+    this.replaceActiveSubjectSelection(subjectId, inSubject);
     this.message.set(
       inSubject.length === 0
         ? { text: 'No revision-list topics in this subject.', success: false }
@@ -182,13 +222,11 @@ export class ExportComponent {
   }
 
   async exportSelected(): Promise<void> {
-    const subjectId = this.activeSubject()?.id;
-    if (!subjectId) return;
+    const refs: TopicExportRef[] = [...this.selectedTopics().entries()].map(
+      ([topicId, subjectId]) => ({ subjectId, topicId }),
+    );
 
-    const refs: TopicExportRef[] = [...this.selectedTopicIds()].map((topicId) => ({
-      subjectId,
-      topicId,
-    }));
+    if (refs.length === 0) return;
 
     this.exporting.set(true);
     this.message.set(null);
@@ -203,5 +241,18 @@ export class ExportComponent {
           }
         : { text: result.error, success: false },
     );
+  }
+
+  private replaceActiveSubjectSelection(subjectId: string, topicIds: string[]): void {
+    this.selectedTopics.update((current) => {
+      const next = new Map(current);
+      for (const [topicId, sid] of current) {
+        if (sid === subjectId) next.delete(topicId);
+      }
+      for (const topicId of topicIds) {
+        next.set(topicId, subjectId);
+      }
+      return next;
+    });
   }
 }
