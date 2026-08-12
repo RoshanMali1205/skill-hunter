@@ -13,6 +13,7 @@ export class PwaService {
   private readonly swUpdate = inject(SwUpdate, { optional: true });
 
   private deferredPrompt: BeforeInstallPromptEvent | null = null;
+  private checkingUpdate = false;
 
   /** True when a new service-worker version is waiting to activate. */
   readonly updateAvailable = signal(false);
@@ -42,11 +43,28 @@ export class PwaService {
       .pipe(filter((event): event is VersionReadyEvent => event.type === 'VERSION_READY'))
       .subscribe(() => this.updateAvailable.set(true));
 
-    // Catch updates published while the tab stays open.
-    const hourMs = 60 * 60 * 1000;
+    // Check as soon as the app boots (do not wait for the hourly timer).
+    void this.checkForUpdateSoon();
+
+    // When the installed PWA comes back to the foreground after a Netlify deploy,
+    // pick up the new build without waiting for the interval.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        void this.checkForUpdateSoon();
+      }
+    });
+    window.addEventListener('focus', () => {
+      void this.checkForUpdateSoon();
+    });
+    window.addEventListener('online', () => {
+      void this.checkForUpdateSoon();
+    });
+
+    // Fallback while a tab stays open for a long time.
+    const fiveMinMs = 5 * 60 * 1000;
     window.setInterval(() => {
-      void this.swUpdate?.checkForUpdate().catch(() => undefined);
-    }, hourMs);
+      void this.checkForUpdateSoon();
+    }, fiveMinMs);
   }
 
   async promptInstall(): Promise<'accepted' | 'dismissed' | 'unavailable'> {
@@ -70,6 +88,19 @@ export class PwaService {
       await this.swUpdate.activateUpdate();
     } finally {
       window.location.reload();
+    }
+  }
+
+  /** Ask the service worker if Netlify has published a newer build. */
+  private async checkForUpdateSoon(): Promise<void> {
+    if (!this.swUpdate?.isEnabled || this.checkingUpdate) return;
+    this.checkingUpdate = true;
+    try {
+      await this.swUpdate.checkForUpdate();
+    } catch {
+      // Offline or SW not ready yet — ignore.
+    } finally {
+      this.checkingUpdate = false;
     }
   }
 

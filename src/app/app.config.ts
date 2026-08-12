@@ -12,7 +12,8 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch()),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000',
+      // Register ASAP so installed PWAs can discover Netlify deploys on open.
+      registrationStrategy: 'registerImmediately',
     }),
   ],
 };
