@@ -2,9 +2,10 @@
   <div>
     <h1>Export PDF</h1>
     <p class="export__subtitle">
-      Build a printable study pack from one or more topics. Your device print sheet will open
-      on top of the app — choose <strong>Save as PDF</strong>. Cancel returns you to Skill Hunter
-      (nothing replaces the app page).
+      Build a printable study pack from topics across one or more subjects. Switch subjects to
+      keep adding topics — your selections are kept until you clear them. Your device print sheet
+      will open on top of the app — choose <strong>Save as PDF</strong>. Cancel returns you to
+      Skill Hunter (nothing replaces the app page).
     </p>
   </div>
 
@@ -25,12 +26,18 @@
       <button type="button" class="btn" (click)="selectBookmarks()">Bookmarks in subject</button>
       <button type="button" class="btn" (click)="selectRevision()">Revision list</button>
       <button type="button" class="btn" (click)="clearSelection()" [disabled]="selectedCount() === 0">
-        Clear
+        Clear all
       </button>
     </div>
 
     <p class="export__count">
       <strong>{{ selectedCount() }}</strong> topic{{ selectedCount() === 1 ? '' : 's' }} selected
+      @if (selectedSubjectCount() > 1) {
+        <span>
+          across <strong>{{ selectedSubjectCount() }}</strong> subjects
+          ({{ selectedInActiveSubjectCount() }} in this subject)
+        </span>
+      }
     </p>
 
     @if (showLargePackWarning()) {
@@ -57,7 +64,7 @@
                 <input
                   type="checkbox"
                   [checked]="isSelected(row.topic.id)"
-                  (change)="toggleTopic(row.topic.id, $any($event.target).checked)"
+                  (change)="toggleTopic(row.subjectId, row.topic.id, $any($event.target).checked)"
                 />
                 <span class="export__topic-title">{{ row.topic.title }}</span>
                 <span class="export__topic-meta">{{ row.topic.difficulty }}</span>
