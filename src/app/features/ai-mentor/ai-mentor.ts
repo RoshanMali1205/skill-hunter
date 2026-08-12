@@ -35,24 +35,14 @@ interface QuickPrompt {
 
 const QUICK_PROMPTS: QuickPrompt[] = [
   {
-    label: 'Explain closures for an interview',
+    label: 'Explain simply with a real-life example',
     prompt:
-      'Explain JavaScript closures the way you would to a senior frontend interview candidate, with a short example.',
+      'Explain this concept in simple everyday language. Start with a real-life analogy, then give one practical coding/UI example, say why it matters in interviews, and end with 2 short questions to check my deep understanding. If I have a current topic in context, use that topic; otherwise pick closures.',
   },
   {
-    label: 'Ask me a tricky Angular question',
+    label: 'Ask me a question & check my understanding',
     prompt:
-      'Give me one tricky, senior-level Angular interview question. Do not reveal the answer until I respond with my own answer first.',
-  },
-  {
-    label: 'switchMap vs mergeMap vs exhaustMap',
-    prompt:
-      'Compare switchMap, mergeMap, concatMap, and exhaustMap with one realistic UI scenario for each.',
-  },
-  {
-    label: 'Review my answer',
-    prompt:
-      'I want you to review my answer to an interview question. Ask me which question and answer I want reviewed.',
+      'Ask me one realistic frontend interview question (use my current topic if I have one). Wait for my answer before revealing yours. After I answer, tell me what was strong, what I missed, give a better simple answer, and ask one follow-up that checks deeper understanding.',
   },
 ];
 

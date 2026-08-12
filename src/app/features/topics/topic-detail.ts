@@ -227,7 +227,7 @@ export class TopicDetailComponent {
   askAi(): void {
     const topicTitle = this.topic()?.title;
     const question = topicTitle
-      ? `Can you explain "${topicTitle}" in more depth, and give me a tricky follow-up question to test my understanding?`
+      ? `Explain "${topicTitle}" in simple everyday language. Use a real-life analogy, then a practical coding/UI example, say why it matters in interviews, and end with 2 short questions to check my deep understanding.`
       : undefined;
     this.router.navigate(['/ai-mentor'], {
       queryParams: {
