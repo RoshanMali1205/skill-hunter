@@ -1,0 +1,39 @@
+@if (visible()) {
+  <div class="indi-day" role="status" aria-label="Happy Independence Day">
+    <span class="indi-day__flag" aria-hidden="true">
+      <svg viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg" focusable="false">
+        <rect width="36" height="8" y="0" fill="#FF9933" />
+        <rect width="36" height="8" y="8" fill="#FFFFFF" />
+        <rect width="36" height="8" y="16" fill="#138808" />
+        <!-- Ashoka Chakra (simplified 24-spoke wheel) -->
+        <g transform="translate(18 12)" fill="none" stroke="#000080" stroke-linecap="round">
+          <circle r="3.15" stroke-width="0.7" />
+          <circle r="0.55" fill="#000080" stroke="none" />
+          <g stroke-width="0.45">
+            <line y1="-3.05" y2="3.05" />
+            <line x1="-3.05" x2="3.05" />
+            <line x1="-2.16" y1="-2.16" x2="2.16" y2="2.16" />
+            <line x1="2.16" y1="-2.16" x2="-2.16" y2="2.16" />
+            <line x1="-0.79" y1="-2.95" x2="0.79" y2="2.95" />
+            <line x1="0.79" y1="-2.95" x2="-0.79" y2="2.95" />
+            <line x1="-2.95" y1="-0.79" x2="2.95" y2="0.79" />
+            <line x1="2.95" y1="-0.79" x2="-2.95" y2="0.79" />
+            <line x1="-1.53" y1="-2.64" x2="1.53" y2="2.64" />
+            <line x1="1.53" y1="-2.64" x2="-1.53" y2="2.64" />
+            <line x1="-2.64" y1="-1.53" x2="2.64" y2="1.53" />
+            <line x1="2.64" y1="-1.53" x2="-2.64" y2="1.53" />
+          </g>
+        </g>
+      </svg>
+    </span>
+    <span class="indi-day__label">15 Aug</span>
+    <button
+      type="button"
+      class="indi-day__close"
+      (click)="dismiss()"
+      aria-label="Dismiss Independence Day icon"
+    >
+      &times;
+    </button>
+  </div>
+}
