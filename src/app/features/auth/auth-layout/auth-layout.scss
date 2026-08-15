@@ -78,6 +78,7 @@
 }
 
 .auth-shell__card,
+.auth-shell__tagline,
 .auth-shell__note {
   position: relative;
   z-index: 1;
@@ -133,6 +134,19 @@
   font-size: 1.4rem;
 }
 
+.auth-shell__tagline {
+  margin: 0;
+  max-width: 420px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--color-surface) 40%, transparent);
+  animation: auth-card-rise 0.55s ease 0.12s both;
+}
+
 .auth-shell__note {
   max-width: 380px;
   text-align: center;
@@ -181,7 +195,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .auth-shell__orb,
-  .auth-shell__card {
+  .auth-shell__card,
+  .auth-shell__tagline {
     animation: none;
   }
 }
