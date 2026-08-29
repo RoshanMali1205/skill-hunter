@@ -127,6 +127,7 @@ public/content/
 netlify/functions/
   ai-chat.mjs    Serverless proxy that holds the AI provider's API key server-side
                 and forwards chat requests from AiAssistantService
+  mcp.mjs        Remote Skill Hunter MCP server at `/mcp` (VS Code / Cursor HTTP)
 ```
 
 ## Architecture
@@ -328,6 +329,23 @@ npm start                    # starts local /api/ai-chat on :9999 + ng serve
 
 `netlify/functions/ai-chat.mjs` is a single file that calls Gemini's `generateContent` endpoint with plain `fetch` — no SDK dependency. To use a different provider, change the request URL/shape inside that one file (and the response-parsing line at the bottom); nothing on the Angular side needs to change beyond the request/response shape, since `AiAssistantService` only knows about `/api/ai-chat` and a `{ reply: string }` response.
 
+## Skill Hunter MCP
+
+The same Netlify site also hosts a remote MCP server at `/mcp`. Anyone can add it in VS Code the same way they add Azure DevOps or Figma — paste a URL, no local install:
+
+```json
+{
+  "servers": {
+    "skill-hunter": {
+      "type": "http",
+      "url": "https://frontend-skill-hunter.netlify.app/mcp"
+    }
+  }
+}
+```
+
+Leave `MCP_SHARED_TOKEN` unset so the endpoint is public (read-only curated topics). If you set that env var, clients send it as `Authorization: Bearer YOUR_TOKEN` (or Basic PAT). Details: [`skill-hunter-mcp/README.md`](skill-hunter-mcp/README.md).
+
 ## Deploy to GitHub + Netlify
 
 1. **GitHub**: create a new repository (via github.com or `gh repo create`), then:
@@ -339,8 +357,8 @@ npm start                    # starts local /api/ai-chat on :9999 + ng serve
    - Build command: `npm run build`
    - Publish directory: `dist/skill-hunter/browser`
    - Functions directory: `netlify/functions`
-   - SPA fallback and the `/api/*` → function redirect are already configured.
-3. Add the `GEMINI_API_KEY` and `APP_SHARED_TOKEN` environment variables (see above) before or after the first deploy, then deploy.
+   - SPA fallback, `/api/*` → function, and `/mcp` → Skill Hunter MCP are already configured.
+3. Add the `GEMINI_API_KEY` and `APP_SHARED_TOKEN` environment variables (see above) before or after the first deploy, then deploy. `MCP_SHARED_TOKEN` is optional — omit it so anyone can connect to `/mcp` with only the URL.
 4. Every push to the connected branch redeploys automatically.
 
 Since the whole app is now gated behind login, the first account registered on a fresh deployment automatically inherits any data that already existed there from before accounts existed (see [Accounts & data](#accounts--data)) — make sure that first registration on a live site is your own.
@@ -349,7 +367,7 @@ Static hosts other than Netlify (Vercel, GitHub Pages, S3 + CloudFront, etc.) wo
 
 ## Known limitations (by design, for this version)
 
-- No cloud sync or database — progress is local to one browser, scoped per account. The one server-side exception is the AI Mentor proxy function, which holds no user data at all (it only forwards chat text to the AI provider).
+- No cloud sync or database — progress is local to one browser, scoped per account. The server-side exceptions are the AI Mentor proxy (forwards chat text to the AI provider, stores nothing) and the read-only Skill Hunter MCP endpoint at `/mcp`.
 - Accounts are a real client-side implementation (hashed passwords, per-account data) but not a real security boundary — see [Accounts & data](#accounts--data).
 - The content set (**389 topics** across seven subjects) continues to grow toward a broader interview-prep catalog — Design Patterns and AI Concepts are now first-class subjects alongside Angular, JavaScript, TypeScript, UI Engineering, and Frontend System Design — see [Adding content](#adding-content).
 - AI Mentor responses are not streamed (a full reply arrives at once, not token-by-token) — see Roadmap.

@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "tsx src/server.ts",
-    "test": "tsx --test src/server.test.ts",
+    "test": "tsx --test src/*.test.ts",
     "typecheck": "tsc --noEmit",
     "inspect": "npx --yes @modelcontextprotocol/inspector@latest npm start",
     "inspect:search": "npx --yes @modelcontextprotocol/inspector@latest --cli npm start --method tools/call --tool-name search_topics --tool-arg 'query=lazy loading'"

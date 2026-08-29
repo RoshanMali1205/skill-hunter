@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "skill-hunter": {
+      "type": "http",
+      "url": "https://frontend-skill-hunter.netlify.app/mcp"
+    }
+  }
+}
