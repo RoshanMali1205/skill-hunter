@@ -23,12 +23,11 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-# Remote MCP endpoint for VS Code / Cursor (must win over the SPA fallback).
-[[redirects]]
-  from = "/mcp"
-  to = "/.netlify/functions/mcp"
-  status = 200
-  force = true
+# Note: no redirect for /mcp — the mcp.mjs function declares
+# `config.path = '/mcp'` (Netlify Functions v2), which makes it own that
+# route directly. A `force = true` redirect to /.netlify/functions/mcp used
+# to run *before* that route match and rewrote requests to an address the
+# function no longer listens on once a custom path is set, producing a 404.
 
 # SPA fallback so deep links like /subjects/angular/topics/angular-signals
 # resolve to index.html and let the Angular router take over.
