@@ -2,7 +2,7 @@
   "servers": {
     "skill-hunter": {
       "type": "http",
-      "url": "https://YOUR-SITE.netlify.app/mcp"
+      "url": "https://frontend-skill-hunter.netlify.app/mcp"
     }
   }
 }

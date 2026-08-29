@@ -9,7 +9,7 @@ Hosts connect the same way they add Azure DevOps or Figma: paste a URL (and an o
 After this branch is deployed to Netlify, anyone can add Skill Hunter without cloning the repo.
 
 1. Open **Command Palette** → **MCP: Add Server** → **HTTP**.
-2. URL: `https://YOUR-SITE.netlify.app/mcp`
+2. URL: `https://frontend-skill-hunter.netlify.app/mcp`
 3. Or paste this into `.vscode/mcp.json`:
 
 ```json
@@ -17,7 +17,7 @@ After this branch is deployed to Netlify, anyone can add Skill Hunter without cl
   "servers": {
     "skill-hunter": {
       "type": "http",
-      "url": "https://YOUR-SITE.netlify.app/mcp"
+      "url": "https://frontend-skill-hunter.netlify.app/mcp"
     }
   }
 }
@@ -34,7 +34,7 @@ If the host set `MCP_SHARED_TOKEN` on Netlify, send it like an Azure DevOps PAT:
   "servers": {
     "skill-hunter": {
       "type": "http",
-      "url": "https://YOUR-SITE.netlify.app/mcp",
+      "url": "https://frontend-skill-hunter.netlify.app/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_TOKEN"
       }
@@ -51,7 +51,7 @@ If the host set `MCP_SHARED_TOKEN` on Netlify, send it like an Azure DevOps PAT:
 {
   "mcpServers": {
     "skill-hunter": {
-      "url": "https://YOUR-SITE.netlify.app/mcp"
+      "url": "https://frontend-skill-hunter.netlify.app/mcp"
     }
   }
 }
@@ -108,7 +108,7 @@ Against a deployed Netlify URL:
 ```bash
 npx @modelcontextprotocol/inspector@latest --cli \
   --transport http \
-  https://YOUR-SITE.netlify.app/mcp \
+  https://frontend-skill-hunter.netlify.app/mcp \
   --method tools/call \
   --tool-name search_topics \
   --tool-arg 'query=lazy loading'

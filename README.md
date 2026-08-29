@@ -338,7 +338,7 @@ The same Netlify site also hosts a remote MCP server at `/mcp`. Anyone can add i
   "servers": {
     "skill-hunter": {
       "type": "http",
-      "url": "https://YOUR-SITE.netlify.app/mcp"
+      "url": "https://frontend-skill-hunter.netlify.app/mcp"
     }
   }
 }
