@@ -1,0 +1,10 @@
+{
+  "servers": {
+    "skill-hunter": {
+      "type": "stdio",
+      "command": "npm",
+      "args": ["start"],
+      "cwd": "${workspaceFolder}/skill-hunter-mcp"
+    }
+  }
+}
