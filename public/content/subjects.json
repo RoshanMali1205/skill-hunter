@@ -5724,7 +5724,7 @@
   {
     "id": "ai-concepts",
     "title": "AI Concepts",
-    "description": "AI and LLM fundamentals explained in simple human language, including transformers, prompting, embeddings, vector search, RAG types, agents, evaluation, security and production design.",
+    "description": "AI and LLM fundamentals explained in simple human language, including transformers, prompting, embeddings, vector search, RAG types, agents, evaluation, security, production design, System One decision models, and 2026 research on test-time reasoning and multi-agent organizations.",
     "icon": "🤖",
     "order": 7,
     "categories": [
@@ -6514,6 +6514,164 @@
               "ai-concepts",
               "production",
               "model-routing-and-fallback"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ai-system-one",
+        "subjectId": "ai-concepts",
+        "title": "System One and Decision Models",
+        "description": "Typed probabilistic decisions, calibrated training, selective agent control, decision-only judging, and shared visual context from 2026 System One research.",
+        "order": 11,
+        "topics": [
+          {
+            "id": "ai-system-one-models-and-jev",
+            "categoryId": "ai-system-one",
+            "title": "System One Models and Jev",
+            "description": "A System One model such as Jev returns a typed probabilistic decision in one parallel step, instead of generating free-form text token by token.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "system-one",
+              "system-one-models-and-jev"
+            ]
+          },
+          {
+            "id": "ai-rlcd-calibrated-decisions",
+            "categoryId": "ai-system-one",
+            "title": "RLCD and Calibrated Decisions",
+            "description": "RLCD trains a decision model so its probabilities are honest enough to act on, which is a different objective from RLHF preferences or verifiable rewards.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "system-one",
+              "rlcd-calibrated-decisions"
+            ]
+          },
+          {
+            "id": "ai-reflex-selective-agent-control",
+            "categoryId": "ai-system-one",
+            "title": "REFLEX Selective Agent Control",
+            "description": "REFLEX lets a typed decision model take bounded agent steps and calls a strong LLM only when confidence is low or the step needs generation.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "system-one",
+              "reflex-selective-agent-control"
+            ]
+          },
+          {
+            "id": "ai-jev-as-a-judge",
+            "categoryId": "ai-system-one",
+            "title": "JEV-as-a-Judge",
+            "description": "JEV-as-a-judge uses a decision-only model as a cheap first-pass evaluator and escalates the uncertain cases to a stronger generative judge.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "system-one",
+              "jev-as-a-judge"
+            ]
+          },
+          {
+            "id": "ai-visual-jev-shared-context",
+            "categoryId": "ai-system-one",
+            "title": "Visual Jev and Shared Context",
+            "description": "Visual Jev answers many forced-choice questions about one image by encoding the image once, batching isolated question suffixes, and reading option probabilities from the language-model head.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "system-one",
+              "visual-jev-shared-context"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ai-research-frontiers",
+        "subjectId": "ai-concepts",
+        "title": "2026 Research Frontiers",
+        "description": "Test-time reasoning, stability-aware adaptation, self-organizing agent organizations, inference-time workflow graphs, and token-budget scaling.",
+        "order": 12,
+        "topics": [
+          {
+            "id": "ai-endogenous-reasoning-state-of-thought",
+            "categoryId": "ai-research-frontiers",
+            "title": "Endogenous Reasoning and State of Thought",
+            "description": "State of Thought runs test-time reasoning from a small controller on the model's internal state, instead of forcing a long external chain of thought.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "research-frontiers",
+              "endogenous-reasoning-state-of-thought"
+            ]
+          },
+          {
+            "id": "ai-stability-aware-test-time-adaptation",
+            "categoryId": "ai-research-frontiers",
+            "title": "Stability-Aware Test-Time Adaptation",
+            "description": "TASCO adapts a frozen LLM at test time with a small prefix, and it trusts high confidence only when that confidence stays stable under local perturbations.",
+            "difficulty": "advanced",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "research-frontiers",
+              "stability-aware-test-time-adaptation"
+            ]
+          },
+          {
+            "id": "ai-self-organizing-agent-organizations",
+            "categoryId": "ai-research-frontiers",
+            "title": "Self-Organizing Agent Organizations",
+            "description": "Agensh scales work across many agents that claim tasks themselves from a shared workspace, instead of waiting on one central orchestrator.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "research-frontiers",
+              "self-organizing-agent-organizations"
+            ]
+          },
+          {
+            "id": "ai-inference-time-workflow-graphs",
+            "categoryId": "ai-research-frontiers",
+            "title": "Inference-Time Workflow Graphs",
+            "description": "ReActNet compiles a query and a set of specialist agents into a short sequence of directed message graphs, then executes that graph without training a new topology.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "ai-concepts",
+              "research-frontiers",
+              "inference-time-workflow-graphs"
+            ]
+          },
+          {
+            "id": "ai-elo-per-token-agent-scaling",
+            "categoryId": "ai-research-frontiers",
+            "title": "Elo-per-Token and When Agents Slow Down",
+            "description": "Elo-per-token measures whether a longer agent trace is still buying quality, and shows a point where parallel sessions beat one very long run.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 20,
+            "tags": [
+              "ai-concepts",
+              "research-frontiers",
+              "elo-per-token-agent-scaling"
             ]
           }
         ]

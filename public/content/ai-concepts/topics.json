@@ -4448,5 +4448,949 @@
         "content": "- https://docs.anthropic.com/en/docs/about-claude/models/overview\n- https://platform.openai.com/docs/guides/rate-limits"
       }
     ]
+  },
+  {
+    "id": "ai-system-one-models-and-jev",
+    "subjectId": "ai-concepts",
+    "categoryId": "ai-system-one",
+    "title": "System One Models and Jev",
+    "description": "A System One model such as Jev returns a typed probabilistic decision in one parallel step, instead of generating free-form text token by token.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": [
+      "ai-concepts",
+      "system-one",
+      "system-one-models-and-jev"
+    ],
+    "relatedTopicIds": [
+      "ai-rlcd-calibrated-decisions",
+      "ai-reflex-selective-agent-control",
+      "ai-jev-as-a-judge",
+      "ai-structured-output-and-json-mode"
+    ],
+    "blocks": [
+      {
+        "id": "ai-system-one-models-and-jev-concept-1",
+        "type": "concept",
+        "title": "Simple but deep explanation",
+        "order": 1,
+        "content": "Simple explanation\n\nA System One model is built to decide, not to chat. Jev, the first public model in that class from TypeSafe (September 2026), takes unstructured state and returns a value from a schema you declared in advance, together with a probability for each allowed choice. It does not write the answer as a string.\n\nWhy this matters\n\nMost production 'AI' steps are bounded: classify, route, score, extract a field, or pick a branch. Asking a generative LLM to do that means paying for a chain of tokens, then parsing and validating the text, and still accepting a chance that the text is the wrong type or a fluent hallucination. A decision model removes the generation step. TypeSafe reports end-to-end times of about 70–500 ms and an input price of $0.042 per million tokens, with output tokens not billed, against multi-second frontier chat calls on the same style of workflow. Those speed and cost numbers come from their own workflow evals and should be remeasured on your traffic.\n\nHow it works\n\nThe name comes from Kahneman's fast System 1 thinking, and 'Jev' from William Stanley Jevons: cheaper intelligence tends to increase how much of it people use. The published contract is: you declare the allowed output type, you pass program state plus instructions, and the model emits the full distribution over that type in one parallel query rather than sampling tokens autoregressively. Because the output space is fixed, a value outside the schema is rejected by construction; TypeSafe treats type errors as impossible rather than as an empirical rate. Cardinality is capped (publicly, up to 255 choices, with a two-stage score-then-choose path when the set is large). Training uses RLCD, reinforcement learning for calibrated decisions, so the probability is meant to be usable as a confidence score. The model weights and sampler are proprietary; what you can depend on in an interview is the interface and the measured limits, not an open architecture diagram.\n\nWhen to use it\n\nUse it for smart if-statements inside code: routing, scoring, extraction into a known schema, real-time loops, map-reduce over many records, and a cheap first pass that verifies or guards another model's output. The surrounding program should own the allowed choices.\n\nWhen not to use it\n\nDo not use it when the product needs new text, code, a proof, or an open-ended plan. Giving up string generation is the source of the speed and the type guarantee, and it is also the hard limit. Jev is not a smaller chatbot.",
+        "keyPoints": [
+          "Jev returns a typed decision and a probability distribution in one parallel step; it does not generate tokens.",
+          "The fixed output schema is what makes type errors impossible and is also why it cannot write free-form text.",
+          "Published operating points are about 70–500 ms and $0.042 per million input tokens, with output not billed; remeasure on your own workflows.",
+          "Best fit: classify, route, score, extract, or branch where the legal answers are known before the call.",
+          "Avoid when: the task needs generated language, code, or a plan that cannot be enumerated up front."
+        ]
+      },
+      {
+        "id": "ai-system-one-models-and-jev-scenario-1",
+        "type": "scenario-question",
+        "title": "Scenario question",
+        "order": 2,
+        "question": "A support workflow calls a frontier LLM on every ticket just to choose one of four queues and a priority from 1 to 5. Median latency is 4 seconds and the parser still fails when the model adds an apology before the JSON. How do you redesign the step?",
+        "answer": "I would stop treating a closed decision as a writing task. The legal outputs are already a small product: a queue enum and an ordered priority. That is a System One call. I would pass the ticket state and the allowed labels to a decision model such as Jev, read the argmax only if its confidence clears a threshold measured on our tickets, and send low-confidence or policy-sensitive tickets to the existing LLM or to a person.\n\nI would not quote the vendor's 40–200x figure as our SLA. I would replay a frozen set of real tickets, compare agreement with the current LLM-plus-parser path and with human labels, and record latency, invalid-output rate, and cost per ticket. The parser failure mode should disappear because there is no string to parse, but calibration and queue-boundary mistakes will not, so the threshold and the escalation path stay in our code.\n\nGeneration stays where it earns its cost: drafting the customer reply after the queue is chosen. The decision and the draft are different jobs.",
+        "hints": [
+          "Separate the bounded routing decision from the free-form reply.",
+          "Use confidence to escalate instead of trusting every argmax.",
+          "Validate latency, agreement, and calibration on your tickets, not on the vendor homepage."
+        ]
+      },
+      {
+        "id": "ai-system-one-models-and-jev-code-1",
+        "type": "code-example",
+        "title": "Simple practical implementation",
+        "order": 3,
+        "language": "python",
+        "code": "from dataclasses import dataclass\n\n@dataclass\nclass Decision:\n    label: str\n    probability: float\n    distribution: dict[str, float]\n\ndef route_ticket(jev, ticket, queues, threshold=0.9):\n    \"\"\"Illustrates the published contract: state in, typed distribution out.\n    Not the proprietary sampler. Escalate when the top label is unsure.\"\"\"\n    result = jev.choice(\n        state={\"subject\": ticket.subject, \"body\": ticket.body},\n        instructions=\"Pick the queue that should own this ticket.\",\n        choices=queues,\n    )\n    top = max(result.distribution, key=result.distribution.get)\n    confidence = result.distribution[top]\n    if confidence < threshold:\n        return Decision(\"needs_review\", confidence, result.distribution)\n    return Decision(top, confidence, result.distribution)",
+        "explanation": "The sketch shows the interface interviewers care about: the caller names the allowed choices, the model returns a distribution in one shot, and product code decides what 'confident enough' means. The threshold is a policy you fit on your data, not a constant the model ships with."
+      },
+      {
+        "id": "ai-system-one-models-and-jev-mistake-1",
+        "type": "common-mistake",
+        "title": "Common weak answer",
+        "order": 4,
+        "mistake": "Describing Jev as a faster chatbot, or claiming it has zero hallucinations on open-ended questions because a vendor said type errors are impossible.",
+        "whyItHappens": "The marketing contrast with chat models is easy to flatten into 'the new model is always better.' Type safety only covers the declared schema. A confident wrong queue is still a wrong decision.",
+        "correctApproach": "Explain the actual trade: no string generation, parallel probabilities over a fixed type, and calibration you must test. Keep a generative model for text, and keep an escalation path for low confidence."
+      },
+      {
+        "id": "ai-system-one-models-and-jev-practice-1",
+        "type": "best-practice",
+        "title": "Trade-offs and validation",
+        "order": 5,
+        "content": "Treat a System One call as a function in your program, with the same tests you would give any other branch. Vendor latency and Pareto charts are a reason to run the experiment, not a substitute for it. TypeSafe's workflow evals use strong external models as a reference and note that the workflows were written by people who know the model, so some bias is possible.",
+        "keyPoints": [
+          "Declare the output type in code and reject any integration that still parses free text for a closed choice.",
+          "Fit the confidence threshold on a frozen local set, and do not copy a threshold from another task.",
+          "Keep generation, proofs, and open planning on a generative model; do not force them into an enum."
+        ]
+      },
+      {
+        "id": "ai-system-one-models-and-jev-followup-1",
+        "type": "interview-question",
+        "title": "Likely follow-up",
+        "order": 6,
+        "question": "If the model cannot emit a string, how can it still be wrong?",
+        "answer": "The schema only forbids values you did not allow. It does not forbid choosing the wrong allowed value. A ticket can be routed to 'billing' with probability 0.97 when a human would say 'refunds.' Calibration says how often that 0.97 is right; it does not make each individual call right. That is why production use is a threshold plus an escalation path, not a blind argmax."
+      },
+      {
+        "id": "ai-system-one-models-and-jev-summary-1",
+        "type": "summary",
+        "title": "References",
+        "order": 7,
+        "content": "- https://typesafe.ai/blog/introducing-system-one-models-and-jev\n- https://jevai.net/\n- https://arxiv.org/abs/2609.26532"
+      }
+    ]
+  },
+  {
+    "id": "ai-rlcd-calibrated-decisions",
+    "subjectId": "ai-concepts",
+    "categoryId": "ai-system-one",
+    "title": "RLCD and Calibrated Decisions",
+    "description": "RLCD trains a decision model so its probabilities are honest enough to act on, which is a different objective from RLHF preferences or verifiable rewards.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 20,
+    "tags": [
+      "ai-concepts",
+      "system-one",
+      "rlcd-calibrated-decisions"
+    ],
+    "relatedTopicIds": [
+      "ai-system-one-models-and-jev",
+      "ai-rlhf-and-alignment",
+      "ai-jev-as-a-judge"
+    ],
+    "blocks": [
+      {
+        "id": "ai-rlcd-calibrated-decisions-concept-1",
+        "type": "concept",
+        "title": "Simple but deep explanation",
+        "order": 1,
+        "content": "Simple explanation\n\nReinforcement Learning for Calibrated Decisions (RLCD) is the training objective TypeSafe uses for Jev. The target is not a reply that a human rater prefers, and it is not a string that a unit test can check. The target is a probability that means what it says: when the model assigns 90% to a label, that label should be correct about 90% of the time on that kind of decision.\n\nWhy this matters\n\nAutomation fails closed if the model is usually right but cannot say when it is in the wrong 5%. A chat model asked to 'give a confidence' often stays overconfident, so you cannot safely skip review. A calibrated decision can drive a threshold: act when confidence is high, escalate when it is not. That is the difference between a demo and a branch in production code.\n\nHow it works\n\nPut RLCD next to the two objectives engineers already know. RLHF (and its preference variants) optimizes judgments of human raters about chat replies. RLVR, reinforcement learning with verifiable rewards, optimizes outputs a program can check, such as a passing test or a verified proof. RLCD optimizes epistemic honesty on System One tasks: the declared choices and their probabilities. TypeSafe has not published the full open training recipe, so an interview answer should not invent a loss formula. What is public is the objective, the contrast with RLHF and RLVR, and the downstream test: reliability diagrams, expected calibration error, and whether a frozen threshold transfers to a new task. It often does not.\n\nWhen to use it\n\nUse this lens whenever a product wants to act on a model probability: routing, judging, tool selection, or abstention. Ask how the probability was trained and how you will measure calibration on your distribution.\n\nWhen not to use it\n\nDo not treat RLCD as a drop-in replacement for preference tuning of a chatbot, or as a reason to skip a local calibration check. A model trained to be calibrated on someone else's decisions can still be miscalibrated on yours.",
+        "keyPoints": [
+          "RLCD targets honest probabilities on closed decisions; RLHF targets preferred chat text; RLVR targets programmatically checkable outputs.",
+          "A usable confidence is what lets software act on some calls and escalate the rest.",
+          "The public description is the objective and the interface. Do not invent an unpublished loss function.",
+          "Best fit: any workflow that branches on a probability rather than on a generated paragraph.",
+          "Avoid when: you only need a preferred writing style, or you have not measured calibration on your own data."
+        ]
+      },
+      {
+        "id": "ai-rlcd-calibrated-decisions-scenario-1",
+        "type": "scenario-question",
+        "title": "Scenario question",
+        "order": 2,
+        "question": "Your classifier says 0.95 on 40% of requests, so you auto-apply those actions. After a month, audit finds that only 80% of the 0.95 bucket was actually correct. What broke, and what do you change?",
+        "answer": "The score was not calibrated on this traffic, even if accuracy overall looked fine. A 0.95 that is right 80% of the time is an overconfident score, and auto-applying it was the bug. I would stop the automatic path, plot a reliability diagram on the audit set, and retune the threshold so the acted-on slice meets the error budget. If no threshold gives enough coverage at the allowed error rate, the model or the label set is wrong for the task, and RLCD-style training on our decisions, or a simpler calibrated baseline, is the next experiment.\n\nI would not 'fix' this by asking the model, in a prompt, to be more humble. Verbalized confidence and a trained decision probability are different objects. I would also keep the audit set frozen so the next model change can be compared on the same bins.",
+        "hints": [
+          "Separate accuracy from calibration: 0.95 must be right about 95% of the time to auto-apply.",
+          "Retune or remove the threshold using a reliability diagram on your audit set.",
+          "Do not expect a prompt that says 'be careful' to repair a miscalibrated score."
+        ]
+      },
+      {
+        "id": "ai-rlcd-calibrated-decisions-code-1",
+        "type": "code-example",
+        "title": "Simple practical implementation",
+        "order": 3,
+        "language": "python",
+        "code": "def expected_calibration_error(confidences, correct, n_bins=10):\n    \"\"\"ECE: average gap between mean confidence and accuracy per bin.\"\"\"\n    bins = [[] for _ in range(n_bins)]\n    for confidence, was_correct in zip(confidences, correct):\n        index = min(int(confidence * n_bins), n_bins - 1)\n        bins[index].append((confidence, was_correct))\n    total = len(confidences)\n    error = 0.0\n    for bucket in bins:\n        if not bucket:\n            continue\n        mean_confidence = sum(item[0] for item in bucket) / len(bucket)\n        accuracy = sum(item[1] for item in bucket) / len(bucket)\n        error += (len(bucket) / total) * abs(accuracy - mean_confidence)\n    return error",
+        "explanation": "Expected calibration error is the standard first check that a probability is honest. It does not prove the training method was RLCD. It tells you whether this model, on this data, can be trusted at the threshold you plan to ship."
+      },
+      {
+        "id": "ai-rlcd-calibrated-decisions-mistake-1",
+        "type": "common-mistake",
+        "title": "Common weak answer",
+        "order": 4,
+        "mistake": "Saying a model is calibrated because the vendor trained it with RLCD, without a reliability check on the deployment distribution.",
+        "whyItHappens": "The training objective is easy to treat as a guarantee. Calibration is a property of a model, a task, and a data distribution, and it moves when any of those change.",
+        "correctApproach": "Define the decision, measure confidence against outcomes in bins, and only then pick a threshold. Treat RLCD as the reason a probability might be usable, and the local diagram as the proof."
+      },
+      {
+        "id": "ai-rlcd-calibrated-decisions-practice-1",
+        "type": "best-practice",
+        "title": "Trade-offs and validation",
+        "order": 5,
+        "content": "Report coverage and risk together. A perfectly calibrated model that is only confident on 5% of traffic may still be worth using as a first pass, and a sharp but overconfident model is not safe to auto-apply no matter how high its headline accuracy is.",
+        "keyPoints": [
+          "Plot reliability, not just accuracy, before any probability drives an automatic action.",
+          "Refit thresholds when the input mix changes; do not assume a threshold transfers.",
+          "Keep RLHF, RLVR, and RLCD distinct in design reviews so the loss matches the product."
+        ]
+      },
+      {
+        "id": "ai-rlcd-calibrated-decisions-followup-1",
+        "type": "interview-question",
+        "title": "Likely follow-up",
+        "order": 6,
+        "question": "Why is a verifiable reward, such as a passing unit test, not enough for this kind of model?",
+        "answer": "A verifiable reward tells you the output was acceptable. It does not tell you that the probability attached to it matches the frequency of success. Two models can both pass the same checks and still be differently overconfident. Decision automation needs the second property, which is what RLCD is aimed at and what you still have to measure."
+      },
+      {
+        "id": "ai-rlcd-calibrated-decisions-summary-1",
+        "type": "summary",
+        "title": "References",
+        "order": 7,
+        "content": "- https://typesafe.ai/blog/introducing-system-one-models-and-jev\n- https://arxiv.org/abs/1706.04599\n- https://arxiv.org/abs/2609.26550"
+      }
+    ]
+  },
+  {
+    "id": "ai-reflex-selective-agent-control",
+    "subjectId": "ai-concepts",
+    "categoryId": "ai-system-one",
+    "title": "REFLEX Selective Agent Control",
+    "description": "REFLEX lets a typed decision model take bounded agent steps and calls a strong LLM only when confidence is low or the step needs generation.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 25,
+    "tags": [
+      "ai-concepts",
+      "system-one",
+      "reflex-selective-agent-control"
+    ],
+    "relatedTopicIds": [
+      "ai-system-one-models-and-jev",
+      "ai-what-is-an-agent",
+      "ai-function-and-tool-calling",
+      "ai-model-routing-and-fallback"
+    ],
+    "blocks": [
+      {
+        "id": "ai-reflex-selective-agent-control-concept-1",
+        "type": "concept",
+        "title": "Simple but deep explanation",
+        "order": 1,
+        "content": "Simple explanation\n\nREFLEX is an agent architecture that splits control from generation. At each step a System One model, Jev in the paper, may choose a bounded action such as which tool to call or whether to continue. If its confidence is below a threshold, or the step needs free-form text or arguments the decision model cannot produce, a strong LLM takes that step.\n\nWhy this matters\n\nA typical tool agent spends a frontier-model call on every step, including steps that are only a choice from a menu. REFLEX asks which of those steps are actually decisions. On a frozen 100-task benchmark the authors report 95% success with 72.7% fewer strong-model calls than a strong-only agent. Across Qwen3.8-Max, Kimi K3, and DeepSeek-V4-Pro fallbacks, strong calls fell by about 66–72% while success stayed inside a 2-point non-inferiority margin.\n\nHow it works\n\nAt step t the decision model sees the state and a typed action set and returns a choice plus a confidence. The policy executes that choice only when confidence is at least tau and the action is executable; otherwise it calls the strong model. The paper separates three roles people often mash together: control (which bounded action), argument synthesis (filling parameters), and generation or reasoning (open text). REFLEX targets control. In their realistic multi-turn setup a cheap generative executor sits between Jev and the strong model because a typed model cannot write arbitrary arguments. They measure generative-call reduction as GMR = 1 − (strong calls under REFLEX / strong calls of the strong-only agent), plus cost per successful task so early failures are not rewarded.\n\nWhen to use it\n\nUse it when an agent trace contains many menu choices, tool-or-not decisions, or other bounded control, and a strong model is only required for some of the steps.\n\nWhen not to use it\n\nDo not expect a gain when ordinary routing is already excellent. On external BFCL-style checks, function selection was already 98.4% accurate while the harder 'should I call anything?' decision was only 52.0%. On tau-style tasks REFLEX cut cost by about 3.7x versus strong-only, but a cheap generative cascade remained competitive. Large action sets and near-valid alternatives near an authorization boundary also make the decision layer less reliable.",
+        "keyPoints": [
+          "REFLEX executes a typed decision when confidence clears a threshold and otherwise falls back to a strong model.",
+          "It targets control, not argument filling or user-facing text.",
+          "The controlled benchmark showed 95% success and 72.7% fewer strong-model calls; external suites show smaller or no advantage.",
+          "Best fit: traces with many bounded control steps and a real cost gap between the decision model and the strong model.",
+          "Avoid when: tool choice is already saturated, or the hard part is authorization and near-miss actions."
+        ]
+      },
+      {
+        "id": "ai-reflex-selective-agent-control-scenario-1",
+        "type": "scenario-question",
+        "title": "Scenario question",
+        "order": 2,
+        "question": "Your coding agent calls a frontier model to decide among 'search', 'read file', 'run tests', and 'ask the user' on every step, then calls it again to write the patch. Finance wants a cheaper trace without more unsafe tool runs. What do you change first?",
+        "answer": "I would not swap the whole agent for a smaller chat model. I would classify steps. Choosing among those four controls is a REFLEX-style decision: a typed model can take it when confidence is high. Writing the patch stays on the strong model, and any low-confidence control, especially 'run tests' or another side-effecting tool near an authorization boundary, escalates too.\n\nI would freeze a trace set before tuning tau, report success and strong calls per successful task, and specifically score irreversible mistakes separately from harmless extra reads. The paper's own caveat applies: if a cheap LLM cascade already routes these menus well, the specialized layer may not pay for itself. I would run that baseline before committing to the architecture.",
+        "hints": [
+          "Split control decisions from generation instead of shrinking every call.",
+          "Escalate low confidence and side-effecting actions.",
+          "Compare against a cheap generative cascade, not only against a strong-only agent."
+        ]
+      },
+      {
+        "id": "ai-reflex-selective-agent-control-code-1",
+        "type": "code-example",
+        "title": "Simple practical implementation",
+        "order": 3,
+        "language": "python",
+        "code": "def reflex_step(jev, strong_model, state, actions, tau):\n    \"\"\"Bounded control stays on the decision model; generation escalates.\n    Simplified from the REFLEX policy, not a reproduction of the paper's harness.\"\"\"\n    if state.needs_freeform:\n        return strong_model.complete(state)\n    choice = jev.choice(state=state.as_dict(), choices=actions)\n    top = max(choice.distribution, key=choice.distribution.get)\n    confidence = choice.distribution[top]\n    executable = top in state.allowed and not state.requires_authorization(top)\n    if confidence >= tau and executable:\n        return {\"actor\": \"jev\", \"action\": top, \"confidence\": confidence}\n    return {\"actor\": \"strong\", \"action\": strong_model.control(state, actions)}",
+        "explanation": "The gate is the whole idea: high-confidence executable choices skip the strong model, and everything else, including authorization and free-form work, does not. Tau belongs in configuration that you fit on frozen traces."
+      },
+      {
+        "id": "ai-reflex-selective-agent-control-mistake-1",
+        "type": "common-mistake",
+        "title": "Common weak answer",
+        "order": 4,
+        "mistake": "Putting a decision model in front of every agent step, including writing the final answer, or claiming the 72.7% call reduction as a general production result.",
+        "whyItHappens": "The headline number is from a frozen controlled benchmark. The same paper shows the gain shrinks when tool selection is already easy and when a cheap LLM cascade is the baseline.",
+        "correctApproach": "Restrict the decision layer to bounded control, keep generation on a generative model, publish the baseline you beat, and test authorization boundaries separately from overall success."
+      },
+      {
+        "id": "ai-reflex-selective-agent-control-practice-1",
+        "type": "best-practice",
+        "title": "Trade-offs and validation",
+        "order": 5,
+        "content": "Track risk at the threshold you ship: the probability an autonomous action was invalid given that confidence cleared tau. Also watch how errors move when you add near-valid distractors. The paper found that the type of alternative can shift mistakes between acting too early and deferring, without a large change in overall accuracy.",
+        "keyPoints": [
+          "Measure strong calls per successful task, not only raw call count.",
+          "Score authorization and irreversible actions separately from harmless extra retrievals.",
+          "Keep a cheap generative cascade in the comparison so you do not adopt a specialized layer that does not win."
+        ]
+      },
+      {
+        "id": "ai-reflex-selective-agent-control-followup-1",
+        "type": "interview-question",
+        "title": "Likely follow-up",
+        "order": 6,
+        "question": "Why can function-selection accuracy look solved while the agent still does the wrong thing?",
+        "answer": "On the paper's BFCL look, picking which function was already about 98.4% accurate, but deciding whether any function call was warranted was about 52%. The dangerous mistake is often an unauthorized or premature action, not an off-by-one tool name. A metric that only checks 'did we name the right tool?' misses that."
+      },
+      {
+        "id": "ai-reflex-selective-agent-control-summary-1",
+        "type": "summary",
+        "title": "References",
+        "order": 7,
+        "content": "- https://arxiv.org/abs/2609.26532\n- https://typesafe.ai/blog/introducing-system-one-models-and-jev\n- https://arxiv.org/abs/2305.05176"
+      }
+    ]
+  },
+  {
+    "id": "ai-jev-as-a-judge",
+    "subjectId": "ai-concepts",
+    "categoryId": "ai-system-one",
+    "title": "JEV-as-a-Judge",
+    "description": "JEV-as-a-judge uses a decision-only model as a cheap first-pass evaluator and escalates the uncertain cases to a stronger generative judge.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 25,
+    "tags": [
+      "ai-concepts",
+      "system-one",
+      "jev-as-a-judge"
+    ],
+    "relatedTopicIds": [
+      "ai-system-one-models-and-jev",
+      "ai-llm-as-judge",
+      "ai-rlcd-calibrated-decisions",
+      "ai-evaluating-llm-outputs"
+    ],
+    "blocks": [
+      {
+        "id": "ai-jev-as-a-judge-concept-1",
+        "type": "concept",
+        "title": "Simple but deep explanation",
+        "order": 1,
+        "content": "Simple explanation\n\nJEV-as-a-judge asks a System One model for a verdict and a label distribution, and spends a strong LLM judge only when that verdict is unsure. The September 2026 study from Carnegie Mellon compared this decision-only judge with sixteen generative and reward-model judges.\n\nWhy this matters\n\nLLM-as-a-judge is already in this curriculum, and it gets expensive when every candidate answer, every model revision, and every rubric check pays for a long reasoning trace. A typed judge can be the first pass. On ordinary preference (RewardBench) and evidence-grounded factuality (HaluEval), Jev 1.13 stayed within about three points of the strongest comparator, GPT-6 Astra, at 0.36% of that comparator's fee on the authors' panel. A frozen cascade that keeps confident verdicts and escalates the rest retained 99% of the comparator's accuracy at lower cost.\n\nHow it works\n\nThe contract is one Choice question per request: instructions, structured inputs, and an allowed label set. Confidence for the plots is the maximum label probability, which tracked Jev's native confidence closely (Spearman 0.971, 0.999, and 0.948 on RewardBench, JudgeBench, and HaluEval). Invalid schema outputs counted as errors; Jev returned 1312 valid base responses out of 1312. The cascade is selective classification: accept when confidence clears a threshold fit on a selection split, otherwise pay for the strong judge. Thresholds were frozen before looking at the held-out extension.\n\nWhen to use it\n\nUse it for high-volume pairwise preference and evidence-grounded checks where most items are ordinary and a strong judge is available for the tail.\n\nWhen not to use it\n\nDo not use a decision-only judge alone when the job is checking a derivation, grading hard reasoning or code, or resisting an answer that is wrong but elaborately written. On JudgeBench, Jev scored 78.6% against 93.1% for GPT-5.6 and GPT-6, and blinded human adjudication of disagreements widened that gap to about 16 points. Reference-free prose and thresholds copied from another benchmark also failed. Local validation is part of the method.",
+        "keyPoints": [
+          "A decision-only judge returns a verdict and label probabilities, with no rationale to parse.",
+          "On preference and evidence-grounded factuality it stayed within about three points of GPT-6 at a small fraction of the fee.",
+          "The gap opens on derivation checking, hard JudgeBench items, and polished wrong answers.",
+          "Best fit: a cascade that auto-accepts high-confidence verdicts and escalates the rest.",
+          "Avoid when: you need the judge's reasoning, or you copy a threshold from a different task without refitting it."
+        ]
+      },
+      {
+        "id": "ai-jev-as-a-judge-scenario-1",
+        "type": "scenario-question",
+        "title": "Scenario question",
+        "order": 2,
+        "question": "Your eval pipeline spends more on the judge than on the model being tested. Most cases are 'which of these two support replies is better?' A minority ask the judge to check a multi-step SQL derivation. How do you cut judge cost without pretending the hard cases got easier?",
+        "answer": "I would split the workload. Pairwise preference over ordinary replies is where JEV-as-a-judge was competitive: run the decision model first, accept the verdict when max label probability clears a threshold fit on a frozen selection split, and send the uncertain slice to the strong generative judge. Derivation and coding items skip the cheap judge and go straight to the strong one, because that is where the paper's gap was large and human adjudication agreed.\n\nI would report accuracy against the strong judge and against human review on disagreements, plus fee and the fraction escalated. I would not reuse the RewardBench threshold on the SQL set. The paper's point is that confidence can connect a cheap first pass to a strong judge only after the threshold is validated on that task.",
+        "hints": [
+          "Cascade on confidence for ordinary preference; do not use one judge for every task shape.",
+          "Send derivation and code checks to the strong judge directly.",
+          "Fit and freeze the threshold on a local split before reading the test numbers."
+        ]
+      },
+      {
+        "id": "ai-jev-as-a-judge-code-1",
+        "type": "code-example",
+        "title": "Simple practical implementation",
+        "order": 3,
+        "language": "python",
+        "code": "def judge_cascade(jev, strong_judge, item, labels, tau):\n    \"\"\"Accept a confident typed verdict; escalate the unsure and the hard items.\"\"\"\n    if item.needs_derivation:\n        return {\"judge\": \"strong\", \"verdict\": strong_judge(item, labels)}\n    decision = jev.choice(\n        state=item.as_dict(),\n        instructions=item.rubric,\n        choices=labels,\n    )\n    top = max(decision.distribution, key=decision.distribution.get)\n    confidence = decision.distribution[top]\n    if confidence >= tau:\n        return {\"judge\": \"jev\", \"verdict\": top, \"confidence\": confidence}\n    return {\n        \"judge\": \"strong\",\n        \"verdict\": strong_judge(item, labels),\n        \"escalated_from\": confidence,\n    }",
+        "explanation": "The cascade is a small policy on top of two different judges. The threshold tau must come from a selection set you froze before measuring the test split, which is how the paper avoided fitting the operating point on the numbers it then reported."
+      },
+      {
+        "id": "ai-jev-as-a-judge-mistake-1",
+        "type": "common-mistake",
+        "title": "Common weak answer",
+        "order": 4,
+        "mistake": "Replacing the LLM judge everywhere because the cheap judge was 'within three points' on one benchmark family.",
+        "whyItHappens": "The three-point summary is about ordinary preference and evidence-grounded factuality. The same study shows a much larger miss on hard correctness, and human review of disagreements was less flattering than the raw labels.",
+        "correctApproach": "Quote the task, the comparator, the fee basis, and the escalation rate. Use the decision judge as a first pass where it was competitive, and keep a strong judge for derivation, code, and low confidence."
+      },
+      {
+        "id": "ai-jev-as-a-judge-practice-1",
+        "type": "best-practice",
+        "title": "Trade-offs and validation",
+        "order": 5,
+        "content": "Add presentation checks the paper treated as diagnostics: reversed pair order, a paraphrased rubric, and a repeated request. A judge that flips when the answer order flips is not ready to score a leaderboard. Also budget for label noise: on HaluEval, many items both judges 'missed' had evidence that did not support the dataset label.",
+        "keyPoints": [
+          "Fit the escalation threshold on a selection split and freeze it before the test read.",
+          "Report human adjudication on disagreements, not only agreement with dataset labels.",
+          "Keep hard reasoning and code on a generative judge even if preference looks cheap."
+        ]
+      },
+      {
+        "id": "ai-jev-as-a-judge-followup-1",
+        "type": "interview-question",
+        "title": "Likely follow-up",
+        "order": 6,
+        "question": "Why report the maximum label probability instead of asking the judge for a separate confidence sentence?",
+        "answer": "Jev already returns a distribution over the labels, and the max probability was almost rank-identical to its native confidence on the three public sets. A generative judge's verbalized 'I am 90% sure' is a different, often overconfident, estimate. Using the decision distribution keeps the confidence in the same object as the verdict."
+      },
+      {
+        "id": "ai-jev-as-a-judge-summary-1",
+        "type": "summary",
+        "title": "References",
+        "order": 7,
+        "content": "- https://arxiv.org/abs/2609.26550\n- https://arxiv.org/abs/2306.05685\n- https://arxiv.org/abs/2403.13787"
+      }
+    ]
+  },
+  {
+    "id": "ai-visual-jev-shared-context",
+    "subjectId": "ai-concepts",
+    "categoryId": "ai-system-one",
+    "title": "Visual Jev and Shared Context",
+    "description": "Visual Jev answers many forced-choice questions about one image by encoding the image once, batching isolated question suffixes, and reading option probabilities from the language-model head.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 25,
+    "tags": [
+      "ai-concepts",
+      "system-one",
+      "visual-jev-shared-context"
+    ],
+    "relatedTopicIds": [
+      "ai-system-one-models-and-jev",
+      "ai-context-window-and-limits",
+      "ai-caching-llm-responses"
+    ],
+    "blocks": [
+      {
+        "id": "ai-visual-jev-shared-context-concept-1",
+        "type": "concept",
+        "title": "Simple but deep explanation",
+        "order": 1,
+        "content": "Simple explanation\n\nVisual Jev is a way to ask several independent, multiple-choice questions about the same image without re-encoding that image every time. The image and any public context are one shared prefix. Each question is a separate suffix. The suffixes run as a batch, and the answer is a probability over the candidate tokens, read from the backbone's existing language-model head.\n\nWhy this matters\n\nScreen understanding, document review, and UI checking often ask many small questions of one picture: which button cancels, does the banner say success, how many seats look free. Doing that with a generative vision-language call per question repeats the visual prefill and then decodes text you immediately throw away. The paper separates two levers. Answer-supervised post-training raised equal-weight macro accuracy from 0.706 to 0.761, mostly on the task families that were in training. At 32 questions per image, shared batched execution was 8.9x faster in warm amortized time than independent serial calls, and 3.4x faster than an already-batched path that recomputed the prefix, at higher peak memory.\n\nHow it works\n\nAn instance is an image, a public text context, and a set of questions. Isolation is the rule: a question may read the image, the public context, and its own text, and may not read the other questions or their answers. That isolation is what makes prefix sharing valid. The prefix is prefilled once, its key-value state is reused across rows, and right-padded suffixes run as one batch with masks so questions do not attend to each other. Each candidate must be a single verified token; probabilities are a softmax over only those candidate logits. Choice sets larger than 16 are rejected rather than truncated. A matched typed head, trained at the same answer position, had no consistent accuracy advantage over the LM-head readout, so the recommended system keeps the existing head.\n\nWhen to use it\n\nUse it when you have many forced-choice questions that truly share one image and do not depend on each other's answers, and when prefill cost dominates.\n\nWhen not to use it\n\nDo not use it for open-ended visual description, for questions that must see each other's answers, or as evidence of broad transfer. Held-out families in the paper, including converted TextVQA and TallyQA, did not show that the accuracy gain travels. Candidate sets also leak shortcuts, so a blind baseline that ignores the image is a required check.",
+        "keyPoints": [
+          "One image prefix is encoded once; isolated question suffixes run as a batch.",
+          "The default readout is a softmax over candidate-token logits from the existing LM head, not a new typed head.",
+          "Post-training gained accuracy mainly on trained task families; held-out families did not establish broad transfer.",
+          "Best fit: many independent forced-choice questions per image, with a known candidate set of at most 16.",
+          "Avoid when: questions depend on each other, answers are open-ended, or you have not checked a blind option-only baseline."
+        ]
+      },
+      {
+        "id": "ai-visual-jev-shared-context-scenario-1",
+        "type": "scenario-question",
+        "title": "Scenario question",
+        "order": 2,
+        "question": "A QA tool runs twelve yes/no and multiple-choice checks on every screenshot, and each check is a separate vision-model call. GPU time is dominated by re-encoding the same pixels. Users also report that later questions sometimes 'see' earlier answers. How do you redesign it?",
+        "answer": "I would make the screenshot and the shared page context a single prefix, and turn each check into an isolated suffix with its own candidate set. The batch must mask suffixes from each other so question 7 cannot attend to question 3's answer; that leak is a product bug, not a feature. I would read probabilities from the LM head over the option tokens and reject candidate sets that do not fit the single-token, K≤16 contract instead of silently truncating them.\n\nI would not expect the paper's 0.706 to 0.761 jump to appear on our checks unless those checks look like the training families. I would keep a blind baseline that answers from the options alone, because a multiple-choice conversion can be solved without the image. Memory goes up as the batch grows, so 12 questions is a measurement, not an assumption that 32-question speedups apply.",
+        "hints": [
+          "Share the image prefix and isolate the question suffixes.",
+          "Keep the LM-head readout unless a matched head actually wins on your data.",
+          "Add a blind option-only baseline so the model cannot cheat from the choices."
+        ]
+      },
+      {
+        "id": "ai-visual-jev-shared-context-code-1",
+        "type": "code-example",
+        "title": "Simple practical implementation",
+        "order": 3,
+        "language": "python",
+        "code": "import math\n\ndef candidate_probs(logits, candidate_token_ids):\n    \"\"\"Softmax over the allowed option tokens only, as in Visual Jev's readout.\"\"\"\n    scores = [logits[token_id] for token_id in candidate_token_ids]\n    peak = max(scores)\n    weights = [math.exp(score - peak) for score in scores]\n    total = sum(weights)\n    return [weight / total for weight in weights]\n\ndef pack_questions(image, public_context, questions):\n    if any(len(question.candidates) > 16 for question in questions):\n        raise ValueError(\"Choice sets above 16 are rejected, not truncated\")\n    # Prefix is shared. Suffixes stay isolated; they must not contain each other's text.\n    return {\"prefix\": (image, public_context), \"suffixes\": questions}",
+        "explanation": "The probability step is deliberately small: normalize only over the candidates you offered, at one answer position. The packing step records the actual system constraint, which is isolation plus a hard cap on how many options a question may carry."
+      },
+      {
+        "id": "ai-visual-jev-shared-context-mistake-1",
+        "type": "common-mistake",
+        "title": "Common weak answer",
+        "order": 4,
+        "mistake": "Claiming a special decision head is required, or quoting the 8.9x speedup without saying it is warm amortized time at 32 questions versus serial execution.",
+        "whyItHappens": "A new head sounds like the research contribution. The matched control found no consistent accuracy gain. The speedup is real in the reported setting and is easy to over-generalize to a single question or a cold start.",
+        "correctApproach": "Say that adaptation improves the trained families, the existing LM head is enough, and prefix sharing plus batching is the serving win, paid for with memory. Quote N and the baseline."
+      },
+      {
+        "id": "ai-visual-jev-shared-context-practice-1",
+        "type": "best-practice",
+        "title": "Trade-offs and validation",
+        "order": 5,
+        "content": "Shuffle option order, build distractors from the same answer type, and publish the blind baseline next to accuracy. The authors' first TextVQA conversion failed that check and was rebuilt. Also keep image-level splits so a paraphrase of a training question cannot land in the test set.",
+        "keyPoints": [
+          "Enforce question isolation in the attention mask; sharing a prefix is not permission to share answers.",
+          "Compare any new head against the LM-head readout under the same data and step budget.",
+          "Report speed against both serial calls and a batched no-reuse baseline, plus peak memory."
+        ]
+      },
+      {
+        "id": "ai-visual-jev-shared-context-followup-1",
+        "type": "interview-question",
+        "title": "Likely follow-up",
+        "order": 6,
+        "question": "Why can the suffixes skip extra visual computation?",
+        "answer": "In the backbone they used, visual features are re-injected only at image-token positions in the early text layers, and those positions all sit in the cached prefix. Once the prefix is prefilled, a suffix has no new image tokens, so it does not need another visual pass. That is a property of this architecture and this prompt layout, not of every vision model."
+      },
+      {
+        "id": "ai-visual-jev-shared-context-summary-1",
+        "type": "summary",
+        "title": "References",
+        "order": 7,
+        "content": "- https://arxiv.org/abs/2609.25845\n- https://arxiv.org/abs/2309.06180\n- https://arxiv.org/abs/1706.03762"
+      }
+    ]
+  },
+  {
+    "id": "ai-endogenous-reasoning-state-of-thought",
+    "subjectId": "ai-concepts",
+    "categoryId": "ai-research-frontiers",
+    "title": "Endogenous Reasoning and State of Thought",
+    "description": "State of Thought runs test-time reasoning from a small controller on the model's internal state, instead of forcing a long external chain of thought.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 25,
+    "tags": [
+      "ai-concepts",
+      "research-frontiers",
+      "endogenous-reasoning-state-of-thought"
+    ],
+    "relatedTopicIds": [
+      "ai-chain-of-thought-prompting",
+      "ai-stability-aware-test-time-adaptation",
+      "ai-latency-and-cost-tradeoffs"
+    ],
+    "blocks": [
+      {
+        "id": "ai-endogenous-reasoning-state-of-thought-concept-1",
+        "type": "concept",
+        "title": "Simple but deep explanation",
+        "order": 1,
+        "content": "Simple explanation\n\nState of Thought (SoT) is a test-time reasoning method that lets a frozen language model decide how to continue from its own internal state. A 582-parameter controller reads a compact summary of how information is moving inside the model and turns historical reasoning support on only when that state says it is useful. The reasoning is endogenous: the model is steering itself, rather than following a script written outside it.\n\nWhy this matters\n\nTest-time compute, spending more work at inference to get a better answer, usually means a longer chain of thought, a search tree, or a fixed program of prompts. Those help, and they also burn tokens on easy steps and on traces that wander. SoT's claim is that a tiny controller on a frozen backbone can raise accuracy while emitting fewer tokens. Across 3 LLMs and 16 datasets the authors report gains versus the mean baseline on quantitative (1.34x), general (1.62x), symbolic-and-code (1.76x), and long-context (2.51x) reasoning, with 62.6% fewer generated tokens and 44.6% lower end-to-end latency.\n\nHow it works\n\nThe controller does not retrain the LLM. It extracts a dynamics-geometric state from internal information transfer and uses that state to select which earlier reasoning support to activate. Reasoning becomes a state-conditioned process over evidence, not an externally prescribed token chain. On 2 vision-language scales and 3 reasoning tasks they report +3.8 mean accuracy points over reasoning baselines, with 74.9% fewer completion tokens and 73.5% lower latency than search-based methods. Under tighter access, training-free and embedding-only variants kept 38.2% and 36.5% of the mean accuracy gain. A trajectory-only judge agreed 84.1% of the time across 3 API models, which matters when you cannot see weights.\n\nWhen to use it\n\nConsider it when you already pay for long reasoning traces, you can attach a small controller or at least read embeddings or trajectories, and token budget or latency is the constraint.\n\nWhen not to use it\n\nDo not treat a 582-parameter controller as a new general intelligence, or as a reason to skip a task eval. The multipliers are against the paper's mean baseline on its 16 datasets. If you only have a black-box chat API and cannot observe state or trajectory, you do not have this method; you have a prompt.",
+        "keyPoints": [
+          "SoT uses a 582-parameter controller on a frozen model to activate reasoning support from internal state.",
+          "Reported gains come with 62.6% fewer generated tokens and 44.6% lower latency on the language experiments.",
+          "Training-free and embedding-only settings kept only part of the accuracy gain.",
+          "Best fit: expensive test-time reasoning where you can read internal state, embeddings, or trajectories.",
+          "Avoid when: you need an externally auditable prompt program, or the model is a closed API with no state access."
+        ]
+      },
+      {
+        "id": "ai-endogenous-reasoning-state-of-thought-scenario-1",
+        "type": "scenario-question",
+        "title": "Scenario question",
+        "order": 2,
+        "question": "Your math tutor forces a 2,000-token chain of thought on every question, including one-step arithmetic, and the bill tracks the token count more than the error rate. Leadership wants higher accuracy without a longer trace. What do you try, and what do you refuse?",
+        "answer": "I would separate 'more tokens' from 'better reasoning.' SoT is one researched alternative: keep the backbone frozen, add a very small state-conditioned controller, and let it pull in prior reasoning support only when the internal state calls for it. The paper's language results are the relevant prior: accuracy up versus the mean baseline, and a large cut in generated tokens and latency, not a longer trace.\n\nI would refuse to ship it from the abstract. I would replay our tutor items, including the easy ones that should stay short, and compare accuracy, tokens, and latency against both the current forced chain and a simple early-exit baseline. If we cannot see activations, I would look at the paper's trajectory-only and embedding-only settings instead of pretending a prompt that says 'think briefly' is SoT. Search-based decoding stays the comparison for the hard items, where they reported lower latency than search at a small accuracy gain on vision-language tasks.",
+        "hints": [
+          "Name the constraint: test-time compute is being spent as tokens, including on easy items.",
+          "Compare against forced chain-of-thought and against early exit, on your set.",
+          "Match the method to the access you have: weights, embeddings, or trajectories only."
+        ]
+      },
+      {
+        "id": "ai-endogenous-reasoning-state-of-thought-code-1",
+        "type": "code-example",
+        "title": "Simple practical implementation",
+        "order": 3,
+        "language": "python",
+        "code": "def state_of_thought_step(backbone, controller, token_ids, memory):\n    \"\"\"Pedagogical sketch: a tiny controller gates memory using internal state.\n    The 582-parameter controller and the state features are the paper's, not this function.\"\"\"\n    hidden, transfer_state = backbone.forward_with_state(token_ids)\n    gate = controller(transfer_state)  # which historical supports to activate\n    support = memory.gather(gate)\n    if support is None:\n        return hidden\n    return backbone.integrate(hidden, support)",
+        "explanation": "The sketch is only the control flow: read a compact internal state, let a tiny controller choose historical support, and leave the backbone frozen. It is not an implementation of the dynamics-geometric features."
+      },
+      {
+        "id": "ai-endogenous-reasoning-state-of-thought-mistake-1",
+        "type": "common-mistake",
+        "title": "Common weak answer",
+        "order": 4,
+        "mistake": "Equating State of Thought with chain-of-thought prompting, or quoting the 2.51x long-context factor as a guaranteed speedup.",
+        "whyItHappens": "Both happen at test time, so they get collapsed into 'reasoning.' SoT is a controller on internal state. The 1.34x to 2.51x figures are accuracy factors versus the paper's mean baseline on grouped datasets, not latency multipliers. Latency is the separate 44.6% reduction.",
+        "correctApproach": "Distinguish an external token script from an internal state controller, and quote accuracy and token results as separate measurements on the stated models and datasets."
+      },
+      {
+        "id": "ai-endogenous-reasoning-state-of-thought-practice-1",
+        "type": "best-practice",
+        "title": "Trade-offs and validation",
+        "order": 5,
+        "content": "If you cannot reproduce the controller, still steal the evaluation idea: accuracy at a token budget, split by easy versus hard items, against a forced-trace baseline and a search baseline. A method that only wins by writing more is a different product decision.",
+        "keyPoints": [
+          "Report accuracy and tokens together; a gain that doubles the trace is a different result.",
+          "Keep the backbone frozen in the experiment so you do not confuse controller gains with fine-tuning.",
+          "State which access setting you used: full state, embeddings only, or trajectory only."
+        ]
+      },
+      {
+        "id": "ai-endogenous-reasoning-state-of-thought-followup-1",
+        "type": "interview-question",
+        "title": "Likely follow-up",
+        "order": 6,
+        "question": "Why does a controller with only 582 parameters have any chance of helping a model with billions of them?",
+        "answer": "It is not replacing the model. It only chooses when existing internal support should be active. The capacity stays in the frozen backbone; the controller is a gate on evidence the model already computed. That is why the paper can claim a gain without retraining the LLM, and why the gain shrinks when the controller is denied the internal state and must work from embeddings or trajectories alone."
+      },
+      {
+        "id": "ai-endogenous-reasoning-state-of-thought-summary-1",
+        "type": "summary",
+        "title": "References",
+        "order": 7,
+        "content": "- https://arxiv.org/abs/2609.16055\n- https://arxiv.org/abs/2201.11903\n- https://arxiv.org/abs/2408.03314"
+      }
+    ]
+  },
+  {
+    "id": "ai-stability-aware-test-time-adaptation",
+    "subjectId": "ai-concepts",
+    "categoryId": "ai-research-frontiers",
+    "title": "Stability-Aware Test-Time Adaptation",
+    "description": "TASCO adapts a frozen LLM at test time with a small prefix, and it trusts high confidence only when that confidence stays stable under local perturbations.",
+    "difficulty": "advanced",
+    "interviewPriority": "medium",
+    "estimatedMinutes": 20,
+    "tags": [
+      "ai-concepts",
+      "research-frontiers",
+      "stability-aware-test-time-adaptation"
+    ],
+    "relatedTopicIds": [
+      "ai-endogenous-reasoning-state-of-thought",
+      "ai-rlcd-calibrated-decisions",
+      "ai-chain-of-thought-prompting"
+    ],
+    "blocks": [
+      {
+        "id": "ai-stability-aware-test-time-adaptation-concept-1",
+        "type": "concept",
+        "title": "Simple but deep explanation",
+        "order": 1,
+        "content": "Simple explanation\n\nTest-time adaptation updates a lightweight piece of the system when the model is already deployed, instead of running another expensive post-training job. TASCO, Test-Time Adaptation via Stability-Aware Confidence Optimization, learns a task-level prefix while the LLM stays frozen. The signal is not 'be more confident.' It is 'be more confident only if that confidence survives small perturbations.'\n\nWhy this matters\n\nPredictive entropy is a tempting free signal: steer the model toward answers it assigns high probability, with no reward model and no human labels. The failure mode is familiar. A model can be highly confident all the way down a wrong reasoning path. The TASCO authors' observation is narrower and more useful: high-confidence reasoning is more likely to be correct when the confidence stays stable under local perturbations. Stability is the filter that plain confidence does not have.\n\nHow it works\n\nThe LLM weights do not change. A short prefix, shared at the task level, is optimized so the model's confidence is locally stable. Two perturbation strategies implement that idea. Random Perturbation pushes the prefix so confidence agrees across trajectories from nearby prefixes. Sharpness-Aware Perturbation looks for the worst local neighbor and penalizes sensitivity to it. Either way, the adaptation is test-time and lightweight relative to post-training. The paper reports better reasoning accuracy and better token efficiency across the LLMs and reasoning benchmarks they tried, and behavioral checks that confidence stays stable without the distribution collapsing too early. Specific point gains depend on the model and benchmark, so quote them from the paper's tables for the setting you mean rather than as a single universal delta.\n\nWhen to use it\n\nUse the idea when you can afford a small prefix optimization at the start of a task family, you cannot or should not fine-tune the base model, and you have no external verifier.\n\nWhen not to use it\n\nDo not use raw confidence maximization as a stand-in for TASCO. Without the stability term, you may simply make a wrong trajectory more peaked. Also skip it when you already have a cheap verifier, such as a unit test, because checking the answer beats rearranging confidence.",
+        "keyPoints": [
+          "TASCO freezes the LLM and adapts a task-level prefix at test time.",
+          "Plain high confidence is not evidence of correctness; stability under local perturbations is the extra test.",
+          "Random Perturbation targets typical nearby prefixes; Sharpness-Aware Perturbation targets the worst local neighbor.",
+          "Best fit: reasoning tasks with no external verifier and no budget for post-training.",
+          "Avoid when: a real checker exists, or the only change you make is 'increase confidence.'"
+        ]
+      },
+      {
+        "id": "ai-stability-aware-test-time-adaptation-scenario-1",
+        "type": "scenario-question",
+        "title": "Scenario question",
+        "order": 2,
+        "question": "A reasoning endpoint has no ground-truth checker in production. You try to adapt it by minimizing predictive entropy on each new question, and wrong answers start looking even more certain in the logs. What is the missing idea?",
+        "answer": "Entropy minimization rewarded peaked distributions, including peaked wrong ones. TASCO's correction is to require local stability: a confident answer should stay confident when the task prefix is perturbed a little, either by random nearby prefixes or by a sharpness-aware worst neighbor. I would freeze the base weights, adapt only a short task prefix, and log both confidence and how much that confidence moves under perturbation.\n\nI would also cap how long this inner optimization may run, because test-time adaptation can eat the latency budget it was meant to save. Where we do have a verifier, for code with tests, I would use the verifier and not this proxy.",
+        "hints": [
+          "Name the failure: confidence rose on incorrect trajectories.",
+          "Add a stability check under prefix perturbations, with the LLM frozen.",
+          "Prefer a real verifier over a confidence proxy when you have one."
+        ]
+      },
+      {
+        "id": "ai-stability-aware-test-time-adaptation-code-1",
+        "type": "code-example",
+        "title": "Simple practical implementation",
+        "order": 3,
+        "language": "python",
+        "code": "def stability_gap(model, prefix, prompt, perturb, samples=4):\n    \"\"\"How much top-label confidence moves under small prefix changes.\n    A large gap means the confidence is locally sharp, not stable.\"\"\"\n    base = model.confidence(prefix, prompt)\n    moved = [\n        model.confidence(perturb(prefix), prompt)\n        for _ in range(samples)\n    ]\n    return max(abs(base - value) for value in moved)",
+        "explanation": "This is the diagnostic, not the TASCO optimizer. If a small prefix change swings confidence, that confidence is a poor reason to trust the answer. Random and sharpness-aware perturbations are two ways to choose the neighbors."
+      },
+      {
+        "id": "ai-stability-aware-test-time-adaptation-mistake-1",
+        "type": "common-mistake",
+        "title": "Common weak answer",
+        "order": 4,
+        "mistake": "Telling the team you 'added test-time adaptation' when the only objective was to make the model more confident.",
+        "whyItHappens": "Confidence is easy to optimize and easy to mistake for accuracy. The paper exists because those two diverge on incorrect reasoning traces.",
+        "correctApproach": "Say that the LLM stays frozen, the adapted object is a prefix, and the objective includes stability under an explicit perturbation. Show a before-and-after on accuracy and tokens, not only on entropy."
+      },
+      {
+        "id": "ai-stability-aware-test-time-adaptation-practice-1",
+        "type": "best-practice",
+        "title": "Trade-offs and validation",
+        "order": 5,
+        "content": "Keep a slice of questions out of the prefix optimization so you can see whether the prefix memorized the adaptation set. Watch for premature collapse: a model that becomes stable by putting nearly all mass on one token early in the trace is not the behavior the authors say they preserved.",
+        "keyPoints": [
+          "Log confidence and local sensitivity together; do not dashboard entropy alone.",
+          "Bound the adaptation compute so test-time training cannot exceed the cost of a longer trace.",
+          "Use an external verifier instead of TASCO on any task where outputs can be checked cheaply."
+        ]
+      },
+      {
+        "id": "ai-stability-aware-test-time-adaptation-followup-1",
+        "type": "interview-question",
+        "title": "Likely follow-up",
+        "order": 6,
+        "question": "What is the difference between Random Perturbation and Sharpness-Aware Perturbation here?",
+        "answer": "Random Perturbation samples nearby prefixes and asks the confidence to agree across that cloud, which is a typical-case stability check. Sharpness-Aware Perturbation searches for the nearby prefix that hurts most and penalizes that worst case, which is a robustness check. Both keep the LLM frozen. Which one wins is an empirical result per model and benchmark, not a reason to skip measuring both if you reimplement the idea."
+      },
+      {
+        "id": "ai-stability-aware-test-time-adaptation-summary-1",
+        "type": "summary",
+        "title": "References",
+        "order": 7,
+        "content": "- https://arxiv.org/abs/2609.11393\n- https://arxiv.org/abs/1706.04599\n- https://arxiv.org/abs/2010.01412"
+      }
+    ]
+  },
+  {
+    "id": "ai-self-organizing-agent-organizations",
+    "subjectId": "ai-concepts",
+    "categoryId": "ai-research-frontiers",
+    "title": "Self-Organizing Agent Organizations",
+    "description": "Agensh scales work across many agents that claim tasks themselves from a shared workspace, instead of waiting on one central orchestrator.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 25,
+    "tags": [
+      "ai-concepts",
+      "research-frontiers",
+      "self-organizing-agent-organizations"
+    ],
+    "relatedTopicIds": [
+      "ai-multi-agent-systems",
+      "ai-inference-time-workflow-graphs",
+      "ai-what-is-an-agent"
+    ],
+    "blocks": [
+      {
+        "id": "ai-self-organizing-agent-organizations-concept-1",
+        "type": "concept",
+        "title": "Simple but deep explanation",
+        "order": 1,
+        "content": "Simple explanation\n\nAgensh is a multi-agent harness with no central orchestrator. Workers run the same cooperation loop at the same time: gather context, claim a sub-task, act, share what they found, verify, and merge. Coordination lives in three pieces of infrastructure: a shared workspace of proposed, ongoing, and finished work; a message interface; and a shared context of reusable findings and intentions.\n\nWhy this matters\n\nThe multi-agent chapter in this app already covers role-specialized crews with a coordinator. That coordinator becomes the bottleneck as you add workers, because every assignment and every status check passes through one context window. Agensh tests a different scaling axis: the number of agents, under a latency budget. On the five hardest ProgramBench tasks with GPT-5.6-sol at high effort, moving from 1 to 128 agents raised mean final test-pass rate from 19.31% to 28.78%, about a 49% relative gain. Larger organizations reached a given pass rate earlier. On pandoc, 1 to 1,024 agents moved the final test-pass rate from 33.89% to 55.06%.\n\nHow it works\n\nA worker does not wait to be assigned. It reads the workspace, claims work it can justify, writes intentions so others can avoid colliding, and merges results asynchronously. The paper reports that recognizable cooperation patterns show up and then standardize as the organization grows, rather than being designed as a fixed org chart. The harness is the product: shared state, claiming rules, and verification. The base model in the reported runs stays GPT-5.6-sol.\n\nWhen to use it\n\nUse a self-claiming organization when the task splits into many pieces that can proceed concurrently, you have a hard time budget, and a single coordinator's context is the thing that falls over first.\n\nWhen not to use it\n\nDo not add hundreds of agents to a task that is inherently serial, or to a short task a single strong agent already finishes inside the latency budget. More workers multiply token cost and make verification the new bottleneck. A 49% relative gain on already-hard ProgramBench tasks is not a promise that 1,024 agents will linearly improve every repository.",
+        "keyPoints": [
+          "Agensh replaces the central assigner with a shared workspace, messages, and shared context.",
+          "Workers claim and merge work asynchronously instead of waiting for a coordinator's next turn.",
+          "Reported ProgramBench gains are from 19.31% to 28.78% test-pass at 128 agents; pandoc reached 55.06% at 1,024.",
+          "Best fit: decomposable work under a latency cap, where orchestration itself is the bottleneck.",
+          "Avoid when: the task is serial, verification cannot keep up, or one agent is already fast enough."
+        ]
+      },
+      {
+        "id": "ai-self-organizing-agent-organizations-scenario-1",
+        "type": "scenario-question",
+        "title": "Scenario question",
+        "order": 2,
+        "question": "A migration across 400 services is coordinated by one planner agent. At about 30 workers the planner's prompt is mostly status JSON, and new workers sit idle waiting for the next assignment. How do you change the harness?",
+        "answer": "I would stop sending every status through one planner. I would put proposed, claimed, and done work in a shared workspace, let a worker claim a service only if it records that intention first, and let others read findings without asking the planner to summarize them. Verification stays explicit: a claimed migration is not done until tests are merged back into the workspace, because self-assignment without a check is how two workers 'finish' the same service differently.\n\nI would scale the worker count only while test-pass rate and time-to-a-given-pass-rate improve on a frozen subset of services. The Agensh numbers are a reason to try tens and then hundreds, not a reason to jump to 1,024 on day one. If the services have a strict dependency order, I would keep a small serial spine and only parallelize the independent branches.",
+        "hints": [
+          "Move assignment into a shared claimable workspace.",
+          "Require an intention write before a claim, and a verification merge after it.",
+          "Scale agent count only while the eval keeps improving."
+        ]
+      },
+      {
+        "id": "ai-self-organizing-agent-organizations-code-1",
+        "type": "code-example",
+        "title": "Simple practical implementation",
+        "order": 3,
+        "language": "python",
+        "code": "def claim_next(workspace, worker_id):\n    \"\"\"Self-assignment against shared state. One winner per task.\"\"\"\n    for task in workspace.proposed():\n        if workspace.try_claim(task.id, worker_id):\n            workspace.post_intention(worker_id, task.id)\n            return task\n    return None\n\ndef finish(workspace, worker_id, task, result):\n    if not result.tests_passed:\n        workspace.release(task.id, worker_id)\n        return\n    workspace.merge(task.id, worker_id, result.findings)",
+        "explanation": "The interesting line is try_claim against shared state, not a planner's private to-do list. Releasing on failed tests is what keeps a large organization from merging unchecked work. This is the harness shape, not the paper's full infrastructure."
+      },
+      {
+        "id": "ai-self-organizing-agent-organizations-mistake-1",
+        "type": "common-mistake",
+        "title": "Common weak answer",
+        "order": 4,
+        "mistake": "Adding more agents behind the same central orchestrator and calling it Agensh, or expecting linear gains out to 1,024 workers on every task.",
+        "whyItHappens": "Headcount is the visible change. The actual change is removing the coordinator from the critical path. The published gains are on specific hard coding tasks with a named model, and they are sublinear.",
+        "correctApproach": "Describe the shared workspace, the claim loop, and the eval: test-pass rate and time to reach a pass rate, as a function of organization size, against a one-agent baseline."
+      },
+      {
+        "id": "ai-self-organizing-agent-organizations-practice-1",
+        "type": "best-practice",
+        "title": "Trade-offs and validation",
+        "order": 5,
+        "content": "Watch for claim thrash, duplicate work, and findings that contradict each other. Standardization of cooperation is a result the paper observed as organizations grew; it is something you should log, not something you should assume will appear.",
+        "keyPoints": [
+          "Make claims atomic and visible, and record intentions before side effects.",
+          "Plot quality and time-to-quality against agent count, including the one-agent baseline.",
+          "Keep verification outside the worker that claims the task so a large org cannot grade its own homework unchecked."
+        ]
+      },
+      {
+        "id": "ai-self-organizing-agent-organizations-followup-1",
+        "type": "interview-question",
+        "title": "Likely follow-up",
+        "order": 6,
+        "question": "How is this different from a manager agent that delegates to specialists?",
+        "answer": "A manager agent is still a central scheduler: its context window and its turn are on the critical path. Agensh workers pull work from shared state and coordinate through messages and a shared memory of findings. The paper's scaling result is about that pull model. A manager that personally assigns all 1,024 workers is the bottleneck Agensh was built to avoid."
+      },
+      {
+        "id": "ai-self-organizing-agent-organizations-summary-1",
+        "type": "summary",
+        "title": "References",
+        "order": 7,
+        "content": "- https://arxiv.org/abs/2609.26781\n- https://arxiv.org/abs/2308.00352\n- https://arxiv.org/abs/2308.08155"
+      }
+    ]
+  },
+  {
+    "id": "ai-inference-time-workflow-graphs",
+    "subjectId": "ai-concepts",
+    "categoryId": "ai-research-frontiers",
+    "title": "Inference-Time Workflow Graphs",
+    "description": "ReActNet compiles a query and a set of specialist agents into a short sequence of directed message graphs, then executes that graph without training a new topology.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 25,
+    "tags": [
+      "ai-concepts",
+      "research-frontiers",
+      "inference-time-workflow-graphs"
+    ],
+    "relatedTopicIds": [
+      "ai-react-pattern",
+      "ai-multi-agent-systems",
+      "ai-self-organizing-agent-organizations"
+    ],
+    "blocks": [
+      {
+        "id": "ai-inference-time-workflow-graphs-concept-1",
+        "type": "concept",
+        "title": "Simple but deep explanation",
+        "order": 1,
+        "content": "Simple explanation\n\nReActNet treats multi-agent coordination as a graph you build at inference time. Given a query and a pool of role-specialized agents, a training-free compiler emits a sequence of directed graphs. Each graph is one reasoning stage. Each edge carries a natural-language instruction for what the source agent should tell the target. Agents then update their state from those messages, and a final aggregator writes the answer.\n\nWhy this matters\n\nA fixed org chart, 'researcher always talks to coder,' ignores the query. A learned topology needs reinforcement learning or gradient search over graphs, which is brittle and expensive to retune. ReActNet's bet is that the useful object is an executable workflow: who talks to whom on this question, at this stage, and what the message is for. The authors report consistent gains over fixed-topology and learned-topology baselines on knowledge reasoning, math, code generation, and GAIA-style assistant tasks, at competitive inference cost.\n\nHow it works\n\nCompilation and execution are separate. Compilation reads the query and the role list and writes a temporal graph: a list of snapshots. Execution is structured message passing. An agent integrates its previous state with messages from the neighbors assigned for that stage. Edges are not bare links; the instruction on the edge is part of the semantics, so 'send the equation' and 'send the suspected bug' are different channels even if the same pair of agents is connected. No topology parameters are trained.\n\nWhen to use it\n\nUse it when you already have specialist agents and the right communication pattern depends on the question, but you do not want a training loop over graphs.\n\nWhen not to use it\n\nDo not compile a graph for a single-agent task, and do not confuse this with the ReAct loop, which is one model alternating thoughts and tools. Also do not assume a compiled graph is optimal just because it is task-conditioned. It is a training-free heuristic, and you still need your own eval against a fixed pipeline.",
+        "keyPoints": [
+          "ReActNet compiles a query into a sequence of directed agent graphs at inference time.",
+          "Each edge includes a natural-language instruction, so the message semantics are part of the topology.",
+          "Compilation is separate from execution, and neither step trains a topology.",
+          "Best fit: specialist agents whose useful wiring changes with the query.",
+          "Avoid when: one agent is enough, or you needed a learned router and have the data to train one."
+        ]
+      },
+      {
+        "id": "ai-inference-time-workflow-graphs-scenario-1",
+        "type": "scenario-question",
+        "title": "Scenario question",
+        "order": 2,
+        "question": "Your support system always runs retrieval, then policy, then a writer, even for a one-line account lookup that never needs the policy agent. Latency is dominated by agents that had nothing to say. What would an inference-time graph change?",
+        "answer": "I would stop shipping one static pipeline for every ticket. A compiler step would look at the ticket and the role pool and emit a short stage graph: an account lookup might be retrieval to writer, with no policy node, while a dispute might be retrieval to policy to writer, and the edge into policy would say 'send the contested clause and the customer's claim,' not the whole transcript.\n\nI would keep that compiler training-free until the data says a learned topology is worth it, and I would score both quality and end-to-end calls against the current fixed pipeline. If the compiler itself is a large model call on every ticket, I would cache graphs for repeated intents so the orchestration layer does not cost more than the agents it skips.",
+        "hints": [
+          "Make the topology depend on the query instead of on a single fixed pipeline.",
+          "Put the purpose of each message on the edge, not only the pair of agents.",
+          "Compare cost and quality with the static pipeline, and cache repeated graphs."
+        ]
+      },
+      {
+        "id": "ai-inference-time-workflow-graphs-code-1",
+        "type": "code-example",
+        "title": "Simple practical implementation",
+        "order": 3,
+        "language": "python",
+        "code": "def execute_workflow(agents, stages):\n    \"\"\"Run a compiled temporal graph. Each edge says what to send, not only who talks.\"\"\"\n    state = {name: None for name in agents}\n    for stage in stages:\n        messages = {name: [] for name in agents}\n        for edge in stage.edges:\n            payload = agents[edge.source].speak(edge.instruction, state[edge.source])\n            messages[edge.target].append(payload)\n        for name, agent in agents.items():\n            if messages[name] or name in stage.active:\n                state[name] = agent.integrate(state[name], messages[name])\n    return agents[stages[-1].aggregator].answer(state)",
+        "explanation": "Execution is ordinary message passing over a graph the compiler already froze for this query. The instruction string on the edge is load-bearing: without it, the same topology cannot tell agents what kind of message this stage needs."
+      },
+      {
+        "id": "ai-inference-time-workflow-graphs-mistake-1",
+        "type": "common-mistake",
+        "title": "Common weak answer",
+        "order": 4,
+        "mistake": "Saying ReActNet is just multi-agent ReAct, or that a learned routing policy is unnecessary because a paper beat one on its benchmarks.",
+        "whyItHappens": "The names look alike. ReAct is a single-agent thought-and-tool loop. ReActNet is a compiled communication graph across specialists. Beating a learned topology in one study does not mean training a router is never worth it once you have traffic.",
+        "correctApproach": "Describe compilation versus execution, the per-edge instruction, and the training-free constraint. Compare to a fixed pipeline on your tasks before you drop a learned router you already trust."
+      },
+      {
+        "id": "ai-inference-time-workflow-graphs-practice-1",
+        "type": "best-practice",
+        "title": "Trade-offs and validation",
+        "order": 5,
+        "content": "Log the compiled graph next to the answer. When a workflow fails, you want to see whether the compiler omitted a role or an agent ignored its edge instruction. Those are different bugs, and a single final-answer score hides both.",
+        "keyPoints": [
+          "Version the compiled graph with the trace so orchestration bugs are inspectable.",
+          "Cache graphs for repeated query shapes if compilation cost shows up in the latency budget.",
+          "Keep a fixed-topology baseline in the eval so a fancy compiler has to earn its calls."
+        ]
+      },
+      {
+        "id": "ai-inference-time-workflow-graphs-followup-1",
+        "type": "interview-question",
+        "title": "Likely follow-up",
+        "order": 6,
+        "question": "Why put a natural-language instruction on the edge instead of only connecting two agents?",
+        "answer": "Connectivity says who may speak. The instruction says what this stage needs from that speaker. The same pair of agents might pass a formula in one stage and a counterexample in the next. The paper's result is that when, why, and how information flows are part of the design, not a side effect of a static adjacency list."
+      },
+      {
+        "id": "ai-inference-time-workflow-graphs-summary-1",
+        "type": "summary",
+        "title": "References",
+        "order": 7,
+        "content": "- https://arxiv.org/abs/2609.05774\n- https://arxiv.org/abs/2210.03629\n- https://arxiv.org/abs/2308.00352"
+      }
+    ]
+  },
+  {
+    "id": "ai-elo-per-token-agent-scaling",
+    "subjectId": "ai-concepts",
+    "categoryId": "ai-research-frontiers",
+    "title": "Elo-per-Token and When Agents Slow Down",
+    "description": "Elo-per-token measures whether a longer agent trace is still buying quality, and shows a point where parallel sessions beat one very long run.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 20,
+    "tags": [
+      "ai-concepts",
+      "research-frontiers",
+      "elo-per-token-agent-scaling"
+    ],
+    "relatedTopicIds": [
+      "ai-endogenous-reasoning-state-of-thought",
+      "ai-latency-and-cost-tradeoffs",
+      "ai-benchmarks-and-their-limits",
+      "ai-what-is-an-agent"
+    ],
+    "blocks": [
+      {
+        "id": "ai-elo-per-token-agent-scaling-concept-1",
+        "type": "concept",
+        "title": "Simple but deep explanation",
+        "order": 1,
+        "content": "Simple explanation\n\nElo-per-token is a way to score open-ended agent work when each task has a numeric score you can recompute as the agent keeps trying. At every token budget you record the best solution found so far. A Bradley-Terry model turns those within-task orderings into an Elo rating that can be compared across tasks whose raw scores mean different things.\n\nWhy this matters\n\nAgent traces do not spend tokens at a fixed rate of progress. They revise, call tools, explore, and sometimes stall. Average final score hides that shape. The September 2026 study ran four general-purpose agents on four open-ended benchmarks, with sessions up to 100 million tokens, plus controlled single-task harnesses. Independent sampling, which has a known log-compute curve, is the reference: Elo grows linearly with the log of compute. Agents beat that reference early, then their marginal Elo per token falls below it. The authors call that crossover the scaling inflection point.\n\nHow it works\n\nBecause tasks use different score scales, you do not average the raw scores. You only use the ordering of 'who was ahead at this budget' inside a task, then pool those pairwise outcomes. On FrontierCS Polyomino Packing, spending a 100-million-token budget as parallel sessions instead of one long session gained +264 Elo over the single long run and +355 Elo over ten short sessions, once each session was capped near the inflection point. Human experts on shared AtCoder Heuristic Contest tasks still improved superlinearly over contest time, which the authors read as evidence of continual learning that current agents do not show after they slow down.\n\nWhen to use it\n\nUse it when an agent can submit intermediate solutions to a stable scorer, and you need to decide whether to extend a session or start another one.\n\nWhen not to use it\n\nDo not use Elo-per-token on tasks that only score a single final answer, or where intermediate submissions are not comparable. Also do not treat the inflection point from one benchmark as a universal token cap. It is per agent and per task family.",
+        "keyPoints": [
+          "Elo-per-token tracks the best-so-far solution against token budget and compares agents on a shared rating.",
+          "Independent sampling is the reference curve: Elo linear in log compute.",
+          "Agents often beat that curve early and then fall behind it; that crossover is the scaling inflection point.",
+          "Best fit: open-ended tasks with a continuous score and intermediate submissions.",
+          "Avoid when: you only have a pass/fail final answer, or you copy another task's token cap without measuring."
+        ]
+      },
+      {
+        "id": "ai-elo-per-token-agent-scaling-scenario-1",
+        "type": "scenario-question",
+        "title": "Scenario question",
+        "order": 2,
+        "question": "An optimization agent is allowed to run until a hard 100-million-token cap. Quality improves quickly, then the trace mostly rephrases the same candidate. Doubling the cap again barely moves the score. What should the scheduler do?",
+        "answer": "I would plot best score, or Elo if I am comparing tasks, against tokens and find the inflection where marginal gain drops to the independent-sampling reference. Past that point I would stop the session and spend the remaining budget on parallel sessions from fresh starts, which is what produced +264 Elo versus one long run on the paper's Polyomino Packing task.\n\nI would not pick 100 million as a target because it was the experimental ceiling. I would set the per-session budget from our own curve, keep a few short and a few long controls, and only call it a win if the parallel split beats both. If the task cannot be scored until the end, this analysis does not apply and I need a different stopping rule.",
+        "hints": [
+          "Find the budget where extra tokens stop beating independent retries.",
+          "Split the remaining budget across parallel sessions instead of extending one trace.",
+          "Require a scorer that can judge intermediate solutions."
+        ]
+      },
+      {
+        "id": "ai-elo-per-token-agent-scaling-code-1",
+        "type": "code-example",
+        "title": "Simple practical implementation",
+        "order": 3,
+        "language": "python",
+        "code": "def inflection_budget(curve, reference_slope):\n    \"\"\"curve: list of (log_tokens, elo), sorted by tokens.\n    Return the first budget whose next segment is no steeper than independent sampling.\"\"\"\n    for (log_a, elo_a), (log_b, elo_b) in zip(curve, curve[1:]):\n        slope = (elo_b - elo_a) / (log_b - log_a)\n        if slope <= reference_slope:\n            return log_a\n    return curve[-1][0]",
+        "explanation": "The helper is the scheduling rule, stripped of the Bradley-Terry fit. Once the local slope of Elo versus log tokens drops to the independent-sampling slope, another token inside this session is no better than starting fresh. The reference slope has to be measured, not hardcoded."
+      },
+      {
+        "id": "ai-elo-per-token-agent-scaling-mistake-1",
+        "type": "common-mistake",
+        "title": "Common weak answer",
+        "order": 4,
+        "mistake": "Leaving every agent on one session until the token cap, because 'more test-time compute always helps.'",
+        "whyItHappens": "Early in a trace, more tokens do help, often faster than random retries. The paper's point is that the marginal return bends and then loses to parallel independent attempts. A single final score never shows the bend.",
+        "correctApproach": "Publish best-so-far versus budget, mark the inflection, and compare one long session with a parallel split of the same total tokens. Include a short-session control so the result is not only 'parallel beats a stalled trace.'"
+      },
+      {
+        "id": "ai-elo-per-token-agent-scaling-practice-1",
+        "type": "best-practice",
+        "title": "Trade-offs and validation",
+        "order": 5,
+        "content": "Intermediate scores must be cheap and stable. If the scorer itself is an LLM judge, its noise can create a fake inflection or hide a real one. Prefer a deterministic objective, as in a packing or contest task, before you trust the curve.",
+        "keyPoints": [
+          "Record best-so-far at several budgets, not only the final answer.",
+          "Compare a long session, many short sessions, and sessions capped at the measured inflection.",
+          "Use a deterministic task score when you can; a noisy judge makes the Elo curve hard to read."
+        ]
+      },
+      {
+        "id": "ai-elo-per-token-agent-scaling-followup-1",
+        "type": "interview-question",
+        "title": "Likely follow-up",
+        "order": 6,
+        "question": "Why compare with Elo instead of averaging the task scores?",
+        "answer": "The tasks do not share a unit. A gain of 0.1 on one benchmark is not a gain of 0.1 on another. Inside a task, the best-so-far solutions do have an order. Bradley-Terry turns those orders into one rating. You lose the original units on purpose so a packing score and a different contest score can sit on the same curve."
+      },
+      {
+        "id": "ai-elo-per-token-agent-scaling-summary-1",
+        "type": "summary",
+        "title": "References",
+        "order": 7,
+        "content": "- https://arxiv.org/abs/2609.15309\n- https://arxiv.org/abs/2408.03314\n- https://arxiv.org/abs/2609.16055"
+      }
+    ]
   }
 ]
