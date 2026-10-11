@@ -1,5 +1,15 @@
 @use 'mixins' as *;
 
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+.answer-reveal__content {
+  align-self: stretch;
+}
+
 .answer-reveal__hints {
   margin: 0 0 var(--space-3);
   padding-left: var(--space-5);

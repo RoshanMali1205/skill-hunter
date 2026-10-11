@@ -33,14 +33,42 @@ describe('DataManagementService', () => {
     TestBed.configureTestingModule({
       providers: [
         DataManagementService,
-        { provide: ProgressStore, useValue: { ...progressStore, progress: () => ({}), resetAll: vi.fn() } },
-        { provide: BookmarkService, useValue: { ...bookmarkService, bookmarks: () => [], resetAll: vi.fn() } },
-        { provide: PracticeService, useValue: { ...practiceService, history: () => [], resetAll: vi.fn() } },
-        { provide: RevisionService, useValue: { ...revisionService, revisionTopicIds: () => [], resetAll: vi.fn() } },
-        { provide: SettingsService, useValue: { ...settingsService, settings: () => DEFAULT_SETTINGS } },
-        { provide: ActivityService, useValue: { ...activityService, activity: () => ({}), resetAll: vi.fn() } },
-        { provide: NoteService, useValue: { ...noteService, notes: () => ({}), resetAll: vi.fn() } },
-        { provide: AiChatStore, useValue: { resetAll: vi.fn(), snapshot: () => ({ conversations: [], activeId: null }), replaceAll: vi.fn() } },
+        {
+          provide: ProgressStore,
+          useValue: { ...progressStore, progress: () => ({}), resetAll: vi.fn() },
+        },
+        {
+          provide: BookmarkService,
+          useValue: { ...bookmarkService, bookmarks: () => [], resetAll: vi.fn() },
+        },
+        {
+          provide: PracticeService,
+          useValue: { ...practiceService, history: () => [], resetAll: vi.fn() },
+        },
+        {
+          provide: RevisionService,
+          useValue: { ...revisionService, revisionTopicIds: () => [], resetAll: vi.fn() },
+        },
+        {
+          provide: SettingsService,
+          useValue: { ...settingsService, settings: () => DEFAULT_SETTINGS },
+        },
+        {
+          provide: ActivityService,
+          useValue: { ...activityService, activity: () => ({}), resetAll: vi.fn() },
+        },
+        {
+          provide: NoteService,
+          useValue: { ...noteService, notes: () => ({}), resetAll: vi.fn() },
+        },
+        {
+          provide: AiChatStore,
+          useValue: {
+            resetAll: vi.fn(),
+            snapshot: () => ({ conversations: [], activeId: null }),
+            replaceAll: vi.fn(),
+          },
+        },
       ],
     });
 
@@ -65,7 +93,7 @@ describe('DataManagementService', () => {
     const result = service.importFromJson({
       version: CURRENT_DATA_VERSION,
       progress: {
-        't1': {
+        t1: {
           topicId: 't1',
           subjectId: 'js',
           status: 'done',
@@ -127,5 +155,138 @@ describe('DataManagementService', () => {
     expect(settingsService.replaceAll).toHaveBeenCalledWith(payload.settings);
     expect(activityService.replaceAll).toHaveBeenCalledWith(payload.activity);
     expect(noteService.replaceAll).toHaveBeenCalledWith(payload.notes);
+  });
+
+  describe('interface style in backups', () => {
+    const base = {
+      version: CURRENT_DATA_VERSION,
+      progress: {},
+      bookmarks: [],
+      practiceHistory: [],
+      revisionTopicIds: [],
+    };
+
+    it('accepts a known style and keeps older backups without one working', () => {
+      const withStyle = service.previewImport({
+        ...base,
+        settings: { ...DEFAULT_SETTINGS, uiStyle: 'spatial' },
+      });
+      expect(withStyle.success && withStyle.data.settings.uiStyle).toBe('spatial');
+
+      const legacySettings: Record<string, unknown> = { ...DEFAULT_SETTINGS };
+      delete legacySettings['uiStyle'];
+      const legacy = service.previewImport({ ...base, settings: legacySettings });
+      expect(legacy.success && legacy.data.settings.uiStyle).toBe('classic');
+    });
+
+    it('accepts the newer interface styles', () => {
+      for (const uiStyle of ['brutalism', 'aurora', 'clay']) {
+        const result = service.previewImport({
+          ...base,
+          settings: { ...DEFAULT_SETTINGS, uiStyle },
+        });
+        expect(result.success && result.data.settings.uiStyle, uiStyle).toBe(uiStyle);
+      }
+    });
+
+    it('accepts the multi-color palette themes and a third custom color', () => {
+      for (const colorTheme of [
+        'northern',
+        'glow',
+        'reef',
+        'tropical',
+        'royal',
+        'berry',
+        'fjord',
+        'candy',
+      ]) {
+        const result = service.previewImport({
+          ...base,
+          settings: { ...DEFAULT_SETTINGS, colorTheme },
+        });
+        expect(result.success && result.data.settings.colorTheme, colorTheme).toBe(colorTheme);
+      }
+      const custom = service.previewImport({
+        ...base,
+        settings: { ...DEFAULT_SETTINGS, colorTheme: 'custom', customTertiary: '#0ea5e9' },
+      });
+      expect(custom.success && custom.data.settings.customTertiary).toBe('#0ea5e9');
+    });
+
+    it('keeps a valid custom theme and ignores a malformed custom color', () => {
+      const ok = service.previewImport({
+        ...base,
+        settings: {
+          ...DEFAULT_SETTINGS,
+          colorTheme: 'custom',
+          customPrimary: '#4338ca',
+          customAccent: '#f97316',
+        },
+      });
+      expect(ok.success && ok.data.settings.customPrimary).toBe('#4338ca');
+      expect(ok.success && ok.data.settings.customAccent).toBe('#f97316');
+
+      const bad = service.previewImport({
+        ...base,
+        settings: {
+          ...DEFAULT_SETTINGS,
+          customPrimary: 'javascript:alert(1)',
+          customAccent: 'red',
+        },
+      });
+      expect(bad.success && bad.data.settings.customPrimary).toBe(DEFAULT_SETTINGS.customPrimary);
+      expect(bad.success && bad.data.settings.customAccent).toBeNull();
+    });
+
+    it('rejects an unknown style', () => {
+      const result = service.previewImport({
+        ...base,
+        settings: { ...DEFAULT_SETTINGS, uiStyle: 'holographic' },
+      });
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('import preview', () => {
+    const backup = {
+      version: CURRENT_DATA_VERSION,
+      progress: {},
+      bookmarks: [],
+      practiceHistory: [],
+      revisionTopicIds: ['a', 'b'],
+      settings: DEFAULT_SETTINGS,
+    };
+
+    it('validates and summarises a backup without changing any data', () => {
+      const result = service.previewImport(backup);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.preview.incoming.revisionTopics).toBe(2);
+        expect(result.preview.current.revisionTopics).toBe(0);
+      }
+      expect(progressStore.replaceAll).not.toHaveBeenCalled();
+      expect(revisionService.replaceAll).not.toHaveBeenCalled();
+    });
+
+    it('does not mutate anything for an invalid file', () => {
+      const result = service.previewImport({ version: CURRENT_DATA_VERSION, progress: 5 });
+      expect(result.success).toBe(false);
+      expect(progressStore.replaceAll).not.toHaveBeenCalled();
+    });
+
+    it('restores the previous data if applying fails part-way', () => {
+      const parsed = service.previewImport(backup);
+      if (!parsed.success) throw new Error('expected a valid backup');
+      progressStore.replaceAll.mockImplementationOnce(() => {
+        throw new Error('storage full');
+      });
+
+      const result = service.applyImport(parsed.data);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('restored');
+      // First call failed, second call wrote the snapshot back.
+      expect(progressStore.replaceAll).toHaveBeenCalledTimes(2);
+    });
   });
 });

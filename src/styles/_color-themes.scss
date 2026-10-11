@@ -23,7 +23,12 @@
   --color-primary-contrast: #ffffff;
   --color-accent: #{$accent};
 
-  --gradient-primary: linear-gradient(135deg, #{$accent} 0%, #{$primary} 50%, #{$deep} 100%);
+  --gradient-primary: linear-gradient(
+    135deg,
+    color-mix(in srgb, #{$primary} 86%, #{$accent}) 0%,
+    #{$primary} 50%,
+    #{$deep} 100%
+  );
   --gradient-hero: linear-gradient(
     135deg,
     color-mix(in srgb, #{$primary} 12%, transparent) 0%,
@@ -37,6 +42,13 @@
     #f1f3f5 100%
   );
   --gradient-tile-strong: linear-gradient(145deg, #{$deep} 0%, #{$primary} 52%, #{$accent} 100%);
+  /* For banners with white text: every stop is dark enough for 4.5:1 contrast. */
+  --gradient-banner: linear-gradient(
+    135deg,
+    color-mix(in srgb, #{$primary} 90%, #{$accent}) 0%,
+    #{$primary} 45%,
+    #{$deep} 100%
+  );
   --gradient-page: linear-gradient(
     180deg,
     color-mix(in srgb, #{$tint} 45%, #f6f7f9) 0%,
@@ -82,6 +94,11 @@
   );
   --gradient-tile: linear-gradient(165deg, #222a35 0%, #171d25 55%, #0f1419 100%);
   --gradient-tile-strong: linear-gradient(145deg, #{$primary} 0%, #{$deep} 55%, #0f1419 100%);
+  --gradient-banner: linear-gradient(
+    135deg,
+    color-mix(in srgb, #{$deep} 85%, #{$primary}) 0%,
+    #{$deep} 100%
+  );
   --gradient-page: linear-gradient(180deg, #171d25 0%, #0f1419 42%, #0f1419 100%);
   --gradient-brand-text: linear-gradient(90deg, #ffffff 0%, #e8edf2 42%, #{$mid} 100%);
   --header-wash: linear-gradient(
@@ -110,18 +127,18 @@
   @include dark-accents(#ef5350, #ffcdd2, #f87171, #ef9a9a, #b71c1c, 239, 83, 80);
 }
 
-/* Sunset — amber / burnt orange */
+/* Sunset: burnt orange (text-safe: 5.2:1 on white) */
 :root[data-color-theme='sunset'] {
-  @include light-accents(#e65100, #bf360c, #fb8c00, #fff4e8, #fdba74, #9a3412, 230, 81, 0);
+  @include light-accents(#c2410c, #9a3412, #f97316, #fff7ed, #fdba74, #7c2d12, 194, 65, 12);
 }
 
 :root[data-theme='dark'][data-color-theme='sunset'] {
   @include dark-accents(#fb923c, #fed7aa, #fdba74, #fdba74, #c2410c, 251, 146, 60);
 }
 
-/* Blush — refined rose (not candy pink) */
+/* Blush: refined rose */
 :root[data-color-theme='blush'] {
-  @include light-accents(#c2185b, #880e4f, #ec407a, #fceef4, #f8bbd0, #6d0f3a, 194, 24, 91);
+  @include light-accents(#be185d, #831843, #ec4899, #fdf2f8, #f9a8d4, #500724, 190, 24, 93);
 }
 
 :root[data-theme='dark'][data-color-theme='blush'] {
@@ -144,4 +161,237 @@
 
 :root[data-theme='dark'][data-color-theme='midnight'] {
   @include dark-accents(#94a3b8, #e2e8f0, #cbd5e1, #cbd5e1, #334155, 148, 163, 184);
+}
+
+/* Indigo: deep, focused, "product" blue-violet */
+:root[data-color-theme='indigo'] {
+  @include light-accents(#4338ca, #312e81, #6366f1, #eef2ff, #a5b4fc, #1e1b4b, 67, 56, 202);
+}
+
+:root[data-theme='dark'][data-color-theme='indigo'] {
+  @include dark-accents(#818cf8, #c7d2fe, #a5b4fc, #a5b4fc, #3730a3, 129, 140, 248);
+}
+
+/* Violet: creative and confident */
+:root[data-color-theme='violet'] {
+  @include light-accents(#6d28d9, #4c1d95, #8b5cf6, #f5f3ff, #c4b5fd, #2e1065, 109, 40, 217);
+}
+
+:root[data-theme='dark'][data-color-theme='violet'] {
+  @include dark-accents(#a78bfa, #ddd6fe, #c4b5fd, #c4b5fd, #5b21b6, 167, 139, 250);
+}
+
+/* Teal: fresh, calm, modern */
+:root[data-color-theme='teal'] {
+  @include light-accents(#0f766e, #134e4a, #14b8a6, #f0fdfa, #5eead4, #042f2e, 15, 118, 110);
+}
+
+:root[data-theme='dark'][data-color-theme='teal'] {
+  @include dark-accents(#2dd4bf, #99f6e4, #5eead4, #5eead4, #115e59, 45, 212, 191);
+}
+
+/* Multi-color palettes: three colors that work together. Every stop is dark enough for white
+ * text (4.5:1 or better), so the gradients are safe for buttons and banners. */
+@mixin palette-light($p1, $p2, $p3, $strong, $tint, $mid, $r, $g, $b) {
+  @include light-accents($p1, $strong, $p2, $tint, $mid, $p3, $r, $g, $b);
+  --color-secondary: #{$p2};
+  --color-tertiary: #{$p3};
+  --gradient-primary: linear-gradient(135deg, #{$p1} 0%, #{$p2} 55%, #{$p3} 100%);
+  --gradient-banner: linear-gradient(135deg, #{$p1} 0%, #{$p2} 55%, #{$p3} 100%);
+  --gradient-tile-strong: linear-gradient(145deg, #{$p1} 0%, #{$p2} 55%, #{$p3} 100%);
+  --gradient-brand-text: linear-gradient(90deg, #{$p1} 0%, #{$p2} 55%, #{$p3} 100%);
+  --gradient-hero: linear-gradient(
+    135deg,
+    color-mix(in srgb, #{$p1} 13%, transparent) 0%,
+    color-mix(in srgb, #{$tint} 55%, #ffffff) 48%,
+    color-mix(in srgb, #{$p3} 14%, transparent) 100%
+  );
+  --gradient-page: linear-gradient(
+    180deg,
+    color-mix(in srgb, #{$p1} 11%, #f6f7f9) 0%,
+    color-mix(in srgb, #{$p2} 7%, #f6f7f9) 20%,
+    #f6f7f9 42%
+  );
+  --header-wash: linear-gradient(
+    90deg,
+    color-mix(in srgb, #{$p1} 13%, transparent) 0%,
+    color-mix(in srgb, #{$p2} 11%, transparent) 50%,
+    color-mix(in srgb, #{$p3} 13%, transparent) 100%
+  );
+}
+
+@mixin palette-dark($b1, $b2, $b3, $strong, $d1, $d2, $d3, $r, $g, $bl) {
+  @include dark-accents($b1, $strong, $b2, $b3, $d1, $r, $g, $bl);
+  --color-secondary: #{$b2};
+  --color-tertiary: #{$b3};
+  --gradient-primary: linear-gradient(135deg, #{$b1} 0%, #{$b2} 55%, #{$b3} 100%);
+  --gradient-banner: linear-gradient(135deg, #{$d1} 0%, #{$d2} 55%, #{$d3} 100%);
+  --gradient-tile-strong: linear-gradient(145deg, #{$d1} 0%, #{$d2} 55%, #{$d3} 100%);
+  --gradient-brand-text: linear-gradient(90deg, #{$b1} 0%, #{$b2} 55%, #{$b3} 100%);
+  --header-wash: linear-gradient(
+    90deg,
+    color-mix(in srgb, #{$b1} 13%, transparent) 0%,
+    color-mix(in srgb, #{$b2} 11%, transparent) 50%,
+    color-mix(in srgb, #{$b3} 13%, transparent) 100%
+  );
+}
+
+/* Northern Lights: teal, violet, pink */
+:root[data-color-theme='northern'] {
+  @include palette-light(#0f766e, #6d28d9, #be185d, #134e4a, #f0fdfa, #5eead4, 15, 118, 110);
+}
+
+:root[data-theme='dark'][data-color-theme='northern'] {
+  @include palette-dark(
+    #2dd4bf,
+    #a78bfa,
+    #f472b6,
+    #99f6e4,
+    #115e59,
+    #5b21b6,
+    #9d174d,
+    45,
+    212,
+    191
+  );
+}
+
+/* Sunset Glow: orange, rose, purple */
+:root[data-color-theme='glow'] {
+  @include palette-light(#c2410c, #be185d, #6d28d9, #9a3412, #fff7ed, #fdba74, 194, 65, 12);
+}
+
+:root[data-theme='dark'][data-color-theme='glow'] {
+  @include palette-dark(
+    #fb923c,
+    #f472b6,
+    #a78bfa,
+    #fed7aa,
+    #9a3412,
+    #9d174d,
+    #5b21b6,
+    251,
+    146,
+    60
+  );
+}
+
+/* Ocean Reef: blue, cyan, emerald */
+:root[data-color-theme='reef'] {
+  @include palette-light(#1d4ed8, #0e7490, #047857, #1e3a8a, #eff6ff, #93c5fd, 29, 78, 216);
+}
+
+:root[data-theme='dark'][data-color-theme='reef'] {
+  @include palette-dark(
+    #60a5fa,
+    #22d3ee,
+    #34d399,
+    #bfdbfe,
+    #1e40af,
+    #155e75,
+    #065f46,
+    96,
+    165,
+    250
+  );
+}
+
+/* Tropical: emerald, amber, coral */
+:root[data-color-theme='tropical'] {
+  @include palette-light(#047857, #b45309, #be123c, #065f46, #ecfdf5, #6ee7b7, 4, 120, 87);
+}
+
+:root[data-theme='dark'][data-color-theme='tropical'] {
+  @include palette-dark(
+    #34d399,
+    #fbbf24,
+    #fb7185,
+    #a7f3d0,
+    #065f46,
+    #92400e,
+    #9f1239,
+    52,
+    211,
+    153
+  );
+}
+
+/* Royal: indigo, magenta, gold */
+:root[data-color-theme='royal'] {
+  @include palette-light(#3730a3, #a21caf, #a16207, #312e81, #eef2ff, #a5b4fc, 55, 48, 163);
+}
+
+:root[data-theme='dark'][data-color-theme='royal'] {
+  @include palette-dark(
+    #818cf8,
+    #e879f9,
+    #facc15,
+    #c7d2fe,
+    #312e81,
+    #86198f,
+    #854d0e,
+    129,
+    140,
+    248
+  );
+}
+
+/* Berry Blast: wine, plum, coral */
+:root[data-color-theme='berry'] {
+  @include palette-light(#9d174d, #6b21a8, #c2410c, #831843, #fdf2f8, #f9a8d4, 157, 23, 77);
+}
+
+:root[data-theme='dark'][data-color-theme='berry'] {
+  @include palette-dark(
+    #f472b6,
+    #c084fc,
+    #fb923c,
+    #fbcfe8,
+    #831843,
+    #581c87,
+    #9a3412,
+    244,
+    114,
+    182
+  );
+}
+
+/* Fjord: deep blue, teal, lilac */
+:root[data-color-theme='fjord'] {
+  @include palette-light(#1e40af, #0f766e, #7e22ce, #1e3a8a, #eff6ff, #93c5fd, 30, 64, 175);
+}
+
+:root[data-theme='dark'][data-color-theme='fjord'] {
+  @include palette-dark(
+    #60a5fa,
+    #2dd4bf,
+    #c084fc,
+    #bfdbfe,
+    #1e3a8a,
+    #115e59,
+    #6b21a8,
+    96,
+    165,
+    250
+  );
+}
+
+/* Candy Pop: pink, violet, sky */
+:root[data-color-theme='candy'] {
+  @include palette-light(#be185d, #7c3aed, #0369a1, #9d174d, #fdf2f8, #f9a8d4, 190, 24, 93);
+}
+
+:root[data-theme='dark'][data-color-theme='candy'] {
+  @include palette-dark(
+    #f472b6,
+    #a78bfa,
+    #38bdf8,
+    #fbcfe8,
+    #9d174d,
+    #5b21b6,
+    #075985,
+    244,
+    114,
+    182
+  );
 }

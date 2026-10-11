@@ -221,7 +221,9 @@ export class TopicDetailComponent {
   }
 
   practiceAgain(): void {
-    this.router.navigate(['/practice'], { queryParams: { topicId: this.topicId() } });
+    this.router.navigate(['/practice'], {
+      queryParams: { subjectId: this.subjectId(), topicId: this.topicId() },
+    });
   }
 
   askAi(): void {

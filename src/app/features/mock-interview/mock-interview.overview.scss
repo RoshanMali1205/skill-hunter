@@ -1,0 +1,314 @@
+@use 'breakpoints' as *;
+@use 'mixins' as *;
+
+// ── "My results" tab ─────────────────────────────────────────────────────
+.mock__results-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.mock__big-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @include respond-to(desktop) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.mock__big-tile {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-5);
+
+  strong {
+    font-size: 2rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  > span:last-child {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+}
+
+.mock__big-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: 1.15rem;
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 13%, transparent);
+}
+
+.mock__delta {
+  margin-left: var(--space-1);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--color-success);
+
+  &--down {
+    color: var(--color-danger);
+  }
+}
+
+// Bar chart with values on top and the subject below each bar
+.mock__chart {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-3);
+  height: 200px;
+  padding-top: var(--space-2);
+}
+
+.mock__chart-col {
+  flex: 1;
+  min-width: 0;
+  max-width: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.mock__chart-value {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--color-text-muted);
+}
+
+.mock__chart-track {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  overflow: hidden;
+}
+
+.mock__chart-bar {
+  --tone: var(--color-primary);
+  width: 100%;
+  min-height: 6px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: linear-gradient(180deg, var(--tone), color-mix(in srgb, var(--tone) 70%, #000));
+
+  &[data-tone='great'] {
+    --tone: var(--color-success);
+  }
+
+  &[data-tone='ok'] {
+    --tone: var(--color-warning);
+  }
+
+  &[data-tone='low'] {
+    --tone: var(--color-danger);
+  }
+}
+
+.mock__chart-emoji {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+// Filters
+.mock__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.mock__filter {
+  @include focus-ring;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 38px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-primary);
+    color: var(--color-text);
+  }
+
+  &--active {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary) 11%, var(--color-surface));
+  }
+}
+
+// History
+.mock__history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.mock__history-row {
+  @include focus-ring;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.mock__history-emoji {
+  flex: none;
+  font-size: 1.7rem;
+}
+
+.mock__history-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    font-size: 1rem;
+  }
+
+  small {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+}
+
+// Little got-it / partly / missed counters
+.mock__history-counts {
+  display: none;
+  gap: var(--space-1);
+
+  @include respond-to(tablet) {
+    display: flex;
+  }
+}
+
+.mock__dot {
+  min-width: 26px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-align: center;
+
+  &--good {
+    color: var(--color-success);
+    background: color-mix(in srgb, var(--color-success) 14%, transparent);
+  }
+
+  &--mid {
+    color: var(--color-warning);
+    background: color-mix(in srgb, var(--color-warning) 14%, transparent);
+  }
+
+  &--bad {
+    color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 14%, transparent);
+  }
+}
+
+.mock__pill {
+  --tone: var(--color-primary);
+  flex: none;
+  min-width: 60px;
+  padding: 4px var(--space-3);
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-align: center;
+  color: var(--tone);
+  background: color-mix(in srgb, var(--tone) 14%, transparent);
+
+  &[data-tone='great'] {
+    --tone: var(--color-success);
+  }
+
+  &[data-tone='ok'] {
+    --tone: var(--color-warning);
+  }
+
+  &[data-tone='low'] {
+    --tone: var(--color-danger);
+  }
+}
+
+.mock__history-go {
+  flex: none;
+  width: 1.2em;
+  color: var(--color-text-muted);
+}
+
+// Empty state
+.mock__empty {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-7) var(--space-5);
+  text-align: center;
+
+  h2 {
+    margin: 0;
+  }
+
+  p {
+    max-width: 44ch;
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+}
+
+.mock__empty-icon {
+  font-size: 3rem;
+  line-height: 1;
+}

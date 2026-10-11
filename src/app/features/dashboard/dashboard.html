@@ -1,246 +1,299 @@
-<div class="stack">
-  <div class="dashboard__hero">
-    <span class="eyebrow">Interview Prep</span>
-    <h1>Welcome back, {{ firstName() }}</h1>
-    <p class="dashboard__subtitle">Here's where your interview preparation stands today.</p>
-  </div>
-
-  <app-profile-card
-    [name]="displayName()"
-    [photoDataUrl]="photoDataUrl()"
-    [percentage]="metrics().completionPercentage"
-    [completedTopics]="metrics().completedTopics"
-    [totalTopics]="metrics().totalTopics"
-    [streak]="currentStreak()"
-    [unlockedAchievements]="unlockedAchievements()"
-    [totalAchievements]="totalAchievements"
-  />
-
-  @if (recentAchievements().length > 0) {
-    <section class="dashboard__recent-achievements">
-      <div class="dashboard__recent-achievements-head">
-        <h2><app-icon name="medal" /> Recent achievements</h2>
-        <a class="dashboard__card-link" routerLink="/achievements">View all →</a>
-      </div>
-      <div class="dashboard__recent-achievements-list">
-        @for (item of recentAchievements(); track item.id) {
-          <div class="dashboard__badge">
-            <span class="dashboard__badge-icon" aria-hidden="true"><app-icon [name]="item.icon" /></span>
-            <div>
-              <p class="dashboard__badge-title">{{ item.title }}</p>
-              <p class="dashboard__badge-desc">{{ item.description }}</p>
-            </div>
-          </div>
+<div class="dash">
+  <header class="dash__head">
+    <div class="dash__welcome">
+      <h1>{{ greeting() }}, {{ firstName() }}</h1>
+      <p>
+        @if (isNewLearner()) {
+          Let's get your first topic done today.
+        } @else if (currentStreak() > 0) {
+          You're on a {{ currentStreak() }}-day streak. Keep it going.
+        } @else {
+          Here's where your interview preparation stands today.
         }
-      </div>
-    </section>
-  }
-
-  <section class="dashboard__overall">
-    <app-donut-chart
-      [segments]="statusSegments()"
-      [centerValue]="metrics().completionPercentage + '%'"
-      centerLabel="Complete"
-    />
-    <div class="dashboard__overall-body">
-      <h2>Overall Progress</h2>
-      <p class="dashboard__overall-count">
-        {{ metrics().completedTopics }} / {{ metrics().totalTopics }} topics completed
       </p>
+    </div>
+
+    <ul class="dash__chips" aria-label="Your activity">
+      <li>
+        <a class="dash__chip" routerLink="/calendar" title="Open study calendar">
+          <app-icon name="clock" />
+          <strong>{{ todayMinutes() }}</strong>
+          <span>min today</span>
+        </a>
+      </li>
+      <li>
+        <a class="dash__chip" routerLink="/achievements" title="See your badges">
+          <app-icon name="medal" />
+          <strong>{{ unlockedAchievements() }}/{{ totalAchievements }}</strong>
+          <span>badges</span>
+        </a>
+      </li>
+    </ul>
+  </header>
+
+  <section class="dash__focus" aria-label="What to do next">
+    @if (continueLearning(); as cl) {
+      <article class="dash__resume">
+        <p class="dash__eyebrow">Continue learning</p>
+        <h2>{{ cl.topic.title }}</h2>
+        <div class="dash__resume-meta">
+          <span>{{ cl.subjectTitle }}</span>
+          <span class="dash__level">{{ cl.topic.difficulty }}</span>
+        </div>
+        <div class="dash__resume-progress">
+          <app-progress-bar [percentage]="continueSubjectPercentage()" />
+          <span>{{ continueSubjectPercentage() }}% of {{ cl.subjectTitle }} done</span>
+        </div>
+        <div class="dash__resume-actions">
+          <a
+            class="btn btn--primary"
+            [routerLink]="['/subjects', cl.subjectId, 'topics', cl.topic.id]"
+          >
+            <app-icon name="play" [filled]="true" /> Resume topic
+          </a>
+          <a class="btn btn--ghost" routerLink="/subjects">Browse subjects</a>
+        </div>
+      </article>
+    } @else if (startHere(); as start) {
+      <article class="dash__resume">
+        <p class="dash__eyebrow">Start here</p>
+        <h2>{{ start.topic.title }}</h2>
+        <div class="dash__resume-meta">
+          <span>{{ start.subjectTitle }}</span>
+          <span class="dash__level">{{ start.topic.difficulty }}</span>
+        </div>
+        <p class="dash__resume-text">
+          A friendly first topic that interviewers ask about a lot. It takes just a few minutes.
+        </p>
+        <div class="dash__resume-actions">
+          <a
+            class="btn btn--primary"
+            [routerLink]="['/subjects', start.subjectId, 'topics', start.topic.id]"
+          >
+            <app-icon name="play" [filled]="true" /> Start this topic
+          </a>
+          <a class="btn btn--ghost" routerLink="/subjects">Browse subjects</a>
+        </div>
+      </article>
+    } @else {
+      <article class="dash__resume">
+        <p class="dash__eyebrow">Get started</p>
+        <h2>Pick a subject to begin</h2>
+        <div class="dash__resume-actions">
+          <a class="btn btn--primary" routerLink="/subjects">Browse subjects</a>
+        </div>
+      </article>
+    }
+
+    <div class="dash__today">
+      <h2>Today</h2>
+      <ul class="dash__tiles">
+        @for (tile of todayTiles(); track tile.label) {
+          <li>
+            <a class="dash__tile" [routerLink]="tile.link">
+              <span class="dash__tile-icon" aria-hidden="true"
+                ><app-icon [name]="tile.icon"
+              /></span>
+              <span class="dash__tile-text">
+                <strong>{{ tile.label }}</strong>
+                <span>{{ tile.detail }}</span>
+              </span>
+              <app-icon name="chevron-right" class="dash__tile-go" />
+            </a>
+          </li>
+        }
+      </ul>
     </div>
   </section>
 
-  <div class="grid-cards grid-cards--charts">
-    <section class="dashboard__card">
-      <h2><app-icon name="bar-chart" /> Topics by Difficulty</h2>
-      <app-bar-chart [rows]="difficultyRows()" />
-    </section>
-
-    <a class="dashboard__card dashboard__streak" routerLink="/calendar">
-      <h2><app-icon name="flame" /> Study Streak</h2>
-      <div class="dashboard__streak-body">
-        <app-icon
-          name="flame"
-          [filled]="currentStreak() > 0"
-          class="dashboard__streak-icon"
+  <section class="dash__panel dash__progress" aria-labelledby="dash-progress-title">
+    <h2 id="dash-progress-title">Your progress</h2>
+    <div class="dash__progress-grid">
+      <div class="dash__progress-donut">
+        <app-donut-chart
+          [segments]="statusSegments()"
+          [centerValue]="metrics().completionPercentage + '%'"
+          centerLabel="Complete"
         />
-        <div>
-          <p class="dashboard__streak-value">
-            {{ currentStreak() }} <span>day{{ currentStreak() === 1 ? '' : 's' }}</span>
-          </p>
-          <p class="dashboard__streak-sub">{{ todayMinutes() }} min today</p>
-        </div>
+        <p>
+          <strong>{{ metrics().completedTopics }}</strong> of
+          <strong>{{ metrics().totalTopics }}</strong> topics completed
+        </p>
       </div>
-      <span class="dashboard__card-link">View calendar →</span>
-    </a>
-  </div>
+      <div class="dash__progress-bars">
+        <h3>By difficulty</h3>
+        <app-bar-chart [rows]="difficultyRows()" />
+      </div>
+    </div>
+  </section>
 
-  <section>
-    <h2>Subject Progress</h2>
-    <div class="grid-cards">
+  <section aria-labelledby="dash-subjects-title">
+    <div class="dash__section-head">
+      <h2 id="dash-subjects-title">Subjects</h2>
+      <a class="dash__more" routerLink="/subjects">See all →</a>
+    </div>
+    <div class="dash__subjects">
       @for (item of subjectMetrics(); track item.subject.id) {
         <a
-          class="dashboard__subject"
+          class="dash__subject"
           [style.--accent]="subjectVisual(item.subject.id).color"
           [routerLink]="['/subjects', item.subject.id]"
         >
-          <span class="dashboard__subject-icon" aria-hidden="true">{{
+          <span class="dash__subject-icon" aria-hidden="true">{{
             subjectVisual(item.subject.id).emoji
           }}</span>
-          <div class="dashboard__subject-body">
-            <div class="dashboard__subject-header">
-              <span>{{ item.subject.title }}</span>
-              <span class="dashboard__subject-pct">{{ item.percentage }}%</span>
-            </div>
+          <span class="dash__subject-body">
+            <span class="dash__subject-top">
+              <strong>{{ item.subject.title }}</strong>
+              <span>{{ item.percentage }}%</span>
+            </span>
             <app-progress-bar [percentage]="item.percentage" />
-          </div>
+          </span>
         </a>
       }
     </div>
   </section>
 
-  <section>
-    <h2>Quick Actions</h2>
-    <div class="grid-cards grid-cards--quad">
-      <section class="dashboard__card">
-        <h2><app-icon name="play" /> Continue Learning</h2>
-        @if (continueLearning(); as cl) {
-          <div class="dashboard__continue">
-            <p class="dashboard__continue-title">{{ cl.topic.title }}</p>
-            <div class="cluster">
-              <span class="dashboard__continue-subject">{{ cl.subjectTitle }}</span>
-              <app-difficulty-chip [difficulty]="cl.topic.difficulty" />
-            </div>
-            <a
-              class="btn btn--primary dashboard__continue-btn"
-              [routerLink]="['/subjects', cl.subjectId, 'topics', cl.topic.id]"
-            >
-              Resume topic
-            </a>
-          </div>
-        } @else {
-          <p class="dashboard__muted">Start a topic to see it here next time.</p>
-        }
-      </section>
+  <section class="dash__lists" aria-label="Jump back in">
+    <section class="dash__panel">
+      <h2><app-icon name="triangle-alert" /> Needs revision</h2>
+      @if (weakTopics().length === 0) {
+        <p class="dash__muted">Nothing flagged yet. Topics you struggle with will show up here.</p>
+      } @else {
+        <ul class="link-list">
+          @for (weak of weakTopics(); track weak.topic.id) {
+            <li>
+              <a
+                class="link-list__row"
+                [routerLink]="['/subjects', weak.subjectId, 'topics', weak.topic.id]"
+              >
+                <span>{{ weak.topic.title }}</span>
+                <app-icon name="chevron-right" />
+              </a>
+            </li>
+          }
+        </ul>
+        <a class="dash__more" routerLink="/revision">Open revision →</a>
+      }
+    </section>
 
-      <section class="dashboard__card">
-        <h2><app-icon name="triangle-alert" /> Must Revise</h2>
-        @if (weakTopics().length === 0) {
-          <p class="dashboard__muted">No weak topics identified yet.</p>
-        } @else {
-          <ul class="link-list">
-            @for (weak of weakTopics(); track weak.topic.id) {
-              <li>
-                <a
-                  class="link-list__row"
-                  [routerLink]="['/subjects', weak.subjectId, 'topics', weak.topic.id]"
-                >
-                  <span>{{ weak.topic.title }}</span>
-                  <app-icon name="chevron-right" />
-                </a>
-              </li>
-            }
-          </ul>
-        }
-      </section>
+    <section class="dash__panel">
+      <h2><app-icon name="clock" /> Recently studied</h2>
+      @if (recentlyStudied().length === 0) {
+        <p class="dash__muted">Topics you open will appear here.</p>
+      } @else {
+        <ul class="link-list">
+          @for (entry of recentlyStudied(); track entry.progress.topicId) {
+            <li>
+              <a
+                class="link-list__row"
+                [routerLink]="[
+                  '/subjects',
+                  entry.resolved!.subjectId,
+                  'topics',
+                  entry.progress.topicId,
+                ]"
+              >
+                <span>{{ entry.resolved!.topic.title }}</span>
+                <app-icon name="chevron-right" />
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </section>
 
-      <section class="dashboard__card">
-        <h2><app-icon name="bookmark" /> Bookmarked</h2>
-        @if (recentBookmarks().length === 0) {
-          <p class="dashboard__muted">No bookmarks yet.</p>
-        } @else {
-          <ul class="link-list">
-            @for (entry of recentBookmarks(); track entry.bookmark.id) {
-              <li>
-                <a
-                  class="link-list__row"
-                  [routerLink]="['/subjects', entry.resolved!.subjectId, 'topics', entry.resolved!.topic.id]"
-                >
-                  <span>{{ entry.resolved!.topic.title }}</span>
-                  <app-icon name="chevron-right" />
-                </a>
-              </li>
-            }
-          </ul>
-        }
-        <a class="dashboard__card-link" routerLink="/bookmarks"
-          >{{ metrics().bookmarkedTopics }} bookmarked in total →</a
+    <section class="dash__panel">
+      <h2><app-icon name="bookmark" /> Bookmarked</h2>
+      @if (recentBookmarks().length === 0) {
+        <p class="dash__muted">Save topics to find them quickly later.</p>
+      } @else {
+        <ul class="link-list">
+          @for (entry of recentBookmarks(); track entry.bookmark.id) {
+            <li>
+              <a
+                class="link-list__row"
+                [routerLink]="[
+                  '/subjects',
+                  entry.resolved!.subjectId,
+                  'topics',
+                  entry.resolved!.topic.id,
+                ]"
+              >
+                <span>{{ entry.resolved!.topic.title }}</span>
+                <app-icon name="chevron-right" />
+              </a>
+            </li>
+          }
+        </ul>
+        <a class="dash__more" routerLink="/bookmarks"
+          >All {{ metrics().bookmarkedTopics }} bookmarks →</a
         >
-      </section>
-
-      <section class="dashboard__card">
-        <h2><app-icon name="target" /> Practice Summary</h2>
-        @if (metrics().questionsAttempted === 0) {
-          <p class="dashboard__muted">No practice attempts yet.</p>
-        } @else {
-          <dl class="dashboard__stats">
-            <div><dt>Attempted</dt><dd>{{ metrics().questionsAttempted }}</dd></div>
-            <div><dt>Correct</dt><dd>{{ metrics().correctAnswers }}</dd></div>
-            <div><dt>Accuracy</dt><dd>{{ metrics().practiceAccuracy }}%</dd></div>
-          </dl>
-        }
-        <a class="dashboard__card-link" routerLink="/practice">Start practicing →</a>
-      </section>
-    </div>
+      }
+    </section>
   </section>
 
-  <section>
-    <h2>Insights</h2>
-    <div class="grid-cards">
-      <section class="dashboard__card">
-        <h2><app-icon name="thumbs-up" /> Strong Areas</h2>
-        @if (strongCategories().length === 0) {
-          <p class="dashboard__muted">Keep going — no categories at 80%+ yet.</p>
-        } @else {
-          <ul class="link-list">
-            @for (cat of strongCategories(); track cat.category.id) {
-              <li>{{ cat.subjectTitle }} &rsaquo; {{ cat.category.title }} ({{ cat.percentage }}%)</li>
-            }
-          </ul>
+  @if (strongCategories().length > 0 || mostRevisedTopics().length > 0) {
+    <section class="dash__insights" aria-labelledby="dash-insights-title">
+      <h2 id="dash-insights-title">Insights</h2>
+      <div class="dash__insights-grid">
+        @if (strongCategories().length > 0) {
+          <section class="dash__panel">
+            <h3><app-icon name="thumbs-up" /> Strong areas</h3>
+            <ul class="link-list">
+              @for (cat of strongCategories(); track cat.category.id) {
+                <li class="dash__plain-row">
+                  {{ cat.subjectTitle }} &rsaquo; {{ cat.category.title }}
+                  <strong>{{ cat.percentage }}%</strong>
+                </li>
+              }
+            </ul>
+          </section>
         }
-      </section>
+        @if (mostRevisedTopics().length > 0) {
+          <section class="dash__panel">
+            <h3><app-icon name="repeat" /> Most revised</h3>
+            <ul class="link-list">
+              @for (entry of mostRevisedTopics(); track entry.progress.topicId) {
+                <li>
+                  <a
+                    class="link-list__row"
+                    [routerLink]="[
+                      '/subjects',
+                      entry.resolved!.subjectId,
+                      'topics',
+                      entry.progress.topicId,
+                    ]"
+                  >
+                    <span>{{ entry.resolved!.topic.title }}</span>
+                    <span class="link-list__meta">{{ entry.progress.revisionCount }}x</span>
+                  </a>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+      </div>
+    </section>
+  }
 
-      <section class="dashboard__card">
-        <h2><app-icon name="repeat" /> Most Revised</h2>
-        @if (mostRevisedTopics().length === 0) {
-          <p class="dashboard__muted">No revision history yet.</p>
-        } @else {
-          <ul class="link-list">
-            @for (entry of mostRevisedTopics(); track entry.progress.topicId) {
-              <li>
-                <a
-                  class="link-list__row"
-                  [routerLink]="['/subjects', entry.resolved!.subjectId, 'topics', entry.progress.topicId]"
-                >
-                  <span>{{ entry.resolved!.topic.title }}</span>
-                  <span class="link-list__meta">{{ entry.progress.revisionCount }}x</span>
-                </a>
-              </li>
-            }
-          </ul>
+  @if (recentAchievements().length > 0) {
+    <section class="dash__panel dash__badges" aria-labelledby="dash-badges-title">
+      <div class="dash__section-head">
+        <h2 id="dash-badges-title"><app-icon name="medal" /> Recent badges</h2>
+        <a class="dash__more" routerLink="/achievements">View all →</a>
+      </div>
+      <ul class="dash__badge-list">
+        @for (item of recentAchievements(); track item.id) {
+          <li class="dash__badge">
+            <span class="dash__badge-icon" aria-hidden="true"><app-icon [name]="item.icon" /></span>
+            <span>
+              <strong>{{ item.title }}</strong>
+              <small>{{ item.description }}</small>
+            </span>
+          </li>
         }
-      </section>
-
-      <section class="dashboard__card">
-        <h2><app-icon name="clock" /> Recently Studied</h2>
-        @if (recentlyStudied().length === 0) {
-          <p class="dashboard__muted">Nothing studied yet.</p>
-        } @else {
-          <ul class="link-list">
-            @for (entry of recentlyStudied(); track entry.progress.topicId) {
-              <li>
-                <a
-                  class="link-list__row"
-                  [routerLink]="['/subjects', entry.resolved!.subjectId, 'topics', entry.progress.topicId]"
-                >
-                  <span>{{ entry.resolved!.topic.title }}</span>
-                  <app-icon name="chevron-right" />
-                </a>
-              </li>
-            }
-          </ul>
-        }
-      </section>
-    </div>
-  </section>
+      </ul>
+    </section>
+  }
 </div>

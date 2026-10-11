@@ -25,10 +25,11 @@
       [explanation]="question().explanation"
       [hints]="question().hints ?? []"
       [autoReveal]="autoReveal()"
+      [questionId]="question().id"
     />
   </div>
 
-  @if (showSelfAssessment()) {
+  @if (showSelfAssessment() && answerPanel()?.revealed()) {
     <div class="question-card__self-assess">
       <span>How did you do?</span>
       <div class="question-card__self-assess-actions">

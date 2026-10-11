@@ -1,0 +1,462 @@
+/* Interface styles: Glass, Neumorphic and Spatial.
+ *
+ * Every surface in the app already reads its background, border, shadow and radius from
+ * the shared tokens in _variables.scss, so each style works by redefining those tokens.
+ * Light/dark and the accent color keep working underneath: the page background blobs
+ * below are tinted from the active accent.
+ *
+ * `classic` (the default) defines nothing here and keeps the original flat look. */
+
+// ── Glass: frosted, translucent panels over a colorful backdrop ───────────
+:root[data-ui-style='glass'] {
+  --color-bg: #dde7f3;
+  --gradient-page:
+    radial-gradient(
+      60rem 40rem at 6% 4%,
+      color-mix(in srgb, var(--color-primary) 62%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      50rem 38rem at 94% 10%,
+      color-mix(in srgb, var(--color-accent) 55%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(55rem 42rem at 50% 108%, rgb(167 139 250 / 0.55), transparent 62%),
+    radial-gradient(36rem 28rem at 70% 55%, rgb(244 114 182 / 0.22), transparent 62%);
+  --color-surface: rgb(255 255 255 / 0.6);
+  --color-surface-alt: rgb(255 255 255 / 0.42);
+  --color-surface-raised: rgb(255 255 255 / 0.82);
+  --color-border: rgb(255 255 255 / 0.75);
+  --color-progress-track: rgb(100 116 139 / 0.22);
+  --gradient-tile: linear-gradient(145deg, rgb(255 255 255 / 0.7), rgb(255 255 255 / 0.34));
+  --gradient-hero: linear-gradient(145deg, rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.25));
+  --header-wash: none;
+  --shadow-sm: 0 4px 14px rgb(31 41 80 / 0.08);
+  --shadow-md: 0 10px 30px rgb(31 41 80 / 0.12);
+  --shadow-lg: 0 22px 50px rgb(31 41 80 / 0.18);
+  --surface-blur: blur(18px) saturate(1.6);
+}
+
+:root[data-ui-style='glass'][data-theme='dark'] {
+  --color-bg: #0a1020;
+  --gradient-page:
+    radial-gradient(
+      60rem 40rem at 6% 4%,
+      color-mix(in srgb, var(--color-primary) 34%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      50rem 38rem at 94% 10%,
+      color-mix(in srgb, var(--color-accent) 26%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(55rem 42rem at 50% 108%, rgb(124 58 237 / 0.3), transparent 62%);
+  --color-surface: rgb(30 41 59 / 0.58);
+  --color-surface-alt: rgb(255 255 255 / 0.07);
+  --color-surface-raised: rgb(51 65 85 / 0.75);
+  --color-border: rgb(255 255 255 / 0.15);
+  --color-progress-track: rgb(255 255 255 / 0.14);
+  --gradient-tile: linear-gradient(145deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.03));
+  --gradient-hero: linear-gradient(145deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.03));
+  --shadow-sm: 0 4px 14px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 10px 30px rgb(0 0 0 / 0.38);
+  --shadow-lg: 0 22px 50px rgb(0 0 0 / 0.5);
+}
+
+// ── Neumorphic: soft, extruded shapes made of two opposing shadows ───────
+:root[data-ui-style='neumorphic'] {
+  --neu-light: #ffffff;
+  --neu-dark: #b8bfcc;
+  --color-bg: #e4e8ef;
+  --gradient-page: none;
+  --color-surface: #e4e8ef;
+  --color-surface-alt: #dbe0e8;
+  --color-surface-raised: #e4e8ef;
+  --color-border: rgb(255 255 255 / 0.45);
+  --color-progress-track: #d3d8e1;
+  --gradient-tile: none;
+  --gradient-hero: none;
+  --header-wash: none;
+  --shadow-sm: 4px 4px 9px var(--neu-dark), -4px -4px 9px var(--neu-light);
+  --shadow-md: 8px 8px 18px var(--neu-dark), -8px -8px 18px var(--neu-light);
+  --shadow-lg: 12px 12px 26px var(--neu-dark), -12px -12px 26px var(--neu-light);
+  --shadow-primary: 6px 6px 14px var(--neu-dark), -5px -5px 12px var(--neu-light);
+  --neu-inset: inset 3px 3px 7px var(--neu-dark), inset -3px -3px 7px var(--neu-light);
+}
+
+:root[data-ui-style='neumorphic'][data-theme='dark'] {
+  --neu-light: #2d333d;
+  --neu-dark: #12151a;
+  --color-bg: #21262e;
+  --color-surface: #21262e;
+  --color-surface-alt: #1b1f26;
+  --color-surface-raised: #21262e;
+  --color-border: rgb(255 255 255 / 0.05);
+  --color-progress-track: #191d23;
+}
+
+// ── Spatial: floating, layered panels with depth and big soft shadows ────
+:root[data-ui-style='spatial'] {
+  --color-bg: #e6eaf5;
+  --gradient-page:
+    radial-gradient(
+      70rem 50rem at 12% -8%,
+      color-mix(in srgb, var(--color-primary) 40%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(60rem 46rem at 100% 0%, rgb(244 114 182 / 0.3), transparent 58%),
+    radial-gradient(64rem 52rem at 55% 112%, rgb(103 232 249 / 0.4), transparent 62%);
+  --color-surface: rgb(255 255 255 / 0.58);
+  --color-surface-alt: rgb(255 255 255 / 0.4);
+  --color-surface-raised: rgb(255 255 255 / 0.78);
+  --color-border: rgb(255 255 255 / 0.8);
+  --color-progress-track: rgb(100 116 139 / 0.2);
+  --gradient-tile: linear-gradient(160deg, rgb(255 255 255 / 0.75), rgb(255 255 255 / 0.3));
+  --gradient-hero: linear-gradient(160deg, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.22));
+  --header-wash: none;
+  --shadow-sm: 0 2px 8px rgb(30 40 90 / 0.08), inset 0 1px 0 rgb(255 255 255 / 0.85);
+  --shadow-md:
+    0 16px 36px -10px rgb(30 40 90 / 0.24), 0 2px 6px rgb(30 40 90 / 0.08),
+    inset 0 1px 0 rgb(255 255 255 / 0.9);
+  --shadow-lg:
+    0 32px 64px -16px rgb(30 40 90 / 0.34), 0 6px 14px rgb(30 40 90 / 0.1),
+    inset 0 1px 0 rgb(255 255 255 / 0.95);
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+  --surface-blur: blur(30px) saturate(1.9);
+  --card-lift: -6px;
+}
+
+:root[data-ui-style='spatial'][data-theme='dark'] {
+  --color-bg: #080b16;
+  --gradient-page:
+    radial-gradient(
+      70rem 50rem at 12% -8%,
+      color-mix(in srgb, var(--color-primary) 32%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(60rem 46rem at 100% 0%, rgb(190 24 93 / 0.26), transparent 58%),
+    radial-gradient(64rem 52rem at 55% 112%, rgb(6 182 212 / 0.26), transparent 62%);
+  --color-surface: rgb(28 36 56 / 0.55);
+  --color-surface-alt: rgb(255 255 255 / 0.07);
+  --color-surface-raised: rgb(48 60 88 / 0.72);
+  --color-border: rgb(255 255 255 / 0.18);
+  --color-progress-track: rgb(255 255 255 / 0.15);
+  --gradient-tile: linear-gradient(160deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.03));
+  --gradient-hero: linear-gradient(160deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.03));
+  --shadow-sm: 0 2px 8px rgb(0 0 0 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.12);
+  --shadow-md:
+    0 16px 36px -10px rgb(0 0 0 / 0.55), 0 2px 6px rgb(0 0 0 / 0.3),
+    inset 0 1px 0 rgb(255 255 255 / 0.14);
+  --shadow-lg:
+    0 32px 64px -16px rgb(0 0 0 / 0.65), 0 6px 14px rgb(0 0 0 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.16);
+}
+
+// ── Neo-Brutalism: flat color, thick black outlines, hard offset shadows ──
+:root[data-ui-style='brutalism'] {
+  --brut-ink: #111111;
+  --color-bg: #fff4d6;
+  --gradient-page: none;
+  --gradient-tile: none;
+  --gradient-hero: none;
+  --header-wash: none;
+  --color-surface: #ffffff;
+  --color-surface-alt: color-mix(in srgb, var(--color-primary) 12%, #fff4d6);
+  --color-surface-raised: #ffffff;
+  --color-border: var(--brut-ink);
+  --color-progress-track: #eadfc2;
+  --gradient-primary: linear-gradient(var(--color-primary), var(--color-primary));
+  --gradient-banner: linear-gradient(var(--color-primary), var(--color-primary));
+  --gradient-tile-strong: linear-gradient(var(--color-primary), var(--color-primary));
+  --shadow-sm: 3px 3px 0 var(--brut-ink);
+  --shadow-md: 5px 5px 0 var(--brut-ink);
+  --shadow-lg: 8px 8px 0 var(--brut-ink);
+  --shadow-primary: 4px 4px 0 var(--brut-ink);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --card-border-width: 2px;
+  --card-lift: -2px;
+}
+
+:root[data-ui-style='brutalism'][data-theme='dark'] {
+  --brut-ink: #e5e7eb;
+  --color-bg: #101010;
+  --color-surface: #1b1b1b;
+  --color-surface-alt: color-mix(in srgb, var(--color-primary) 18%, #1b1b1b);
+  --color-surface-raised: #242424;
+  --color-progress-track: #333333;
+  // White text sits on banners, so use a deeper flat tone than the light dark-mode accent.
+  --gradient-banner: linear-gradient(
+    color-mix(in srgb, var(--color-primary) 55%, #000),
+    color-mix(in srgb, var(--color-primary) 55%, #000)
+  );
+}
+
+:root[data-ui-style='brutalism'] {
+  .btn {
+    border: 2px solid var(--brut-ink);
+    box-shadow: 3px 3px 0 var(--brut-ink);
+    font-weight: 800;
+  }
+
+  .btn:not(:disabled):hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--brut-ink);
+  }
+
+  .btn:not(:disabled):active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 var(--brut-ink);
+  }
+
+  .header {
+    border-bottom: 3px solid var(--brut-ink);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .sidebar {
+    border-right: 3px solid var(--brut-ink);
+  }
+
+  .mobile-nav {
+    border-top: 3px solid var(--brut-ink);
+  }
+
+  input:not([type='radio']):not([type='checkbox']):not([type='color']):not([type='file']),
+  textarea,
+  select {
+    border: 2px solid var(--brut-ink);
+    border-radius: 4px;
+  }
+
+  h1,
+  h2 {
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+}
+
+// ── Aurora: luminous, drifting color bands behind soft glowing glass ─────
+:root[data-ui-style='aurora'] {
+  --color-bg: #f1eeff;
+  --gradient-page:
+    radial-gradient(56rem 38rem at 8% 0%, rgb(110 231 183 / 0.6), transparent 60%),
+    radial-gradient(50rem 36rem at 92% 4%, rgb(196 181 253 / 0.7), transparent 58%),
+    radial-gradient(60rem 40rem at 72% 58%, rgb(253 164 175 / 0.45), transparent 60%),
+    radial-gradient(60rem 44rem at 18% 100%, rgb(125 211 252 / 0.6), transparent 62%);
+  --color-surface: rgb(255 255 255 / 0.62);
+  --color-surface-alt: rgb(255 255 255 / 0.4);
+  --color-surface-raised: rgb(255 255 255 / 0.82);
+  --color-border: rgb(255 255 255 / 0.85);
+  --color-progress-track: rgb(100 116 139 / 0.2);
+  --gradient-tile: linear-gradient(145deg, rgb(255 255 255 / 0.72), rgb(255 255 255 / 0.34));
+  --gradient-hero: linear-gradient(145deg, rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.25));
+  --header-wash: none;
+  --shadow-sm: 0 6px 20px -8px color-mix(in srgb, var(--color-primary) 30%, transparent);
+  --shadow-md: 0 14px 38px -10px color-mix(in srgb, var(--color-primary) 38%, transparent);
+  --shadow-lg: 0 26px 60px -14px color-mix(in srgb, var(--color-primary) 46%, transparent);
+  --surface-blur: blur(22px) saturate(1.7);
+}
+
+:root[data-ui-style='aurora'][data-theme='dark'] {
+  --color-bg: #070b1a;
+  --gradient-page:
+    radial-gradient(56rem 38rem at 8% 0%, rgb(52 211 153 / 0.52), transparent 60%),
+    radial-gradient(50rem 36rem at 92% 4%, rgb(139 92 246 / 0.62), transparent 58%),
+    radial-gradient(60rem 40rem at 72% 58%, rgb(232 121 249 / 0.36), transparent 60%),
+    radial-gradient(60rem 44rem at 18% 100%, rgb(34 211 238 / 0.44), transparent 62%);
+  --color-surface: rgb(14 20 42 / 0.62);
+  --color-surface-alt: rgb(255 255 255 / 0.07);
+  --color-surface-raised: rgb(30 38 70 / 0.78);
+  --color-border: rgb(255 255 255 / 0.15);
+  --color-progress-track: rgb(255 255 255 / 0.14);
+  --gradient-tile: linear-gradient(145deg, rgb(255 255 255 / 0.09), rgb(255 255 255 / 0.02));
+  --gradient-hero: linear-gradient(145deg, rgb(255 255 255 / 0.09), rgb(255 255 255 / 0.02));
+  --shadow-sm: 0 6px 22px -8px color-mix(in srgb, var(--color-primary) 45%, transparent);
+  --shadow-md: 0 14px 40px -10px color-mix(in srgb, var(--color-primary) 55%, transparent);
+  --shadow-lg: 0 26px 64px -14px color-mix(in srgb, var(--color-primary) 62%, transparent);
+}
+
+// The colors drift slowly, like a real aurora. Skipped for people who prefer less motion.
+:root[data-ui-style='aurora'] body {
+  background-size: 150% 150%;
+  animation: aurora-drift 32s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: 100% 70%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-ui-style='aurora'] body {
+    animation: none;
+  }
+}
+
+// ── Claymorphism: soft, puffy 3D shapes like colored clay ────────────────
+:root[data-ui-style='clay'] {
+  --color-bg: #efe9fb;
+  --gradient-page: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-primary) 14%, #fde8f1) 0%,
+    #e9e6ff 50%,
+    color-mix(in srgb, var(--color-accent) 14%, #dff7ee) 100%
+  );
+  --color-surface: #fbf9ff;
+  --color-surface-alt: #f0eafb;
+  --color-surface-raised: #ffffff;
+  --color-border: rgb(255 255 255 / 0.7);
+  --color-progress-track: #e2daf3;
+  --gradient-tile: none;
+  --gradient-hero: none;
+  --header-wash: none;
+  --shadow-sm:
+    0 6px 14px rgb(88 60 150 / 0.14), inset 3px 3px 6px rgb(255 255 255 / 0.95),
+    inset -3px -4px 8px rgb(120 90 190 / 0.1);
+  --shadow-md:
+    0 14px 28px rgb(88 60 150 / 0.18), inset 4px 4px 8px #ffffff,
+    inset -5px -6px 12px rgb(120 90 190 / 0.12);
+  --shadow-lg:
+    0 22px 44px rgb(88 60 150 / 0.22), inset 5px 5px 10px #ffffff,
+    inset -7px -8px 14px rgb(120 90 190 / 0.14);
+  --shadow-primary:
+    0 10px 20px color-mix(in srgb, var(--color-primary) 40%, transparent),
+    inset 3px 3px 6px rgb(255 255 255 / 0.35), inset -4px -5px 10px rgb(0 0 0 / 0.18);
+  --radius-sm: 16px;
+  --radius-md: 24px;
+  --radius-lg: 32px;
+  --radius-xl: 40px;
+  --card-lift: -4px;
+}
+
+:root[data-ui-style='clay'][data-theme='dark'] {
+  --color-bg: #2a2540;
+  --gradient-page: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-primary) 16%, #2a2540) 0%,
+    #2a2540 55%,
+    color-mix(in srgb, var(--color-accent) 12%, #241f38) 100%
+  );
+  --color-surface: #382f57;
+  --color-surface-alt: #31294d;
+  --color-surface-raised: #41376a;
+  --color-border: rgb(255 255 255 / 0.08);
+  --color-progress-track: #241f38;
+  --shadow-sm:
+    0 6px 14px rgb(0 0 0 / 0.35), inset 3px 3px 6px rgb(255 255 255 / 0.1),
+    inset -3px -4px 8px rgb(0 0 0 / 0.28);
+  --shadow-md:
+    0 14px 28px rgb(0 0 0 / 0.42), inset 4px 4px 8px rgb(255 255 255 / 0.11),
+    inset -5px -6px 12px rgb(0 0 0 / 0.3);
+  --shadow-lg:
+    0 22px 44px rgb(0 0 0 / 0.5), inset 5px 5px 10px rgb(255 255 255 / 0.12),
+    inset -7px -8px 14px rgb(0 0 0 / 0.32);
+}
+
+:root[data-ui-style='clay'] {
+  .btn {
+    border-radius: 18px;
+    font-weight: 700;
+  }
+
+  .btn:not(:disabled):active {
+    box-shadow: inset 4px 4px 10px rgb(0 0 0 / 0.2);
+    transform: none;
+  }
+}
+
+// ── Shared behaviour for every non-classic style ─────────────────────────
+// Panels that are not built with the card mixin still get the frosted blur.
+:root[data-ui-style='glass'],
+:root[data-ui-style='spatial'],
+:root[data-ui-style='aurora'] {
+  :is(.sidebar, .header, .mobile-nav, .select__menu, .search__results, .mobile-nav__sheet) {
+    -webkit-backdrop-filter: var(--surface-blur);
+    backdrop-filter: var(--surface-blur);
+  }
+
+  .sidebar,
+  .mobile-nav {
+    background: var(--color-surface);
+  }
+}
+
+:root[data-ui-style='spatial'] {
+  // Pill-shaped controls feel more "floating".
+  .btn,
+  .btn--primary {
+    border-radius: 999px;
+  }
+
+  // The navigation becomes its own floating panel instead of a wall at the screen edge.
+  .sidebar {
+    top: calc(var(--header-height) + var(--space-3));
+    height: calc(100dvh - var(--header-height) - var(--space-5));
+    margin: var(--space-3) 0 var(--space-3) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .mobile-nav {
+    left: var(--space-2);
+    right: var(--space-2);
+    bottom: calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+    height: var(--mobile-nav-height);
+    padding-bottom: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+:root[data-ui-style='neumorphic'] {
+  .btn:not(.btn--primary):not(.btn--danger):not(.btn--ghost) {
+    border-color: transparent;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn:not(:disabled):active {
+    box-shadow: var(--neu-inset);
+    transform: none;
+  }
+
+  input:not([type='radio']):not([type='checkbox']):not([type='file']),
+  textarea,
+  select {
+    border-color: transparent;
+    background: var(--color-bg);
+    box-shadow: var(--neu-inset);
+  }
+}
+
+// Respect people who ask the OS for less transparency: keep the look, drop the see-through.
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-ui-style='glass'],
+  :root[data-ui-style='spatial'],
+  :root[data-ui-style='aurora'] {
+    --color-surface: #ffffff;
+    --color-surface-alt: #eef2f7;
+    --color-surface-raised: #ffffff;
+    --surface-blur: none;
+  }
+
+  :root[data-ui-style='glass'][data-theme='dark'],
+  :root[data-ui-style='spatial'][data-theme='dark'],
+  :root[data-ui-style='aurora'][data-theme='dark'] {
+    --color-surface: #1c2433;
+    --color-surface-alt: #232d40;
+    --color-surface-raised: #2a354a;
+  }
+}

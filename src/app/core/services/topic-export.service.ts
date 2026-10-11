@@ -11,6 +11,7 @@ import {
 } from '../models';
 import { ContentService } from './content.service';
 import { NoteService } from './note.service';
+import { ProfileService } from './profile.service';
 import { renderInlineMarkdown, renderMarkdown } from '../../shared/markdown';
 
 interface ResolvedTopic {
@@ -24,6 +25,7 @@ interface ResolvedTopic {
 export class TopicExportService {
   private readonly content = inject(ContentService);
   private readonly notes = inject(NoteService);
+  private readonly profile = inject(ProfileService);
 
   /**
    * Prints a study pack via a hidden iframe. Important for the installed PWA:
@@ -50,7 +52,8 @@ export class TopicExportService {
       if (!printed) {
         return {
           ok: false,
-          error: 'Could not open the print dialog. Try again, or use Share → Print from your browser menu.',
+          error:
+            'Could not open the print dialog. Try again, or use Share → Print from your browser menu.',
         };
       }
       return { ok: true };
@@ -104,9 +107,13 @@ export class TopicExportService {
     );
 
     if (loads.length === 0) return [];
-    const groups = await firstValueFrom(forkJoin(loads.length ? loads : [of([] as ResolvedTopic[])]));
+    const groups = await firstValueFrom(
+      forkJoin(loads.length ? loads : [of([] as ResolvedTopic[])]),
+    );
     const order = new Map(refs.map((ref, index) => [ref.topicId, index]));
-    return groups.flat().sort((a, b) => (order.get(a.topic.id) ?? 0) - (order.get(b.topic.id) ?? 0));
+    return groups
+      .flat()
+      .sort((a, b) => (order.get(a.topic.id) ?? 0) - (order.get(b.topic.id) ?? 0));
   }
 
   private buildDocument(items: ResolvedTopic[], options: TopicExportOptions): string {
@@ -150,6 +157,7 @@ export class TopicExportService {
   </header>
   ${toc}
   <main>${body}</main>
+  <footer class="doc-footer">${this.escape(this.profile.displayName())}</footer>
 </body>
 </html>`;
   }
@@ -347,6 +355,11 @@ export class TopicExportService {
   }
 
   private printStyles(): string {
+    // CSS strings require their own escaping, including '<' so a profile name
+    // cannot close the surrounding HTML style element.
+    const footerName = Array.from(this.profile.displayName())
+      .map((character) => `\\${character.codePointAt(0)!.toString(16)} `)
+      .join('');
     return `
       :root { color-scheme: light; }
       * { box-sizing: border-box; }
@@ -405,8 +418,33 @@ export class TopicExportService {
       .answer { margin-top: 10px; padding: 10px 12px; background: #f0f7fb; border-left: 3px solid #0b6e99; border-radius: 0 8px 8px 0; }
       .answer-label { margin: 0 0 4px; font-size: 10pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: #0b6e99; }
       a { color: #0b6e99; }
+      .doc-footer {
+        margin-top: 24px;
+        padding-top: 6px;
+        border-top: 1px solid #e3e7ec;
+        text-align: center;
+        color: #667085;
+        font-size: 9pt;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+      }
+      /* Page-margin boxes use the printed page, not the tiny print iframe's viewport. */
+      @page {
+        margin: 18mm 16mm 24mm;
+        @bottom-center {
+          content: "${footerName}";
+          font-family: "Segoe UI", system-ui, sans-serif;
+          font-size: 9pt;
+          color: #667085;
+          text-align: center;
+          vertical-align: middle;
+        }
+      }
       @media print {
         body { padding: 0; }
+        .doc-footer {
+          display: none;
+        }
         .toc, .block, .code { break-inside: avoid; }
         a { text-decoration: none; color: inherit; }
       }

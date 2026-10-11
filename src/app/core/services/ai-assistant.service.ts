@@ -26,6 +26,12 @@ export class AiAssistantService {
       return 'Could not reach the AI backend. Locally, run `npm start` (starts the AI API stand-in + ng serve; proxy.conf.json forwards /api/**), or use `npm run dev` (`netlify dev`). On a deployed site, check that the Netlify function deployed successfully.';
     }
     const body = err.error as AiChatError | undefined;
-    return body?.error ?? `AI request failed (HTTP ${err.status}).`;
+    if (body?.error) return body.error;
+    // No message from the server at all. In local development this is what the Angular
+    // dev proxy returns when nothing is listening for /api (i.e. only `ng serve` is running).
+    if (err.status >= 500) {
+      return `The AI backend did not answer properly (HTTP ${err.status}). Running locally? Start the app with \`npm start\` so the AI backend starts too (plain \`ng serve\` has no /api). On a deployed site, check the Netlify function logs.`;
+    }
+    return `AI request failed (HTTP ${err.status}).`;
   }
 }

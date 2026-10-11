@@ -792,10 +792,22 @@
         "answer": "It applies to any substitutable contract, including interfaces, functions and injected tokens; behavioral replacement is the key."
       },
       {
+        "id": "dp-liskov-substitution-principle-tricky-stronger-precondition",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A subclass accepts fewer inputs",
+        "question": "A base processor promises to accept any nonempty file. A subtype accepts only PDFs. Is matching the same method signature sufficient for substitution?",
+        "answer": "No. The subtype strengthens the precondition, so callers that satisfy the base contract can fail. Model the narrower capability explicitly or change the abstraction.",
+        "explanation": "Substitutability concerns behavior as well as types. Error guarantees and postconditions also belong to the contract.\n\n[Further reading](https://www.cs.cmu.edu/~wing/publications/LiskovWing94.pdf)",
+        "hints": [
+          "Would every valid base-class caller remain valid?"
+        ]
+      },
+      {
         "id": "dp-liskov-substitution-principle-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_classes"
       }
     ]
@@ -970,10 +982,22 @@
         "answer": "DIP is the principle about dependency direction; DI is a technique that supplies dependencies from outside. Manual constructor wiring can implement DIP."
       },
       {
+        "id": "dp-dependency-inversion-principle-tricky-interface-runtime",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Injecting a TypeScript interface",
+        "question": "Why can Angular not use a TypeScript interface directly as a runtime DI token?",
+        "answer": "Interfaces are erased from emitted JavaScript. Use a runtime token, such as an InjectionToken, and connect it to an implementation in providers.",
+        "explanation": "Depending on an abstraction still requires a runtime representation where a framework resolves dependencies.\n\n[Further reading](https://angular.dev/guide/di/defining-dependency-providers)",
+        "hints": [
+          "What value exists after TypeScript compilation?"
+        ]
+      },
+      {
         "id": "dp-dependency-inversion-principle-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://angular.dev/guide/di\n- https://angular.dev/guide/di/defining-dependency-providers\n- https://angular.dev/guide/di/hierarchical-dependency-injection"
       }
     ]
@@ -1059,10 +1083,22 @@
         "answer": "Factory creates or selects an object; Strategy represents replaceable behavior. A factory may return a chosen strategy."
       },
       {
+        "id": "dp-factory-method-pattern-tricky-factory-lifetime",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A factory does not promise freshness",
+        "question": "Must calling a factory always create a new object?",
+        "answer": "No. A creation API may return a new instance, a pooled instance, or a cached one according to its contract. Callers should not infer ownership from the word factory.",
+        "explanation": "For mutable objects, document reuse and cleanup responsibilities. Hidden sharing can produce bugs even when object construction is encapsulated.\n\n[Further reading](https://angular.dev/guide/di/defining-dependency-providers)",
+        "hints": [
+          "What lifetime does the factory's contract promise?"
+        ]
+      },
+      {
         "id": "dp-factory-method-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_classes"
       }
     ]
@@ -1237,10 +1273,22 @@
         "answer": "Factory normally selects and returns a complete object in one operation; Builder assembles a complex object through explicit steps."
       },
       {
+        "id": "dp-builder-pattern-tricky-builder-reuse",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Two builds share one configuration",
+        "question": "A reusable builder returns its internal mutable object from build(). Why can changing the second build alter the first result?",
+        "answer": "Both results may reference the same object or nested values. Return an appropriately independent value, use immutable steps, or make the builder explicitly single-use.",
+        "explanation": "Copying the outer object is insufficient when nested arrays remain shared. Define ownership for the entire returned configuration.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Glossary/Shallow_copy)",
+        "hints": [
+          "Which references are shared after build?"
+        ]
+      },
+      {
         "id": "dp-builder-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_classes"
       }
     ]
@@ -1326,10 +1374,22 @@
         "answer": "It often behaves as one shared module instance per module graph, but workers, iframes, separate bundles or runtimes can have separate graphs."
       },
       {
+        "id": "dp-singleton-pattern-tricky-singleton-scope",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A singleton in every tab",
+        "question": "An ES module exports one store instance. Will two browser tabs necessarily share that same in-memory store?",
+        "answer": "No. Each tab normally has its own JavaScript realm and module instances. Coordinate explicitly through a shared persistence or messaging mechanism when needed.",
+        "explanation": "Singleton means one instance within a defined scope. State the scope before claiming global uniqueness.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)",
+        "hints": [
+          "Which runtime owns the instance?"
+        ]
+      },
+      {
         "id": "dp-singleton-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://angular.dev/guide/di\n- https://angular.dev/guide/di/defining-dependency-providers\n- https://angular.dev/guide/di/hierarchical-dependency-injection"
       }
     ]
@@ -1415,10 +1475,22 @@
         "answer": "For supported structured data that truly needs a deep copy; it does not clone every class, function or resource and has a cost."
       },
       {
+        "id": "dp-prototype-pattern-tricky-prototype-clone",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Object.create is not a deep clone",
+        "question": "Does Object.create(existing) produce an independent deep copy of existing?",
+        "answer": "No. It creates an object whose prototype is existing. Inherited nested objects can still be shared, and own-property enumeration will differ.",
+        "explanation": "Prototype delegation and data cloning solve different problems. Choose one intentionally rather than using inheritance as a copy operation.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create)",
+        "hints": [
+          "Where does a property lookup find the value?"
+        ]
+      },
+      {
         "id": "dp-prototype-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_classes"
       }
     ]
@@ -1504,10 +1576,22 @@
         "answer": "Adapter changes an interface for compatibility; Facade gives a simpler entry point over one or more subsystem services."
       },
       {
+        "id": "dp-adapter-pattern-tricky-adapter-validation",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "An adapter is not automatically a validator",
+        "question": "An API adapter renames `user_name` to `displayName`. Does that make the resulting object safe to treat as a valid domain User?",
+        "answer": "Only if the adapter also performs the required validation or receives already validated input. Mapping field names alone does not check types or business invariants.",
+        "explanation": "Keep transport conversion and trust-boundary validation explicit, even if one module implements both.\n\n[Further reading](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html)",
+        "hints": [
+          "What happens if user_name is an object or is missing?"
+        ]
+      },
+      {
         "id": "dp-adapter-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_classes"
       }
     ]
@@ -1593,10 +1677,22 @@
         "answer": "No. Use one when orchestration, shared feature state or dependency complexity is real; local simple components do not need it."
       },
       {
+        "id": "dp-facade-pattern-tricky-facade-growth",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "The facade that knows everything",
+        "question": "A frontend facade exposes 80 unrelated operations from several domains. Has it necessarily reduced coupling?",
+        "answer": "No. It may hide implementation details while becoming a highly coupled central dependency. Split APIs around cohesive user capabilities and ownership boundaries.",
+        "explanation": "A facade should simplify a useful boundary. Counting fewer injected services does not prove the dependency design improved.\n\n[Further reading](https://angular.dev/style-guide)",
+        "hints": [
+          "Do consumers depend on unrelated capabilities?"
+        ]
+      },
+      {
         "id": "dp-facade-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://angular.dev/guide/di\n- https://angular.dev/guide/di/defining-dependency-providers\n- https://angular.dev/guide/di/hierarchical-dependency-injection"
       }
     ]
@@ -1682,10 +1778,22 @@
         "answer": "They use decorator-like metadata syntax, but they do not necessarily implement the object-wrapper pattern; intent and collaboration matter."
       },
       {
+        "id": "dp-decorator-pattern-tricky-wrapper-order",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Retry around cache or cache around retry",
+        "question": "Are `cache(retry(fetchData))` and `retry(cache(fetchData))` guaranteed to behave identically?",
+        "answer": "No. Wrapper order determines what is repeated, which failures are observed, and where cached results are read or written. Define and test the desired composition.",
+        "explanation": "The decorator structure permits composition; it does not make operations commutative. Trace both the request and response/error paths.\n\n[Further reading](https://angular.dev/guide/http/interceptors)",
+        "hints": [
+          "Which wrapper sees the call first and the failure last?"
+        ]
+      },
+      {
         "id": "dp-decorator-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_classes"
       }
     ]
@@ -1771,10 +1879,22 @@
         "answer": "Both wrap objects; Proxy primarily controls access or lifecycle, while Decorator primarily adds responsibilities."
       },
       {
+        "id": "dp-proxy-pattern-tricky-proxy-security",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A proxy that checks permissions",
+        "question": "A JavaScript Proxy rejects writes to a protected field. Does it secure that field if another part of the code still holds the target object?",
+        "answer": "No. A reference to the original target can bypass the proxy. Also enforce security at the authoritative boundary rather than relying on a client wrapper.",
+        "explanation": "A proxy controls interactions through that proxy reference. It does not retroactively remove access to other references.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy)",
+        "hints": [
+          "Can anyone reach the target without the wrapper?"
+        ]
+      },
+      {
         "id": "dp-proxy-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy"
       }
     ]
@@ -1949,10 +2069,22 @@
         "answer": "Yes. JavaScript functions are first-class values, so a function type is often the simplest strategy contract."
       },
       {
+        "id": "dp-strategy-pattern-tricky-strategy-function",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A strategy without classes",
+        "question": "Do interchangeable pricing algorithms require an interface, three classes, and dependency injection?",
+        "answer": "No. Functions with a shared contract can implement a strategy. Add objects or DI when state, lifetime, configuration, or application composition makes them useful.",
+        "explanation": "The pattern concerns interchangeable behavior. Pick the smallest representation that preserves clear contracts and testability.\n\n[Further reading](https://www.typescriptlang.org/docs/handbook/2/functions.html)",
+        "hints": [
+          "What changes: the algorithm or object ownership?"
+        ]
+      },
+      {
         "id": "dp-strategy-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules"
       }
     ]
@@ -2038,10 +2170,22 @@
         "answer": "A Promise represents one eventual result; an Observable can emit many values and supports stream composition and unsubscription."
       },
       {
+        "id": "dp-observer-pattern-tricky-observer-cleanup",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "The removed view still receives events",
+        "question": "A component subscribes to a long-lived event source and is later removed. Why can it still receive events?",
+        "answer": "Removal of the view does not necessarily unsubscribe its listener. Tie the subscription to the component lifetime or explicitly dispose it.",
+        "explanation": "Observer decouples producers from consumers but still needs ownership and cleanup. A retained callback can also retain component data.\n\n[Further reading](https://angular.dev/ecosystem/rxjs-interop/take-until-destroyed)",
+        "hints": [
+          "Who releases the subscription?"
+        ]
+      },
+      {
         "id": "dp-observer-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://rxjs.dev/guide/observable\n- https://angular.dev/guide/signals"
       }
     ]
@@ -2127,10 +2271,22 @@
         "answer": "Observer usually has a direct subject-to-observer relationship; Pub/Sub introduces an intermediary channel."
       },
       {
+        "id": "dp-publish-subscribe-pattern-tricky-pubsub-history",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A late subscriber misses initialization",
+        "question": "A subscriber joins an in-memory event bus after an initialized event was published. Should it expect to receive that event?",
+        "answer": "Not unless the bus explicitly supports replay or retained state. Read current state separately or use a documented replaying mechanism.",
+        "explanation": "Events describe occurrences; state describes what is currently true. Depending on a past one-time event can create initialization races.\n\n[Further reading](https://rxjs.dev/guide/subject)",
+        "hints": [
+          "Does the bus retain anything for future subscribers?"
+        ]
+      },
+      {
         "id": "dp-publish-subscribe-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules"
       }
     ]
@@ -2216,10 +2372,22 @@
         "answer": "Command represents a request or action; Strategy represents an interchangeable algorithm used inside a workflow."
       },
       {
+        "id": "dp-command-pattern-tricky-undo-side-effects",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Undo after sending an email",
+        "question": "Does representing Send email as a Command mean it can always support a true undo?",
+        "answer": "No. Encapsulating an operation does not reverse external effects. Some commands can be reversed locally; others need compensating actions or cannot be undone.",
+        "explanation": "Define failure, retry, and idempotency semantics separately from the command object. Do not present a cosmetic undo as reversing delivery.\n\n[Further reading](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/)",
+        "hints": [
+          "Has the effect escaped the application's control?"
+        ]
+      },
+      {
         "id": "dp-command-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_classes"
       }
     ]
@@ -2305,10 +2473,22 @@
         "answer": "Strategy is generally selected by a client or configuration; State changes as an object's lifecycle progresses."
       },
       {
+        "id": "dp-state-pattern-tricky-state-or-strategy",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Similar interfaces, different intent",
+        "question": "Two designs delegate behavior to interchangeable objects. What makes one State and the other Strategy?",
+        "answer": "State models behavior that depends on lifecycle state and valid transitions. Strategy selects an algorithm or policy. Similar code structure does not make their intent identical.",
+        "explanation": "For an upload, queued/uploading/failed are states; alternative compression algorithms are strategies. Model the transition rules when lifecycle is the problem.\n\n[Further reading](https://www.typescriptlang.org/docs/handbook/2/narrowing.html)",
+        "hints": [
+          "Who changes the active behavior, and why?"
+        ]
+      },
+      {
         "id": "dp-state-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules"
       }
     ]
@@ -2394,10 +2574,22 @@
         "answer": "Current Angular guidance recommends them because configuration and ordering are more predictable in complex setups."
       },
       {
+        "id": "dp-chain-of-responsibility-pattern-tricky-short-circuit",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A handler that stops the chain",
+        "question": "Must every handler in a chain always forward the request to the next handler?",
+        "answer": "No. A handler can terminate the chain when its contract permits, such as returning a cached result or rejecting invalid input.",
+        "explanation": "Make short-circuit behavior explicit and test cleanup, logging, and error paths. Reordering handlers can change which checks run.\n\n[Further reading](https://angular.dev/guide/http/interceptors)",
+        "hints": [
+          "What conditions permit a handler to finish the request?"
+        ]
+      },
+      {
         "id": "dp-chain-of-responsibility-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://angular.dev/guide/http/interceptors\n- https://angular.dev/guide/http/testing"
       }
     ]
@@ -2661,10 +2853,22 @@
         "answer": "Optional chaining is simpler for one local optional call; Null Object gives many callers one stable contract and centralized neutral behavior."
       },
       {
+        "id": "dp-null-object-pattern-tricky-hidden-failure",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A Null Object hides a failed payment",
+        "question": "A payment client returns a no-op object when initialization fails. Has the Null Object pattern made error handling safer?",
+        "answer": "Not if callers interpret the no-op as a successful payment. Use a Null Object only where doing nothing is a valid, explicit behavior; preserve meaningful failures.",
+        "explanation": "The decision depends on semantics. Optional analytics can tolerate a no-op implementation more readily than a payment operation.\n\n[Further reading](https://www.typescriptlang.org/docs/handbook/2/narrowing.html)",
+        "hints": [
+          "Is doing nothing an acceptable outcome here?"
+        ]
+      },
+      {
         "id": "dp-null-object-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_classes"
       }
     ]
@@ -3106,10 +3310,22 @@
         "answer": "Memoization caches in-process function results; HTTP caching follows protocol semantics and can involve browser, service worker, CDN and server."
       },
       {
+        "id": "dp-memoization-pattern-tricky-incomplete-key",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A memoized price ignores the currency",
+        "question": "A memoized price function keys only on productId but also reads the selected currency. What breaks after currency changes?",
+        "answer": "The cache can return a result computed for the previous currency. Include every result-affecting input in the key or invalidate when hidden dependencies change.",
+        "explanation": "Memoization assumes a stable relationship between inputs and output. External state and mutable arguments need an explicit policy.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Glossary/Memoization)",
+        "hints": [
+          "Which inputs influence the result but are absent from the key?"
+        ]
+      },
+      {
         "id": "dp-memoization-pattern-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules"
       }
     ]
@@ -3464,10 +3680,22 @@
         "answer": "The nearer child provider is resolved for that subtree, so it shadows the parent provider for those consumers."
       },
       {
+        "id": "dp-angular-hierarchical-injector-and-provider-scope-tricky-shadowed-root",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "The root service that appears twice",
+        "question": "A service is providedIn root, but a component provides the same token locally. Can that component receive a separate instance?",
+        "answer": "Yes. A nearer provider can shadow the root provider. Its descendants resolve according to the injector hierarchy and resolution modifiers.",
+        "explanation": "Root provision does not forbid overrides. Decide whether local state isolation or application-wide sharing is intended.\n\n[Further reading](https://angular.dev/guide/di/hierarchical-dependency-injection)",
+        "hints": [
+          "Which injector finds the token first?"
+        ]
+      },
+      {
         "id": "dp-angular-hierarchical-injector-and-provider-scope-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://angular.dev/guide/di\n- https://angular.dev/guide/di/defining-dependency-providers\n- https://angular.dev/guide/di/hierarchical-dependency-injection"
       }
     ]
@@ -3555,10 +3783,22 @@
         "answer": "When two tokens should resolve to the same existing instance, often exposing one implementation through a narrower alias contract."
       },
       {
+        "id": "dp-angular-provider-strategies-and-injectiontoken-tricky-token-identity",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Two tokens with the same description",
+        "question": "Two modules independently create `new InjectionToken('CONFIG')`. Are those tokens interchangeable because their descriptions match?",
+        "answer": "No. They are different token objects. Export and reuse one shared token definition when registration and injection must match.",
+        "explanation": "The description helps diagnostics; it is not a registry key that merges token identities.\n\n[Further reading](https://angular.dev/guide/di/defining-dependency-providers)",
+        "hints": [
+          "Compare object identity with a debug label."
+        ]
+      },
+      {
         "id": "dp-angular-provider-strategies-and-injectiontoken-summary-1",
         "type": "summary",
         "title": "References",
-        "order": 7,
+        "order": 8,
         "content": "- https://angular.dev/guide/di\n- https://angular.dev/guide/di/defining-dependency-providers\n- https://angular.dev/guide/di/hierarchical-dependency-injection"
       }
     ]

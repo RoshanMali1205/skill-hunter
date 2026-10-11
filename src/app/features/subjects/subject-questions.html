@@ -1,0 +1,125 @@
+<section class="question-bank" aria-labelledby="question-bank-heading">
+  <header class="question-bank__heading">
+    <div>
+      <h2 #heading tabindex="-1" id="question-bank-heading">Tricky questions</h2>
+      <p>Challenge your assumptions. Try an answer, then uncover the reasoning behind it.</p>
+    </div>
+    @if (questions().length > 0) {
+      <a class="btn btn--primary" routerLink="/practice" [queryParams]="practiceParams()"
+        >Practice this set</a
+      >
+    }
+  </header>
+
+  <div class="question-bank__filters">
+    <label class="question-bank__search">
+      <span>Search questions</span>
+      <input
+        type="search"
+        [value]="search()"
+        placeholder="Search a question, topic, or tag"
+        (input)="updateFilters({ q: $any($event.target).value || null })"
+      />
+    </label>
+    <label>
+      <span>Category</span>
+      <select
+        [value]="category()"
+        (change)="updateFilters({ category: $any($event.target).value || null })"
+      >
+        <option value="">All categories</option>
+        @for (item of subject().categories; track item.id) {
+          <option [value]="item.id">{{ item.title }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      <span>Topic difficulty</span>
+      <select
+        [value]="difficulty()"
+        (change)="updateFilters({ difficulty: $any($event.target).value })"
+      >
+        <option value="all">All levels</option>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="question-bank__results">
+    <p role="status">
+      {{ questions().length }} question{{ questions().length === 1 ? '' : 's'
+      }}{{ hasFilters() ? ' match your filters' : ' to explore' }}
+    </p>
+    @if (hasFilters()) {
+      <button class="btn btn--ghost" type="button" (click)="clearFilters()">Clear filters</button>
+    }
+  </div>
+
+  @for (item of visibleQuestions(); track item.block.id) {
+    <div class="question-bank__item">
+      <div class="question-bank__context">
+        <div>
+          <span class="question-bank__category">{{ categoryTitle(item.topicId) }}</span>
+          <p>{{ item.topicTitle }}</p>
+        </div>
+        <app-difficulty-chip [difficulty]="item.difficulty" />
+      </div>
+      <app-question-card
+        [question]="item.block"
+        [autoReveal]="false"
+        [bookmarked]="bookmarks.isQuestionBookmarked(item.block.id)"
+        (bookmarkToggled)="
+          bookmarks.toggleQuestionBookmark(item.block.id, item.topicId, item.subjectId)
+        "
+      />
+      <div class="question-bank__actions">
+        <a [routerLink]="['/subjects', item.subjectId, 'topics', item.topicId]">Learn this topic</a>
+        <a
+          class="btn"
+          routerLink="/practice"
+          [queryParams]="{
+            subjectId: item.subjectId,
+            topicId: item.topicId,
+            questionId: item.block.id,
+            questionType: 'tricky-question',
+            difficulty: 'all',
+            from: 'tricky',
+          }"
+          >Practice this question</a
+        >
+      </div>
+    </div>
+  } @empty {
+    <app-empty-state
+      [title]="hasFilters() ? 'No questions match your filters' : 'Tricky questions are on the way'"
+      [message]="
+        hasFilters()
+          ? 'Try a different search or clear your filters.'
+          : 'Explore the subject topics while we prepare questions for this subject.'
+      "
+    >
+      @if (hasFilters()) {
+        <button class="btn" type="button" (click)="clearFilters()">Clear filters</button>
+      }
+    </app-empty-state>
+  }
+
+  @if (pageCount() > 1) {
+    <nav class="question-bank__pagination" aria-label="Question pages">
+      <button type="button" class="btn" [disabled]="page() === 1" (click)="changePage(page() - 1)">
+        Previous
+      </button>
+      <span aria-live="polite">Page {{ page() }} of {{ pageCount() }}</span>
+      <button
+        type="button"
+        class="btn"
+        [disabled]="page() === pageCount()"
+        (click)="changePage(page() + 1)"
+      >
+        Next
+      </button>
+    </nav>
+  }
+</section>

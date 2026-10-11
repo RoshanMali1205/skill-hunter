@@ -1,14 +1,16 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Location } from '@angular/common';
-import { Router } from '@angular/router';
-import { switchMap } from 'rxjs';
+import { Router, RouterLink } from '@angular/router';
+import { catchError, combineLatest, map, of, startWith, switchMap } from 'rxjs';
 import { ContentService } from '../../core/services/content.service';
 import { ProgressStore } from '../../core/services/progress.store';
 import { BookmarkService } from '../../core/services/bookmark.service';
 import { MetricsService } from '../../core/services/metrics.service';
 import { TopicFilter } from '../../core/models/filters.models';
-import { TopicProgress, TopicSummary } from '../../core/models';
+import { Topic, TopicProgress, TopicSummary } from '../../core/models';
+import { SubjectQuestionsComponent } from './subject-questions';
+import { selectQuestions } from '../../shared/question-bank';
 import { TopicCardComponent } from '../../shared/components/topic-card/topic-card';
 import { FilterPanelComponent } from '../../shared/components/filter-panel/filter-panel';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state';
@@ -27,6 +29,8 @@ import { hasInAppHistory } from '../../shared/navigation';
     BreadcrumbComponent,
     ProgressBarComponent,
     IconComponent,
+    RouterLink,
+    SubjectQuestionsComponent,
   ],
   templateUrl: './subject-detail.html',
   styleUrl: './subject-detail.scss',
@@ -40,11 +44,27 @@ export class SubjectDetailComponent {
   private readonly router = inject(Router);
 
   subjectId = input.required<string>();
+  view = input<string>();
+  readonly retryQuestions = signal(0);
+  readonly questionContent = toSignal(
+    combineLatest([toObservable(this.subjectId), toObservable(this.retryQuestions)]).pipe(
+      switchMap(([id]) =>
+        this.contentService.getSubjectTopics(id).pipe(
+          map((topics) => ({ topics, loading: false, error: false })),
+          startWith({ topics: [] as Topic[], loading: true, error: false }),
+          catchError(() => of({ topics: [] as Topic[], loading: false, error: true })),
+        ),
+      ),
+    ),
+    { initialValue: { topics: [] as Topic[], loading: true, error: false } },
+  );
+  readonly trickyCount = computed(
+    () =>
+      selectQuestions(this.questionContent().topics, { questionType: 'tricky-question' }).length,
+  );
 
   readonly subject = toSignal(
-    toObservable(this.subjectId).pipe(
-      switchMap((id) => this.contentService.getSubject(id)),
-    ),
+    toObservable(this.subjectId).pipe(switchMap((id) => this.contentService.getSubject(id))),
     { initialValue: undefined },
   );
 
@@ -77,7 +97,9 @@ export class SubjectDetailComponent {
 
     return subject.categories
       .map((category) => {
-        const topics = category.topics.filter((topic) => this.matches(topic, filter, term, progress, bookmarkedIds));
+        const topics = category.topics.filter((topic) =>
+          this.matches(topic, filter, term, progress, bookmarkedIds),
+        );
         return { category, topics };
       })
       .filter((entry) => entry.topics.length > 0);
@@ -118,7 +140,11 @@ export class SubjectDetailComponent {
     const completed = category.topics.filter(
       (topic) => progress[topic.id]?.status === 'completed',
     ).length;
-    return { completed, total, percentage: total === 0 ? 0 : Math.round((completed / total) * 100) };
+    return {
+      completed,
+      total,
+      percentage: total === 0 ? 0 : Math.round((completed / total) * 100),
+    };
   }
 
   isBookmarked(topicId: string): boolean {
@@ -132,10 +158,18 @@ export class SubjectDetailComponent {
     progress: Record<string, TopicProgress>,
     bookmarkedIds: Set<string>,
   ): boolean {
-    if (filter.difficulty && filter.difficulty !== 'all' && topic.difficulty !== filter.difficulty) {
+    if (
+      filter.difficulty &&
+      filter.difficulty !== 'all' &&
+      topic.difficulty !== filter.difficulty
+    ) {
       return false;
     }
-    if (filter.priority && filter.priority !== 'all' && topic.interviewPriority !== filter.priority) {
+    if (
+      filter.priority &&
+      filter.priority !== 'all' &&
+      topic.interviewPriority !== filter.priority
+    ) {
       return false;
     }
     const status = progress[topic.id]?.status ?? 'not-started';

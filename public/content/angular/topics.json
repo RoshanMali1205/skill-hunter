@@ -325,9 +325,21 @@
         ]
       },
       {
+        "id": "angular-dependency-injection-tricky-alias-instance",
+        "type": "tricky-question",
+        "order": 9,
+        "title": "useClass versus useExisting",
+        "question": "Both Logger and AUDIT_LOGGER are provided. Does `{ provide: AUDIT_LOGGER, useClass: Logger }` guarantee that both tokens return the same instance?",
+        "answer": "No. That provider can construct a separate Logger for AUDIT_LOGGER. Use useExisting: Logger when AUDIT_LOGGER must alias the instance resolved for Logger.",
+        "explanation": "Two tokens naming the same implementation do not automatically share state. This matters for buffered logs, subscriptions, and caches.\n\n[Further reading](https://angular.dev/guide/di/defining-dependency-providers)",
+        "hints": [
+          "Is the provider creating an implementation or aliasing a token?"
+        ]
+      },
+      {
         "id": "di-summary-1",
         "type": "summary",
-        "order": 9,
+        "order": 10,
         "title": "Quick revision and official references",
         "content": "Quick revision\n\n- DI separates construction from use.\n- Angular resolves the nearest provider through element and environment injector hierarchies.\n- Scope is a lifecycle decision, not only a syntax choice.\n- Use tokens for runtime abstractions and configuration.\n\nOfficial references\n\n- https://angular.dev/guide/di\n- https://angular.dev/guide/di/hierarchical-dependency-injection\n- https://angular.dev/guide/di/defining-dependency-providers\n- https://angular.dev/api/core/InjectionToken"
       }
@@ -547,9 +559,33 @@
         ]
       },
       {
+        "id": "angular-signals-tricky-conditional-dependency",
+        "type": "tricky-question",
+        "order": 9,
+        "title": "Conditional signal dependencies",
+        "question": "A computed value reads `count()` only when `show()` is true. While show is false, does changing count invalidate that computed value?",
+        "answer": "No, if the most recent computation took the false branch and did not read count. Dependencies are the signals actually read during the latest evaluation.",
+        "explanation": "The trap is assuming every signal mentioned in the function is always tracked. When show becomes true, a later evaluation reads count and adds it as a dependency.\n\n[Further reading](https://angular.dev/guide/signals)",
+        "hints": [
+          "Trace the branch that ran, not every branch in the function."
+        ]
+      },
+      {
+        "id": "angular-signals-tricky-nested-mutation",
+        "type": "tricky-question",
+        "order": 10,
+        "title": "A mutation without a notification",
+        "question": "A signal holds `{ items: [] }`. You push into `state().items` without calling set or update. Will consumers reliably react?",
+        "answer": "No. The object changed, but the signal was not notified. Update through the signal and return a new object and array when using the default equality check.",
+        "explanation": "Calling update and returning the same reference can also suppress notification. A view that happens to rerender does not prove the reactive dependency was invalidated.\n\n[Further reading](https://angular.dev/guide/signals)",
+        "hints": [
+          "Separate changing an object from notifying its consumers."
+        ]
+      },
+      {
         "id": "signals-summary-1",
         "type": "summary",
-        "order": 9,
+        "order": 11,
         "title": "Quick revision and official references",
         "content": "Quick revision\n\n- Signal = source/current value; computed = pure derived value; effect = external side effect.\n- Signals and RxJS complement each other.\n- Create interop conversions once and respect their subscription lifecycle.\n- Avoid in-place mutation and circular effects.\n\nOfficial references\n\n- https://angular.dev/guide/signals\n- https://angular.dev/guide/signals/effect\n- https://angular.dev/ecosystem/rxjs-interop\n- https://angular.dev/api/core/untracked"
       }
@@ -659,9 +695,33 @@
         ]
       },
       {
+        "id": "angular-rxjs-operators-tricky-forkjoin-completion",
+        "type": "tricky-question",
+        "order": 9,
+        "title": "forkJoin with a live stream",
+        "question": "One source in forkJoin is a one-shot HTTP request; the other emits updates forever. Will forkJoin emit when both have produced their first value?",
+        "answer": "No. forkJoin waits for all sources to complete and then emits their last values. A source that never completes prevents that result.",
+        "explanation": "If a snapshot is appropriate, complete the live source with take(1). If ongoing combined values are needed, consider combineLatest and define its initial-value behavior.\n\n[Further reading](https://github.com/ReactiveX/rxjs/blob/7.8.2/src/internal/observable/forkJoin.ts)",
+        "hints": [
+          "Emission and completion are different events."
+        ]
+      },
+      {
+        "id": "angular-rxjs-operators-tricky-inner-catch",
+        "type": "tricky-question",
+        "order": 10,
+        "title": "The search box that stops after one error",
+        "question": "A search pipeline uses switchMap(httpRequest) followed by catchError(() => of([])). After one error, why might later search terms do nothing?",
+        "answer": "The outer catch replaces the failed pipeline with a finite fallback that then completes. Catch inside the inner HTTP stream if each failed search should recover while the search-term stream stays active.",
+        "explanation": "The same recovery value can have different lifecycle consequences depending on operator placement. Test an error followed by a new term, not just the first fallback.\n\n[Further reading](https://github.com/ReactiveX/rxjs/blob/7.8.2/src/internal/operators/catchError.ts)",
+        "hints": [
+          "Which stream is being replaced by catchError?"
+        ]
+      },
+      {
         "id": "rxjs-summary-1",
         "type": "summary",
-        "order": 9,
+        "order": 11,
         "title": "Quick revision and official references",
         "content": "Quick revision\n\n- switchMap = replace; mergeMap = parallel; concatMap = queue; exhaustMap = ignore while busy.\n- Client unsubscription is not a server transaction rollback.\n- Keep loading/error state attached to the active inner operation.\n- Important commands need server idempotency.\n\nOfficial references\n\n- https://rxjs.dev/api/operators/switchMap\n- https://rxjs.dev/api/operators/mergeMap\n- https://rxjs.dev/api/operators/concatMap\n- https://rxjs.dev/api/operators/exhaustMap\n- https://angular.dev/guide/http/making-requests"
       }
@@ -771,9 +831,21 @@
         ]
       },
       {
+        "id": "angular-http-interceptors-tricky-immutable-headers",
+        "type": "tricky-question",
+        "order": 9,
+        "title": "The header that never arrives",
+        "question": "An interceptor calls `req.headers.set('X-Trace', id)` and then `next(req)`. Why is the header missing?",
+        "answer": "HttpHeaders is immutable. set returns a new headers object. Forward a cloned request, for example `next(req.clone({ setHeaders: { 'X-Trace': id } }))`.",
+        "explanation": "Ignoring the returned value leaves the original request unchanged. Request bodies need separate care: cloning the request does not deeply freeze an object body.\n\n[Further reading](https://angular.dev/guide/http/interceptors)",
+        "hints": [
+          "Inspect the return value of set."
+        ]
+      },
+      {
         "id": "interceptor-summary-1",
         "type": "summary",
-        "order": 9,
+        "order": 10,
         "title": "Quick revision and official references",
         "content": "Quick revision\n\n- Functional interceptors are the recommended Angular style.\n- Requests are immutable; clone them to change headers, params, URL, or context.\n- Token refresh must be single-flight, bounded, and loop-safe.\n- Client retry of important commands requires server idempotency.\n\nOfficial references\n\n- https://angular.dev/guide/http/interceptors\n- https://angular.dev/guide/http/testing\n- https://angular.dev/api/common/http/HttpContextToken\n- https://angular.dev/guide/http/setup"
       }

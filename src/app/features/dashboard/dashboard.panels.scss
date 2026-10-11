@@ -1,0 +1,237 @@
+@use 'breakpoints' as *;
+@use 'mixins' as *;
+
+// Information panels are flat: no lift or shadow on hover, since they are not clickable.
+.dash__panel {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+
+  h2,
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-size: 1rem;
+
+    app-icon {
+      color: var(--color-primary);
+    }
+  }
+}
+
+.dash__muted {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.dash__more {
+  @include focus-ring;
+  align-self: flex-start;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.dash__section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+  }
+}
+
+// ── Progress ─────────────────────────────────────────────────────────────
+.dash__progress-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+
+  @include respond-to(tablet) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+  }
+}
+
+.dash__progress-donut {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+}
+
+.dash__progress-bars h3 {
+  margin: 0 0 var(--space-3);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+// ── Subjects (clickable) ─────────────────────────────────────────────────
+.dash__subjects {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--space-3);
+}
+
+.dash__subject {
+  @include card-interactive;
+  @include focus-ring;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text);
+  text-decoration: none;
+  border-left: 5px solid var(--accent, var(--color-primary));
+}
+
+.dash__subject-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  font-size: 1.5rem;
+  background: color-mix(in srgb, var(--accent, var(--color-primary)) 14%, var(--color-surface));
+}
+
+.dash__subject-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.dash__subject-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.92rem;
+
+  strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  span {
+    flex: none;
+    font-weight: 800;
+    color: var(--accent, var(--color-primary));
+  }
+}
+
+// ── Lists ────────────────────────────────────────────────────────────────
+.dash__lists {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+
+  @include respond-to(tablet) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include respond-to(desktop) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.dash__insights {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.dash__insights-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+
+  @include respond-to(tablet) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.dash__plain-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.9rem;
+  padding: var(--space-1) 0;
+
+  strong {
+    flex: none;
+    color: var(--color-success);
+  }
+}
+
+// ── Badges ───────────────────────────────────────────────────────────────
+.dash__badge-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+
+  @include respond-to(tablet) {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+.dash__badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  strong {
+    display: block;
+    font-size: 0.9rem;
+  }
+
+  small {
+    color: var(--color-text-muted);
+  }
+}
+
+.dash__badge-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 14%, transparent);
+}

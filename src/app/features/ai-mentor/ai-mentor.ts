@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import {
   Component,
   computed,
@@ -29,28 +30,54 @@ import { hasInAppHistory } from '../../shared/navigation';
 import { dateKey } from '../../shared/date-key';
 
 interface QuickPrompt {
+  icon: string;
   label: string;
-  prompt: string;
+  description: string;
+  /** Sent straight away. Ignored when `draft` is set. */
+  prompt?: string;
+  /** Placed in the message box for the learner to finish, instead of being sent. */
+  draft?: string;
 }
 
 const QUICK_PROMPTS: QuickPrompt[] = [
   {
-    label: 'Explain simply with a real-life example',
+    icon: 'lightbulb',
+    label: 'Explain it simply',
+    description: 'A real-life analogy, one practical example, and why it matters in interviews.',
     prompt:
       'Explain this concept in simple everyday language. Start with a real-life analogy, then give one practical coding/UI example, say why it matters in interviews, and end with 2 short questions to check my deep understanding. If I have a current topic in context, use that topic; otherwise pick closures.',
   },
   {
-    label: 'Ask me a question & check my understanding',
+    icon: 'target',
+    label: 'Quiz me',
+    description: 'One realistic interview question. I answer first, then you give feedback.',
     prompt:
       'Ask me one realistic frontend interview question (use my current topic if I have one). Wait for my answer before revealing yours. After I answer, tell me what was strong, what I missed, give a better simple answer, and ask one follow-up that checks deeper understanding.',
   },
+  {
+    icon: 'file-pen',
+    label: 'Review my answer',
+    description: 'Paste your answer and get honest, friendly feedback.',
+    draft:
+      'Here is my answer to an interview question. Please tell me what is strong, what is missing, and how to say it better.\n\nQuestion: \n\nMy answer: ',
+  },
+  {
+    icon: 'flame',
+    label: 'Common traps',
+    description: 'Mistakes people make and the follow-up questions interviewers love.',
+    prompt:
+      'What are the most common mistakes candidates make on this topic (use my current topic if I have one, otherwise closures), and what follow-up questions do interviewers usually ask? Keep it short and practical.',
+  },
 ];
+
+/** Long messages (like the built-in prompts) are folded so they do not fill the screen. */
+const LONG_MESSAGE_LENGTH = 220;
 
 @Component({
   selector: 'app-ai-mentor',
-  imports: [FormsModule, MarkdownPipe, IconComponent],
+  imports: [DatePipe, FormsModule, MarkdownPipe, IconComponent],
   templateUrl: './ai-mentor.html',
-  styleUrl: './ai-mentor.scss',
+  styleUrls: ['./ai-mentor.scss', './ai-mentor.chat.scss', './ai-mentor.composer.scss'],
 })
 export class AiMentorComponent {
   private readonly aiAssistantService = inject(AiAssistantService);
@@ -67,6 +94,7 @@ export class AiMentorComponent {
   question = input<string>();
 
   private readonly chatScroll = viewChild<ElementRef<HTMLElement>>('chatScroll');
+  private readonly composerInput = viewChild<ElementRef<HTMLTextAreaElement>>('composerInput');
 
   readonly quickPrompts = QUICK_PROMPTS;
   readonly conversations = this.chatStore.conversations;
@@ -80,6 +108,8 @@ export class AiMentorComponent {
   readonly copiedIndex = signal<number | null>(null);
   readonly savedIndex = signal<number | null>(null);
   readonly historyOpen = signal(false);
+  /** Indexes of long messages the learner has unfolded. */
+  readonly expanded = signal<ReadonlySet<number>>(new Set());
 
   private seededFromRoute = false;
   private initialized = false;
@@ -220,9 +250,31 @@ export class AiMentorComponent {
     this.sendDraft();
   }
 
-  sendPrompt(prompt: string): void {
+  sendPrompt(item: QuickPrompt): void {
     if (this.loading()) return;
-    this.send(prompt);
+    if (item.draft !== undefined) {
+      // Let the learner finish the message first, then jump into the box.
+      this.draft.set(item.draft);
+      setTimeout(() => this.composerInput()?.nativeElement.focus());
+      return;
+    }
+    if (item.prompt) this.send(item.prompt);
+  }
+
+  isLong(message: AiChatMessage): boolean {
+    return message.content.length > LONG_MESSAGE_LENGTH;
+  }
+
+  isExpanded(index: number): boolean {
+    return this.expanded().has(index);
+  }
+
+  toggleExpanded(index: number): void {
+    this.expanded.update((current) => {
+      const next = new Set(current);
+      if (!next.delete(index)) next.add(index);
+      return next;
+    });
   }
 
   private send(text: string): void {
@@ -298,13 +350,19 @@ export class AiMentorComponent {
   previewText(conversation: AiConversation): string {
     const last = [...conversation.messages].reverse().find((m) => m.content.trim());
     if (!last) return 'No messages yet';
-    const compact = last.content.replace(/\s+/g, ' ').trim();
+    // Show plain words in the list: drop markdown markers like **bold**, `code` and # headings.
+    const compact = last.content
+      .replace(/```[a-z]*/gi, ' ')
+      .replace(/[*_`#>]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
     return compact.length > 64 ? `${compact.slice(0, 61)}…` : compact;
   }
 
   private scrollToBottom(): void {
     const el = this.chatScroll()?.nativeElement;
     if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    // With no messages the welcome screen should start at its top, not be scrolled away.
+    el.scrollTop = this.messages().length === 0 && !this.loading() ? 0 : el.scrollHeight;
   }
 }

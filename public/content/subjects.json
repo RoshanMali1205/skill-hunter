@@ -2071,193 +2071,233 @@
             ]
           },
           {
-            "id": "ts-enums-vs-literals",
+            "id": "ts-type-system-inference",
             "categoryId": "ts-basics",
-            "title": "Enums vs Union Literal Types",
-            "description": "Why many modern TypeScript codebases prefer `as const` literal unions over the `enum` keyword.",
+            "title": "Type System and Type Inference",
+            "description": "How TypeScript infers types and why explicit annotations are not always necessary.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 15,
+            "tags": [
+              "type-system",
+              "type-inference",
+              "annotations"
+            ]
+          },
+          {
+            "id": "ts-primitives-literals",
+            "categoryId": "ts-basics",
+            "title": "Primitive and Literal Types",
+            "description": "Using primitive, literal, and literal-union types to express valid values precisely.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 12,
+            "tags": [
+              "primitives",
+              "literal-types",
+              "union"
+            ]
+          },
+          {
+            "id": "ts-arrays-tuples",
+            "categoryId": "ts-basics",
+            "title": "Arrays, Tuples and Readonly Tuples",
+            "description": "Typing homogeneous collections and fixed-position data safely.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 15,
+            "tags": [
+              "arrays",
+              "tuples",
+              "readonly"
+            ]
+          },
+          {
+            "id": "ts-null-undefined-optional",
+            "categoryId": "ts-basics",
+            "title": "null, undefined and Optional Properties",
+            "description": "Modeling absent values accurately with strict null checking.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 15,
+            "tags": [
+              "null",
+              "undefined",
+              "optional",
+              "strict-null-checks"
+            ]
+          },
+          {
+            "id": "ts-functions-callbacks",
+            "categoryId": "ts-basics",
+            "title": "Function Types and Callbacks",
+            "description": "Typing parameters, return values, callbacks, optional parameters, and rest parameters.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 18,
+            "tags": [
+              "functions",
+              "callbacks",
+              "rest-parameters"
+            ]
+          },
+          {
+            "id": "ts-assertions-non-null",
+            "categoryId": "ts-basics",
+            "title": "Type Assertions and Non-null Assertion",
+            "description": "Using `as`, `!`, and assertions carefully without hiding real runtime problems.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 15,
+            "tags": [
+              "assertions",
+              "non-null",
+              "type-safety"
+            ]
+          },
+          {
+            "id": "ts-enums-vs-unions",
+            "categoryId": "ts-basics",
+            "title": "Enums vs Literal Unions",
+            "description": "Choosing between runtime enum objects and compile-time literal-union modeling.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 18,
+            "tags": [
+              "enum",
+              "literal-union",
+              "runtime"
+            ]
+          },
+          {
+            "id": "ts-readonly-immutability",
+            "categoryId": "ts-basics",
+            "title": "readonly and Immutability",
+            "description": "Using readonly properties and collections to prevent accidental mutation at compile time.",
             "difficulty": "intermediate",
             "interviewPriority": "high",
             "estimatedMinutes": 15,
             "tags": [
-              "enums",
-              "literal-types",
-              "as-const"
+              "readonly",
+              "immutability",
+              "arrays"
             ]
           },
           {
-            "id": "senior-ts-10-exhaustive-switch-checking",
+            "id": "ts-classes-access-modifiers",
             "categoryId": "ts-basics",
-            "title": "Exhaustive switch checking",
-            "description": "Senior/lead scenario: A new payment status is added but one UI still displays a blank label. How can TypeScript help prevent this?",
-            "difficulty": "advanced",
+            "title": "Classes and Access Modifiers",
+            "description": "Using public, private, protected, readonly, parameter properties, and class contracts.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 20,
+            "tags": [
+              "classes",
+              "public",
+              "private",
+              "protected",
+              "readonly"
+            ]
+          },
+          {
+            "id": "ts-abstract-classes-implements",
+            "categoryId": "ts-basics",
+            "title": "Abstract Classes, extends and implements",
+            "description": "Understanding inheritance and contract implementation in TypeScript.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 18,
+            "tags": [
+              "abstract-class",
+              "extends",
+              "implements",
+              "inheritance"
+            ]
+          },
+          {
+            "id": "ts-modules",
+            "categoryId": "ts-basics",
+            "title": "Modules, import and export",
+            "description": "Organizing TypeScript code with ES modules and type-only imports.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 18,
+            "tags": [
+              "modules",
+              "import",
+              "export",
+              "type-only-import"
+            ]
+          },
+          {
+            "id": "ts-promise-async",
+            "categoryId": "ts-basics",
+            "title": "Promise and Async Function Typing",
+            "description": "Typing asynchronous functions, Promise results, errors, and resolved values.",
+            "difficulty": "intermediate",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 18,
             "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "exhaustive-switch-checking"
+              "promise",
+              "async",
+              "await",
+              "awaited"
             ]
           },
           {
-            "id": "senior-ts-25-typed-event-bus",
+            "id": "ts-optional-chaining-nullish",
             "categoryId": "ts-basics",
-            "title": "Typed event bus",
-            "description": "Senior/lead scenario: Design a shared event bus where each event name has a different payload type.",
-            "difficulty": "advanced",
+            "title": "Optional Chaining and Nullish Coalescing",
+            "description": "Safely reading optional values and choosing defaults without incorrectly treating valid falsy values as missing.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 12,
+            "tags": [
+              "optional-chaining",
+              "nullish-coalescing",
+              "null"
+            ]
+          },
+          {
+            "id": "ts-destructuring-rest",
+            "categoryId": "ts-basics",
+            "title": "Destructuring, Rest and Spread Typing",
+            "description": "How TypeScript infers object/array destructuring and rest/spread operations.",
+            "difficulty": "intermediate",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 15,
+            "tags": [
+              "destructuring",
+              "rest",
+              "spread"
+            ]
+          },
+          {
+            "id": "ts-type-erasure-runtime",
+            "categoryId": "ts-basics",
+            "title": "Type Erasure and Runtime Reality",
+            "description": "Understanding what TypeScript removes during compilation and what still exists in JavaScript.",
+            "difficulty": "beginner",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 15,
             "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "typed-event-bus"
+              "type-erasure",
+              "runtime",
+              "compile-time"
             ]
           },
           {
-            "id": "senior-ts-35-typing-a-normalized-entity-store",
+            "id": "ts-overuse-any",
             "categoryId": "ts-basics",
-            "title": "Typing a normalized entity store",
-            "description": "Senior/lead scenario: Design types for a store containing entities by ID, ordered IDs, loading status, and per-entity errors.",
-            "difficulty": "advanced",
+            "title": "Avoiding any and Designing Safe Escape Hatches",
+            "description": "Recognizing how any spreads and choosing safer alternatives.",
+            "difficulty": "intermediate",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 18,
             "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "typing-a-normalized-entity-store"
-            ]
-          },
-          {
-            "id": "senior-ts-36-typing-feature-flags",
-            "categoryId": "ts-basics",
-            "title": "Typing feature flags",
-            "description": "Senior/lead scenario: Feature flags are accessed by arbitrary strings and misspellings create silent false values. How do you improve this?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "typing-feature-flags"
-            ]
-          },
-          {
-            "id": "senior-ts-38-migrating-javascript-to-typescript",
-            "categoryId": "ts-basics",
-            "title": "Migrating JavaScript to TypeScript",
-            "description": "Senior/lead scenario: A 200,000-line JavaScript application must move to TypeScript while feature delivery continues. What plan would you use?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "migrating-javascript-to-typescript"
-            ]
-          },
-          {
-            "id": "senior-ts-41-domain-modeling-instead-of-primitive-obsession",
-            "categoryId": "ts-basics",
-            "title": "Domain modeling instead of primitive obsession",
-            "description": "Senior/lead scenario: A function takes ten strings and booleans representing a payment. How would TypeScript improve the design?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "domain-modeling-instead-of-primitive-obsession"
-            ]
-          },
-          {
-            "id": "senior-ts-42-typing-permissions",
-            "categoryId": "ts-basics",
-            "title": "Typing permissions",
-            "description": "Senior/lead scenario: A UI permission helper accepts arbitrary strings and role names. How would you create a safer contract?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "typing-permissions"
-            ]
-          },
-          {
-            "id": "senior-ts-43-typing-localization-keys",
-            "categoryId": "ts-basics",
-            "title": "Typing localization keys",
-            "description": "Senior/lead scenario: Developers frequently use missing translation keys. Can TypeScript help?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "typing-localization-keys"
-            ]
-          },
-          {
-            "id": "senior-ts-45-typing-workers-and-messages",
-            "categoryId": "ts-basics",
-            "title": "Typing workers and messages",
-            "description": "Senior/lead scenario: A Web Worker receives several command types and returns progress, success, or error messages. How do you type the protocol?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "typing-workers-and-messages"
-            ]
-          },
-          {
-            "id": "senior-ts-46-typing-websocket-events",
-            "categoryId": "ts-basics",
-            "title": "Typing WebSocket events",
-            "description": "Senior/lead scenario: A WebSocket carries many message types and backend teams add new ones. How would you keep the client safe?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "typing-websocket-events"
-            ]
-          },
-          {
-            "id": "senior-ts-50-senior-typescript-review-judgment",
-            "categoryId": "ts-basics",
-            "title": "Senior TypeScript review judgment",
-            "description": "Senior/lead scenario: A pull request introduces a 100-line conditional type to eliminate three overloads. Would you approve it?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "senior-typescript-review-judgment"
+              "any",
+              "unknown",
+              "technical-debt"
             ]
           }
         ]
@@ -2314,131 +2354,129 @@
             ]
           },
           {
-            "id": "senior-ts-03-generic-reusable-api-client",
+            "id": "ts-generic-constraints",
             "categoryId": "ts-generics-utility",
-            "title": "Generic reusable API client",
-            "description": "Senior/lead scenario: Design a reusable API client that supports typed request, response, pagination, and errors without losing domain meaning.",
-            "difficulty": "advanced",
+            "title": "Generic Constraints and keyof Generics",
+            "description": "Restricting generic parameters while preserving precise relationships between values.",
+            "difficulty": "intermediate",
             "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "estimatedMinutes": 20,
             "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "generic-reusable-api-client"
+              "generics",
+              "constraints",
+              "keyof"
             ]
           },
           {
-            "id": "senior-ts-04-generic-constraints",
+            "id": "ts-generic-interfaces-classes",
             "categoryId": "ts-generics-utility",
-            "title": "Generic constraints",
-            "description": "Senior/lead scenario: A utility accepts any object but requires an id property. How would you express this in TypeScript?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "title": "Generic Interfaces and Classes",
+            "description": "Applying generic type parameters to reusable data structures, contracts, and services.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 18,
             "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "generic-constraints"
+              "generics",
+              "interfaces",
+              "classes"
             ]
           },
           {
-            "id": "senior-ts-05-keyof-and-indexed-access",
+            "id": "ts-indexed-access-types",
             "categoryId": "ts-generics-utility",
-            "title": "keyof and indexed access",
-            "description": "Senior/lead scenario: Create a type-safe table column definition so each column key must exist on the row model and the formatter receives the correct value type.",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "title": "Indexed Access Types",
+            "description": "Reading a property type from another type using bracket notation.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 12,
             "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "keyof-and-indexed-access"
+              "indexed-access",
+              "keyof",
+              "derived-types"
             ]
           },
           {
-            "id": "senior-ts-06-mapped-types-for-form-state",
+            "id": "ts-mapped-types",
             "categoryId": "ts-generics-utility",
-            "title": "Mapped types for form state",
-            "description": "Senior/lead scenario: Given a domain model, create a related type that tracks value, dirty, touched, and error state for each property.",
+            "title": "Mapped Types",
+            "description": "Transforming every property in an existing type using `keyof` and property mapping.",
             "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "interviewPriority": "high",
+            "estimatedMinutes": 20,
             "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "mapped-types-for-form-state"
+              "mapped-types",
+              "keyof",
+              "utility-types"
             ]
           },
           {
-            "id": "senior-ts-07-conditional-types",
+            "id": "ts-conditional-types",
             "categoryId": "ts-generics-utility",
-            "title": "Conditional types",
-            "description": "Senior/lead scenario: A library returns different result types based on an options flag. How can conditional types model this, and what are the limits?",
+            "title": "Conditional Types",
+            "description": "Selecting one type or another based on a type relationship.",
             "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "interviewPriority": "high",
+            "estimatedMinutes": 22,
             "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "conditional-types"
+              "conditional-types",
+              "generics",
+              "advanced-types"
             ]
           },
           {
-            "id": "senior-ts-08-using-infer",
+            "id": "ts-infer-keyword",
             "categoryId": "ts-generics-utility",
-            "title": "Using infer",
-            "description": "Senior/lead scenario: You need to extract the resolved value from a Promise-returning function type. How would infer help?",
+            "title": "The infer Keyword",
+            "description": "Extracting a type from another type inside conditional types.",
             "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "interviewPriority": "high",
+            "estimatedMinutes": 18,
             "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "using-infer"
+              "infer",
+              "conditional-types",
+              "return-type"
             ]
           },
           {
-            "id": "senior-ts-14-utility-types-in-api-models",
+            "id": "ts-as-const",
             "categoryId": "ts-generics-utility",
-            "title": "Utility types in API models",
-            "description": "Senior/lead scenario: A team builds update payloads with Partial<Entity>. What risks does this create?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "title": "as const and Literal Inference",
+            "description": "Preserving literal values and readonly object/tuple shapes with const assertions.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 15,
             "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "utility-types-in-api-models"
+              "as-const",
+              "literal-types",
+              "readonly"
             ]
           },
           {
-            "id": "senior-ts-28-generic-component-inputs",
+            "id": "ts-satisfies-operator",
             "categoryId": "ts-generics-utility",
-            "title": "Generic component inputs",
-            "description": "Senior/lead scenario: You want a reusable list component whose item template and selection event retain the item type. What are the design challenges?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
+            "title": "The satisfies Operator",
+            "description": "Validating that a value conforms to a type without unnecessarily replacing its inferred type.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 15,
             "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "generic-component-inputs"
+              "satisfies",
+              "inference",
+              "type-safety"
+            ]
+          },
+          {
+            "id": "ts-index-signatures-record",
+            "categoryId": "ts-generics-utility",
+            "title": "Index Signatures and Record",
+            "description": "Typing dictionary-like objects whose keys are not all known individually.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 18,
+            "tags": [
+              "index-signature",
+              "record",
+              "dictionary"
             ]
           }
         ]
@@ -2479,567 +2517,218 @@
             ]
           },
           {
-            "id": "ts-conditional-types-infer",
+            "id": "ts-function-overloads",
             "categoryId": "ts-advanced-types",
-            "title": "Conditional Types and infer",
-            "description": "Type-level branching with `T extends U ? X : Y`, and extracting nested types with `infer`.",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 20,
-            "tags": [
-              "conditional-types",
-              "infer",
-              "type-level-programming"
-            ]
-          },
-          {
-            "id": "senior-ts-09-discriminated-unions-for-ui-state",
-            "categoryId": "ts-advanced-types",
-            "title": "Discriminated unions for UI state",
-            "description": "Senior/lead scenario: A component has isLoading, hasError, data, and error flags that can form impossible combinations. How would you redesign the state?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "discriminated-unions-for-ui-state"
-            ]
-          },
-          {
-            "id": "senior-ts-11-custom-type-guards",
-            "categoryId": "ts-advanced-types",
-            "title": "Custom type guards",
-            "description": "Senior/lead scenario: A function receives unknown JSON and checks only that value is an object before casting it to Customer. Is that enough?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "custom-type-guards"
-            ]
-          },
-          {
-            "id": "senior-ts-12-assertion-functions",
-            "categoryId": "ts-advanced-types",
-            "title": "Assertion functions",
-            "description": "Senior/lead scenario: You have a configuration value that must exist after application bootstrap. How can an assertion function help?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "assertion-functions"
-            ]
-          },
-          {
-            "id": "senior-ts-13-function-overload-design",
-            "categoryId": "ts-advanced-types",
-            "title": "Function overload design",
-            "description": "Senior/lead scenario: A date formatter accepts either a Date or timestamp and has different optional parameters. How would you design overloads?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "function-overload-design"
-            ]
-          },
-          {
-            "id": "senior-ts-15-branded-types-for-ids",
-            "categoryId": "ts-advanced-types",
-            "title": "Branded types for IDs",
-            "description": "Senior/lead scenario: CustomerId and AccountId are both strings and are accidentally passed to the wrong functions. Can TypeScript help?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "branded-types-for-ids"
-            ]
-          },
-          {
-            "id": "senior-ts-16-readonly-and-deep-immutability",
-            "categoryId": "ts-advanced-types",
-            "title": "Readonly and deep immutability",
-            "description": "Senior/lead scenario: A shared state API returns Readonly<User>, but nested arrays can still be mutated. Why?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "readonly-and-deep-immutability"
-            ]
-          },
-          {
-            "id": "senior-ts-17-satisfies-versus-type-annotation",
-            "categoryId": "ts-advanced-types",
-            "title": "satisfies versus type annotation",
-            "description": "Senior/lead scenario: You want to verify a configuration object matches a contract while preserving its narrow literal values. What should you use?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "satisfies-versus-type-annotation"
-            ]
-          },
-          {
-            "id": "senior-ts-18-const-assertions",
-            "categoryId": "ts-advanced-types",
-            "title": "Const assertions",
-            "description": "Senior/lead scenario: A list of statuses is inferred as string[] but you want a literal union from it. How would you do that?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "const-assertions"
-            ]
-          },
-          {
-            "id": "senior-ts-19-enum-versus-literal-union",
-            "categoryId": "ts-advanced-types",
-            "title": "Enum versus literal union",
-            "description": "Senior/lead scenario: A team uses enums for every finite set. Would you continue?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "enum-versus-literal-union"
-            ]
-          },
-          {
-            "id": "senior-ts-24-type-safe-error-modeling",
-            "categoryId": "ts-advanced-types",
-            "title": "Type-safe error modeling",
-            "description": "Senior/lead scenario: A service throws heterogeneous exceptions and every caller catches unknown. How would you design a typed error model?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "type-safe-error-modeling"
-            ]
-          },
-          {
-            "id": "senior-ts-26-type-safe-state-machine",
-            "categoryId": "ts-advanced-types",
-            "title": "Type-safe state machine",
-            "description": "Senior/lead scenario: A multi-step approval flow has strict allowed transitions. How can TypeScript model it?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "type-safe-state-machine"
-            ]
-          },
-          {
-            "id": "senior-ts-44-type-safe-analytics-schema",
-            "categoryId": "ts-advanced-types",
-            "title": "Type-safe analytics schema",
-            "description": "Senior/lead scenario: Different teams send inconsistent analytics payloads. Design a TypeScript contract.",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "type-safe-analytics-schema"
-            ]
-          },
-          {
-            "id": "senior-ts-47-type-safe-dependency-injection-tokens",
-            "categoryId": "ts-advanced-types",
-            "title": "Type-safe dependency injection tokens",
-            "description": "Senior/lead scenario: Configuration tokens are created without generic types and consumers cast their values. How would you improve them?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "type-safe-dependency-injection-tokens"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "ts-oop",
-        "subjectId": "typescript",
-        "title": "Classes & Advanced Functions",
-        "description": "Visibility modifiers, abstract classes, and function overloading.",
-        "order": 4,
-        "topics": [
-          {
-            "id": "ts-access-modifiers-abstract-classes",
-            "categoryId": "ts-oop",
-            "title": "Access Modifiers and Abstract Classes",
-            "description": "Compile-time visibility (public/protected/private) versus runtime-enforced #private, and when to reach for an abstract base class.",
+            "title": "Function Overloads",
+            "description": "Providing multiple call signatures for one implementation.",
             "difficulty": "intermediate",
             "interviewPriority": "high",
             "estimatedMinutes": 15,
             "tags": [
-              "access-modifiers",
-              "abstract-classes",
-              "encapsulation"
+              "functions",
+              "overloads",
+              "signatures"
             ]
           },
           {
-            "id": "ts-function-overloading",
-            "categoryId": "ts-oop",
-            "title": "Function Overloading",
-            "description": "Declaring multiple call signatures for one implementation, and when generics are a simpler alternative.",
+            "id": "ts-narrowing-type-guards",
+            "categoryId": "ts-advanced-types",
+            "title": "Type Narrowing and Type Guards",
+            "description": "Safely reducing a broad type to a more specific type based on runtime checks.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "narrowing",
+              "type-guards",
+              "typeof",
+              "instanceof",
+              "in"
+            ]
+          },
+          {
+            "id": "ts-custom-type-predicates",
+            "categoryId": "ts-advanced-types",
+            "title": "Custom Type Predicates and Assertion Functions",
+            "description": "Creating reusable runtime validation functions that also narrow types for the compiler.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 20,
+            "tags": [
+              "type-predicate",
+              "assertion-functions",
+              "validation"
+            ]
+          },
+          {
+            "id": "ts-never-exhaustiveness",
+            "categoryId": "ts-advanced-types",
+            "title": "never and Exhaustiveness Checking",
+            "description": "Understanding impossible values and using never to catch unhandled cases.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 15,
+            "tags": [
+              "never",
+              "exhaustiveness",
+              "control-flow"
+            ]
+          },
+          {
+            "id": "ts-template-literal-types",
+            "categoryId": "ts-advanced-types",
+            "title": "Template Literal Types",
+            "description": "Building precise string types from unions and string patterns.",
+            "difficulty": "advanced",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 18,
+            "tags": [
+              "template-literal-types",
+              "literal-types",
+              "string-types"
+            ]
+          },
+          {
+            "id": "ts-structural-typing",
+            "categoryId": "ts-advanced-types",
+            "title": "Structural Typing and Type Compatibility",
+            "description": "Why TypeScript compares compatible shapes rather than requiring explicit nominal relationships.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 20,
+            "tags": [
+              "structural-typing",
+              "compatibility",
+              "duck-typing"
+            ]
+          },
+          {
+            "id": "ts-excess-property-checks",
+            "categoryId": "ts-advanced-types",
+            "title": "Excess Property Checks",
+            "description": "Understanding why fresh object literals are checked more strictly for unexpected properties.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 15,
+            "tags": [
+              "excess-properties",
+              "structural-typing",
+              "objects"
+            ]
+          },
+          {
+            "id": "ts-declaration-files",
+            "categoryId": "ts-advanced-types",
+            "title": "Declaration Files and Module Augmentation",
+            "description": "Understanding `.d.ts` files, ambient declarations, and safe augmentation of existing types.",
+            "difficulty": "advanced",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 22,
+            "tags": [
+              "declaration-files",
+              "d.ts",
+              "module-augmentation",
+              "ambient"
+            ]
+          },
+          {
+            "id": "ts-tsconfig-strict",
+            "categoryId": "ts-advanced-types",
+            "title": "tsconfig and Strict Type Checking",
+            "description": "Understanding compiler configuration and why strict mode matters in production code.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 22,
+            "tags": [
+              "tsconfig",
+              "strict",
+              "compiler-options"
+            ]
+          },
+          {
+            "id": "ts-error-handling-unknown",
+            "categoryId": "ts-advanced-types",
+            "title": "Type-safe Error Handling",
+            "description": "Handling catch values and external errors without assuming a shape that is not guaranteed.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 15,
+            "tags": [
+              "errors",
+              "unknown",
+              "catch",
+              "narrowing"
+            ]
+          },
+          {
+            "id": "ts-api-boundaries-validation",
+            "categoryId": "ts-advanced-types",
+            "title": "Typing API and External Data Boundaries",
+            "description": "Understanding why TypeScript types alone cannot guarantee server, storage, or user-provided data.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 25,
+            "tags": [
+              "api",
+              "runtime-validation",
+              "unknown",
+              "boundary"
+            ]
+          },
+          {
+            "id": "ts-variance-function-types",
+            "categoryId": "ts-advanced-types",
+            "title": "Variance and Function Type Compatibility",
+            "description": "Understanding why callback parameter and return type compatibility can be subtle.",
+            "difficulty": "advanced",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 25,
+            "tags": [
+              "variance",
+              "function-types",
+              "strict-function-types"
+            ]
+          },
+          {
+            "id": "ts-branded-types",
+            "categoryId": "ts-advanced-types",
+            "title": "Branded Types for Domain IDs",
+            "description": "Creating nominal-like distinctions between values that share the same primitive representation.",
+            "difficulty": "advanced",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 18,
+            "tags": [
+              "branded-types",
+              "nominal-typing",
+              "domain-modeling"
+            ]
+          },
+          {
+            "id": "ts-this-typing",
+            "categoryId": "ts-advanced-types",
+            "title": "Typing this in Functions and Classes",
+            "description": "Understanding contextual `this`, explicit this parameters, and common callback pitfalls.",
+            "difficulty": "advanced",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 18,
+            "tags": [
+              "this",
+              "functions",
+              "callbacks"
+            ]
+          },
+          {
+            "id": "ts-declaration-merging",
+            "categoryId": "ts-advanced-types",
+            "title": "Declaration Merging",
+            "description": "How compatible declarations with the same name can combine in TypeScript.",
             "difficulty": "advanced",
             "interviewPriority": "medium",
             "estimatedMinutes": 15,
             "tags": [
-              "function-overloading",
-              "call-signatures"
-            ]
-          },
-          {
-            "id": "senior-ts-27-typed-reactive-forms",
-            "categoryId": "ts-oop",
-            "title": "Typed reactive forms",
-            "description": "Senior/lead scenario: How would you design a typed Angular form for a nested customer model without confusing DTO, domain, and form value types?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "typed-reactive-forms"
-            ]
-          },
-          {
-            "id": "senior-ts-29-interface-versus-type-alias",
-            "categoryId": "ts-oop",
-            "title": "Interface versus type alias",
-            "description": "Senior/lead scenario: A team argues that interfaces should always be used for objects and types for unions. What is your view?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "interface-versus-type-alias"
-            ]
-          },
-          {
-            "id": "senior-ts-30-abstract-class-versus-interface",
-            "categoryId": "ts-oop",
-            "title": "Abstract class versus interface",
-            "description": "Senior/lead scenario: A framework service needs a contract and shared implementation. Should you use an interface or abstract class?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "abstract-class-versus-interface"
-            ]
-          },
-          {
-            "id": "senior-ts-48-typing-a-plugin-registry",
-            "categoryId": "ts-oop",
-            "title": "Typing a plugin registry",
-            "description": "Senior/lead scenario: A frontend platform loads plugins that register widgets by key. How would you make registrations type-safe?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "typing-a-plugin-registry"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "ts-safety",
-        "subjectId": "typescript",
-        "title": "Type Safety & Strict Mode",
-        "description": "any vs unknown, strict compiler flags, exactOptionalPropertyTypes, noUncheckedIndexedAccess, and validating data at runtime boundaries.",
-        "order": 5,
-        "topics": [
-          {
-            "id": "senior-ts-01-any-versus-unknown-at-an-api-boundary",
-            "categoryId": "ts-safety",
-            "title": "any versus unknown at an API boundary",
-            "description": "Senior/lead scenario: A third-party SDK returns any and developers use the value throughout the application. How would you make this safe?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "any-versus-unknown-at-an-api-boundary"
-            ]
-          },
-          {
-            "id": "senior-ts-02-enabling-strict-mode-in-a-legacy-codebase",
-            "categoryId": "ts-safety",
-            "title": "Enabling strict mode in a legacy codebase",
-            "description": "Senior/lead scenario: A large TypeScript project has strict disabled and thousands of implicit null and any issues. How would you migrate?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "enabling-strict-mode-in-a-legacy-codebase"
-            ]
-          },
-          {
-            "id": "senior-ts-20-exactoptionalpropertytypes",
-            "categoryId": "ts-safety",
-            "title": "exactOptionalPropertyTypes",
-            "description": "Senior/lead scenario: Why might enabling exactOptionalPropertyTypes reveal bugs in patch payloads?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "exactoptionalpropertytypes"
-            ]
-          },
-          {
-            "id": "senior-ts-21-nouncheckedindexedaccess",
-            "categoryId": "ts-safety",
-            "title": "noUncheckedIndexedAccess",
-            "description": "Senior/lead scenario: A lookup by arbitrary key is typed as always returning a value, but production sees undefined. How can compiler configuration help?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "nouncheckedindexedaccess"
-            ]
-          },
-          {
-            "id": "senior-ts-22-nullability-in-domain-models",
-            "categoryId": "ts-safety",
-            "title": "Nullability in domain models",
-            "description": "Senior/lead scenario: Backend responses contain many nullable fields and components are full of optional chaining. How would you improve the design?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "nullability-in-domain-models"
-            ]
-          },
-          {
-            "id": "senior-ts-23-runtime-validation-of-dtos",
-            "categoryId": "ts-safety",
-            "title": "Runtime validation of DTOs",
-            "description": "Senior/lead scenario: The generated TypeScript interface says amount is number, but the API sends a string in one environment. Why did the compiler not catch it?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "runtime-validation-of-dtos"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "ts-advanced-interview",
-        "subjectId": "typescript",
-        "title": "Tooling, Config & Architecture",
-        "description": "tsconfig layering, path aliases, code generation, compiler performance, suppression governance, and enforcing architectural boundaries.",
-        "order": 6,
-        "topics": [
-          {
-            "id": "senior-ts-31-type-only-imports",
-            "categoryId": "ts-advanced-interview",
-            "title": "Type-only imports",
-            "description": "Senior/lead scenario: Why use import type in a large TypeScript application?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "type-only-imports"
-            ]
-          },
-          {
-            "id": "senior-ts-32-tsconfig-layering",
-            "categoryId": "ts-advanced-interview",
-            "title": "tsconfig layering",
-            "description": "Senior/lead scenario: How would you structure tsconfig files for applications, libraries, tests, and tooling in a monorepo?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "tsconfig-layering"
-            ]
-          },
-          {
-            "id": "senior-ts-33-path-aliases-and-runtime-resolution",
-            "categoryId": "ts-advanced-interview",
-            "title": "Path aliases and runtime resolution",
-            "description": "Senior/lead scenario: TypeScript path aliases compile in the editor but fail at runtime or in tests. Why?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "path-aliases-and-runtime-resolution"
-            ]
-          },
-          {
-            "id": "senior-ts-34-schema-first-api-code-generation",
-            "categoryId": "ts-advanced-interview",
-            "title": "Schema-first API code generation",
-            "description": "Senior/lead scenario: Would you generate TypeScript clients from OpenAPI for a large frontend platform?",
-            "difficulty": "advanced",
-            "interviewPriority": "must-know",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "schema-first-api-code-generation"
-            ]
-          },
-          {
-            "id": "senior-ts-37-type-level-performance",
-            "categoryId": "ts-advanced-interview",
-            "title": "Type-level performance",
-            "description": "Senior/lead scenario: The editor becomes slow after introducing advanced recursive conditional types. What would you do?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "type-level-performance"
-            ]
-          },
-          {
-            "id": "senior-ts-39-using-ts-ignore-and-ts-expect-error",
-            "categoryId": "ts-advanced-interview",
-            "title": "Using ts-ignore and ts-expect-error",
-            "description": "Senior/lead scenario: The codebase contains hundreds of ts-ignore comments. How would you govern suppressions?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "using-ts-ignore-and-ts-expect-error"
-            ]
-          },
-          {
-            "id": "senior-ts-40-public-api-stability",
-            "categoryId": "ts-advanced-interview",
-            "title": "Public API stability",
-            "description": "Senior/lead scenario: A shared TypeScript package changes a generic default and many consumers break. How do you manage type-level compatibility?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "public-api-stability"
-            ]
-          },
-          {
-            "id": "senior-ts-49-architecture-boundaries-with-typescript",
-            "categoryId": "ts-advanced-interview",
-            "title": "Architecture boundaries with TypeScript",
-            "description": "Senior/lead scenario: Can TypeScript enforce that features do not import each other’s internals?",
-            "difficulty": "advanced",
-            "interviewPriority": "high",
-            "estimatedMinutes": 25,
-            "tags": [
-              "ts",
-              "senior",
-              "scenario-based",
-              "architect",
-              "architecture-boundaries-with-typescript"
+              "declaration-merging",
+              "interface",
+              "augmentation"
             ]
           }
         ]

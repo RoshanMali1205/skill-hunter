@@ -11,14 +11,42 @@
 
   @if (!started()) {
     <section class="practice__setup">
+      <div class="practice__presets" aria-label="Practice focus">
+        <button
+          type="button"
+          class="btn"
+          [attr.aria-pressed]="filter().questionType === 'all'"
+          (click)="setQuestionPreset(false)"
+        >
+          All question types
+        </button>
+        <button
+          type="button"
+          class="btn"
+          [attr.aria-pressed]="filter().questionType === 'tricky-question'"
+          (click)="setQuestionPreset(true)"
+        >
+          <app-icon name="flame" /> Tricky questions
+        </button>
+      </div>
+      @if (from() === 'tricky' && subjectId()) {
+        <button type="button" class="btn btn--ghost" (click)="returnToQuestionBank()">
+          Return to tricky questions
+        </button>
+      }
       <h2><app-icon name="target" /> Filters</h2>
 
       @if (filter().topicId) {
         <div class="practice__topic-lock" role="status">
           <span>
-            Locked to topic
+            {{ filter().questionId ? 'Practising one question from' : 'Locked to topic' }}
             <strong>{{ lockedTopicTitle() ?? filter().topicId }}</strong>
           </span>
+          @if (cameFromTopic()) {
+            <button type="button" class="btn btn--ghost" (click)="returnToTopic()">
+              Return to topic
+            </button>
+          }
           <button type="button" class="btn btn--ghost" (click)="clearTopicLock()">
             Clear lock
           </button>
@@ -49,11 +77,11 @@
         }
 
         <label class="practice__field">
-          <span><app-icon name="bar-chart" /> Difficulty</span>
+          <span><app-icon name="bar-chart" /> Topic difficulty</span>
           <app-select
             [value]="filter().difficulty ?? 'all'"
             [options]="difficultyOptions"
-            ariaLabel="Difficulty"
+            ariaLabel="Topic difficulty"
             (valueChange)="updateFilter({ difficulty: $any($event) })"
           />
         </label>
@@ -67,13 +95,36 @@
             (valueChange)="updateFilter({ questionType: $any($event) })"
           />
         </label>
+        <label class="practice__field">
+          <span>Session length</span>
+          <app-select
+            [value]="sessionLength().toString()"
+            [options]="lengthOptions"
+            ariaLabel="Session length"
+            (valueChange)="setSessionLength($event)"
+          />
+        </label>
       </div>
+
+      @if (filter().searchTerm) {
+        <div class="practice__topic-lock">
+          <span>Question search: {{ filter().searchTerm }}</span>
+          <button
+            type="button"
+            class="btn btn--ghost"
+            (click)="updateFilter({ searchTerm: undefined })"
+          >
+            Clear search
+          </button>
+        </div>
+      }
 
       <div class="practice__toggles">
         <button
           type="button"
           class="practice__toggle"
           [class.practice__toggle--active]="filter().onlyBookmarked"
+          [attr.aria-pressed]="!!filter().onlyBookmarked"
           (click)="updateFilter({ onlyBookmarked: !filter().onlyBookmarked })"
         >
           <app-icon name="bookmark" [filled]="!!filter().onlyBookmarked" />
@@ -84,6 +135,7 @@
           type="button"
           class="practice__toggle"
           [class.practice__toggle--active]="filter().onlyWeak"
+          [attr.aria-pressed]="!!filter().onlyWeak"
           (click)="updateFilter({ onlyWeak: !filter().onlyWeak })"
         >
           <app-icon name="triangle-alert" [filled]="!!filter().onlyWeak" />
@@ -94,6 +146,7 @@
           type="button"
           class="practice__toggle"
           [class.practice__toggle--active]="filter().random"
+          [attr.aria-pressed]="!!filter().random"
           (click)="updateFilter({ random: !filter().random })"
         >
           <app-icon name="repeat" [filled]="!!filter().random" />
@@ -102,21 +155,33 @@
       </div>
 
       <div class="practice__generate">
-        <p class="practice__preview">
-          @if (previewCount() > 0) {
+        <p class="practice__preview" role="status">
+          @if (availableContent().loading) {
+            Loading questions…
+          } @else if (availableContent().error) {
+            Questions couldn't be loaded. Check your connection and try again.
+          } @else if (previewCount() > 0) {
             <strong>{{ previewCount() }}</strong>
-            question{{ previewCount() === 1 ? '' : 's' }} match your filters.
+            question{{ previewCount() === 1 ? '' : 's' }} match your filters. Your session has
+            {{ plannedCount() }}.
           } @else {
             No questions match these filters yet — try widening them.
           }
         </p>
+        @if (availableContent().error) {
+          <button type="button" class="btn" (click)="reloadContent.set(reloadContent() + 1)">
+            Retry loading
+          </button>
+        }
         <button
           type="button"
           class="btn btn--primary practice__generate-btn"
           (click)="startPractice()"
-          [disabled]="previewCount() === 0"
+          [disabled]="
+            availableContent().loading || availableContent().error || previewCount() === 0
+          "
         >
-          <app-icon name="play" [filled]="true" /> Generate Questions
+          <app-icon name="play" [filled]="true" /> Start practice
         </button>
       </div>
     </section>
@@ -125,7 +190,10 @@
       <span class="practice__summary-icon" aria-hidden="true">
         <app-icon name="trophy" [filled]="true" />
       </span>
-      <h2>Session Complete</h2>
+      <h2 #sessionHeading tabindex="-1">Session Complete</h2>
+      <p class="practice__subtitle">
+        Your self-assessment. Review the explanations and revisit anything uncertain.
+      </p>
       <div class="practice__summary-stats">
         <div class="practice__summary-stat practice__summary-stat--correct">
           <span class="practice__summary-value">{{ sessionResults().correct }}</span>
@@ -139,11 +207,47 @@
           <span class="practice__summary-value">{{ sessionResults().needsRevision }}</span>
           <span class="practice__summary-label">Needs Revision</span>
         </div>
+        <div class="practice__summary-stat">
+          <span class="practice__summary-value">{{ skippedCount() }}</span>
+          <span class="practice__summary-label">Skipped</span>
+        </div>
       </div>
-      <button type="button" class="btn btn--primary" (click)="restart()">
-        Start New Session
-      </button>
+      @if (missedQuestions().length > 0) {
+        <button type="button" class="btn btn--primary" (click)="retryMissed()">
+          Retry missed and skipped ({{ missedQuestions().length }})
+        </button>
+      }
+      <button type="button" class="btn" (click)="restart()">Start New Session</button>
     </div>
+    <section class="practice__review" aria-label="Review your questions">
+      <h2>Review your questions</h2>
+      @for (
+        item of reviews();
+        track item.question.subjectId + ':' + item.question.topicId + ':' + item.question.block.id
+      ) {
+        <details>
+          <summary>
+            {{ item.question.topicTitle }}: {{ item.question.block.title || 'Question' }}
+            <span>{{ item.result === 'needs-revision' ? 'Needs revision' : item.result }}</span>
+          </summary>
+          <app-question-card
+            [question]="item.question.block"
+            [autoReveal]="true"
+            [bookmarked]="isQuestionBookmarked(item.question.block.id)"
+            (bookmarkToggled)="
+              toggleQuestionBookmark(
+                item.question.block.id,
+                item.question.topicId,
+                item.question.subjectId
+              )
+            "
+          />
+          <a [routerLink]="['/subjects', item.question.subjectId, 'topics', item.question.topicId]"
+            >Study {{ item.question.topicTitle }}</a
+          >
+        </details>
+      }
+    </section>
   } @else if (pool().length === 0) {
     <app-empty-state
       title="No questions match your filters"
@@ -153,17 +257,25 @@
     </app-empty-state>
   } @else if (currentQuestion(); as current) {
     <div class="practice__session">
-      <p class="practice__progress">
+      <h2 #sessionHeading tabindex="-1" class="practice__progress">
         Question {{ currentIndex() + 1 }} of {{ pool().length }} &middot; {{ current.topicTitle }}
-      </p>
+      </h2>
       <app-question-card
         [question]="current.block"
         [autoReveal]="settings().showAnswersAutomatically"
         [showSelfAssessment]="true"
         [bookmarked]="isQuestionBookmarked(current.block.id)"
-        (bookmarkToggled)="toggleQuestionBookmark(current.block.id, current.topicId, current.subjectId)"
+        (bookmarkToggled)="
+          toggleQuestionBookmark(current.block.id, current.topicId, current.subjectId)
+        "
         (assessed)="onAssessed($event)"
       />
+      <div class="practice__session-actions">
+        <button type="button" class="btn" (click)="skipQuestion()">Skip question</button>
+        <button type="button" class="btn btn--ghost" (click)="finishSession()">
+          Finish and review
+        </button>
+      </div>
     </div>
   }
 </div>

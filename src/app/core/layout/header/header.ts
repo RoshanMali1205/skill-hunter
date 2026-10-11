@@ -1,11 +1,4 @@
-import {
-  Component,
-  computed,
-  HostListener,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, HostListener, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
 import { IconComponent } from '../../../shared/components/icon/icon';
@@ -18,13 +11,7 @@ import { SearchComponent } from '../search/search';
 
 @Component({
   selector: 'app-header',
-  imports: [
-    RouterLink,
-    ThemeToggleComponent,
-    IconComponent,
-    TooltipDirective,
-    SearchComponent,
-  ],
+  imports: [RouterLink, ThemeToggleComponent, IconComponent, TooltipDirective, SearchComponent],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
@@ -119,8 +106,7 @@ export class HeaderComponent {
 
     const key = event.key;
     const wantsSearch =
-      key === '/' ||
-      ((event.ctrlKey || event.metaKey) && (key === 'k' || key === 'K'));
+      key === '/' || ((event.ctrlKey || event.metaKey) && (key === 'k' || key === 'K'));
 
     if (!wantsSearch) return;
 
@@ -135,11 +121,6 @@ export class HeaderComponent {
   private isTypingTarget(target: HTMLElement | null): boolean {
     if (!target) return false;
     const tag = target.tagName;
-    return (
-      tag === 'INPUT' ||
-      tag === 'TEXTAREA' ||
-      tag === 'SELECT' ||
-      target.isContentEditable
-    );
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable;
   }
 }

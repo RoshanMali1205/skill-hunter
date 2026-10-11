@@ -83,4 +83,52 @@ describe('NoteEditorComponent', () => {
     expect(deleted).toHaveBeenCalledOnce();
     expect(closed).toHaveBeenCalledOnce();
   });
+
+  describe('closing with unsaved changes', () => {
+    function setup() {
+      const fixture = TestBed.createComponent(NoteEditorComponent);
+      fixture.componentRef.setInput('initialContent', 'Original');
+      const closed = vi.fn();
+      const saved = vi.fn();
+      fixture.componentInstance.closed.subscribe(closed);
+      fixture.componentInstance.saved.subscribe(saved);
+      fixture.detectChanges();
+      return { fixture, closed, saved, component: fixture.componentInstance };
+    }
+
+    it('closes straight away when nothing changed', () => {
+      const { component, closed } = setup();
+      component.requestClose();
+      expect(closed).toHaveBeenCalledOnce();
+      expect(component.confirmingClose()).toBe(false);
+    });
+
+    it('asks first when the draft is dirty and keeps the draft on Keep editing', () => {
+      const { component, closed } = setup();
+      component.draft.set('Edited');
+      component.requestClose();
+      expect(closed).not.toHaveBeenCalled();
+      expect(component.confirmingClose()).toBe(true);
+
+      component.keepEditing();
+      expect(component.confirmingClose()).toBe(false);
+      expect(component.draft()).toBe('Edited');
+    });
+
+    it('can save and close, or discard and close', () => {
+      const first = setup();
+      first.component.draft.set('Edited');
+      first.component.requestClose();
+      first.component.saveAndClose();
+      expect(first.saved).toHaveBeenCalledWith('Edited');
+      expect(first.closed).toHaveBeenCalledOnce();
+
+      const second = setup();
+      second.component.draft.set('Edited');
+      second.component.requestClose();
+      second.component.discardAndClose();
+      expect(second.saved).not.toHaveBeenCalled();
+      expect(second.closed).toHaveBeenCalledOnce();
+    });
+  });
 });

@@ -47,7 +47,9 @@
           maxlength="60"
           autocomplete="name"
         />
-        <button type="button" class="btn btn--primary" (click)="saveDisplayName()">Save name</button>
+        <button type="button" class="btn btn--primary" (click)="saveDisplayName()">
+          Save name
+        </button>
       </div>
     </label>
 
@@ -69,35 +71,227 @@
       <span>Dark theme</span>
     </label>
 
-    <div class="settings__field">
-      <span>Color theme</span>
+    <fieldset class="settings__field settings__fieldset">
+      <legend>Interface style</legend>
       <p class="settings__muted">
-        Accent color for buttons, links, and highlights. Neutrals stay consistent for a clean,
-        professional look.
+        How panels and buttons look. Works with light or dark mode and any color theme.
       </p>
-      <div class="settings__color-themes" role="radiogroup" aria-label="Color theme">
-        @for (option of colorThemeOptions; track option.id) {
-          <button
-            type="button"
-            class="settings__color-theme"
-            role="radio"
-            [attr.aria-checked]="settings().colorTheme === option.id"
-            [class.settings__color-theme--active]="settings().colorTheme === option.id"
-            (click)="setColorTheme(option.id)"
+      <div class="settings__styles">
+        @for (option of uiStyleOptions; track option.id) {
+          <label
+            class="settings__style"
+            [class.settings__style--active]="settings().uiStyle === option.id"
           >
-            <span class="settings__color-swatches" aria-hidden="true">
-              @for (swatch of option.swatches; track swatch) {
-                <span class="settings__color-swatch" [style.background]="swatch"></span>
-              }
+            <input
+              type="radio"
+              class="settings__style-input"
+              name="ui-style"
+              [value]="option.id"
+              [checked]="settings().uiStyle === option.id"
+              (change)="setUiStyle(option.id)"
+            />
+            <span
+              class="settings__style-preview"
+              [attr.data-preview]="option.id"
+              aria-hidden="true"
+            >
+              <span></span><span></span><span></span>
             </span>
-            <span class="settings__color-theme-meta">
+            <span class="settings__style-meta">
               <strong>{{ option.label }}</strong>
               <span>{{ option.description }}</span>
             </span>
-          </button>
+          </label>
         }
       </div>
-    </div>
+    </fieldset>
+
+    <fieldset class="settings__field settings__fieldset">
+      <legend>Color theme</legend>
+      <ng-template #themeCard let-option>
+        <label
+          class="settings__theme"
+          [class.settings__theme--palette]="!!option.colors.tertiary"
+          [class.settings__theme--active]="settings().colorTheme === option.id"
+          [style.--t-primary]="option.colors.primary"
+          [style.--t-accent]="option.colors.accent"
+          [style.--t-secondary]="option.colors.secondary ?? option.colors.accent"
+          [style.--t-tertiary]="option.colors.tertiary ?? option.colors.deep"
+          [style.--t-deep]="option.colors.deep"
+          [style.--t-tint]="option.colors.tint"
+        >
+          <input
+            type="radio"
+            class="settings__style-input"
+            name="color-theme"
+            [value]="option.id"
+            [checked]="settings().colorTheme === option.id"
+            (change)="setColorTheme(option.id)"
+          />
+          <span class="settings__theme-preview" aria-hidden="true">
+            <span class="settings__theme-banner">
+              <span class="settings__theme-btn">Button</span>
+              <span class="settings__theme-dots"> <span></span><span></span><span></span> </span>
+            </span>
+            <span class="settings__theme-lines">
+              <span class="settings__theme-chip"></span>
+              <span class="settings__theme-bar"><span></span></span>
+            </span>
+          </span>
+          <span class="settings__theme-meta">
+            <strong>{{ option.label }}</strong>
+            <span>{{ option.description }}</span>
+          </span>
+          @if (settings().colorTheme === option.id) {
+            <span class="settings__theme-check" aria-hidden="true">✓</span>
+          }
+        </label>
+      </ng-template>
+
+      <p class="settings__muted">
+        Colors for buttons, links, charts and highlights. Every theme is checked for readable text
+        in light and dark mode.
+      </p>
+
+      <h3 class="settings__group-title">Multi-color palettes</h3>
+      <p class="settings__muted">
+        Three colors that work together across gradients, bars and icons.
+      </p>
+      <div class="settings__themes">
+        @for (option of paletteOptions; track option.id) {
+          <ng-container *ngTemplateOutlet="themeCard; context: { $implicit: option }" />
+        }
+      </div>
+
+      <h3 class="settings__group-title">Single-color themes</h3>
+      <div class="settings__themes">
+        @for (option of colorThemeOptions; track option.id) {
+          <ng-container *ngTemplateOutlet="themeCard; context: { $implicit: option }" />
+        }
+      </div>
+
+      <h3 class="settings__group-title">Make your own</h3>
+      <div class="settings__themes">
+        <ng-container *ngTemplateOutlet="themeCard; context: { $implicit: customCard() }" />
+      </div>
+
+      @if (settings().colorTheme === 'custom') {
+        <div class="settings__custom" aria-label="Custom theme colors">
+          <div class="settings__custom-row">
+            <div class="settings__custom-field">
+              <span class="settings__custom-label" id="custom-primary-label">Main color</span>
+              <div class="settings__custom-input">
+                <input
+                  type="color"
+                  aria-labelledby="custom-primary-label"
+                  [value]="settings().customPrimary"
+                  (input)="setCustomPrimary($any($event.target).value)"
+                />
+                <input
+                  type="text"
+                  class="settings__custom-hex"
+                  maxlength="7"
+                  spellcheck="false"
+                  aria-label="Main color hex code"
+                  [value]="settings().customPrimary"
+                  (change)="setCustomPrimary($any($event.target).value)"
+                />
+              </div>
+            </div>
+
+            <div class="settings__custom-field">
+              <span class="settings__custom-label" id="custom-accent-label"
+                >Secondary color (optional)</span
+              >
+              <div class="settings__custom-input">
+                <input
+                  type="color"
+                  aria-labelledby="custom-accent-label"
+                  [value]="customPalette().preview.accent"
+                  (input)="setCustomAccent($any($event.target).value)"
+                />
+                <input
+                  type="text"
+                  class="settings__custom-hex"
+                  maxlength="7"
+                  spellcheck="false"
+                  aria-label="Secondary color hex code"
+                  [value]="customPalette().preview.accent"
+                  (change)="setCustomAccent($any($event.target).value)"
+                />
+                @if (settings().customAccent) {
+                  <button type="button" class="btn btn--ghost" (click)="resetCustomAccent()">
+                    Auto
+                  </button>
+                } @else {
+                  <span class="settings__muted">Chosen for you</span>
+                }
+              </div>
+            </div>
+            <div class="settings__custom-field">
+              <span class="settings__custom-label" id="custom-tertiary-label"
+                >Third color (optional)</span
+              >
+              <div class="settings__custom-input">
+                <input
+                  type="color"
+                  aria-labelledby="custom-tertiary-label"
+                  [value]="customPalette().preview.tertiary ?? customPalette().preview.accent"
+                  (input)="setCustomTertiary($any($event.target).value)"
+                />
+                <input
+                  type="text"
+                  class="settings__custom-hex"
+                  maxlength="7"
+                  spellcheck="false"
+                  aria-label="Third color hex code"
+                  [value]="customPalette().preview.tertiary ?? customPalette().preview.accent"
+                  (change)="setCustomTertiary($any($event.target).value)"
+                />
+                @if (settings().customTertiary) {
+                  <button type="button" class="btn btn--ghost" (click)="resetCustomTertiary()">
+                    Auto
+                  </button>
+                } @else {
+                  <span class="settings__muted">Chosen for you</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="settings__custom-swatches" role="group" aria-label="Quick colors">
+            @for (swatch of customSwatches; track swatch) {
+              <button
+                type="button"
+                class="settings__custom-swatch"
+                [class.settings__custom-swatch--active]="settings().customPrimary === swatch"
+                [style.background]="swatch"
+                [attr.aria-label]="'Use ' + swatch"
+                (click)="setCustomPrimary(swatch)"
+              ></button>
+            }
+          </div>
+
+          <p class="settings__custom-note" role="status">
+            <strong>Readable text:</strong>
+            {{ customPalette().contrast.light | number: '1.1-1' }}:1 in light mode,
+            {{ customPalette().contrast.dark | number: '1.1-1' }}:1 in dark mode (4.5:1 or more is
+            comfortable).
+            @if (customPalette().adjusted.light || customPalette().adjusted.dark) {
+              We adjusted your color slightly in
+              {{
+                customPalette().adjusted.light && customPalette().adjusted.dark
+                  ? 'both modes'
+                  : customPalette().adjusted.light
+                    ? 'light mode'
+                    : 'dark mode'
+              }}
+              so text stays easy to read.
+            }
+          </p>
+        </div>
+      }
+    </fieldset>
   </section>
 
   <section class="settings__card">
@@ -136,8 +330,9 @@
       </button>
     } @else {
       <p class="settings__muted">
-        On mobile, open the browser menu and choose <strong>Add to Home Screen</strong> / 
-        <strong>Install app</strong>. On desktop Chrome/Edge, use the install icon in the address bar.
+        On mobile, open the browser menu and choose <strong>Add to Home Screen</strong> /
+        <strong>Install app</strong>. On desktop Chrome/Edge, use the install icon in the address
+        bar.
       </p>
       <button type="button" class="btn" (click)="installApp()">
         <app-icon name="download" /> Try install prompt
@@ -151,7 +346,10 @@
   <section class="settings__card">
     <h2>Backup Your Progress</h2>
     <p class="settings__muted">
-      Progress is stored only in this browser. Export it to back it up or move it to another device.
+      Your progress lives only in this browser. It does not sync to other devices, and clearing
+      browser data removes it. Export a backup to keep it safe or move it. Backups include progress,
+      bookmarks, notes, practice history, revision list, settings, activity, profile and
+      achievements (not AI chats or Mock Interview history).
     </p>
     <div class="cluster">
       <button type="button" class="btn btn--primary" (click)="exportProgress()">
@@ -159,11 +357,79 @@
       </button>
       <label class="btn">
         Import Progress
-        <input type="file" accept="application/json" class="settings__file-input" (change)="onImportFile($event)" />
+        <input
+          type="file"
+          accept="application/json"
+          class="settings__file-input"
+          (change)="onImportFile($event)"
+        />
       </label>
     </div>
+    @if (pendingImport(); as pending) {
+      <div class="settings__confirm" role="alertdialog" aria-labelledby="import-title">
+        <h3 id="import-title">Replace your data with "{{ pending.fileName }}"?</h3>
+        <p>
+          This file is valid. Importing <strong>replaces</strong> what is stored in this browser
+          now:
+        </p>
+        <table class="settings__compare">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">Now</th>
+              <th scope="col">After import</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Topics tracked</th>
+              <td>{{ pending.preview.current.topicsTracked }}</td>
+              <td>{{ pending.preview.incoming.topicsTracked }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Bookmarks</th>
+              <td>{{ pending.preview.current.bookmarks }}</td>
+              <td>{{ pending.preview.incoming.bookmarks }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Practice attempts</th>
+              <td>{{ pending.preview.current.practiceAttempts }}</td>
+              <td>{{ pending.preview.incoming.practiceAttempts }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Revision topics</th>
+              <td>{{ pending.preview.current.revisionTopics }}</td>
+              <td>{{ pending.preview.incoming.revisionTopics }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Notes</th>
+              <td>{{ pending.preview.current.notes }}</td>
+              <td>{{ pending.preview.incoming.notes }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="settings__muted">
+          Also replaced: settings, study activity, profile and achievements. AI chats and Mock
+          Interview history are not part of a backup and stay as they are. This cannot be merged, so
+          export your current progress first if you may want it back.
+        </p>
+        <div class="cluster">
+          <button type="button" class="btn btn--ghost" (click)="exportProgress()">
+            Download current backup first
+          </button>
+          <button type="button" class="btn btn--danger" (click)="confirmImport()">
+            Replace my data
+          </button>
+          <button type="button" class="btn" (click)="cancelImport()">Cancel</button>
+        </div>
+      </div>
+    }
     @if (importMessage(); as message) {
-      <p [class.settings__success]="message.success" [class.settings__error]="!message.success">
+      <p
+        [class.settings__success]="message.success"
+        [class.settings__error]="!message.success"
+        [attr.role]="message.success ? 'status' : 'alert'"
+      >
         {{ message.text }}
       </p>
     }
@@ -172,8 +438,10 @@
   <section class="settings__card settings__card--danger">
     <h2>Reset Progress</h2>
     <p class="settings__muted">
-      This clears all locally stored progress, bookmarks, notes, practice history, and your revision list.
-      Interview content itself is never affected.
+      This clears everything stored for this account in this browser: progress, bookmarks, notes,
+      practice history, revision list, activity, achievements, AI chats and Mock Interview history.
+      Interview content itself is never affected. Consider exporting a backup first (AI chats and
+      Mock Interview history are not included in backups).
     </p>
     @if (!confirmingReset()) {
       <button type="button" class="btn btn--danger settings__reset-btn" (click)="requestReset()">
@@ -181,9 +449,7 @@
       </button>
     } @else {
       <div class="settings__confirm">
-        <p>
-          This cannot be undone. Type <strong>RESET</strong> below to confirm.
-        </p>
+        <p>This cannot be undone. Type <strong>RESET</strong> below to confirm.</p>
         <input
           type="text"
           class="settings__confirm-input"

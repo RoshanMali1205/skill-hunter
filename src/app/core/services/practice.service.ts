@@ -3,6 +3,7 @@ import { StorageService } from '../storage/storage.service';
 import { STORAGE_KEYS } from '../storage/storage-keys';
 import { PracticeAttempt, Topic } from '../models';
 import { PracticeFilter, PracticeQuestion } from '../models/filters.models';
+import { selectQuestions } from '../../shared/question-bank';
 
 @Injectable({ providedIn: 'root' })
 export class PracticeService {
@@ -40,28 +41,7 @@ export class PracticeService {
     bookmarkedQuestionIds: Set<string>,
     weakTopicIds: Set<string>,
   ): PracticeQuestion[] {
-    let pool: PracticeQuestion[] = [];
-
-    for (const topic of topics) {
-      if (filter.topicId && topic.id !== filter.topicId) continue;
-      if (filter.categoryId && topic.categoryId !== filter.categoryId) continue;
-      if (filter.difficulty && filter.difficulty !== 'all' && topic.difficulty !== filter.difficulty) continue;
-      if (filter.onlyWeak && !weakTopicIds.has(topic.id)) continue;
-
-      for (const block of topic.blocks) {
-        if (!('question' in block)) continue;
-        if (filter.questionType && filter.questionType !== 'all' && block.type !== filter.questionType) continue;
-        if (filter.onlyBookmarked && !bookmarkedQuestionIds.has(block.id)) continue;
-
-        pool.push({
-          block,
-          topicId: topic.id,
-          topicTitle: topic.title,
-          subjectId: topic.subjectId,
-          difficulty: topic.difficulty,
-        });
-      }
-    }
+    let pool = selectQuestions(topics, filter, bookmarkedQuestionIds, weakTopicIds);
 
     if (filter.random) {
       pool = this.shuffle(pool);

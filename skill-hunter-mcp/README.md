@@ -62,10 +62,11 @@ If the host set `MCP_SHARED_TOKEN` on Netlify, send it like an Azure DevOps PAT:
 | Primitive | Name                                         | Purpose                                              |
 | --------- | -------------------------------------------- | ---------------------------------------------------- |
 | Tool      | `search_topics`                              | Search curated topics by title, subject, and summary |
+| Tool      | `get_topic`                                  | Read one topic by id, including its full explanation |
 | Resource  | `skill-hunter://guides/angular-architecture` | Readable Angular architecture context                |
 | Prompt    | `prepare-interview-question`                 | User-selected interview-question template            |
 
-`search_topics` validates input with Zod: query length 2–200, an allowlisted experience level, and a result cap of 10. Handlers call a `TopicRepository` rather than storage directly.
+`search_topics` validates input with Zod: query length 2–200, an allowlisted experience level, and a result cap of 10. It returns a lean projection (no long-form text); call `get_topic` with a result's `id` for the full `explanation`. Handlers call a `TopicRepository` rather than storage directly.
 
 ## Local stdio (this repo)
 
@@ -87,12 +88,13 @@ npm run inspect
 
 That launches the [MCP Inspector](https://modelcontextprotocol.io/docs/tools/inspector) against `npm start`. Confirm:
 
-1. `search_topics` appears under Tools.
+1. `search_topics` and `get_topic` appear under Tools.
 2. An Angular query such as `lazy loading` returns matching topics.
 3. `limit: 100` is rejected.
-4. The architecture resource can be read.
-5. The interview prompt accepts a topic.
-6. No application logging is written to stdout.
+4. `get_topic` with `id: standalone-lazy-loading` returns the full explanation; an unknown id errors.
+5. The architecture resource can be read.
+6. The interview prompt accepts a topic.
+7. No application logging is written to stdout.
 
 CLI equivalent for a successful search:
 

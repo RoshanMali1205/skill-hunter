@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, input, linkedSignal } from '@angular/core';
 import { MarkdownPipe } from '../../pipes/markdown.pipe';
 import { MarkdownInlinePipe } from '../../pipes/markdown-inline.pipe';
 
@@ -13,12 +13,19 @@ export class AnswerRevealComponent {
   explanation = input<string>('');
   hints = input<string[]>([]);
   autoReveal = input<boolean>(false);
+  /**
+   * Identifies the question being shown. When it changes the reveal state
+   * starts over, so a manual "Show Answer" never carries into the next question.
+   */
+  questionId = input<string>('');
 
-  private readonly manualOverride = signal<boolean | null>(null);
-
-  readonly revealed = computed(() => this.manualOverride() ?? this.autoReveal());
+  /** Follows the auto-reveal setting, and resets whenever the question changes. */
+  readonly revealed = linkedSignal<{ id: string; auto: boolean; answer: string }, boolean>({
+    source: () => ({ id: this.questionId(), auto: this.autoReveal(), answer: this.answer() }),
+    computation: (source) => source.auto,
+  });
 
   toggle(): void {
-    this.manualOverride.set(!this.revealed());
+    this.revealed.update((revealed) => !revealed);
   }
 }

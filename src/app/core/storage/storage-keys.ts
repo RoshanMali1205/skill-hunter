@@ -9,6 +9,8 @@ export const STORAGE_KEYS = {
   aiChats: 'interview-prep.ai-chats',
   profile: 'interview-prep.profile',
   achievements: 'interview-prep.achievements',
+  mockInterviews: 'interview-prep.mock-interviews',
+  playgroundDraft: 'interview-prep.playground-draft',
 } as const;
 
 export const CURRENT_DATA_VERSION = 1;

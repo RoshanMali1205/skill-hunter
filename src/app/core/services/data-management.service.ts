@@ -9,6 +9,7 @@ import { NoteService } from './note.service';
 import { AiChatStore } from './ai-chat.store';
 import { ProfileService } from './profile.service';
 import { AchievementsService } from './achievements.service';
+import { MockInterviewService } from './mock-interview.service';
 import { CURRENT_DATA_VERSION } from '../storage/storage-keys';
 import {
   AchievementId,
@@ -20,6 +21,8 @@ import {
   DEFAULT_ACHIEVEMENTS,
   DEFAULT_PROFILE,
   DEFAULT_SETTINGS,
+  ImportPreview,
+  ImportSummary,
   Note,
   PracticeAttempt,
   StoredApplicationData,
@@ -34,7 +37,36 @@ const CONFIDENCE_LEVELS: ConfidenceLevel[] = ['not-rated', 'low', 'medium', 'hig
 const BOOKMARK_TYPES = ['topic', 'question'] as const;
 const PRACTICE_RESULTS = ['correct', 'incorrect', 'needs-revision'] as const;
 const THEMES = ['light', 'dark'] as const;
-const COLOR_THEMES = ['ocean', 'forest', 'ember', 'sunset', 'blush', 'pearl', 'midnight'] as const;
+const UI_STYLE_VALUES = [
+  'classic',
+  'glass',
+  'neumorphic',
+  'spatial',
+  'brutalism',
+  'aurora',
+  'clay',
+] as const;
+const COLOR_THEMES = [
+  'ocean',
+  'indigo',
+  'violet',
+  'teal',
+  'forest',
+  'ember',
+  'sunset',
+  'blush',
+  'pearl',
+  'midnight',
+  'northern',
+  'glow',
+  'reef',
+  'tropical',
+  'royal',
+  'berry',
+  'fjord',
+  'candy',
+  'custom',
+] as const;
 const DIFFICULTIES = ['all', 'beginner', 'intermediate', 'advanced'] as const;
 const ACHIEVEMENT_IDS = ACHIEVEMENT_DEFINITIONS.map((def) => def.id);
 
@@ -50,6 +82,7 @@ export class DataManagementService {
   private readonly aiChatStore = inject(AiChatStore);
   private readonly profileService = inject(ProfileService);
   private readonly achievementsService = inject(AchievementsService);
+  private readonly mockInterviewService = inject(MockInterviewService);
 
   buildExport(): StoredApplicationData {
     return {
@@ -77,13 +110,58 @@ export class DataManagementService {
     URL.revokeObjectURL(url);
   }
 
-  importFromJson(raw: unknown): { success: boolean; error?: string } {
+  /** Validates a backup without touching any stored data. */
+  previewImport(
+    raw: unknown,
+  ):
+    | { success: true; data: StoredApplicationData; preview: ImportPreview }
+    | { success: false; error: string } {
     const parsed = this.parseStoredData(raw);
     if (!parsed.ok) {
       return { success: false, error: parsed.error };
     }
+    return {
+      success: true,
+      data: parsed.data,
+      preview: {
+        incoming: this.summarize(parsed.data),
+        current: this.summarize(this.buildExport()),
+      },
+    };
+  }
 
-    const data = parsed.data;
+  /**
+   * Replaces all stored data with a previously validated backup. If anything
+   * throws part-way (e.g. storage is full), the previous data is restored.
+   */
+  applyImport(data: StoredApplicationData): { success: boolean; error?: string } {
+    const snapshot = this.buildExport();
+    try {
+      this.writeAll(data);
+      return { success: true };
+    } catch {
+      try {
+        this.writeAll(snapshot);
+        return {
+          success: false,
+          error: 'Import failed part-way, so your previous data was restored.',
+        };
+      } catch {
+        return {
+          success: false,
+          error:
+            'Import failed and your previous data could not be fully restored. Check browser storage.',
+        };
+      }
+    }
+  }
+
+  importFromJson(raw: unknown): { success: boolean; error?: string } {
+    const preview = this.previewImport(raw);
+    return preview.success ? this.applyImport(preview.data) : preview;
+  }
+
+  private writeAll(data: StoredApplicationData): void {
     this.progressStore.replaceAll(data.progress);
     this.bookmarkService.replaceAll(data.bookmarks);
     this.practiceService.replaceAll(data.practiceHistory);
@@ -93,8 +171,16 @@ export class DataManagementService {
     this.noteService.replaceAll(data.notes ?? {});
     this.profileService.replaceAll(data.profile ?? DEFAULT_PROFILE);
     this.achievementsService.replaceAll(data.achievements ?? DEFAULT_ACHIEVEMENTS);
+  }
 
-    return { success: true };
+  private summarize(data: StoredApplicationData): ImportSummary {
+    return {
+      topicsTracked: Object.keys(data.progress).length,
+      bookmarks: data.bookmarks.length,
+      practiceAttempts: data.practiceHistory.length,
+      revisionTopics: data.revisionTopicIds.length,
+      notes: Object.keys(data.notes ?? {}).length,
+    };
   }
 
   resetAllProgress(): void {
@@ -106,6 +192,7 @@ export class DataManagementService {
     this.noteService.resetAll();
     this.aiChatStore.resetAll();
     this.achievementsService.resetAll();
+    this.mockInterviewService.resetAll();
   }
 
   private parseStoredData(
@@ -209,17 +296,23 @@ export class DataManagementService {
     const result: Record<string, TopicProgress> = {};
     for (const [key, entry] of Object.entries(value)) {
       if (!this.isPlainObject(entry)) return null;
-      if (typeof entry['topicId'] !== 'string' || typeof entry['subjectId'] !== 'string') return null;
+      if (typeof entry['topicId'] !== 'string' || typeof entry['subjectId'] !== 'string')
+        return null;
       if (!this.isOneOf(entry['status'], TOPIC_STATUSES)) return null;
       if (!this.isOneOf(entry['confidence'], CONFIDENCE_LEVELS)) return null;
-      if (!Array.isArray(entry['completedBlockIds']) || !entry['completedBlockIds'].every((id) => typeof id === 'string')) {
+      if (
+        !Array.isArray(entry['completedBlockIds']) ||
+        !entry['completedBlockIds'].every((id) => typeof id === 'string')
+      ) {
         return null;
       }
       if (typeof entry['revisionCount'] !== 'number' || !Number.isFinite(entry['revisionCount'])) {
         return null;
       }
-      if (entry['lastVisitedAt'] !== undefined && typeof entry['lastVisitedAt'] !== 'string') return null;
-      if (entry['completedAt'] !== undefined && typeof entry['completedAt'] !== 'string') return null;
+      if (entry['lastVisitedAt'] !== undefined && typeof entry['lastVisitedAt'] !== 'string')
+        return null;
+      if (entry['completedAt'] !== undefined && typeof entry['completedAt'] !== 'string')
+        return null;
 
       result[key] = {
         topicId: entry['topicId'],
@@ -271,7 +364,8 @@ export class DataManagementService {
       if (typeof entry['attemptedAt'] !== 'string') return null;
       if (
         entry['timeSpentSeconds'] !== undefined &&
-        (typeof entry['timeSpentSeconds'] !== 'number' || !Number.isFinite(entry['timeSpentSeconds']))
+        (typeof entry['timeSpentSeconds'] !== 'number' ||
+          !Number.isFinite(entry['timeSpentSeconds']))
       ) {
         return null;
       }
@@ -294,6 +388,17 @@ export class DataManagementService {
     const colorTheme = this.isOneOf(value['colorTheme'], COLOR_THEMES)
       ? value['colorTheme']
       : DEFAULT_SETTINGS.colorTheme;
+    // Older backups have no uiStyle, so a missing value simply means the default look.
+    const uiStyle = this.isOneOf(value['uiStyle'], UI_STYLE_VALUES)
+      ? value['uiStyle']
+      : DEFAULT_SETTINGS.uiStyle;
+    const customPrimary = this.isHexColor(value['customPrimary'])
+      ? value['customPrimary']
+      : DEFAULT_SETTINGS.customPrimary;
+    const customAccent = this.isHexColor(value['customAccent']) ? value['customAccent'] : null;
+    const customTertiary = this.isHexColor(value['customTertiary'])
+      ? value['customTertiary']
+      : null;
     const defaultDifficulty = this.isOneOf(value['defaultDifficulty'], DIFFICULTIES)
       ? value['defaultDifficulty']
       : DEFAULT_SETTINGS.defaultDifficulty;
@@ -310,16 +415,13 @@ export class DataManagementService {
 
     // Reject clearly hostile/non-object junk that somehow passed the plain-object check
     // but still require at least one recognized settings field from a real export.
-    if (
-      value['theme'] !== undefined &&
-      !this.isOneOf(value['theme'], THEMES)
-    ) {
+    if (value['theme'] !== undefined && !this.isOneOf(value['theme'], THEMES)) {
       return null;
     }
-    if (
-      value['colorTheme'] !== undefined &&
-      !this.isOneOf(value['colorTheme'], COLOR_THEMES)
-    ) {
+    if (value['colorTheme'] !== undefined && !this.isOneOf(value['colorTheme'], COLOR_THEMES)) {
+      return null;
+    }
+    if (value['uiStyle'] !== undefined && !this.isOneOf(value['uiStyle'], UI_STYLE_VALUES)) {
       return null;
     }
     if (
@@ -346,10 +448,18 @@ export class DataManagementService {
     return {
       theme,
       colorTheme,
+      uiStyle,
+      customPrimary,
+      customAccent,
+      customTertiary,
       defaultDifficulty,
       showAnswersAutomatically,
       dailyGoalMinutes,
     };
+  }
+
+  private isHexColor(value: unknown): value is string {
+    return typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value);
   }
 
   private parseActivity(value: unknown): ActivityLog | null {

@@ -9,6 +9,7 @@ import { SettingsService } from '../../core/services/settings.service';
 import { PlaygroundComponent } from './playground';
 
 interface PlaygroundInternals {
+  baseline: string;
   view?: {
     state: { doc: { length: number; toString(): string } };
     dispatch(change: unknown): void;
@@ -75,6 +76,7 @@ describe('PlaygroundComponent', () => {
   });
 
   it('loads snippets and resets previous execution state', () => {
+    (component as unknown as PlaygroundInternals).baseline = 'console.log(1)'; // editor is unedited
     component.hasRun.set(true);
     component.logs.set([{ level: 'log', text: 'old' }]);
     component.loadSnippet('reverse');
@@ -84,6 +86,27 @@ describe('PlaygroundComponent', () => {
     expect(component.selectedSnippetId()).toBe('reverse');
     expect(component.hasRun()).toBe(false);
     expect(component.logs()).toEqual([]);
+  });
+
+  it('asks before replacing code the learner edited, and keeps it on cancel', () => {
+    component.loadSnippet('reverse');
+    expect(dispatch).not.toHaveBeenCalled();
+    expect(component.pendingReplace()).toEqual({ snippetId: 'reverse' });
+
+    component.cancelReplace();
+    expect(component.pendingReplace()).toBeNull();
+    expect(dispatch).not.toHaveBeenCalled();
+    expect(component.selectedSnippetId()).toBe('');
+  });
+
+  it('replaces edited code only after confirmation', () => {
+    component.reset();
+    expect(component.pendingReplace()).toEqual({ snippetId: '' });
+    expect(dispatch).not.toHaveBeenCalled();
+
+    component.confirmReplace();
+    expect(dispatch).toHaveBeenCalledOnce();
+    expect(component.pendingReplace()).toBeNull();
   });
 
   it('runs editor code and exposes execution results', async () => {

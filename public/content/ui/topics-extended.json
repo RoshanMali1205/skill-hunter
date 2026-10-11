@@ -18,11 +18,11 @@
         "id": "pseudo-concept-1",
         "type": "concept",
         "order": 1,
-        "content": "Pseudo-classes (single colon: `:hover`, `:focus-visible`, `:checked`, `:nth-child()`) select elements based on state or structural position that plain selectors can't express. Pseudo-elements (double colon: `::before`, `::after`, `::first-line`) target a generated sub-part of an element rather than the element itself \u2014 `::before`/`::after` create a box positioned inside the element, controlled by the `content` property.",
+        "content": "Pseudo-classes (single colon: `:hover`, `:focus-visible`, `:checked`, `:nth-child()`) select elements based on state or structural position that plain selectors can't express. Pseudo-elements (double colon: `::before`, `::after`, `::first-line`) target a generated sub-part of an element rather than the element itself — `::before`/`::after` create a box positioned inside the element, controlled by the `content` property.",
         "keyPoints": [
-          "`:focus-visible` matches only when the browser's heuristics determine focus should be visibly indicated (e.g. keyboard navigation) \u2014 unlike `:focus`, it generally doesn't trigger on mouse clicks, avoiding an outline ring on every button click while still showing it for keyboard users.",
-          "Content inside `::before`/`::after` is decorative and not part of the accessibility tree in most cases \u2014 never put essential text only inside generated content.",
-          "Never gate essential functionality behind `:hover` alone \u2014 touch devices have no true hover state, and keyboard-only users don't trigger it either."
+          "`:focus-visible` matches only when the browser's heuristics determine focus should be visibly indicated (e.g. keyboard navigation) — unlike `:focus`, it generally doesn't trigger on mouse clicks, avoiding an outline ring on every button click while still showing it for keyboard users.",
+          "Content inside `::before`/`::after` is decorative and not part of the accessibility tree in most cases — never put essential text only inside generated content.",
+          "Never gate essential functionality behind `:hover` alone — touch devices have no true hover state, and keyboard-only users don't trigger it either."
         ]
       },
       {
@@ -31,14 +31,14 @@
         "order": 2,
         "language": "css",
         "code": "button:focus-visible {\n  outline: 3px solid var(--color-primary);\n  outline-offset: 2px;\n}\n\n.required-field::after {\n  content: ' *';\n  color: var(--color-danger);\n}",
-        "explanation": "The focus ring only appears for keyboard focus (not every mouse click), and the required-field asterisk is purely decorative \u2014 the actual 'required' semantics still need a real `required` attribute or `aria-required`, not just the visible asterisk."
+        "explanation": "The focus ring only appears for keyboard focus (not every mouse click), and the required-field asterisk is purely decorative — the actual 'required' semantics still need a real `required` attribute or `aria-required`, not just the visible asterisk."
       },
       {
         "id": "pseudo-question-1",
         "type": "interview-question",
         "order": 3,
         "question": "Why is `:focus-visible` generally preferred over `:focus` for custom focus-ring styling in a modern app?",
-        "answer": "`:focus` matches any time an element has focus, including after a mouse click \u2014 which is why many older sites disabled outlines entirely (`outline: none`) to avoid an ugly ring on every click, inadvertently breaking keyboard accessibility in the process. `:focus-visible` lets you restore a clear, deliberate focus ring specifically for keyboard/assistive-technology users without reintroducing the ring-on-every-click problem for mouse users.",
+        "answer": "`:focus` matches any time an element has focus, including after a mouse click — which is why many older sites disabled outlines entirely (`outline: none`) to avoid an ugly ring on every click, inadvertently breaking keyboard accessibility in the process. `:focus-visible` lets you restore a clear, deliberate focus ring specifically for keyboard/assistive-technology users without reintroducing the ring-on-every-click problem for mouse users.",
         "explanation": "This app's shared components use `:focus-visible` in the `focus-ring()` SCSS mixin for exactly this reason."
       }
     ]
@@ -63,7 +63,7 @@
         "id": "transitions-concept-1",
         "type": "concept",
         "order": 1,
-        "content": "`transition` animates a property smoothly between its old and new value whenever that value changes (hover, class toggle, etc.) \u2014 it needs a starting and ending state but no intermediate steps defined. `@keyframes` + `animation` define an explicit, potentially multi-step, potentially looping sequence independent of any state change. Both should list specific properties (`transition: transform 150ms ease`) rather than `transition: all`, and both should respect `prefers-reduced-motion`.",
+        "content": "`transition` animates a property smoothly between its old and new value whenever that value changes (hover, class toggle, etc.) — it needs a starting and ending state but no intermediate steps defined. `@keyframes` + `animation` define an explicit, potentially multi-step, potentially looping sequence independent of any state change. Both should list specific properties (`transition: transform 150ms ease`) rather than `transition: all`, and both should respect `prefers-reduced-motion`.",
         "keyPoints": [
           "Animating `transform` and `opacity` is comparatively cheap because browsers can often handle them on the compositor thread; animating `width`/`height`/`top`/`left` forces layout recalculation on every frame.",
           "`transition: all` silently animates properties you didn't intend to (including ones added later by another rule), making performance and behavior harder to reason about.",
@@ -82,9 +82,10 @@
         "id": "transitions-question-1",
         "type": "tricky-question",
         "order": 3,
-        "question": "You add `transition: height 200ms` to an accordion panel that toggles between `height: 0` and `height: auto`. The collapse animates fine, but the expand jumps instantly instead of animating. Why?",
-        "answer": "CSS transitions cannot animate to or from `auto` \u2014 the browser has no defined intermediate values between a fixed height and `auto`, so it just snaps. Common fixes: transition `max-height` to a value larger than the content will ever need (a common but imperfect hack), or measure the content's actual height in JS and transition to that explicit pixel value, or use the newer `interpolate-size: allow-keywords` / `calc-size()` where supported.",
-        "explanation": "This is one of the most commonly hit CSS animation gotchas \u2014 transitions require two concrete, interpolatable values, and `auto` isn't one."
+        "question": "With the default interpolate-size behavior, an accordion switches between `height: 0` and `height: auto`. Why might `transition: height 200ms` fail to animate smoothly in either direction?",
+        "answer": "The default numeric-only interpolation does not interpolate between a length and an intrinsic size keyword. Where supported, opt into `interpolate-size: allow-keywords`; otherwise use a suitable measured-height or grid-based approach and test its constraints.",
+        "explanation": "Do not assume that collapsing works just because expanding fails, or that every browser supports intrinsic-size interpolation. Respect reduced motion and keep the accordion usable without animation.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/interpolate-size)",
+        "hints": ["Check whether intrinsic-size interpolation is enabled and supported."]
       }
     ]
   },
@@ -107,11 +108,11 @@
         "id": "scss-mixins-concept-1",
         "type": "concept",
         "order": 1,
-        "content": "A `@mixin` packages a reusable block of CSS declarations (optionally parameterized, optionally accepting a content block via `@content`) that gets copy-pasted into every `@include` site at compile time. A `@function` computes and returns a single Sass value (used inside a property value) rather than emitting declarations \u2014 `@function` is to values what `@mixin` is to whole rule blocks.",
+        "content": "A `@mixin` packages a reusable block of CSS declarations (optionally parameterized, optionally accepting a content block via `@content`) that gets copy-pasted into every `@include` site at compile time. A `@function` computes and returns a single Sass value (used inside a property value) rather than emitting declarations — `@function` is to values what `@mixin` is to whole rule blocks.",
         "keyPoints": [
           "Mixins can accept default parameter values (`@mixin focus-ring($width: 3px)`) so most call sites can omit arguments entirely.",
-          "`@content` inside a mixin lets the caller inject an arbitrary block of CSS into a specific spot \u2014 this is how this app's own `respond-to()` breakpoint mixin wraps caller-supplied styles in a `@media` query.",
-          "Because mixins are inlined at every `@include`, using the same parameterized mixin in hundreds of places can meaningfully bloat compiled CSS \u2014 functions don't have this problem since they only ever produce one value."
+          "`@content` inside a mixin lets the caller inject an arbitrary block of CSS into a specific spot — this is how this app's own `respond-to()` breakpoint mixin wraps caller-supplied styles in a `@media` query.",
+          "Because mixins are inlined at every `@include`, using the same parameterized mixin in hundreds of places can meaningfully bloat compiled CSS — functions don't have this problem since they only ever produce one value."
         ]
       },
       {
@@ -127,8 +128,20 @@
         "type": "interview-question",
         "order": 3,
         "question": "You need a helper that both (a) computes a spacing value for use in `calc()` expressions elsewhere, and (b) applies a full focus-ring style block. Would each be a mixin or a function?",
-        "answer": "The spacing helper should be a `@function` (it returns one value you plug into other expressions). The focus-ring helper should be a `@mixin` (it emits multiple declarations \u2014 `outline`, `outline-offset`, possibly more \u2014 as a block via `@include`).",
+        "answer": "The spacing helper should be a `@function` (it returns one value you plug into other expressions). The focus-ring helper should be a `@mixin` (it emits multiple declarations — `outline`, `outline-offset`, possibly more — as a block via `@include`).",
         "explanation": "The rule of thumb: if you're going to write `property: helper(...)`, it's a function; if you're going to write `@include helper(...);` as its own statement producing one or more declarations, it's a mixin."
+      },
+      {
+        "id": "scss-mixins-functions-tricky-sass-runtime",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "A theme variable that cannot change",
+        "question": "Why does changing a CSS custom property at runtime work for theming while changing a Sass variable name in the DOM does nothing?",
+        "answer": "Sass variables are resolved during compilation. CSS custom properties remain in the stylesheet and participate in the browser's runtime cascade.",
+        "explanation": "Use Sass for build-time generation and CSS variables for runtime theme values. They can work together, but they exist at different stages.\n\n[Further reading](https://sass-lang.com/documentation/variables/)",
+        "hints": [
+          "At what stage does each variable exist?"
+        ]
       }
     ]
   },
@@ -156,7 +169,7 @@
         "content": "A Sass map (`$breakpoints: (mobile: 480px, tablet: 768px, ...)`) is a key-value structure ideal for design tokens like breakpoints, spacing scales, or color palettes, looked up with `map.get()`. `@each` and `@for` loops can generate families of related rules (utility classes, numbered spacing steps) from a map or range instead of writing them by hand. Modern Sass code loads files with `@use`/`@forward` (namespaced, loaded once) rather than the legacy global `@import`, which is deprecated.",
         "keyPoints": [
           "`@use 'sass:map'` must be loaded to access map functions like `map.get()` and `map.has-key()` in modern Sass.",
-          "Loops that generate a large number of rules keep the *source* small but can make the *compiled* CSS output large \u2014 audit generated output size, don't assume terse source means terse CSS.",
+          "Loops that generate a large number of rules keep the *source* small but can make the *compiled* CSS output large — audit generated output size, don't assume terse source means terse CSS.",
           "`@forward` re-exports a partial's members as part of a package's public API, letting a library present a single entry-point module to consumers."
         ]
       },
@@ -173,8 +186,8 @@
         "type": "interview-question",
         "order": 3,
         "question": "Why does modern Sass tooling recommend `@use` over the older `@import`, beyond just namespacing?",
-        "answer": "`@import` is fully global \u2014 every variable, mixin, and function from an imported file pollutes the same global namespace and can silently collide with anything else imported anywhere in the app, and a file imported multiple times gets re-evaluated (and its CSS re-emitted) each time. `@use` loads a module exactly once no matter how many files `@use` it, requires an explicit namespace prefix (`tokens.$spacing`) to access its members (eliminating naming collisions), and is what `@forward` is built on for building clean public APIs.",
-        "explanation": "`@import` is formally deprecated in Dart Sass and scheduled for eventual removal \u2014 new SCSS code should default to `@use`/`@forward`."
+        "answer": "`@import` is fully global — every variable, mixin, and function from an imported file pollutes the same global namespace and can silently collide with anything else imported anywhere in the app, and a file imported multiple times gets re-evaluated (and its CSS re-emitted) each time. `@use` loads a module exactly once no matter how many files `@use` it, requires an explicit namespace prefix (`tokens.$spacing`) to access its members (eliminating naming collisions), and is what `@forward` is built on for building clean public APIs.",
+        "explanation": "`@import` is formally deprecated in Dart Sass and scheduled for eventual removal — new SCSS code should default to `@use`/`@forward`."
       }
     ]
   },
@@ -228,7 +241,7 @@
         "title": "Practical code / design example",
         "order": 3,
         "language": "html",
-        "code": "<main>\n  <h1>Account dashboard</h1>\n  <section aria-labelledby=\"balances-heading\">\n    <h2 id=\"balances-heading\">Balances</h2>\n    <article><h3>Savings account</h3><p>\u20b925,000</p></article>\n  </section>\n</main>",
+        "code": "<main>\n  <h1>Account dashboard</h1>\n  <section aria-labelledby=\"balances-heading\">\n    <h2 id=\"balances-heading\">Balances</h2>\n    <article><h3>Savings account</h3><p>₹25,000</p></article>\n  </section>\n</main>",
         "explanation": "Semantic landmarks and headings create an understandable document structure before ARIA is added."
       },
       {
@@ -335,6 +348,18 @@
         "question": "How would you announce an asynchronous server validation error?",
         "answer": "For an async server error, I would attach the new error message to the field and set the field as invalid. If the user is still on that field, I would announce the message through a polite live region or update the described text so it is read. If the validation blocks submission, the error summary should include it too.",
         "explanation": "It is strong because it handles both field-level context and the moment when the server result arrives."
+      },
+      {
+        "id": "senior-ui-02-accessible-form-design-tricky-placeholder-label",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A placeholder is not a persistent label",
+        "question": "An input has a descriptive placeholder and no label. Why can the form still be difficult to use?",
+        "answer": "The placeholder disappears after entry and does not replace a properly associated label. Provide a visible label; connect instructions and errors separately.",
+        "explanation": "People reviewing an already-filled form need to know what each value means. A field should not require deleting its value to recover its instruction.\n\n[Further reading](https://www.w3.org/WAI/tutorials/forms/labels/)",
+        "hints": [
+          "What identifies the field after someone types?"
+        ]
       }
     ]
   },
@@ -495,6 +520,18 @@
         "question": "Why can automatically focusing the first input be harmful in some dialogs?",
         "answer": "Focusing the first input can be harmful when the dialog starts with important instructions or when the first field opens a keyboard on mobile and hides the message. It can also be risky in destructive dialogs, where focus should not land on an action that users might trigger by accident.",
         "explanation": "It is strong because it picks focus based on the task, not a fixed rule."
+      },
+      {
+        "id": "senior-ui-04-focus-management-in-dialogs-tricky-modal-focus",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "The modal with working background links",
+        "question": "A visually modal overlay uses aria-modal=\"true\", but Tab still reaches background links. Is it complete?",
+        "answer": "No. The interface must manage focus and make the background noninteractive while the modal is open. Move focus into the dialog and restore it appropriately when closing.",
+        "explanation": "aria-modal alone does not trap focus. Native dialog.showModal() provides useful platform behavior, but labeling, initial focus, and restoration still need review.\n\n[Further reading](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/)",
+        "hints": [
+          "Test the entire open-to-close keyboard journey."
+        ]
       }
     ]
   },
@@ -575,6 +612,18 @@
         "question": "What does the principle \"No ARIA is better than bad ARIA\" mean in practice?",
         "answer": "No ARIA is better than bad ARIA means an ordinary native control is often safer than a custom control with wrong roles and missing behavior. Bad ARIA can actively mislead users, while plain HTML may still be understandable and operable. The goal is not to avoid ARIA; it is to use it only when it accurately describes the component.",
         "explanation": "It is strong because it explains the user harm caused by incorrect semantics."
+      },
+      {
+        "id": "senior-ui-05-aria-usage-and-misuse-tricky-aria-disabled",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Disabled in name only",
+        "question": "Does `aria-disabled=\"true\"` stop a custom control from responding to clicks and keyboard activation?",
+        "answer": "No. It communicates disabled semantics; you must implement interaction prevention and styling yourself. Prefer native disabled where its behavior fits.",
+        "explanation": "ARIA does not add browser interaction logic. Test keyboard and pointer activation, not just the accessibility attribute.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-disabled)",
+        "hints": [
+          "Does ARIA describe behavior or implement it?"
+        ]
       }
     ]
   },
@@ -922,7 +971,7 @@
         "order": 1,
         "content": "Viewport media queries ask how wide the browser is. Container queries ask how much room a component has.\n\nThat matters for reusable components. The same card may be wide on a page, narrow in a sidebar, and medium in a modal.\n\nContainer queries work best when the base design is solid and the enhancements are tied to real layout changes, not arbitrary device names.",
         "keyPoints": [
-          "Make the card\u2019s parent a query container and adapt the card based on available container width rather than viewport width.",
+          "Make the card’s parent a query container and adapt the card based on available container width rather than viewport width.",
           "Use container queries for component composition and media queries for page/device-level concerns such as reduced motion or coarse pointers.",
           "Define sensible intrinsic base styles so unsupported or unexpected contexts remain usable.",
           "Avoid too many tiny thresholds that create hard-to-test layout states.",
@@ -975,6 +1024,18 @@
         "question": "What is the difference between size, style, and scroll-state container queries?",
         "answer": "Size container queries react to the container's dimensions. Style queries react to computed style values, such as a custom property. Scroll-state queries react to scroll-related states, like whether a container is stuck or scrollable, where supported.",
         "explanation": "It is strong because it distinguishes the trigger for each query type in plain terms."
+      },
+      {
+        "id": "senior-ui-10-container-queries-tricky-container-boundary",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A query without a query container",
+        "question": "A card has @container rules, but changing its parent width does nothing. What should you inspect first?",
+        "answer": "Check that an appropriate ancestor establishes size containment, commonly container-type: inline-size, and that any named container matches the query.",
+        "explanation": "A container query does not automatically target any arbitrary parent. It also does not size-query an element against itself.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries)",
+        "hints": [
+          "Which ancestor is eligible to answer the query?"
+        ]
       }
     ]
   },
@@ -1135,6 +1196,18 @@
         "question": "How can a cookie banner be designed without causing a large layout shift?",
         "answer": "A cookie banner can avoid a big shift by using a reserved region, an overlay that does not move page content, or a bottom bar that is accounted for in the layout. It should not suddenly push the whole page down after the user starts reading. The choice should still keep controls reachable and not cover critical actions.",
         "explanation": "It is strong because it solves the shift while still considering usability of the banner itself."
+      },
+      {
+        "id": "senior-ui-12-preventing-cumulative-layout-shift-tricky-lazy-image-space",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Lazy loading without reserved space",
+        "question": "Will adding loading=\"lazy\" to below-the-fold images automatically prevent layout shifts?",
+        "answer": "No. Reserve space with appropriate width/height attributes or an aspect ratio, and make the responsive sizing consistent with that space.",
+        "explanation": "Lazy loading changes when an image is fetched. Layout stability depends on what geometry the browser knows before the image arrives.\n\n[Further reading](https://web.dev/articles/optimize-cls)",
+        "hints": [
+          "Separate network timing from reserved geometry."
+        ]
       }
     ]
   },
@@ -1375,6 +1448,18 @@
         "question": "What happens when one stylesheet is unlayered while others are layered?",
         "answer": "Unlayered author styles usually outrank layered normal author styles. So if most of the app is layered but one stylesheet is not, that stylesheet may unexpectedly win. A rollout should either layer the important files deliberately or account for that behavior.",
         "explanation": "It is strong because it calls out the main adoption trap with layers."
+      },
+      {
+        "id": "senior-ui-15-cascade-layers-tricky-layer-specificity",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "The lower-specificity rule wins",
+        "question": "A normal declaration in a later cascade layer beats a more specific selector in an earlier layer. Is the browser ignoring specificity?",
+        "answer": "No. Layer precedence is decided before selector specificity for these declarations. Specificity resolves competitors within the relevant cascade level.",
+        "explanation": "Also remember that important declarations reverse layer precedence. Debug origin, importance, and layer before increasing selector specificity.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer)",
+        "hints": [
+          "At which step of the cascade is specificity compared?"
+        ]
       }
     ]
   },
@@ -1695,6 +1780,18 @@
         "question": "Should all animations become zero-duration when reduced motion is requested?",
         "answer": "No, reduced motion does not always mean zero-duration. Some small fades or instant state changes may be clearer than abrupt content jumps. The key is to remove large movement, parallax, zooming, and auto motion that can cause discomfort.",
         "explanation": "It is strong because it keeps useful feedback while honoring the user's preference."
+      },
+      {
+        "id": "senior-ui-19-reduced-motion-tricky-reduce-motion",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Disabling every animation blindly",
+        "question": "A reduced-motion stylesheet removes all transitions, but a workflow waits for transitionend to continue. What is the underlying defect?",
+        "answer": "Application correctness depends on an optional visual effect. Complete the state transition independently and let animation enhance it; respect reduced-motion preferences without blocking the workflow.",
+        "explanation": "Test the no-animation path explicitly. Motion can be reduced or removed, and browser events should not be the only route to a committed application state.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion)",
+        "hints": [
+          "Would the feature work if no animation ran?"
+        ]
       }
     ]
   },
@@ -1935,6 +2032,18 @@
         "question": "Which icons should usually not be mirrored in RTL?",
         "answer": "Icons that represent universal objects or brand identity usually should not be mirrored, such as logos, play buttons, checkmarks, warning symbols, and many file or settings icons. Icons that mean direction or navigation often should be mirrored. The decision depends on meaning, not shape.",
         "explanation": "It is strong because it gives a rule based on semantic meaning instead of mirroring everything."
+      },
+      {
+        "id": "senior-ui-22-right-to-left-layout-tricky-logical-properties",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "RTL beyond text alignment",
+        "question": "A layout switches text-align to right in RTL, but its icon spacing is still wrong. Why?",
+        "answer": "Physical margins and offsets still point left or right. Use appropriate logical properties such as margin-inline-start and review directional icons and content order.",
+        "explanation": "RTL support is not a blanket mirror. Numbers, code, and some symbols retain their own direction conventions; test real mixed-direction content.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_logical_properties_and_values)",
+        "hints": [
+          "Does each spacing rule describe a physical side or a reading direction?"
+        ]
       }
     ]
   },
@@ -2611,7 +2720,7 @@
         "order": 3,
         "language": "less",
         "code": "@space-4: 1rem;\n.account-card {\n  padding: @space-4;\n  &__title { font-weight: 600; }\n}",
-        "explanation": "Choose based on existing ecosystem, tooling, team skill, design-system compatibility, and migration cost\u2014not syntax preference alone."
+        "explanation": "Choose based on existing ecosystem, tooling, team skill, design-system compatibility, and migration cost—not syntax preference alone."
       },
       {
         "id": "senior-ui-31-less-versus-scss-decision-mistake-1",
@@ -3481,6 +3590,18 @@
         "question": "When should aria-live=\"assertive\" be used?",
         "answer": "aria-live=\"assertive\" should be reserved for urgent messages that need immediate attention, such as a failed save that blocks the current task or a session timeout warning. It interrupts screen-reader output, so I would not use it for routine success toasts or low-priority updates. Most notifications should use polite or be shown persistently without interruption.",
         "explanation": "It explains both when assertive is useful and why overusing it harms users."
+      },
+      {
+        "id": "senior-ui-42-accessible-notifications-and-toasts-tricky-live-region",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "The quiet success toast",
+        "question": "A success message appears visually after saving. Why might a screen reader not announce it?",
+        "answer": "A plain DOM update is not automatically a useful announcement. Use a suitable status/live region, preferably present before its text changes, without moving focus for routine feedback.",
+        "explanation": "Keep announcements concise and avoid assertive alerts for every minor update. An error requiring action may need a different focus and notification strategy.\n\n[Further reading](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html)",
+        "hints": [
+          "How does the update reach users who are not looking at it?"
+        ]
       }
     ]
   },
@@ -3558,9 +3679,21 @@
         "id": "senior-ui-43-icon-only-controls-followup-1",
         "type": "interview-question",
         "order": 6,
-        "question": "What is the difference between an icon\u2019s accessible name and its visible tooltip?",
+        "question": "What is the difference between an icon’s accessible name and its visible tooltip?",
         "answer": "The accessible name is the programmatic label that screen readers and voice control use for the control. A visible tooltip is extra UI that appears on hover, focus, or sometimes long press. They can share the same text, but a tooltip does not automatically give the control a reliable accessible name unless it is wired correctly.",
         "explanation": "It separates the programmatic label from the visual helper and mentions the wiring issue."
+      },
+      {
+        "id": "senior-ui-43-icon-only-controls-tricky-icon-name",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A tooltip is not the only label",
+        "question": "An icon-only save control gets a tooltip on mouse hover. What else is needed?",
+        "answer": "Give the button a reliable accessible name, such as aria-label=\"Save draft\", and keep its focus state visible. Decorative icons should not add a competing name.",
+        "explanation": "Hover cannot be assumed on touch or keyboard use. The control must remain understandable when the tooltip is absent.\n\n[Further reading](https://www.w3.org/WAI/ARIA/apg/patterns/button/)",
+        "hints": [
+          "How is the action named without a mouse?"
+        ]
       }
     ]
   },

@@ -8,12 +8,11 @@ import { BookmarkService } from '../../core/services/bookmark.service';
 import { ActivityService } from '../../core/services/activity.service';
 import { ProfileService } from '../../core/services/profile.service';
 import { AchievementsService } from '../../core/services/achievements.service';
+import { MockInterviewService } from '../../core/services/mock-interview.service';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar';
 import { DonutChartComponent } from '../../shared/components/donut-chart/donut-chart';
 import { BarChartComponent } from '../../shared/components/bar-chart/bar-chart';
-import { DifficultyChipComponent } from '../../shared/components/difficulty-chip/difficulty-chip';
 import { IconComponent } from '../../shared/components/icon/icon';
-import { ProfileCardComponent } from '../../shared/components/profile-card/profile-card';
 import { subjectVisual } from '../../shared/subject-visuals';
 import { Subject, TopicSummary } from '../../core/models';
 
@@ -37,12 +36,10 @@ function findTopic(
     ProgressBarComponent,
     DonutChartComponent,
     BarChartComponent,
-    DifficultyChipComponent,
     IconComponent,
-    ProfileCardComponent,
   ],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss',
+  styleUrls: ['./dashboard.scss', './dashboard.panels.scss'],
 })
 export class DashboardComponent {
   private readonly contentService = inject(ContentService);
@@ -52,6 +49,7 @@ export class DashboardComponent {
   private readonly activityService = inject(ActivityService);
   private readonly profileService = inject(ProfileService);
   private readonly achievementsService = inject(AchievementsService);
+  private readonly mockInterviewService = inject(MockInterviewService);
 
   readonly subjectVisual = subjectVisual;
   readonly currentStreak = this.activityService.currentStreak;
@@ -71,7 +69,9 @@ export class DashboardComponent {
     this.subjects().map((s) => this.metricsService.computeSubjectMetrics(s)),
   );
 
-  readonly weakTopics = computed(() => this.metricsService.computeWeakTopics(this.subjects()).slice(0, 5));
+  readonly weakTopics = computed(() =>
+    this.metricsService.computeWeakTopics(this.subjects()).slice(0, 5),
+  );
 
   readonly statusSegments = computed(() => {
     const m = this.metrics();
@@ -168,5 +168,87 @@ export class DashboardComponent {
       .slice(0, 5)
       .map((p) => ({ progress: p, resolved: findTopic(subjects, p.topicId) }))
       .filter((entry) => !!entry.resolved);
+  });
+
+  /** "Good morning" / "Good afternoon" / "Good evening". */
+  readonly greeting = computed(() => {
+    const hour = new Date().getHours();
+    return hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  });
+
+  /** True until the learner has done anything at all, so the page can invite them in. */
+  readonly isNewLearner = computed(() => {
+    const m = this.metrics();
+    return m.completedTopics === 0 && m.inProgressTopics === 0 && m.questionsAttempted === 0;
+  });
+
+  /** A friendly first topic for someone with no history: the first high-priority beginner topic. */
+  readonly startHere = computed(() => {
+    for (const subject of this.subjects()) {
+      for (const category of subject.categories) {
+        const topic =
+          category.topics.find(
+            (t) =>
+              t.difficulty === 'beginner' &&
+              (t.interviewPriority === 'must-know' || t.interviewPriority === 'high'),
+          ) ?? undefined;
+        if (topic) return { subjectId: subject.id, subjectTitle: subject.title, topic };
+      }
+    }
+    const first = this.subjects()[0]?.categories[0]?.topics[0];
+    const subject = this.subjects()[0];
+    return first && subject
+      ? { subjectId: subject.id, subjectTitle: subject.title, topic: first }
+      : undefined;
+  });
+
+  /** How far along the subject of the "continue" topic is, shown beside the resume button. */
+  readonly continueSubjectPercentage = computed(() => {
+    const current = this.continueLearning();
+    if (!current) return 0;
+    return this.subjectMetrics().find((s) => s.subject.id === current.subjectId)?.percentage ?? 0;
+  });
+
+  /** Short, honest one-liners for the "Today" tiles. */
+  readonly todayTiles = computed(() => {
+    const m = this.metrics();
+    const mock = this.mockInterviewService.summarize(this.mockInterviewService.results());
+    return [
+      {
+        label: 'Practice',
+        icon: 'target',
+        link: '/practice',
+        detail:
+          m.questionsAttempted > 0
+            ? `${m.practiceAccuracy}% accuracy · ${m.questionsAttempted} answered`
+            : 'Answer your first question',
+      },
+      {
+        label: 'Mock interview',
+        icon: 'flame',
+        link: '/mock-interview',
+        detail: mock.count > 0 ? `Latest score ${mock.last}%` : 'Timed, with a scorecard',
+      },
+      {
+        label: 'Revision',
+        icon: 'repeat',
+        link: '/revision',
+        detail:
+          m.revisionTopics > 0
+            ? `${m.revisionTopics} topic${m.revisionTopics === 1 ? '' : 's'} to revisit`
+            : 'Nothing to revisit yet',
+      },
+      {
+        label: 'AI Mentor',
+        icon: 'bot',
+        link: '/ai-mentor',
+        detail: 'Get a simple explanation',
+      },
+    ];
+  });
+
+  readonly notStartedCount = computed(() => {
+    const m = this.metrics();
+    return Math.max(0, m.totalTopics - m.completedTopics - m.inProgressTopics);
   });
 }

@@ -51,3 +51,23 @@
 .note-editor__empty {
   color: var(--color-text-muted);
 }
+
+.note-editor__status--dirty {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-warning);
+}
+
+.note-editor__confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-warning) 10%, var(--color-surface));
+
+  p {
+    margin: 0;
+  }
+}

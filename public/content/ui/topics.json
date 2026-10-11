@@ -8,7 +8,10 @@
     "difficulty": "beginner",
     "interviewPriority": "must-know",
     "estimatedMinutes": 10,
-    "tags": ["box-model", "box-sizing"],
+    "tags": [
+      "box-model",
+      "box-sizing"
+    ],
     "blocks": [
       {
         "id": "box-model-concept-1",
@@ -40,6 +43,18 @@
         "language": "css",
         "answer": "200px.",
         "explanation": "border-box makes `width` the final rendered width — padding and border are subtracted from the content area to fit inside that 200px, rather than added on top of it. This is why `* { box-sizing: border-box; }` is such a common global reset: it makes a component's declared width its actual width, regardless of how much padding/border you add later."
+      },
+      {
+        "id": "css-box-model-tricky-border-box-margin",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Border-box still overflows",
+        "question": "A block uses width: 100%, box-sizing: border-box, and horizontal margins. Why can it still overflow its parent?",
+        "answer": "Border-box includes padding and borders in the specified width, but not margins. The outer width can therefore exceed the available width.",
+        "explanation": "Use container padding, gap, or a sizing rule that accounts for margins. Identify which part of the box contributes the extra space.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/box-sizing)",
+        "hints": [
+          "Are margins inside the border box?"
+        ]
       }
     ]
   },
@@ -52,7 +67,11 @@
     "difficulty": "intermediate",
     "interviewPriority": "must-know",
     "estimatedMinutes": 15,
-    "tags": ["specificity", "cascade", "!important"],
+    "tags": [
+      "specificity",
+      "cascade",
+      "!important"
+    ],
     "blocks": [
       {
         "id": "specificity-concept-1",
@@ -92,7 +111,10 @@
     "difficulty": "beginner",
     "interviewPriority": "must-know",
     "estimatedMinutes": 15,
-    "tags": ["flexbox", "layout"],
+    "tags": [
+      "flexbox",
+      "layout"
+    ],
     "blocks": [
       {
         "id": "flexbox-concept-1",
@@ -128,6 +150,18 @@
         "question": "You put a long, unbroken filename inside a flex item with `flex: 1`, expecting it to shrink and truncate with an ellipsis. Instead it overflows its container. What's going on?",
         "answer": "Flex items have an implicit `min-width: auto` (and `min-height: auto` in a column) by default, which means a flex item will never shrink below its content's intrinsic size — even with `flex-shrink` set — unless you explicitly override that minimum.",
         "explanation": "The fix is `min-width: 0` (or `overflow: hidden` combined with it) on the flex item, which lets it actually shrink smaller than its content, so a subsequent `text-overflow: ellipsis; white-space: nowrap; overflow: hidden;` can do its job. This is one of the most common real-world Flexbox layout bugs and a strong senior-level signal when someone can explain it unprompted."
+      },
+      {
+        "id": "css-flexbox-tricky-visual-order",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "A layout reordered only for sighted users",
+        "question": "You use flex order to move the primary action visually first. Will keyboard navigation necessarily follow that new position?",
+        "answer": "No. CSS visual ordering does not generally change DOM reading or tab order. Put a sensible sequence in the document and use layout without breaking that sequence.",
+        "explanation": "A sighted keyboard user can otherwise see focus jump unexpectedly. Check desktop and mobile layouts against the same semantic order.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/order)",
+        "hints": [
+          "Which order does the document itself express?"
+        ]
       }
     ]
   },
@@ -140,7 +174,11 @@
     "difficulty": "intermediate",
     "interviewPriority": "high",
     "estimatedMinutes": 20,
-    "tags": ["grid", "layout", "responsive"],
+    "tags": [
+      "grid",
+      "layout",
+      "responsive"
+    ],
     "blocks": [
       {
         "id": "grid-concept-1",
@@ -176,6 +214,18 @@
         "question": "Build a classic 'holy grail' layout — header spanning the full width, a fixed-width sidebar, a flexible main content area, and a footer spanning the full width — using named grid-template-areas.",
         "answer": ".layout {\n  display: grid;\n  grid-template-columns: 240px 1fr;\n  grid-template-rows: auto 1fr auto;\n  grid-template-areas:\n    \"header header\"\n    \"sidebar main\"\n    \"footer footer\";\n}\n\n.header { grid-area: header; }\n.sidebar { grid-area: sidebar; }\n.main { grid-area: main; }\n.footer { grid-area: footer; }",
         "explanation": "grid-template-areas turns the layout into a readable ASCII diagram right in the CSS — each row of the string maps to a grid row, each word to a column, and repeating a name (like `header header`) makes that area span multiple columns. It's self-documenting in a way raw grid-column/grid-row line numbers usually aren't."
+      },
+      {
+        "id": "css-grid-tricky-fraction-overflow",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "One fraction can still overflow",
+        "question": "A two-column grid uses `1fr 1fr`, but a long unbroken value pushes one column too wide. Why might `minmax(0, 1fr)` help?",
+        "answer": "A bare fractional track has an automatic minimum that can be constrained by its contents. A zero minimum allows the track to shrink; then choose wrapping or scrolling for the content.",
+        "explanation": "Changing the track does not magically make long text readable. Combine the layout fix with an intentional overflow policy.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/flex_value)",
+        "hints": [
+          "Inspect the minimum track size, not only the fraction."
+        ]
       }
     ]
   },
@@ -188,7 +238,11 @@
     "difficulty": "intermediate",
     "interviewPriority": "high",
     "estimatedMinutes": 20,
-    "tags": ["position", "z-index", "stacking-context"],
+    "tags": [
+      "position",
+      "z-index",
+      "stacking-context"
+    ],
     "blocks": [
       {
         "id": "stacking-concept-1",
@@ -228,7 +282,11 @@
     "difficulty": "beginner",
     "interviewPriority": "must-know",
     "estimatedMinutes": 15,
-    "tags": ["media-queries", "mobile-first", "breakpoints"],
+    "tags": [
+      "media-queries",
+      "mobile-first",
+      "breakpoints"
+    ],
     "blocks": [
       {
         "id": "mobile-first-concept-1",
@@ -268,7 +326,11 @@
     "difficulty": "intermediate",
     "interviewPriority": "medium",
     "estimatedMinutes": 15,
-    "tags": ["responsive-images", "fluid-typography", "clamp"],
+    "tags": [
+      "responsive-images",
+      "fluid-typography",
+      "clamp"
+    ],
     "blocks": [
       {
         "id": "responsive-images-concept-1",
@@ -308,7 +370,11 @@
     "difficulty": "beginner",
     "interviewPriority": "high",
     "estimatedMinutes": 15,
-    "tags": ["semantic-html", "accessibility", "aria"],
+    "tags": [
+      "semantic-html",
+      "accessibility",
+      "aria"
+    ],
     "blocks": [
       {
         "id": "semantic-concept-1",
@@ -336,6 +402,18 @@
         "question": "What's the difference between `aria-label` and `aria-labelledby`, and when would you use each?",
         "answer": "`aria-label` provides an accessible name as a literal string directly on the element — useful when there's no visible text to reference (e.g. an icon-only close button: `aria-label=\"Close dialog\"`). `aria-labelledby` instead points, by id, to one or more *existing* elements whose text content becomes the accessible name — useful when the label is already visible on the page and you don't want to duplicate the text.",
         "explanation": "A common real example: a search input with a visible `<span id=\"search-label\">Search topics</span>` should use `aria-labelledby=\"search-label\"` on the input rather than repeating the same text in a redundant `aria-label`, keeping the visible label and the accessible name as a single source of truth."
+      },
+      {
+        "id": "html5-semantic-elements-accessibility-tricky-button-default",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "The button that submits unexpectedly",
+        "question": "A Show password button inside a form has no type attribute. Why does clicking it submit the form?",
+        "answer": "A normal button associated with a form defaults to submit behavior. Set type=\"button\" for actions that should not submit.",
+        "explanation": "Use explicit button types so moving a reusable control into a form does not change its behavior. Links remain appropriate for navigation.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button)",
+        "hints": [
+          "What is a button's default form action?"
+        ]
       }
     ]
   }

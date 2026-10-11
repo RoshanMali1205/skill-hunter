@@ -11,12 +11,16 @@ import { skillLevels } from './topics.js';
 
 const skillLevelSchema = z.enum(skillLevels);
 
-const topicSchema = z.object({
+const topicSummarySchema = z.object({
   id: z.string(),
   title: z.string(),
   subject: z.string(),
   level: skillLevelSchema,
   summary: z.string(),
+});
+
+const topicSchema = topicSummarySchema.extend({
+  explanation: z.string(),
 });
 
 const angularArchitectureGuideUri = 'skill-hunter://guides/angular-architecture';
@@ -47,7 +51,7 @@ export function buildServer(
         limit: z.number().int().min(1).max(10).default(5),
       }),
       outputSchema: z.object({
-        results: z.array(topicSchema),
+        results: z.array(topicSummarySchema),
       }),
     },
     async ({ query, level, limit }) => {
@@ -63,6 +67,53 @@ export function buildServer(
         structuredContent: {
           results,
         },
+      };
+    },
+  );
+
+  server.registerTool(
+    'get_topic',
+    {
+      title: 'Read a Skill Hunter topic',
+      description:
+        'Fetch a single curated topic by id, including its full long-form explanation.',
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+      inputSchema: z.object({
+        id: z.string().trim().min(2).max(100),
+      }),
+      outputSchema: z.object({
+        topic: topicSchema.nullable(),
+      }),
+    },
+    async ({ id }) => {
+      const topic = await repository.findById(id);
+
+      if (!topic) {
+        return {
+          isError: true,
+          content: [
+            {
+              type: 'text',
+              text: `No topic found with id "${id}". Use search_topics to find one.`,
+            },
+          ],
+          structuredContent: { topic: null },
+        };
+      }
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `# ${topic.title}\n\n${topic.explanation}`,
+          },
+        ],
+        structuredContent: { topic },
       };
     },
   );

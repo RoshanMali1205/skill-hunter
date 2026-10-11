@@ -89,10 +89,58 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  // Never taller than the space above the bottom bar, so every destination is
+  // reachable on short screens and at large text sizes: the list scrolls instead.
+  max-height: calc(
+    100dvh - var(--mobile-nav-offset) - var(--space-5) - env(safe-area-inset-top, 0px)
+  );
+  overflow: hidden;
 
   @include respond-to(desktop) {
     display: none;
   }
+}
+
+.mobile-nav__sheet-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-3);
+
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+  }
+}
+
+.mobile-nav__sheet-close {
+  @include focus-ring;
+  @include touch-target;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-alt);
+  }
+}
+
+.mobile-nav__sheet-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .mobile-nav__sheet-link {
@@ -125,4 +173,3 @@
     }
   }
 }
-

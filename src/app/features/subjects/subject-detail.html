@@ -19,61 +19,98 @@
       }
     </div>
 
-    <app-filter-panel [filter]="filter()" (filterChange)="filter.set($event)" />
+    <nav class="subject-detail__views" aria-label="Subject views">
+      <a
+        [routerLink]="['/subjects', subject.id]"
+        [queryParams]="{ view: null }"
+        queryParamsHandling="merge"
+        [attr.aria-current]="view() !== 'tricky' ? 'page' : null"
+        >Topics</a
+      >
+      <a
+        [routerLink]="['/subjects', subject.id]"
+        [queryParams]="{ view: 'tricky' }"
+        queryParamsHandling="merge"
+        [attr.aria-current]="view() === 'tricky' ? 'page' : null"
+        >Tricky questions
+        @if (!questionContent().loading && !questionContent().error) {
+          <span>{{ trickyCount() }}</span>
+        }
+      </a>
+    </nav>
 
-    @if (filteredCategories().length === 0) {
-      <app-empty-state
-        title="No topics match your filters"
-        message="Try adjusting or clearing your filters."
-      />
+    @if (view() === 'tricky') {
+      @if (questionContent().loading) {
+        <p class="subject-detail__count" role="status">Loading tricky questions…</p>
+      } @else if (questionContent().error) {
+        <app-empty-state
+          title="Questions couldn't be loaded"
+          message="Check your connection and try again."
+        >
+          <button type="button" class="btn" (click)="retryQuestions.set(retryQuestions() + 1)">
+            Retry
+          </button>
+        </app-empty-state>
+      } @else {
+        <app-subject-questions [subject]="subject" [topics]="questionContent().topics" />
+      }
     } @else {
-      @for (entry of filteredCategories(); track entry.category.id) {
-        <section class="subject-detail__category">
-          <button
-            type="button"
-            class="subject-detail__category-toggle"
-            [attr.aria-expanded]="isCategoryOpen(entry.category.id)"
-            (click)="toggleCategory(entry.category.id)"
-          >
-            <header class="subject-detail__category-header">
-              <div>
-                <h2>{{ entry.category.title }}</h2>
-                @if (entry.category.description) {
-                  <p class="subject-detail__category-description">
-                    {{ entry.category.description }}
-                  </p>
+      <app-filter-panel [filter]="filter()" (filterChange)="filter.set($event)" />
+
+      @if (filteredCategories().length === 0) {
+        <app-empty-state
+          title="No topics match your filters"
+          message="Try adjusting or clearing your filters."
+        />
+      } @else {
+        @for (entry of filteredCategories(); track entry.category.id) {
+          <section class="subject-detail__category">
+            <button
+              type="button"
+              class="subject-detail__category-toggle"
+              [attr.aria-expanded]="isCategoryOpen(entry.category.id)"
+              (click)="toggleCategory(entry.category.id)"
+            >
+              <header class="subject-detail__category-header">
+                <div>
+                  <h2>{{ entry.category.title }}</h2>
+                  @if (entry.category.description) {
+                    <p class="subject-detail__category-description">
+                      {{ entry.category.description }}
+                    </p>
+                  }
+                </div>
+                @if (categoryCompletion(entry.category); as progress) {
+                  <div class="subject-detail__category-progress">
+                    <span class="subject-detail__category-count">
+                      {{ progress.completed }} / {{ progress.total }} completed
+                    </span>
+                    <app-progress-bar [percentage]="progress.percentage" />
+                  </div>
+                }
+              </header>
+              <app-icon
+                name="chevron-right"
+                class="subject-detail__category-chevron"
+                [class.subject-detail__category-chevron--open]="isCategoryOpen(entry.category.id)"
+              />
+            </button>
+
+            @if (isCategoryOpen(entry.category.id)) {
+              <div class="subject-detail__topic-list">
+                @for (topic of entry.topics; track topic.id) {
+                  <app-topic-card
+                    layout="row"
+                    [topic]="topic"
+                    [subjectId]="subject.id"
+                    [status]="statusFor(topic.id)"
+                    [bookmarked]="isBookmarked(topic.id)"
+                  />
                 }
               </div>
-              @if (categoryCompletion(entry.category); as progress) {
-                <div class="subject-detail__category-progress">
-                  <span class="subject-detail__category-count">
-                    {{ progress.completed }} / {{ progress.total }} completed
-                  </span>
-                  <app-progress-bar [percentage]="progress.percentage" />
-                </div>
-              }
-            </header>
-            <app-icon
-              name="chevron-right"
-              class="subject-detail__category-chevron"
-              [class.subject-detail__category-chevron--open]="isCategoryOpen(entry.category.id)"
-            />
-          </button>
-
-          @if (isCategoryOpen(entry.category.id)) {
-            <div class="subject-detail__topic-list">
-              @for (topic of entry.topics; track topic.id) {
-                <app-topic-card
-                  layout="row"
-                  [topic]="topic"
-                  [subjectId]="subject.id"
-                  [status]="statusFor(topic.id)"
-                  [bookmarked]="isBookmarked(topic.id)"
-                />
-              }
-            </div>
-          }
-        </section>
+            }
+          </section>
+        }
       }
     }
   </div>

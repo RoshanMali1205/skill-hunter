@@ -27,7 +27,10 @@ describe('AiChatStore', () => {
   });
 
   it('creates and persists an active conversation', () => {
-    const conversation = store.createConversation({ topicTitle: 'Closures', subjectTitle: 'JavaScript' });
+    const conversation = store.createConversation({
+      topicTitle: 'Closures',
+      subjectTitle: 'JavaScript',
+    });
     expect(store.activeId()).toBe(conversation.id);
     expect(store.activeConversation()?.title).toContain('Closures');
     expect(memory[STORAGE_KEYS.aiChats]).toBeTruthy();

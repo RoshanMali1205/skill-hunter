@@ -15,6 +15,8 @@ export interface PracticeFilter {
   subjectId?: string;
   categoryId?: string;
   topicId?: string;
+  questionId?: string;
+  searchTerm?: string;
   difficulty?: Difficulty | 'all';
   questionType?: QuestionBlockType | 'all';
   onlyBookmarked?: boolean;

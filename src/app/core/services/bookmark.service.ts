@@ -7,9 +7,7 @@ import { Bookmark } from '../models';
 export class BookmarkService {
   private readonly storage = inject(StorageService);
 
-  private readonly _bookmarks = signal<Bookmark[]>(
-    this.storage.get(STORAGE_KEYS.bookmarks, []),
-  );
+  private readonly _bookmarks = signal<Bookmark[]>(this.storage.get(STORAGE_KEYS.bookmarks, []));
 
   readonly bookmarks = this._bookmarks.asReadonly();
 

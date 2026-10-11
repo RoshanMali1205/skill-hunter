@@ -41,12 +41,13 @@ describe('Skill Hunter MCP server', () => {
     await close();
   });
 
-  it('advertises search_topics, the architecture resource, and the interview prompt', async () => {
+  it('advertises search_topics, get_topic, the architecture resource, and the interview prompt', async () => {
     const tools = await client.listTools();
     const resources = await client.listResources();
     const prompts = await client.listPrompts();
 
     assert.ok(tools.tools.some((tool) => tool.name === 'search_topics'));
+    assert.ok(tools.tools.some((tool) => tool.name === 'get_topic'));
     assert.ok(
       resources.resources.some(
         (resource) => resource.uri === 'skill-hunter://guides/angular-architecture',
@@ -68,10 +69,45 @@ describe('Skill Hunter MCP server', () => {
 
     assert.equal(structured.results.length, 1);
     assert.equal(structured.results[0]?.id, 'standalone-lazy-loading');
+    assert.equal(
+      'explanation' in (structured.results[0] ?? {}),
+      false,
+      'search results stay lean and omit the long-form explanation',
+    );
     assert.match(
       String(result.content[0] && 'text' in result.content[0] ? result.content[0].text : ''),
       /Standalone Lazy Loading/,
     );
+  });
+
+  it('returns a full topic with its long-form explanation via get_topic', async () => {
+    const result = await client.callTool({
+      name: 'get_topic',
+      arguments: { id: 'standalone-lazy-loading' },
+    });
+
+    assert.equal(result.isError, undefined);
+    const structured = result.structuredContent as {
+      topic: { id: string; explanation: string } | null;
+    };
+
+    assert.equal(structured.topic?.id, 'standalone-lazy-loading');
+    assert.match(structured.topic?.explanation ?? '', /loadComponent/);
+    assert.match(
+      String(result.content[0] && 'text' in result.content[0] ? result.content[0].text : ''),
+      /loadChildren/,
+    );
+  });
+
+  it('reports an error for an unknown topic id', async () => {
+    const result = await client.callTool({
+      name: 'get_topic',
+      arguments: { id: 'does-not-exist' },
+    });
+
+    assert.equal(result.isError, true);
+    const structured = result.structuredContent as { topic: null };
+    assert.equal(structured.topic, null);
   });
 
   it('rejects a result limit above 10 before searching', async () => {

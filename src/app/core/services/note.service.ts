@@ -7,9 +7,7 @@ import { Note } from '../models';
 export class NoteService {
   private readonly storage = inject(StorageService);
 
-  private readonly _notes = signal<Record<string, Note>>(
-    this.storage.get(STORAGE_KEYS.notes, {}),
-  );
+  private readonly _notes = signal<Record<string, Note>>(this.storage.get(STORAGE_KEYS.notes, {}));
 
   readonly notes = this._notes.asReadonly();
 

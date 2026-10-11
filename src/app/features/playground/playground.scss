@@ -242,3 +242,32 @@
     color: var(--color-danger);
   }
 }
+
+.playground__notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-warning) 10%, var(--color-surface));
+
+  p {
+    margin: 0;
+  }
+
+  &--info {
+    border-color: var(--color-border);
+    background: var(--color-surface-alt);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+}
+
+.playground__notice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

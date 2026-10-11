@@ -126,8 +126,7 @@ export class ContentService {
                 }
 
                 const questionBlock = topic.blocks.find(
-                  (block) =>
-                    'question' in block && block.question.toLowerCase().includes(term),
+                  (block) => 'question' in block && block.question.toLowerCase().includes(term),
                 );
                 if (questionBlock && 'question' in questionBlock) {
                   results.push({

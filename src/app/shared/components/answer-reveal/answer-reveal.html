@@ -1,3 +1,13 @@
+<button
+  type="button"
+  class="btn"
+  [class.btn--primary]="!revealed()"
+  [class.btn--ghost]="revealed()"
+  [attr.aria-expanded]="revealed()"
+  (click)="toggle()"
+>
+  {{ revealed() ? 'Hide Answer' : 'Show Answer' }}
+</button>
 @if (!revealed()) {
   @if (hints().length > 0) {
     <ul class="answer-reveal__hints">
@@ -6,13 +16,17 @@
       }
     </ul>
   }
-  <button type="button" class="btn btn--primary" (click)="toggle()">Show Answer</button>
 } @else {
   <div class="answer-reveal__content">
-    <div class="answer-reveal__answer answer-reveal__markdown" [innerHTML]="answer() | markdown"></div>
+    <div
+      class="answer-reveal__answer answer-reveal__markdown"
+      [innerHTML]="answer() | markdown"
+    ></div>
     @if (explanation()) {
-      <div class="answer-reveal__explanation answer-reveal__markdown" [innerHTML]="explanation() | markdown"></div>
+      <div
+        class="answer-reveal__explanation answer-reveal__markdown"
+        [innerHTML]="explanation() | markdown"
+      ></div>
     }
-    <button type="button" class="btn btn--ghost" (click)="toggle()">Hide Answer</button>
   </div>
 }

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_TOPIC_EXPORT_OPTIONS, Subject, Topic } from '../models';
 import { ContentService } from './content.service';
 import { NoteService } from './note.service';
+import { ProfileService } from './profile.service';
 import { TopicExportService } from './topic-export.service';
 
 interface ExportInternals {
@@ -45,12 +46,14 @@ describe('TopicExportService', () => {
   const getSubjects = vi.fn();
   const getSubjectTopics = vi.fn();
   const getNote = vi.fn();
+  const displayName = vi.fn();
   let service: TopicExportService;
 
   beforeEach(() => {
     getSubjects.mockReset();
     getSubjectTopics.mockReset();
     getNote.mockReset();
+    displayName.mockReset().mockReturnValue('Roshan');
     getSubjects.mockReturnValue(of([subject]));
     getSubjectTopics.mockReturnValue(of([topic]));
     getNote.mockReturnValue({ content: 'My **note**' });
@@ -59,6 +62,7 @@ describe('TopicExportService', () => {
         TopicExportService,
         { provide: ContentService, useValue: { getSubjects, getSubjectTopics } },
         { provide: NoteService, useValue: { getNote } },
+        { provide: ProfileService, useValue: { displayName } },
       ],
     });
     service = TestBed.inject(TopicExportService);
@@ -87,6 +91,10 @@ describe('TopicExportService', () => {
     expect(html).toContain('<strong>Reactive</strong>');
     expect(html).toContain('My <strong>note</strong>');
     expect(html).toContain('Answer');
+    expect(html).toContain('<footer class="doc-footer">Roshan</footer>');
+    expect(html).toContain('@bottom-center');
+    expect(html).not.toContain('position: fixed');
+    expect(html).not.toContain('bottom: -16mm');
     expect(getSubjectTopics).toHaveBeenCalledOnce();
   });
 
@@ -119,5 +127,38 @@ describe('TopicExportService', () => {
       ok: false,
       error: expect.stringContaining('Export failed'),
     });
+  });
+
+  it('uses the current profile name and escapes it in a study-pack footer', async () => {
+    const print = vi
+      .spyOn(service as unknown as ExportInternals, 'printViaHiddenIframe')
+      .mockReturnValue(true);
+    const refs = [{ subjectId: 'angular', topicId: 'signals' }];
+    await service.exportTopics(refs);
+    displayName.mockReturnValue('Roshan <Designer> & Team');
+    getSubjectTopics.mockReturnValue(of([topic, { ...topic, id: 'signals-next' }]));
+    await service.exportTopics([...refs, { subjectId: 'angular', topicId: 'signals-next' }]);
+    const document = new DOMParser().parseFromString(print.mock.calls[1]![0], 'text/html');
+    expect(document.querySelectorAll('.topic')).toHaveLength(2);
+    expect(document.querySelector('footer')?.textContent).toBe('Roshan <Designer> & Team');
+    expect(document.querySelector('footer')?.children).toHaveLength(0);
+  });
+
+  it('safely encodes the name in the print margin without allowing CSS or HTML injection', async () => {
+    const name = 'Roshan "Mali" \\ </style><script>bad()</script>\n';
+    displayName.mockReturnValue(name);
+    const print = vi
+      .spyOn(service as unknown as ExportInternals, 'printViaHiddenIframe')
+      .mockReturnValue(true);
+    await service.exportTopics([{ subjectId: 'angular', topicId: 'signals' }]);
+    const document = new DOMParser().parseFromString(print.mock.calls[0]![0], 'text/html');
+    expect(document.querySelector('script')).toBeNull();
+    const css = document.querySelector('style')!.textContent!;
+    const content = css.match(/@bottom-center\s*\{\s*content: "([^"]*)"/)![1]!;
+    const decoded = content.replace(/\\([0-9a-f]+) /g, (_, hex: string) =>
+      String.fromCodePoint(parseInt(hex, 16)),
+    );
+    expect(decoded).toBe(name);
+    expect(css).toMatch(/@media print[\s\S]*\.doc-footer\s*\{\s*display: none/);
   });
 });
