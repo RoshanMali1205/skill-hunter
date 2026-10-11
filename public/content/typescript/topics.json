@@ -75,9 +75,10 @@
         "id": "union-question-2",
         "type": "tricky-question",
         "order": 3,
-        "question": "Given `type Shape = { kind: 'circle'; radius: number } | { kind: 'square'; side: number }`, why does `shape.radius` error even after checking `if ('radius' in shape)`?",
-        "answer": "It doesn't error — the `in` operator is actually a valid TypeScript narrowing technique for unions that *don't* share a common discriminant property, and `if ('radius' in shape)` correctly narrows `shape` to the circle branch, making `.radius` safe to access.",
-        "explanation": "This is a common point of confusion: people assume only `switch (shape.kind)` narrows unions, but `in`, `typeof`, `instanceof`, and custom type-guard functions (`function isCircle(s): s is Circle`) are all valid narrowing mechanisms — the discriminant-field pattern (`kind`) is just the most ergonomic one when you control the shape's design."
+        "question": "Given `type Shape = { kind: 'circle'; radius: number } | { kind: 'square'; side: number }`, can you safely access `shape.radius` inside `if ('radius' in shape)` even though the union already has a kind discriminant?",
+        "answer": "Yes. For this union, the property-presence check narrows shape to the circle branch. The presence of a shared kind discriminant does not prevent using another valid narrowing technique.",
+        "explanation": "Checking `shape.kind === 'circle'` also works. With different types that have optional properties, a property-presence check may leave multiple possibilities, so reason from the actual union members.\n\n[Further reading](https://www.typescriptlang.org/docs/handbook/2/narrowing.html)",
+        "hints": ["Check which union members can have the radius property."]
       }
     ]
   },

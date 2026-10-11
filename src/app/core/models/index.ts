@@ -6,3 +6,4 @@ export * from './auth.models';
 export * from './profile.models';
 export * from './achievements.models';
 export * from './export.models';
+export * from './mock-interview.models';

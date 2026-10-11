@@ -65,7 +65,10 @@ describe('SubjectDetailComponent', () => {
       imports: [SubjectDetailComponent],
       providers: [
         provideRouter([]),
-        { provide: ContentService, useValue: { getSubject: () => of(subject) } },
+        {
+          provide: ContentService,
+          useValue: { getSubject: () => of(subject), getSubjectTopics: () => of([]) },
+        },
         { provide: ProgressStore, useValue: { progress } },
         {
           provide: BookmarkService,

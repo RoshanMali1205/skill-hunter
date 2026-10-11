@@ -11,9 +11,16 @@ describe('SidebarComponent', () => {
   it('exposes all primary destinations and the application version', () => {
     const component = TestBed.createComponent(SidebarComponent).componentInstance;
     expect(component.navItems.map((item) => item.path)).toEqual(
-      expect.arrayContaining(['/dashboard', '/subjects', '/practice', '/ai-mentor', '/settings']),
+      expect.arrayContaining([
+        '/dashboard',
+        '/subjects',
+        '/practice',
+        '/mock-interview',
+        '/ai-mentor',
+        '/settings',
+      ]),
     );
-    expect(component.navItems).toHaveLength(12);
+    expect(component.navItems).toHaveLength(13);
     expect(component.appVersion).toMatch(/^v?\d+\.\d+/);
   });
 

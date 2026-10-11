@@ -123,7 +123,9 @@ export class AchievementsService {
     if (!changed) return;
 
     this._state.set({
-      unlocked: Array.from(existing.values()).sort((a, b) => a.unlockedAt.localeCompare(b.unlockedAt)),
+      unlocked: Array.from(existing.values()).sort((a, b) =>
+        a.unlockedAt.localeCompare(b.unlockedAt),
+      ),
     });
     this.persist();
   }

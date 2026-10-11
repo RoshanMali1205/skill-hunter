@@ -1,0 +1,106 @@
+@use 'mixins' as *;
+@use 'breakpoints' as *;
+
+.ai-mentor__composer {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.ai-mentor__field {
+  @include card;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+  }
+
+  textarea {
+    flex: 1;
+    min-width: 0;
+    // Grows with the text instead of showing a cramped two-line box.
+    field-sizing: content;
+    min-height: 1.5em;
+    max-height: 9em;
+    padding: var(--space-2) 0;
+    border: none;
+    outline: none;
+    resize: none;
+    background: transparent;
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.5;
+
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
+  }
+}
+
+.ai-mentor__send {
+  @include focus-ring;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    opacity 0.15s ease;
+
+  &:hover:not(:disabled) {
+    transform: scale(1.06);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.ai-mentor__hint {
+  display: none;
+  margin: 0;
+  padding: 0 var(--space-2);
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
+
+  @include respond-to(tablet) {
+    display: block;
+  }
+}
+
+.ai-mentor__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 45%, var(--color-border));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-danger) 8%, var(--color-surface));
+  color: var(--color-text);
+  font-size: 0.9rem;
+
+  app-icon {
+    flex: none;
+    margin-top: 2px;
+    color: var(--color-danger);
+  }
+}

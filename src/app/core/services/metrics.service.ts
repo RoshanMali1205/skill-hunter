@@ -37,9 +37,7 @@ export class MetricsService {
   computeCategoryMetrics(category: Category): CategoryMetrics {
     const progress = this.progressStore.progress();
     const total = category.topics.length;
-    const completed = category.topics.filter(
-      (t) => progress[t.id]?.status === 'completed',
-    ).length;
+    const completed = category.topics.filter((t) => progress[t.id]?.status === 'completed').length;
     return {
       category,
       completed,
@@ -70,7 +68,8 @@ export class MetricsService {
       totalTopics,
       completedTopics,
       inProgressTopics: this.progressStore.inProgressCount(),
-      completionPercentage: totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100),
+      completionPercentage:
+        totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100),
       bookmarkedTopics: this.bookmarkService.bookmarkedTopicIds().size,
       revisionTopics: this.revisionService.revisionTopicIds().length,
       questionsAttempted: this.practiceService.questionsAttempted(),

@@ -36,6 +36,9 @@
   --color-primary-strong: #0a3d66;
   --color-primary-contrast: #ffffff;
   --color-accent: #1490c4;
+  /* Supporting colors. Single-color themes derive them from the accent; multi-color palettes set their own. */
+  --color-secondary: color-mix(in srgb, var(--color-accent) 55%, var(--color-primary));
+  --color-tertiary: color-mix(in srgb, var(--color-primary) 78%, var(--color-accent));
   --color-success: #15803d;
   --color-warning: #c2410c;
   --color-danger: #dc2626;
@@ -45,7 +48,8 @@
   --color-difficulty-intermediate: #c2410c;
   --color-difficulty-advanced: #dc2626;
 
-  --gradient-primary: linear-gradient(135deg, #1490c4 0%, #0b6e99 50%, #003366 100%);
+  --gradient-primary: linear-gradient(135deg, #0f7fae 0%, #0b6e99 50%, #003366 100%);
+  --gradient-banner: linear-gradient(135deg, #0d7aa8 0%, #0b6e99 45%, #003366 100%);
   --gradient-hero: linear-gradient(
     135deg,
     rgba(11, 110, 153, 0.12) 0%,
@@ -119,6 +123,7 @@
   --color-danger-contrast: #0f1419;
 
   --gradient-primary: linear-gradient(135deg, #7ec8e8 0%, #3ba4d4 45%, #0b6e99 100%);
+  --gradient-banner: linear-gradient(135deg, #0a5a80 0%, #003366 100%);
   --gradient-hero: linear-gradient(
     135deg,
     rgba(59, 164, 212, 0.22) 0%,
@@ -173,6 +178,7 @@
     --color-danger-contrast: #0f1419;
 
     --gradient-primary: linear-gradient(135deg, #7ec8e8 0%, #3ba4d4 45%, #0b6e99 100%);
+    --gradient-banner: linear-gradient(135deg, #0a5a80 0%, #003366 100%);
     --gradient-hero: linear-gradient(
       135deg,
       rgba(59, 164, 212, 0.22) 0%,

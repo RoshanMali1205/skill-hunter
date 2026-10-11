@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SelectComponent } from './select';
 
 describe('SelectComponent', () => {
@@ -95,5 +95,70 @@ describe('SelectComponent', () => {
     fixture.componentInstance.open.set(true);
     document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(fixture.componentInstance.open()).toBe(false);
+  });
+
+  describe('keyboard', () => {
+    function setup() {
+      vi.useFakeTimers();
+      const fixture = TestBed.createComponent(SelectComponent);
+      fixture.componentRef.setInput('value', 'two');
+      fixture.componentRef.setInput('options', [
+        { value: 'one', label: 'One' },
+        { value: 'two', label: 'Two' },
+        { value: 'three', label: 'Three' },
+      ]);
+      fixture.detectChanges();
+      document.body.appendChild(fixture.nativeElement);
+      const root = fixture.nativeElement as HTMLElement;
+      const trigger = root.querySelector('.select__trigger') as HTMLButtonElement;
+      const press = (target: Element, key: string) =>
+        target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+      return { fixture, root, trigger, press };
+    }
+
+    afterEach(() => vi.useRealTimers());
+
+    it('opens with the arrow key and focuses the selected option', () => {
+      const { fixture, root, trigger, press } = setup();
+      trigger.focus();
+      press(trigger, 'ArrowDown');
+      fixture.detectChanges();
+      vi.runAllTimers();
+      expect(fixture.componentInstance.open()).toBe(true);
+      expect(document.activeElement).toBe(root.querySelectorAll('.select__option')[1]);
+    });
+
+    it('moves with arrows, Home and End, and stops at the ends', () => {
+      const { fixture, root, trigger, press } = setup();
+      press(trigger, 'ArrowDown');
+      fixture.detectChanges();
+      vi.runAllTimers();
+      const options = root.querySelectorAll('.select__option');
+      press(document.activeElement as Element, 'ArrowDown');
+      expect(document.activeElement).toBe(options[2]);
+      press(document.activeElement as Element, 'ArrowDown');
+      expect(document.activeElement).toBe(options[2]);
+      press(document.activeElement as Element, 'Home');
+      expect(document.activeElement).toBe(options[0]);
+      press(document.activeElement as Element, 'End');
+      expect(document.activeElement).toBe(options[2]);
+    });
+
+    it('returns focus to the button after choosing or pressing Escape', () => {
+      const { fixture, root, trigger, press } = setup();
+      press(trigger, 'ArrowDown');
+      fixture.detectChanges();
+      vi.runAllTimers();
+      press(document.activeElement as Element, 'Escape');
+      fixture.detectChanges();
+      expect(fixture.componentInstance.open()).toBe(false);
+      expect(document.activeElement).toBe(trigger);
+
+      press(trigger, 'ArrowDown');
+      fixture.detectChanges();
+      vi.runAllTimers();
+      (root.querySelectorAll('.select__option')[0] as HTMLButtonElement).click();
+      expect(document.activeElement).toBe(trigger);
+    });
   });
 });

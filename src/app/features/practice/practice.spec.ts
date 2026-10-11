@@ -93,7 +93,9 @@ describe('PracticeComponent', () => {
   });
 
   function create() {
-    return TestBed.createComponent(PracticeComponent).componentInstance;
+    const fixture = TestBed.createComponent(PracticeComponent);
+    TestBed.flushEffects();
+    return fixture.componentInstance;
   }
 
   it('builds filter options and preview counts from loaded content', () => {

@@ -1,4 +1,14 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  HostListener,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
@@ -20,6 +30,12 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 const MORE_ITEMS: NavItem[] = [
+  {
+    label: 'Mock Interview',
+    path: '/mock-interview',
+    icon: 'flame',
+    hint: 'Timed practice interview',
+  },
   { label: 'Playground', path: '/playground', icon: 'code', hint: 'Try code in the browser' },
   { label: 'Calendar', path: '/calendar', icon: 'calendar', hint: 'Track study activity' },
   { label: 'Bookmarks', path: '/bookmarks', icon: 'bookmark', hint: 'Saved topics & questions' },
@@ -58,11 +74,60 @@ export class MobileNavComponent {
     return this.moreItems.some((item) => url === item.path || url.startsWith(`${item.path}/`));
   });
 
-  toggleMore(): void {
-    this.moreOpen.update((open) => !open);
+  private readonly sheet = viewChild<ElementRef<HTMLElement>>('sheet');
+  private readonly moreButton = viewChild<ElementRef<HTMLButtonElement>>('moreButton');
+
+  constructor() {
+    // The sheet is modal, so the page behind it must not scroll.
+    effect(() => {
+      document.body.style.overflow = this.moreOpen() ? 'hidden' : '';
+    });
+    inject(DestroyRef).onDestroy(() => (document.body.style.overflow = ''));
   }
 
-  closeMore(): void {
+  toggleMore(): void {
+    if (this.moreOpen()) {
+      this.closeMore(true);
+      return;
+    }
+    this.moreOpen.set(true);
+    // Move focus into the sheet once it has rendered.
+    setTimeout(() => this.focusables()[0]?.focus());
+  }
+
+  closeMore(restoreFocus = false): void {
     this.moreOpen.set(false);
+    if (restoreFocus) this.moreButton()?.nativeElement.focus();
+  }
+
+  /** Escape closes the sheet; Tab stays inside it while it is open. */
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(event: KeyboardEvent): void {
+    if (!this.moreOpen()) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.closeMore(true);
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const items = this.focusables();
+    if (items.length === 0) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    const active = document.activeElement;
+    const outside = !this.sheet()?.nativeElement.contains(active);
+    if (event.shiftKey && (active === first || outside)) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && (active === last || outside)) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  private focusables(): HTMLElement[] {
+    return Array.from(
+      this.sheet()?.nativeElement.querySelectorAll<HTMLElement>('button, a[href]') ?? [],
+    );
   }
 }

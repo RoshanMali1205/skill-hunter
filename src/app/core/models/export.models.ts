@@ -20,3 +20,16 @@ export const DEFAULT_TOPIC_EXPORT_OPTIONS: TopicExportOptions = {
 
 /** Soft warning threshold — large packs can be slow to print. */
 export const TOPIC_EXPORT_WARN_COUNT = 20;
+
+export interface ImportSummary {
+  topicsTracked: number;
+  bookmarks: number;
+  practiceAttempts: number;
+  revisionTopics: number;
+  notes: number;
+}
+
+export interface ImportPreview {
+  incoming: ImportSummary;
+  current: ImportSummary;
+}

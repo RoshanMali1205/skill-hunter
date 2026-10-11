@@ -1,12 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { StorageService } from '../storage/storage.service';
 import { STORAGE_KEYS } from '../storage/storage-keys';
-import {
-  AI_CHAT_MAX_CONVERSATIONS,
-  AiChatContext,
-  AiChatMessage,
-  AiConversation,
-} from '../models';
+import { AI_CHAT_MAX_CONVERSATIONS, AiChatContext, AiChatMessage, AiConversation } from '../models';
 
 interface AiChatPersistedState {
   conversations: AiConversation[];
@@ -179,9 +174,7 @@ export class AiChatStore {
     if (!id) return;
     this._state.update((state) => ({
       ...state,
-      conversations: state.conversations.map((c) =>
-        c.id === id ? { ...c, ...partial } : c,
-      ),
+      conversations: state.conversations.map((c) => (c.id === id ? { ...c, ...partial } : c)),
     }));
     this.persist();
   }

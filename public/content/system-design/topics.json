@@ -134,7 +134,7 @@
         "title": "Practical design / code example",
         "order": 3,
         "language": "typescript",
-        "code": "// payments/public-api.ts\nexport type { PaymentSummary } from './domain/payment-summary';\nexport { paymentRoutes } from './feature/payment.routes';\n\n// reports may depend on the public contract only:\nimport type { PaymentSummary } from '@app/payments';\n\n// CI rule:\n// reports -> payments/internal/**  \u274c\n// feature -> platform/design-system \u2705",
+        "code": "// payments/public-api.ts\nexport type { PaymentSummary } from './domain/payment-summary';\nexport { paymentRoutes } from './feature/payment.routes';\n\n// reports may depend on the public contract only:\nimport type { PaymentSummary } from '@app/payments';\n\n// CI rule:\n// reports -> payments/internal/**  ❌\n// feature -> platform/design-system ✅",
         "explanation": "The public entry point is intentionally small. Type-only contracts can be shared where necessary, while feature internals remain replaceable."
       },
       {
@@ -245,6 +245,18 @@
         "question": "How would you handle a backend enum that may gain new values?",
         "answer": "Add an explicit unknown fallback in the UI, keep the raw value for telemetry, and avoid runtime logic that throws on an unrecognized value. The API should document that the enum can grow, and the UI should show a safe generic state until it understands the new value.",
         "explanation": "Extensible enums let the backend evolve without crashing older clients."
+      },
+      {
+        "id": "sd-api-contracts-and-backward-compatibility-tricky-new-enum",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "An additive API change breaks a client",
+        "question": "A server adds a new enum value without removing fields. Why might an old frontend still break?",
+        "answer": "A client may assume the enum is exhaustive and have no safe fallback for an unfamiliar value. Define how unknown variants should be handled and test old clients against evolving contracts.",
+        "explanation": "Adding a field is different from adding a new state with behavioral meaning. Compatibility depends on consumer assumptions, not just JSON syntax.\n\n[Further reading](https://google.aip.dev/180)",
+        "hints": [
+          "What does an older client do with the new state?"
+        ]
       }
     ]
   },
@@ -272,7 +284,7 @@
         "order": 1,
         "content": "The choice is less about endpoint count and more about boundaries. REST is simple when resources match the UI. A BFF is useful when the frontend needs a secure composition layer. GraphQL is useful when clients need flexible queries and the organization can govern the schema.\n\nAggregation also changes failure behavior. One slow service should not always make the whole dashboard fail. Timeouts, partial responses and per-widget errors need to be designed explicitly.\n\nKeep authority in the right place. A BFF can compose and secure frontend traffic, but domain services still own resource authorization and core business rules.",
         "keyPoints": [
-          "Choose from client diversity, aggregation needs, security boundaries, caching and organizational capability\u2014not fashion.",
+          "Choose from client diversity, aggregation needs, security boundaries, caching and organizational capability—not fashion.",
           "Direct REST is simple when resources are client-friendly and browser access is acceptable.",
           "A BFF can isolate tokens, aggregate services and return frontend-specific view models.",
           "GraphQL requires schema governance, field authorization, query-cost limits and resolver observability.",
@@ -411,6 +423,18 @@
         "question": "How would you prevent a shared CDN from serving tenant A's response to tenant B?",
         "answer": "Do not publicly cache private user responses. For cacheable tenant-specific public content, use explicit cache-control and a cache key that varies on the trusted tenant routing value. Verify the CDN setup with isolation tests, and never rely only on a client-supplied query parameter.",
         "explanation": "Shared caches are safe only when the cache key includes every trusted dimension that changes the response."
+      },
+      {
+        "id": "sd-multi-tenant-frontend-architecture-tricky-tenant-key",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A cache shared across tenants",
+        "question": "A user switches from tenant A to tenant B. Both have a resource with id 42. Is a cache keyed only by resource ID safe?",
+        "answer": "No. Include the tenant and relevant user/permission context, and clear or isolate data when that context changes. The server must enforce tenant access independently.",
+        "explanation": "Correctly authorized responses can still be displayed in the wrong context by a client cache. Identity belongs in both the access policy and the cache design.\n\n[Further reading](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)",
+        "hints": [
+          "Is resource ID globally unique across every context?"
+        ]
       }
     ]
   },
@@ -604,7 +628,7 @@
         "order": 1,
         "content": "A good frontend platform reduces repeated decisions. Teams should not solve auth, logging, error handling and release setup eight different ways when secure defaults can be provided once.\n\nThe platform must be enabling, not controlling. Self-service tools and automated checks scale better than manual approval for ordinary work.\n\nTreating the platform as a product keeps it honest. Adoption, upgrade pain and incident reduction are better signals than the number of packages published.",
         "keyPoints": [
-          "Provide secure, observable defaults through templates, generators and CI\u2014not copy-paste documentation.",
+          "Provide secure, observable defaults through templates, generators and CI—not copy-paste documentation.",
           "Keep platform contracts stable and focused; feature teams own business workflows.",
           "Make the supported path easier than custom implementation.",
           "Allow governed exceptions with owners and review dates.",
@@ -743,6 +767,18 @@
         "question": "What is the difference between `no-cache` and `no-store`?",
         "answer": "no-cache allows a response to be stored, but it must be validated before reuse. no-store tells caches not to store the response at all. For sensitive data, choose based on the risk and product need; the names are not synonyms.",
         "explanation": "The key difference is that no-cache still permits storage while no-store forbids it."
+      },
+      {
+        "id": "sd-caching-strategy-tricky-cache-directives",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "no-cache does not mean no storage",
+        "question": "A response contains Cache-Control: no-cache. Must every cache avoid storing its body?",
+        "answer": "No. It can be stored, but reuse requires validation with the origin. no-store instructs caches not to store the response.",
+        "explanation": "Choose policy from freshness and sensitivity requirements. Confusing these directives can create either unnecessary transfers or inappropriate retention.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching)",
+        "hints": [
+          "Separate storage permission from reuse permission."
+        ]
       }
     ]
   },
@@ -826,6 +862,18 @@
         "question": "How do you handle a `412 Precondition Failed` from `If-Match`?",
         "answer": "Fetch or use the server-provided latest representation, tell the user the record changed, and let them compare or reapply their edit. Do not silently overwrite the newer server state.",
         "explanation": "A 412 means the client's version is stale, so the user needs a safe conflict path."
+      },
+      {
+        "id": "sd-cache-invalidation-and-stale-data-tricky-late-read",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "The stale read after a successful save",
+        "question": "A profile save succeeds, but an older GET completes afterward and overwrites the new profile in the UI. Is invalidating the cache on save enough?",
+        "answer": "Not by itself. Prevent older in-flight results from overwriting newer state, using request generations, version checks, cancellation where appropriate, or a coordinated query cache.",
+        "explanation": "Invalidating stored data does not erase work already in flight. Test the response order GET-start, save-success, GET-finish.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/API/AbortController)",
+        "hints": [
+          "What happens to requests that started before invalidation?"
+        ]
       }
     ]
   },
@@ -939,7 +987,7 @@
           "Analyze production transfer and execution cost before changing dependencies.",
           "Lazy load stable route/feature boundaries and dynamically import heavy minority-use tools.",
           "Use direct imports and tree-shakable APIs; investigate duplicate versions and barrel side effects.",
-          "Do not replace a library only from package size\u2014include correctness, maintenance and migration cost.",
+          "Do not replace a library only from package size—include correctness, maintenance and migration cost.",
           "Avoid over-splitting and uncontrolled prefetch waterfalls.",
           "Enforce initial/route budgets in CI and validate field startup performance."
         ]
@@ -992,6 +1040,18 @@
         "question": "Why might an Angular `@defer` block fail to create a separate chunk?",
         "answer": "The dependency may not be standalone, may be referenced outside the defer block, or may be imported through a barrel that makes the bundler keep related exports. I would inspect the build output and import directly from the component file where possible.",
         "explanation": "A defer block can split code only when the dependency is isolated from the eager graph."
+      },
+      {
+        "id": "sd-bundle-size-and-code-splitting-tricky-too-many-chunks",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "More chunks, slower navigation",
+        "question": "A team splits every tiny component into a lazy chunk. Why can navigation get slower despite a smaller initial bundle?",
+        "answer": "Additional requests and dependency waterfalls can delay the next screen. Choose useful route/feature boundaries and measure the complete loading path.",
+        "explanation": "Code splitting is a trade-off between initial work and later coordination. Avoid optimizing a bundle-size number while ignoring route readiness.\n\n[Further reading](https://web.dev/articles/code-splitting-suspense)",
+        "hints": [
+          "When can each dependent chunk be discovered?"
+        ]
       }
     ]
   },
@@ -1075,6 +1135,18 @@
         "question": "How would you preserve selection when filters change?",
         "answer": "I would define the product behavior explicitly. Page selection can clear when filters change. All matching selection should be tied to a server query or snapshot ID and should either reset or ask for confirmation when the query changes. Ambiguous selection is dangerous for bulk operations.",
         "explanation": "Bulk actions need clear selection semantics so users do not act on the wrong records."
+      },
+      {
+        "id": "sd-large-lists-and-data-grids-tricky-virtualization-network",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Virtualization does not shrink an API response",
+        "question": "A grid renders only 30 visible rows from a million downloaded records. Has virtualization solved the whole performance problem?",
+        "answer": "No. It limits rendered DOM, but downloading, parsing, retaining, sorting, and filtering the full dataset can still be expensive. Consider server-side pagination and querying.",
+        "explanation": "Choose separately how much data to fetch and how much to render. Measure memory and interaction latency in addition to node count.\n\n[Further reading](https://web.dev/articles/virtualize-long-lists-react-window)",
+        "hints": [
+          "Which stages happen before rendering?"
+        ]
       }
     ]
   },
@@ -1158,6 +1230,18 @@
         "question": "When would you use chunking on the main thread instead of a worker?",
         "answer": "For smaller tasks where worker startup and data transfer dominate, I may split work into bounded chunks scheduled between interactions. I would still profile it because chunking shares the main thread and can remain unpredictable under load.",
         "explanation": "Chunking is useful when the overhead of a worker is larger than the work itself."
+      },
+      {
+        "id": "sd-main-thread-cpu-and-web-workers-tricky-worker-overhead",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A worker that makes a tiny task slower",
+        "question": "Why can moving a small calculation to a worker increase total latency?",
+        "answer": "Worker startup, scheduling, and message transfer can cost more than the calculation. Measure end-to-end latency and main-thread responsiveness separately.",
+        "explanation": "Use workers for suitable workloads and reuse them when appropriate. Transfer large buffers deliberately when ownership can move without copying.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers)",
+        "hints": [
+          "What costs exist around the calculation itself?"
+        ]
       }
     ]
   },
@@ -1490,6 +1574,18 @@
         "question": "Should the frontend retry a failed POST automatically?",
         "answer": "Only if the operation is explicitly idempotent through its semantics or an idempotency key, and the error is transient. Otherwise an automatic retry can duplicate a payment or order. Retry behavior should be part of the API contract.",
         "explanation": "Unsafe POST retries can repeat side effects unless the operation is designed for idempotency."
+      },
+      {
+        "id": "sd-edge-cdn-and-network-resilience-tricky-retry-jitter",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Retries that synchronize an outage",
+        "question": "Every client retries after exactly 1, 2, and 4 seconds. Why can this make recovery harder?",
+        "answer": "Clients can synchronize into repeated traffic spikes. Use bounded retries, backoff with jitter, a deadline, and a policy that retries only appropriate failures.",
+        "explanation": "Retries consume capacity from a service that may already be overloaded. Coordinate retry ownership across layers so attempts do not multiply unexpectedly.\n\n[Further reading](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)",
+        "hints": [
+          "What do thousands of clients do at the same second?"
+        ]
       }
     ]
   },
@@ -1656,6 +1752,18 @@
         "question": "Is `sessionStorage` safe for access tokens?",
         "answer": "sessionStorage is less persistent and scoped to one tab, but it is still JavaScript-readable and vulnerable to XSS in that tab. I would not call it secure storage; I would describe its narrower persistence trade-off.",
         "explanation": "Tab scoping reduces persistence, but it does not protect a bearer token from same-origin script."
+      },
+      {
+        "id": "sd-token-and-session-storage-tricky-httponly-xss",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "HttpOnly is useful but not complete",
+        "question": "If a session cookie is HttpOnly, can an injected script still perform actions as the user?",
+        "answer": "Potentially yes. HttpOnly prevents JavaScript from reading the cookie, but the browser can still attach it to requests initiated by the compromised page.",
+        "explanation": "Reduce injection risk, authorize operations, and protect sensitive workflows. Cookie secrecy alone does not make a compromised origin trustworthy.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie)",
+        "hints": [
+          "Reading credentials and using a session are different abilities."
+        ]
       }
     ]
   },
@@ -1739,6 +1847,18 @@
         "question": "What should the UI do after the API returns 403 for an action it showed as allowed?",
         "answer": "Treat it as an expected policy or state change: show a clear message, refresh permission or resource state, and capture safe telemetry. Do not retry blindly or expose internal policy details.",
         "explanation": "A 403 after an allowed-looking UI means the authoritative policy changed or had more context than the client."
+      },
+      {
+        "id": "sd-authorization-rbac-permissions-and-abac-tricky-hidden-action",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A hidden Delete button",
+        "question": "The UI hides Delete for read-only users. Is testing that hidden state enough to verify permission enforcement?",
+        "answer": "No. Test that the API rejects unauthorized deletion, including direct requests and access to another user's resource. UI visibility only guides the user.",
+        "explanation": "Permissions can change during a session. Handle a server rejection gracefully even after the UI previously allowed the action.\n\n[Further reading](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)",
+        "hints": [
+          "Can the operation be requested without that button?"
+        ]
       }
     ]
   },
@@ -1905,6 +2025,18 @@
         "question": "Does a bearer token in an `Authorization` header eliminate CSRF?",
         "answer": "It reduces traditional cookie-based CSRF because browsers do not attach the Authorization header automatically. However, token theft, XSS and client-side request construction remain concerns. Security still depends on how the token is obtained and stored.",
         "explanation": "Bearer headers avoid automatic cookie attachment, but they do not solve token compromise or malicious same-origin script."
+      },
+      {
+        "id": "sd-csrf-cors-and-samesite-tricky-cors-auth",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "CORS is not an authorization layer",
+        "question": "An API allows only your website's origin through CORS. Does that stop an unauthorized script outside a browser from calling it?",
+        "answer": "No. CORS is a browser-enforced cross-origin response access mechanism. Authenticate and authorize the API independently; also consider CSRF for credentialed browser requests.",
+        "explanation": "Some cross-origin requests can be sent even when the response is unreadable to JavaScript. A CORS failure does not prove no operation occurred.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS)",
+        "hints": [
+          "Which client enforces CORS?"
+        ]
       }
     ]
   },
@@ -2486,6 +2618,18 @@
         "question": "How would you handle a timeout after submitting a payment?",
         "answer": "Mark the payment outcome as unknown, then query the server by idempotency key or operation ID. Only allow a new logical submission after the original outcome is resolved; showing 'failed, try again' can create a duplicate.",
         "explanation": "A timeout tells you the browser did not receive an answer, not whether the server committed the payment."
+      },
+      {
+        "id": "sd-concurrent-requests-and-race-conditions-tricky-abort-not-undo",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Cancel is not rollback",
+        "question": "A user leaves a page and its save request is aborted. Can the UI assume the server did not save anything?",
+        "answer": "No. The request may already have committed before cancellation. Treat the outcome as uncertain until you reconcile with the server.",
+        "explanation": "For consequential mutations, define operation identifiers, idempotency, and a status lookup or refresh. Transport cancellation does not provide a database transaction rollback.\n\n[Further reading](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/)",
+        "hints": [
+          "Where was the request when cancellation happened?"
+        ]
       }
     ]
   },
@@ -2569,6 +2713,18 @@
         "question": "Would you optimistically show a payment as approved?",
         "answer": "Usually no. For a high-impact payment approval, I would show that the submission is pending, but the final approved status must come from the authoritative server after authorization, validation, and audit finish.",
         "explanation": "Optimism is a poor fit when a wrong temporary state has financial, legal, or audit impact."
+      },
+      {
+        "id": "sd-optimistic-ui-and-concurrency-control-tricky-lost-update",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Two valid saves lose data",
+        "question": "Two editors load version 5 and both save successfully. Why can the last save silently erase the first editor's changes?",
+        "answer": "Without concurrency control, both writes can be accepted against stale state. Use a server-enforced version precondition, such as an ETag with If-Match, and resolve a rejected stale update explicitly.",
+        "explanation": "Optimistic UI is a display technique, not conflict detection. On a conflict, preserve the user's draft while offering a merge or reload path.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/If-Match)",
+        "hints": [
+          "What proves the edited version is still current?"
+        ]
       }
     ]
   },
@@ -2818,6 +2974,18 @@
         "question": "Can Background Sync be the only synchronization mechanism?",
         "answer": "No. Background Sync support and scheduling are not guaranteed, and users may reopen the app before it runs. Build normal foreground sync first, then treat background sync as an enhancement.",
         "explanation": "Recovery must not depend on an optional browser feature that may never run on schedule."
+      },
+      {
+        "id": "sd-offline-and-pwa-strategy-tricky-offline-shell",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "An installed app with no offline data",
+        "question": "A service worker caches the app shell. Does that make editing business records work offline?",
+        "answer": "No. The interface may load while its data and mutations still require a network. Define stored data, queued writes, conflict resolution, and visible pending/synced states.",
+        "explanation": "Offline capability is a product contract. A successful local edit must not be represented as server-confirmed until synchronization succeeds.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers)",
+        "hints": [
+          "Which resources and operations actually work without a connection?"
+        ]
       }
     ]
   },
@@ -2902,6 +3070,18 @@
         "question": "How do you guarantee no events are missed during reconnect?",
         "answer": "Resume from a durable cursor if the server retains events. If the cursor is too old or continuity is uncertain, reload a canonical snapshot and subscribe after that version. Do not assume the socket stayed uninterrupted.",
         "explanation": "A cursor proves what the client has seen; a snapshot repairs state when the event history cannot cover the gap."
+      },
+      {
+        "id": "sd-real-time-updates-tricky-reconnect-gap",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A reconnected socket with missing events",
+        "question": "A WebSocket reconnects successfully. Does that prove the client has all updates sent during disconnection?",
+        "answer": "No. Reconnection restores transport. Recover missed events with a resumable cursor/sequence protocol or fetch a fresh snapshot and reconcile.",
+        "explanation": "Also handle duplicate delivery and retention gaps. Connection health and state consistency are separate measurements.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)",
+        "hints": [
+          "How does the client know where the event history resumes?"
+        ]
       }
     ]
   },
@@ -2985,6 +3165,18 @@
         "question": "Would you share one WebSocket across tabs?",
         "answer": "Only if connection cost is high enough to justify a shared-worker or leader-tab design. Leader failure, tab suspension, and browser support add complexity. A server-side limit or multiplexing strategy may be simpler.",
         "explanation": "Sharing a socket saves resources, but it turns tab coordination into a failure-prone distributed-system problem."
+      },
+      {
+        "id": "sd-multi-tab-synchronization-tricky-broadcast-durability",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "BroadcastChannel as a database",
+        "question": "Can BroadcastChannel alone guarantee that a newly opened tab receives every earlier update?",
+        "answer": "No. It delivers messages to listening contexts; it is not a durable event log. Load authoritative state when opening a tab and use messages as live updates or invalidation signals.",
+        "explanation": "Treat tab messages as coordination hints. Reconcile with persisted or server state after startup and interruptions.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/API/Broadcast_Channel_API)",
+        "hints": [
+          "Where would historical messages be stored?"
+        ]
       }
     ]
   },
@@ -3178,7 +3370,7 @@
         "order": 1,
         "content": "A BFF is a security and experience boundary for a specific frontend. It is useful when the browser should not know tokens or service topology, or when the UI needs an aggregate shape that backend services do not expose.\n\nIt should be capability-focused, not a blind mirror of microservices. The BFF composes; domain services decide.\n\nBecause it sits on the critical path, resilience and observability matter: timeouts, partial failure, tracing, budgets, and compatibility for old frontend builds.\n\nThe design is healthy when it simplifies the client and improves security without becoming a new business monolith.",
         "keyPoints": [
-          "Introduce a BFF for token isolation, aggregation or frontend-specific contracts\u2014not blind proxying.",
+          "Introduce a BFF for token isolation, aggregation or frontend-specific contracts—not blind proxying.",
           "Use server-side tokens and an opaque HttpOnly browser session with CSRF controls.",
           "Keep authoritative domain logic in domain services.",
           "Parallelize bounded downstream calls and represent partial failure explicitly.",
@@ -3566,6 +3758,18 @@
         "question": "What is the difference between a feature flag and a permission?",
         "answer": "A feature flag controls whether a capability or version is released. A permission controls whether a subject is allowed to perform an action. A user can be in the released cohort and still lack permission, and the server must enforce that permission.",
         "explanation": "Flags manage rollout; permissions enforce authorization."
+      },
+      {
+        "id": "sd-feature-flags-and-runtime-configuration-tricky-flag-security",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A client flag for a paid feature",
+        "question": "A premium feature is disabled by a client-side flag for unpaid accounts. Can that flag enforce entitlement?",
+        "answer": "No. Treat the flag as presentation or rollout configuration. Enforce the entitlement on the server for every protected action.",
+        "explanation": "A user can modify local state or call an endpoint directly. Keep rollout decisions distinct from access decisions, even when the UI combines them.\n\n[Further reading](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)",
+        "hints": [
+          "Who controls the flag in the browser?"
+        ]
       }
     ]
   },
@@ -3649,6 +3853,18 @@
         "question": "How long should old assets remain?",
         "answer": "Keep old assets long enough to cover the supported open-tab, cache, and service-worker window based on real usage and risk. Use active-build telemetry and a defined policy, not an arbitrary one-hour rule.",
         "explanation": "Old tabs may request old lazy chunks long after a new app shell has been deployed."
+      },
+      {
+        "id": "sd-frontend-deployment-versioning-and-rollback-tricky-missing-old-chunk",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A deploy breaks an already-open tab",
+        "question": "After deployment, an old tab requests a lazy chunk by its previous hash and receives 404. Why did a correct new build not prevent this?",
+        "answer": "The running page still references the old build's assets. Retain compatible old assets for a suitable window and provide a recoverable reload path.",
+        "explanation": "Use immutable hashed assets and an appropriate HTML update policy. Test deployment with a tab that was open before the release.\n\n[Further reading](https://angular.dev/ecosystem/service-workers/devops)",
+        "hints": [
+          "Which build does the open page belong to?"
+        ]
       }
     ]
   },
@@ -3815,6 +4031,18 @@
         "question": "Should the frontend retry a 500 response?",
         "answer": "Only retry a 500 when the operation is safe or idempotent, the failure is likely transient, and the retry is bounded with backoff. A BFF may be the better layer. Never blindly retry validation errors, authorization errors, or non-idempotent writes.",
         "explanation": "Retries can heal transient failures, but they can also amplify outages or duplicate side effects."
+      },
+      {
+        "id": "sd-error-handling-and-resilience-tricky-duplicate-operation",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A timeout followed by a duplicate order",
+        "question": "The browser times out while creating an order and retries with a new request identifier. Why can two orders appear?",
+        "answer": "The first operation may have succeeded despite the missing response. Reuse the operation's idempotency key for retries, under a server contract that deduplicates equivalent requests.",
+        "explanation": "Define the key's scope, lifetime, and payload mismatch behavior. A new key usually describes a new operation rather than a retry.\n\n[Further reading](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/)",
+        "hints": [
+          "Does the retry identify the same intended operation?"
+        ]
       }
     ]
   },
@@ -3842,7 +4070,7 @@
         "order": 1,
         "content": "Frontend observability covers what the browser and user experience, not just what the server reports.\n\nUseful signals need context: build, route, browser, device, region, and correlation. Without segmentation, averages hide the problem.\n\nTelemetry is also a privacy and cost system. Use allowlisted schemas, sampling, low-cardinality dimensions, retention rules, and access control.\n\nThe goal is decision support: detect user impact, compare releases, trace failures across layers, and roll back quickly when needed.",
         "keyPoints": [
-          "Observe user journeys, browser runtime and resources\u2014not only server uptime.",
+          "Observe user journeys, browser runtime and resources—not only server uptime.",
           "Include immutable build, route, browser/device and trace/correlation context.",
           "Collect web vitals plus domain journey success/latency.",
           "Use allowlisted schemas, sampling and low-cardinality dimensions.",
@@ -3898,6 +4126,18 @@
         "question": "Would you use user ID as a metric label?",
         "answer": "No. User ID creates very high cardinality and privacy risk as a metric label. Use pseudonymous IDs only in approved sampled traces or logs, and aggregate metrics by bounded dimensions like build, route, browser family, and region.",
         "explanation": "Metric labels need low-cardinality, non-sensitive dimensions so monitoring stays useful, affordable, and privacy-safe."
+      },
+      {
+        "id": "sd-observability-and-real-user-monitoring-tricky-average-latency",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "The fast average hides a slow audience",
+        "question": "Average page latency improves, but users on low-end devices report worse performance. Can both be true?",
+        "answer": "Yes. Averages can hide distribution changes and differences between cohorts. Inspect percentiles and segment by device, route, network, and relevant user journeys.",
+        "explanation": "Verify sample sizes and instrumentation before drawing conclusions. A single global metric cannot describe every user's experience.\n\n[Further reading](https://web.dev/articles/vitals)",
+        "hints": [
+          "Who is represented by the average?"
+        ]
       }
     ]
   },
@@ -4010,7 +4250,7 @@
         "keyPoints": [
           "Match test type to risk: unit logic, rendered component behavior, contracts and critical E2E journeys.",
           "Validate API schemas/contracts instead of trusting hand-written mocks.",
-          "Test permissions, failures, races and malformed data\u2014not only happy paths.",
+          "Test permissions, failures, races and malformed data—not only happy paths.",
           "Use visual/a11y tests for shared design-system components.",
           "Remove implementation-detail tests and treat flakiness as a defect.",
           "Combine pre-release tests with canary observability and rollback."

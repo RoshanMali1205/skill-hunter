@@ -46,5 +46,6 @@ describe('AiAssistantService', () => {
     const result = firstValueFrom(service.sendMessage([])).catch((error: Error) => error);
     http.expectOne('/api/ai-chat').flush(null, { status: 500, statusText: 'Error' });
     expect(((await result) as Error).message).toContain('HTTP 500');
+    expect(((await result) as Error).message).toContain('npm start');
   });
 });

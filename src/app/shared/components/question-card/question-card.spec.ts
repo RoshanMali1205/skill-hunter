@@ -63,6 +63,10 @@ describe('QuestionCardComponent', () => {
     fixture.componentInstance.assessed.subscribe(assessed);
     fixture.detectChanges();
 
+    expect(fixture.nativeElement.querySelector('.question-card__self-assess')).toBeNull();
+    fixture.componentInstance.answerPanel()!.toggle();
+    fixture.detectChanges();
+
     const buttons = fixture.nativeElement.querySelectorAll('.question-card__self-assess button');
     buttons.forEach((button: HTMLButtonElement) => button.click());
     expect(assessed.mock.calls.map(([result]) => result)).toEqual([
@@ -70,5 +74,8 @@ describe('QuestionCardComponent', () => {
       'incorrect',
       'needs-revision',
     ]);
+    fixture.componentRef.setInput('question', { ...question, id: 'q2' });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.question-card__self-assess')).toBeNull();
   });
 });

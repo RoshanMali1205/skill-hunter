@@ -179,7 +179,9 @@ describe('TopicDetailComponent', () => {
     const component = create();
     component.practiceAgain();
     component.askAi();
-    expect(navigate).toHaveBeenCalledWith(['/practice'], { queryParams: { topicId: 'signals' } });
+    expect(navigate).toHaveBeenCalledWith(['/practice'], {
+      queryParams: { subjectId: 'angular', topicId: 'signals' },
+    });
     expect(navigate).toHaveBeenCalledWith(['/ai-mentor'], {
       queryParams: expect.objectContaining({
         subjectId: 'angular',

@@ -19,6 +19,8 @@ import { indentWithTab } from '@codemirror/commands';
 import { CodeRunnerService, LogEntry } from '../../core/services/code-runner.service';
 import { ContentService } from '../../core/services/content.service';
 import { SettingsService } from '../../core/services/settings.service';
+import { StorageService } from '../../core/storage/storage.service';
+import { STORAGE_KEYS } from '../../core/storage/storage-keys';
 import { IconComponent } from '../../shared/components/icon/icon';
 import { SelectComponent } from '../../shared/components/select/select';
 import { SelectOptionGroup } from '../../shared/components/select/select.models';
@@ -52,6 +54,7 @@ export class PlaygroundComponent implements AfterViewInit, OnDestroy {
   private readonly codeRunner = inject(CodeRunnerService);
   private readonly contentService = inject(ContentService);
   private readonly settingsService = inject(SettingsService);
+  private readonly storage = inject(StorageService);
 
   private readonly themeCompartment = new Compartment();
   private view?: EditorView;
@@ -66,6 +69,13 @@ export class PlaygroundComponent implements AfterViewInit, OnDestroy {
   readonly elapsedMs = signal<number | null>(null);
   readonly hasRun = signal(false);
   readonly selectedSnippetId = signal('');
+  /** Set when the learner asked to replace code they have edited; waits for a decision. */
+  readonly pendingReplace = signal<{ snippetId: string } | null>(null);
+  /** True when the editor holds a saved draft from an earlier visit. */
+  readonly draftRestored = signal(false);
+
+  /** The code last loaded into the editor (starter or a snippet): anything else is the learner's own work. */
+  private baseline = STARTER_CODE;
 
   readonly snippets = computed<Snippet[]>(() => {
     const result: Snippet[] = [];
@@ -115,13 +125,18 @@ export class PlaygroundComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     const isDark = this.settingsService.settings().theme === 'dark';
+    const restoredDraft = this.readDraft();
+    this.draftRestored.set(restoredDraft !== null);
     this.view = new EditorView({
-      doc: STARTER_CODE,
+      doc: restoredDraft ?? STARTER_CODE,
       parent: this.editorHost.nativeElement,
       extensions: [
         basicSetup,
         keymap.of([indentWithTab, { key: 'Mod-Enter', run: () => (this.run(), true) }]),
         javascript(),
+        EditorView.updateListener.of((update) => {
+          if (update.docChanged) this.saveDraft();
+        }),
         EditorView.lineWrapping,
         this.themeCompartment.of(isDark ? [oneDark] : []),
         EditorView.theme({
@@ -137,28 +152,65 @@ export class PlaygroundComponent implements AfterViewInit, OnDestroy {
     this.view?.destroy();
   }
 
+  /** Picks a snippet, asking first if that would overwrite code the learner wrote. */
   loadSnippet(id: string): void {
-    if (!id) {
-      this.reset();
+    if (this.isDirty()) {
+      this.pendingReplace.set({ snippetId: id });
       return;
     }
+    this.applySnippet(id);
+  }
+
+  reset(): void {
+    this.loadSnippet('');
+  }
+
+  confirmReplace(): void {
+    const pending = this.pendingReplace();
+    this.pendingReplace.set(null);
+    if (pending) this.applySnippet(pending.snippetId);
+  }
+
+  cancelReplace(): void {
+    this.pendingReplace.set(null);
+  }
+
+  private applySnippet(id: string): void {
+    const snippet = id ? this.snippets().find((s) => s.id === id) : undefined;
+    if (id && !snippet) return;
     this.selectedSnippetId.set(id);
-    const snippet = this.snippets().find((s) => s.id === id);
-    if (!snippet || !this.view) return;
-    this.setEditorValue(snippet.code);
+    this.draftRestored.set(false);
+    this.setEditorValue(snippet?.code ?? STARTER_CODE);
     this.hasRun.set(false);
     this.logs.set([]);
     this.runError.set(null);
     this.elapsedMs.set(null);
   }
 
-  reset(): void {
-    this.selectedSnippetId.set('');
-    this.setEditorValue(STARTER_CODE);
-    this.hasRun.set(false);
-    this.logs.set([]);
-    this.runError.set(null);
-    this.elapsedMs.set(null);
+  private isDirty(): boolean {
+    return !!this.view && this.view.state.doc.toString() !== this.baseline;
+  }
+
+  private readDraft(): string | null {
+    try {
+      const draft = this.storage.get<string | null>(STORAGE_KEYS.playgroundDraft, null);
+      return typeof draft === 'string' && draft !== STARTER_CODE ? draft : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Keeps the learner's own code so leaving the page never loses it. Failures never break typing. */
+  private saveDraft(): void {
+    try {
+      if (this.isDirty()) {
+        this.storage.set(STORAGE_KEYS.playgroundDraft, this.view!.state.doc.toString());
+      } else {
+        this.storage.remove(STORAGE_KEYS.playgroundDraft);
+      }
+    } catch {
+      // Storage may be full or blocked; the editor still works, only recovery is lost.
+    }
   }
 
   async run(): Promise<void> {
@@ -177,6 +229,7 @@ export class PlaygroundComponent implements AfterViewInit, OnDestroy {
 
   private setEditorValue(code: string): void {
     if (!this.view) return;
+    this.baseline = code;
     this.view.dispatch({
       changes: { from: 0, to: this.view.state.doc.length, insert: code },
     });

@@ -75,6 +75,13 @@ export const routes: Routes = [
         title: 'Practice · Skill Hunter',
       },
       {
+        path: 'mock-interview',
+        loadComponent: () =>
+          import('./features/mock-interview/mock-interview').then((m) => m.MockInterviewComponent),
+        canDeactivate: [(component: { canLeave(): boolean }) => component.canLeave()],
+        title: 'Mock Interview · Skill Hunter',
+      },
+      {
         path: 'playground',
         loadComponent: () =>
           import('./features/playground/playground').then((m) => m.PlaygroundComponent),

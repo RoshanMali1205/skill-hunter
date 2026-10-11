@@ -18,9 +18,7 @@
     </label>
 
     <div class="playground__actions">
-      <button type="button" class="btn" (click)="reset()">
-        <app-icon name="repeat" /> Reset
-      </button>
+      <button type="button" class="btn" (click)="reset()"><app-icon name="repeat" /> Reset</button>
       <button type="button" class="btn btn--primary" (click)="run()" [disabled]="running()">
         <app-icon name="play" [filled]="true" />
         {{ running() ? 'Running…' : 'Run' }}
@@ -28,6 +26,25 @@
       </button>
     </div>
   </div>
+
+  @if (pendingReplace()) {
+    <div class="playground__notice" role="alertdialog" aria-label="Replace your code?">
+      <p>
+        <strong>Replace your code?</strong> You have edited the editor. Loading this will overwrite
+        it.
+      </p>
+      <div class="playground__notice-actions">
+        <button type="button" class="btn btn--danger" (click)="confirmReplace()">
+          Replace my code
+        </button>
+        <button type="button" class="btn" (click)="cancelReplace()">Keep my code</button>
+      </div>
+    </div>
+  } @else if (draftRestored()) {
+    <p class="playground__notice playground__notice--info" role="status">
+      We restored the code you were working on. Choose Reset or a snippet to start fresh.
+    </p>
+  }
 
   <div class="playground__workspace">
     <div class="playground__editor-card">

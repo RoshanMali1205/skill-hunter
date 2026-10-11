@@ -15,6 +15,12 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', icon: 'home', hint: 'Your prep overview' },
   { label: 'Subjects', path: '/subjects', icon: 'book-open', hint: 'Browse interview topics' },
   { label: 'Practice', path: '/practice', icon: 'target', hint: 'Drill interview questions' },
+  {
+    label: 'Mock Interview',
+    path: '/mock-interview',
+    icon: 'flame',
+    hint: 'Timed practice interview',
+  },
   { label: 'Playground', path: '/playground', icon: 'code', hint: 'Try code in the browser' },
   { label: 'AI Mentor', path: '/ai-mentor', icon: 'bot', hint: 'Ask the interview mentor' },
   { label: 'Calendar', path: '/calendar', icon: 'calendar', hint: 'Track study activity' },

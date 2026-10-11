@@ -69,10 +69,7 @@ export interface CodeExampleBlock extends BaseContentBlock {
 }
 
 export type QuestionBlockType =
-  | 'output-question'
-  | 'interview-question'
-  | 'tricky-question'
-  | 'scenario-question';
+  'output-question' | 'interview-question' | 'tricky-question' | 'scenario-question';
 
 export interface QuestionBlock extends BaseContentBlock {
   type: QuestionBlockType;

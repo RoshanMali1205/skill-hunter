@@ -20,9 +20,9 @@
         "order": 1,
         "content": "`===` compares value and type with no conversion. `==` first coerces operands toward a common type using a fixed set of rules (e.g. comparing against `null`/`undefined` only matches each other; numbers vs strings convert the string to a number) before comparing. `Object.is()` behaves like `===` except it treats `NaN` as equal to itself and distinguishes `+0` from `-0`.",
         "keyPoints": [
-          "`null == undefined` is `true`, but `null === undefined` is `false` \u2014 this is one of the few places `==` is arguably useful (checking for 'either null or undefined').",
+          "`null == undefined` is `true`, but `null === undefined` is `false` — this is one of the few places `==` is arguably useful (checking for 'either null or undefined').",
           "Object equality (`===` or `==`) always compares references, never structural/deep content, for both operators.",
-          "`NaN === NaN` is `false` \u2014 use `Number.isNaN()` or `Object.is(x, NaN)` to actually detect NaN."
+          "`NaN === NaN` is `false` — use `Number.isNaN()` or `Object.is(x, NaN)` to actually detect NaN."
         ]
       },
       {
@@ -39,7 +39,7 @@
         "order": 3,
         "question": "What does `[] == false` evaluate to, and why?",
         "answer": "true.",
-        "explanation": "`==` coercion rules convert both sides toward numbers when one side is a boolean: `false` becomes `0`, and the empty array `[]` is first converted to a primitive via `toString()` (yielding `\"\"`), then `\"\"` converts to `0` \u2014 so the comparison becomes `0 == 0`, which is true. This is exactly the kind of surprising chain that makes `===` the recommended default: it never engages this conversion machinery at all."
+        "explanation": "`==` coercion rules convert both sides toward numbers when one side is a boolean: `false` becomes `0`, and the empty array `[]` is first converted to a primitive via `toString()` (yielding `\"\"`), then `\"\"` converts to `0` — so the comparison becomes `0 == 0`, which is true. This is exactly the kind of surprising chain that makes `===` the recommended default: it never engages this conversion machinery at all."
       }
     ]
   },
@@ -62,10 +62,10 @@
         "id": "es6-classes-concept-1",
         "type": "concept",
         "order": 1,
-        "content": "`class` syntax builds on the same prototype-based inheritance JavaScript already had \u2014 methods declared in a class body are installed on `ClassName.prototype` and shared by every instance, exactly like the manual `Constructor.prototype.method = ...` pattern. `#privateField` syntax adds true, engine-enforced privacy: unlike a `_conventionallyPrivate` property, code outside the class cannot read, write, or even detect a `#field`'s existence.",
+        "content": "`class` syntax builds on the same prototype-based inheritance JavaScript already had — methods declared in a class body are installed on `ClassName.prototype` and shared by every instance, exactly like the manual `Constructor.prototype.method = ...` pattern. `#privateField` syntax adds true, engine-enforced privacy: unlike a `_conventionallyPrivate` property, code outside the class cannot read, write, or even detect a `#field`'s existence.",
         "keyPoints": [
           "Class methods are non-enumerable on the prototype, unlike properties assigned in the constructor.",
-          "`#private` fields are scoped to the class body lexically \u2014 even a subclass cannot access a parent's `#field` directly.",
+          "`#private` fields are scoped to the class body lexically — even a subclass cannot access a parent's `#field` directly.",
           "`static` members belong to the class itself, not instances, and are commonly used for factory methods or shared constants."
         ]
       },
@@ -75,7 +75,7 @@
         "order": 2,
         "language": "javascript",
         "code": "class BankAccount {\n  #balance;\n\n  constructor(initialBalance) {\n    this.#balance = initialBalance;\n  }\n\n  deposit(amount) {\n    this.#balance += amount;\n    return this.#balance;\n  }\n\n  get balance() {\n    return this.#balance;\n  }\n}\n\nconst account = new BankAccount(100);\naccount.deposit(50);\n// account.#balance; // SyntaxError outside the class body",
-        "explanation": "`#balance` cannot be read, mutated, or even referenced from outside `BankAccount` \u2014 this is real privacy enforced by the JavaScript engine, not just a naming convention like `_balance`."
+        "explanation": "`#balance` cannot be read, mutated, or even referenced from outside `BankAccount` — this is real privacy enforced by the JavaScript engine, not just a naming convention like `_balance`."
       },
       {
         "id": "es6-classes-question-1",
@@ -85,7 +85,7 @@
         "code": "class Counter {\n  #count = 0;\n  increment() { return ++this.#count; }\n}\n\nconst c = new Counter();\nconsole.log(c.increment());\nconsole.log(c['#count']);",
         "language": "javascript",
         "answer": "1, then undefined (accessing `c['#count']` does not reach the private field).",
-        "explanation": "`#count` is not a regular string-keyed property \u2014 bracket notation with the literal string `'#count'` looks up an ordinary (non-existent) property named `#count`, not the private field, which can only be accessed via `this.#count` from inside the class body."
+        "explanation": "`#count` is not a regular string-keyed property — bracket notation with the literal string `'#count'` looks up an ordinary (non-existent) property named `#count`, not the private field, which can only be accessed via `this.#count` from inside the class body."
       }
     ]
   },
@@ -109,10 +109,10 @@
         "id": "modules-concept-1",
         "type": "concept",
         "order": 1,
-        "content": "ES modules use static `import`/`export` declarations, resolved and validated before any module code runs \u2014 this static structure is what lets bundlers tree-shake unused exports. `import()` (as a function call, not a declaration) is dynamic: it returns a Promise that resolves to the module's namespace object, and it's the standard mechanism behind route-level and on-demand code splitting.",
+        "content": "ES modules use static `import`/`export` declarations, resolved and validated before any module code runs — this static structure is what lets bundlers tree-shake unused exports. `import()` (as a function call, not a declaration) is dynamic: it returns a Promise that resolves to the module's namespace object, and it's the standard mechanism behind route-level and on-demand code splitting.",
         "keyPoints": [
           "Static imports are hoisted and resolved at parse time; dynamic `import()` can appear anywhere, including inside conditionals and event handlers.",
-          "A dynamically-imported chunk is only downloaded when the `import()` call actually executes \u2014 this is exactly how Angular's `loadComponent`/`loadChildren` route lazy-loading works under the hood.",
+          "A dynamically-imported chunk is only downloaded when the `import()` call actually executes — this is exactly how Angular's `loadComponent`/`loadChildren` route lazy-loading works under the hood.",
           "Circular ES module dependencies are allowed but can leave one side seeing a partially-initialized export if not handled carefully."
         ]
       },
@@ -129,8 +129,20 @@
         "type": "interview-question",
         "order": 3,
         "question": "Why can bundlers tree-shake unused exports from static ES modules but generally cannot from CommonJS (`require`/`module.exports`)?",
-        "answer": "Static `import`/`export` declarations form a graph that's fully knowable without executing any code \u2014 a bundler can see exactly which named exports are imported and drop the rest. CommonJS's `require()` and `module.exports` are just regular function calls and object mutations that happen at runtime, so a bundler generally can't prove which properties of an exported object are actually used without executing the module.",
+        "answer": "Static `import`/`export` declarations form a graph that's fully knowable without executing any code — a bundler can see exactly which named exports are imported and drop the rest. CommonJS's `require()` and `module.exports` are just regular function calls and object mutations that happen at runtime, so a bundler generally can't prove which properties of an exported object are actually used without executing the module.",
         "explanation": "This static analyzability is one of the concrete practical reasons the ecosystem moved from CommonJS to ES modules, beyond just syntax preference."
+      },
+      {
+        "id": "js-modules-dynamic-import-tricky-import-cache",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Importing a module twice",
+        "question": "If the same resolved module URL is dynamically imported twice in the same JavaScript realm, does its top-level code normally execute twice?",
+        "answer": "No. Successful module evaluation is cached for that resolved module identity. Both imports access the same module instance.",
+        "explanation": "Different resolved URLs, including differing query strings, can create distinct module identities. Re-importing is not a safe general-purpose reset mechanism.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import)",
+        "hints": [
+          "What identifies the module in the loader?"
+        ]
       }
     ]
   },
@@ -154,7 +166,7 @@
         "id": "memory-concept-1",
         "type": "concept",
         "order": 1,
-        "content": "JavaScript engines garbage-collect by tracing reachability from a set of roots (global object, active call stacks, closures still in scope) \u2014 anything unreachable from a root is eventually reclaimed. \"Memory leaks\" in JS almost always mean something is unintentionally still reachable, not that the engine failed to collect it. `WeakMap`/`WeakSet` hold their keys weakly, so entries don't by themselves keep an object alive.",
+        "content": "JavaScript engines garbage-collect by tracing reachability from a set of roots (global object, active call stacks, closures still in scope) — anything unreachable from a root is eventually reclaimed. \"Memory leaks\" in JS almost always mean something is unintentionally still reachable, not that the engine failed to collect it. `WeakMap`/`WeakSet` hold their keys weakly, so entries don't by themselves keep an object alive.",
         "keyPoints": [
           "Common leak sources: event listeners never removed, `setInterval` timers never cleared, module-level caches that grow unbounded, and closures capturing more than they need.",
           "GC timing is nondeterministic and not something application code controls or should rely on for cleanup ordering.",
@@ -167,7 +179,7 @@
         "order": 2,
         "language": "javascript",
         "code": "// leak: listener keeps `controller` (and everything it closes over) alive forever\nfunction attach(controller) {\n  window.addEventListener('resize', () => controller.onResize());\n}\n\n// fixed: keep a reference so it can be removed later\nfunction attach(controller) {\n  const handler = () => controller.onResize();\n  window.addEventListener('resize', handler);\n  return () => window.removeEventListener('resize', handler);\n}",
-        "explanation": "The first version has no way to ever detach the listener, so `controller` \u2014 and its whole closure chain \u2014 stays reachable from `window` for the page's entire lifetime. The second version returns a cleanup function that removes the listener when the consumer is done."
+        "explanation": "The first version has no way to ever detach the listener, so `controller` — and its whole closure chain — stays reachable from `window` for the page's entire lifetime. The second version returns a cleanup function that removes the listener when the consumer is done."
       },
       {
         "id": "memory-question-1",
@@ -656,6 +668,18 @@
         "question": "When would structuredClone still be the wrong design choice?",
         "answer": "structuredClone can still be wrong when the real need is a small immutable update, because cloning the whole graph wastes memory and CPU. It is also wrong for values that are not supported by structured cloning or for class instances where behavior, identity, or resource ownership needs a domain-specific rule. If the state shape is the problem, normalizing it is often better than cloning more safely.",
         "explanation": "It shows the candidate does not treat a newer API as a universal design fix."
+      },
+      {
+        "id": "senior-js-06-deep-cloning-application-state-tricky-json-clone",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A JSON round trip changes data",
+        "question": "Is JSON.parse(JSON.stringify(value)) a safe general-purpose deep clone for a state object containing Dates and undefined fields?",
+        "answer": "No. Dates are serialized to strings, undefined object fields are omitted, and some values cannot be serialized. Use a representation-aware clone or structuredClone for supported data.",
+        "explanation": "structuredClone also has limits: functions cannot be cloned, and custom class behavior is not generally preserved. Know which types your state allows.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/API/Window/structuredClone)",
+        "hints": [
+          "Compare the types before and after serialization."
+        ]
       }
     ]
   },
@@ -895,6 +919,18 @@
         "question": "What happens when a catch callback itself throws?",
         "answer": "If a catch callback itself throws, the promise returned from catch becomes rejected with that new error. Downstream catch handlers can handle it. If nobody handles it, it becomes an unhandled rejection signal.",
         "explanation": "It is strong because it treats catch as another promise callback with normal propagation rules."
+      },
+      {
+        "id": "senior-js-09-promise-error-propagation-tricky-catch-recovery",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A catch that becomes success",
+        "question": "A rejected promise runs `.catch(() => 'fallback').then(onSuccess)`. Does onSuccess run?",
+        "answer": "Yes. Returning a normal value from catch fulfills the next promise with that value. Throw or return a rejected promise to keep the chain rejected.",
+        "explanation": "Logging an error without rethrowing also recovers with undefined. Make that intentional so callers do not treat a failed save as success.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises)",
+        "hints": [
+          "What is returned by the rejection handler?"
+        ]
       }
     ]
   },
@@ -975,6 +1011,18 @@
         "question": "When would Promise.all be worse than sequential execution?",
         "answer": "Promise.all can be worse when the operations are not really independent or when starting them together overloads a service. It can also fail fast, so one optional failure may prevent useful data from rendering. Sequential execution is better when each step depends on the previous result or when rate limits require careful pacing.",
         "explanation": "It is strong because it rejects blind parallelism and talks about dependencies and failure mode."
+      },
+      {
+        "id": "senior-js-10-async-await-with-parallel-work-tricky-promise-order",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Completion order versus result order",
+        "question": "Two promises finish in reverse order. Does Promise.all return their results in completion order?",
+        "answer": "No. Fulfillment values follow input order, regardless of which promise finishes first.",
+        "explanation": "This makes positional destructuring useful, but only if the input order matches the variable order. Promise.all coordinates promises; it does not itself start functions passed without calling them.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all)",
+        "hints": [
+          "Distinguish the iterable order from timing."
+        ]
       }
     ]
   },
@@ -1055,6 +1103,18 @@
         "question": "How would you combine user cancellation with a timeout?",
         "answer": "I would create one signal for user cancellation and one for timeout, then combine them with AbortSignal.any where available. Without that API, I would abort a shared controller when either the user action happens or the timeout fires, and clear the timeout during cleanup. The error handling should distinguish cancellation or timeout from a normal network failure if the UI needs different messages.",
         "explanation": "It is strong because it composes cancellation sources and includes cleanup."
+      },
+      {
+        "id": "senior-js-11-cancelling-fetch-requests-tricky-all-cancellation",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A rejected batch still doing work",
+        "question": "One request in Promise.all rejects. Are the other fetch requests automatically cancelled?",
+        "answer": "No. The aggregate rejects, while other operations can continue. Use a shared AbortController when cancellation is desired and supported, and handle the resulting failures.",
+        "explanation": "Cancelling the browser request also does not prove that a server-side operation was rolled back. Read-only batching and mutation workflows need different failure policies.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all)",
+        "hints": [
+          "Promise rejection and operation cancellation are separate mechanisms."
+        ]
       }
     ]
   },
@@ -1295,6 +1355,18 @@
         "question": "Which events do not bubble in the way developers often expect?",
         "answer": "Some events do not bubble the way people expect, including focus and blur, though focusin and focusout do bubble. mouseenter and mouseleave also do not bubble like mouseover and mouseout. Some media and load-related events have special propagation behavior too, so delegation needs event-specific checks.",
         "explanation": "It is strong because it names real exceptions that affect delegation design."
+      },
+      {
+        "id": "senior-js-14-event-delegation-for-large-lists-tricky-nested-target",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "The icon inside a delegated button",
+        "question": "A list delegates clicks and checks `event.target.matches('button')`. Why do clicks on an icon inside a button fail?",
+        "answer": "The target is the nested icon. Find the nearest intended button with closest, then verify that it belongs to the delegated container.",
+        "explanation": "Delegation depends on the event path, not the visual shape of the control. Account for non-Element targets and Shadow DOM boundaries when relevant.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/API/Event/target)",
+        "hints": [
+          "Compare target with currentTarget."
+        ]
       }
     ]
   },
@@ -1324,7 +1396,7 @@
         "keyPoints": [
           "Alternating layout reads and writes can force the browser to recalculate style and layout repeatedly.",
           "Batch reads first, compute in JavaScript, then batch writes. Use classes or CSS variables rather than many individual style mutations.",
-          "Use requestAnimationFrame for visual updates that should align with a frame, but keep each frame\u2019s work small.",
+          "Use requestAnimationFrame for visual updates that should align with a frame, but keep each frame’s work small.",
           "Prefer CSS layout and transforms when possible, and use ResizeObserver instead of polling sizes.",
           "Verify forced reflow and rendering cost in the Performance panel."
         ]
@@ -1615,6 +1687,18 @@
         "question": "Why does WeakMap intentionally not expose keys or size?",
         "answer": "WeakMap does not expose keys or size because doing so would reveal garbage collection behavior. Whether an unreachable key has been collected is intentionally not something code can depend on. Hiding iteration keeps programs from making timing-sensitive logic around GC.",
         "explanation": "It is strong because it explains the API limitation as a deliberate GC abstraction."
+      },
+      {
+        "id": "senior-js-18-weakmap-for-private-metadata-tricky-weakmap-enumeration",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Counting a WeakMap",
+        "question": "Why does WeakMap have no reliable key iterator or size, and can it serve as an LRU cache?",
+        "answer": "Its keys are weakly held; exposing enumeration would make results depend on garbage-collection timing. Use a Map with an explicit eviction policy for an LRU cache.",
+        "explanation": "Weak references solve ownership problems, not predictable capacity management. You cannot schedule correctness around when garbage collection happens.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap)",
+        "hints": [
+          "Who owns the lifetime of a key?"
+        ]
       }
     ]
   },
@@ -1828,7 +1912,7 @@
         "title": "Practical code / design example",
         "order": 3,
         "language": "javascript",
-        "code": "const amountInPaise = 10_01; // \u20b910.01\nconst taxInPaise = Math.round(amountInPaise * 18 / 100);\nconst totalInPaise = amountInPaise + taxInPaise;\n",
+        "code": "const amountInPaise = 10_01; // ₹10.01\nconst taxInPaise = Math.round(amountInPaise * 18 / 100);\nconst totalInPaise = amountInPaise + taxInPaise;\n",
         "explanation": "Use integer minor units or a decimal library; binary floating point is unsafe for exact financial amounts."
       },
       {
@@ -1855,6 +1939,18 @@
         "question": "Why can multiplying by 100 and rounding still fail for some values?",
         "answer": "Multiplying by 100 and rounding can still fail because the original decimal may already be slightly above or below the intended value in binary floating point. Values like 1.005 can round unexpectedly after scaling. It also does not solve currencies with different minor units or rules that require specific rounding modes.",
         "explanation": "It is strong because it explains both binary error and business-rule limits."
+      },
+      {
+        "id": "senior-js-21-floating-point-money-calculations-tricky-decimal-equality",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "The total that fails equality",
+        "question": "Why can `0.1 + 0.2 === 0.3` be false, and should every comparison use Number.EPSILON?",
+        "answer": "Many decimals have no exact binary floating-point representation. A universal EPSILON threshold is not appropriate for every magnitude or domain. Use an explicit tolerance, or a suitable integer-minor-unit/decimal policy for money.",
+        "explanation": "The important interview point is the representation and rounding policy. Formatting a number for display does not change the underlying arithmetic.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/EPSILON)",
+        "hints": [
+          "What precision does the application actually require?"
+        ]
       }
     ]
   },
@@ -2406,6 +2502,18 @@
         "question": "What properties must a valid comparator satisfy?",
         "answer": "A valid comparator should be deterministic, anti-symmetric, and transitive. If `a` equals `b`, it should return 0 consistently. If it says `a` comes before `b` and `b` before `c`, it should not later say `c` comes before `a`.",
         "explanation": "It explains comparator correctness as ordering rules, not just returning `a - b`."
+      },
+      {
+        "id": "senior-js-28-sorting-very-large-arrays-tricky-numeric-sort",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A sorted list that is out of order",
+        "question": "Why does `[3, 40, 12].sort()` produce an unexpected numeric order, and does it preserve the input array?",
+        "answer": "The default comparison uses string ordering, producing [12, 3, 40]. sort mutates the array. Use a numeric comparator and copy first, or use toSorted where supported.",
+        "explanation": "Sorting UI state in place can affect other consumers of the same reference. Decide both the comparison rule and the ownership of the array.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort)",
+        "hints": [
+          "Check the default comparator and mutation behavior."
+        ]
       }
     ]
   },
@@ -2486,6 +2594,18 @@
         "question": "How would you handle duplicates that contain conflicting values?",
         "answer": "I would compare the fields that must agree for the duplicate set. If they conflict, I would not silently pick one unless the business rule says first-wins or last-wins. I would mark the group as inconsistent, log or report it, and route it to a reconciliation rule or error queue.",
         "explanation": "It treats conflicting duplicates as a data-quality problem instead of hiding them with code."
+      },
+      {
+        "id": "senior-js-29-deduplicating-complex-records-tricky-set-records",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Duplicate-looking objects in a Set",
+        "question": "Why does `new Set([{ id: 7 }, { id: 7 }]).size` equal 2?",
+        "answer": "Objects are compared by identity, not by matching fields. Choose a stable business key and deduplicate with a Map or a Set of those keys.",
+        "explanation": "Decide which record wins when keys match: first, last, newest, or a merge. Deduplication is a data policy, not just a container choice.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set)",
+        "hints": [
+          "Are these two references the same object?"
+        ]
       }
     ]
   },
@@ -2904,7 +3024,7 @@
         "order": 1,
         "content": "Service workers make deployment a distributed state problem. Different users can run different worker versions, shell versions, and cache contents, so compatibility and recovery matter as much as caching speed.",
         "keyPoints": [
-          "Use content-hashed assets and a versioned cache manifest. Update the app shell and its referenced assets atomically from the service worker\u2019s perspective.",
+          "Use content-hashed assets and a versioned cache manifest. Update the app shell and its referenced assets atomically from the service worker’s perspective.",
           "Choose an update strategy: prompt users, activate on next navigation, or force reload only when safe.",
           "Do not cache API responses with one generic rule; define freshness, user scope, and invalidation per endpoint.",
           "Clean old caches after activation while keeping currently controlled clients in mind.",
@@ -3037,6 +3157,18 @@
         "question": "Why is checking only a field such as message.type not sufficient?",
         "answer": "A `message.type` field is controlled by the sender, so any frame can set it to a trusted-looking value. Without checking origin, source, and schema, the receiver may accept a forged message. Type is only useful after the sender and payload have been validated.",
         "explanation": "It makes clear that message fields are untrusted until the channel itself is verified."
+      },
+      {
+        "id": "senior-js-36-handling-untrusted-postmessage-tricky-message-origin",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A message with the right shape",
+        "question": "A postMessage payload matches your schema and asks to update account settings. Is checking its shape enough?",
+        "answer": "No. Verify the expected origin and, where relevant, source window, then validate the payload and authorize the operation. Send sensitive messages to a specific targetOrigin.",
+        "explanation": "Any window able to reach the listener may send a well-shaped payload. A data contract does not establish who sent it.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage)",
+        "hints": [
+          "Validate the sender as well as the message."
+        ]
       }
     ]
   },

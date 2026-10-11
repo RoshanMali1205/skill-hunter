@@ -2,10 +2,12 @@
   <button
     type="button"
     class="select__trigger"
+    role="combobox"
     [disabled]="disabled()"
     [attr.aria-expanded]="open()"
     [attr.aria-label]="ariaLabel()"
     aria-haspopup="listbox"
+    [attr.aria-controls]="open() ? listId : null"
     (click)="toggle()"
   >
     <span class="select__value" [class.select__value--placeholder]="!hasSelection()">
@@ -15,7 +17,7 @@
   </button>
 
   @if (open()) {
-    <ul class="select__menu" role="listbox">
+    <ul class="select__menu" role="listbox" [id]="listId" [attr.aria-label]="ariaLabel()">
       @if (groups().length > 0) {
         @for (group of groups(); track group.label) {
           <li class="select__group-label" role="presentation">{{ group.label }}</li>

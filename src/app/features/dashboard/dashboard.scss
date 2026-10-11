@@ -1,290 +1,364 @@
-@use 'mixins' as *;
 @use 'breakpoints' as *;
+@use 'mixins' as *;
 
-.dashboard__hero {
+.dash {
   display: flex;
   flex-direction: column;
+  gap: var(--space-6);
+  max-width: 1120px;
+  margin: 0 auto;
+  width: 100%;
+
+  h2 {
+    font-size: 1.1rem;
+  }
+}
+
+// ── Header ───────────────────────────────────────────────────────────────
+.dash__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  @include respond-to(tablet) {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.dash__welcome {
+  min-width: 0;
+
+  h1 {
+    font-size: 1.7rem;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: var(--space-1) 0 0;
+    color: var(--color-text-muted);
+  }
+}
+
+.dash__chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.dashboard__subtitle {
-  color: var(--color-text-muted);
-}
-
-h2 {
-  display: flex;
+.dash__chip {
+  @include focus-ring;
+  display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  margin-bottom: var(--space-3);
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.85rem;
+  text-decoration: none;
 
   app-icon {
     color: var(--color-primary);
-    font-size: 1rem;
+  }
+
+  span {
+    color: var(--color-text-muted);
+  }
+
+  &:hover {
+    border-color: var(--color-primary);
   }
 }
 
-.dashboard__overall {
-  @include card;
-  background:
-    radial-gradient(900px 280px at 0% 0%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 55%),
-    radial-gradient(700px 240px at 100% 100%, color-mix(in srgb, var(--color-primary) 16%, transparent), transparent 50%),
-    var(--gradient-hero),
-    var(--gradient-tile);
-  padding: var(--space-5);
-  display: flex;
-  align-items: center;
-  gap: var(--space-5);
-  flex-wrap: wrap;
+// ── Focus row: next action + today ───────────────────────────────────────
+.dash__focus {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+
+  @include respond-to(desktop) {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: stretch;
+  }
 }
 
-.dashboard__overall-body {
-  flex: 1;
-  min-width: 220px;
+.dash__resume {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  justify-content: center;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  color: #fff;
+  background: var(--gradient-banner);
+  box-shadow: var(--shadow-md);
 
   h2 {
-    margin-bottom: var(--space-2);
+    margin: 0;
+    font-size: 1.5rem;
+    line-height: 1.25;
+    color: inherit;
+  }
+
+  .btn--primary {
+    background: #fff;
+    border-color: #fff;
+    color: #1f2937;
+    box-shadow: none;
+  }
+
+  .btn--ghost {
+    color: #fff;
+    border-color: rgb(255 255 255 / 0.5);
+    background: transparent;
   }
 }
 
-.dashboard__overall-count {
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
+.dash__eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
 }
 
-.dashboard__subject {
+.dash__resume-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  font-weight: 600;
+}
+
+.dash__level {
+  padding: 2px var(--space-3);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  color: #1f2937;
+  background: rgb(255 255 255 / 0.9);
+}
+
+.dash__resume-text {
+  margin: 0;
+  max-width: 52ch;
+  opacity: 0.92;
+}
+
+.dash__resume-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: 420px;
+  font-size: 0.85rem;
+  opacity: 0.95;
+}
+
+.dash__resume-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.dash__today {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.dash__tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+
+  @include respond-to(tablet) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include respond-to(desktop) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Only these tiles are links, so only they lift and highlight on hover.
+.dash__tile {
   @include card-interactive;
-  background: var(--gradient-tile);
+  @include focus-ring;
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-4);
-  text-decoration: none;
+  min-height: 64px;
+  padding: var(--space-2) var(--space-4);
   color: var(--color-text);
-  border-top: 3px solid var(--accent, var(--color-primary));
+  text-decoration: none;
 }
 
-.dashboard__subject-icon {
-  flex-shrink: 0;
-  display: flex;
+.dash__tile-icon {
+  flex: none;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md);
-  font-size: 1.25rem;
-  background: var(--gradient-primary);
-  color: var(--color-primary-contrast);
-  box-shadow: var(--shadow-primary);
+  font-size: 1.15rem;
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
 }
 
-.dashboard__subject-body {
+.dash__tile-text {
   flex: 1;
   min-width: 0;
-}
-
-.dashboard__subject-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: var(--space-2);
-  font-weight: 700;
-}
-
-.dashboard__subject-pct {
-  color: var(--color-text-muted);
-  font-weight: 600;
-}
-
-.dashboard__card {
-  @include card-interactive;
-  background: var(--gradient-tile);
-  padding: var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-}
 
-.grid-cards--charts {
-  @include respond-to(desktop) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  strong {
+    font-size: 0.95rem;
   }
-}
-
-// Override the shared `.grid-cards` tablet 2-col so action cards don't sit
-// half-width with empty space on the right on phones/small tablets.
-.grid-cards--quad {
-  grid-template-columns: 1fr;
-
-  @include respond-to(desktop) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  @include respond-to(wide) {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-.dashboard__streak {
-  text-decoration: none;
-  color: var(--color-text);
-}
-
-.dashboard__streak-body {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.dashboard__streak-icon {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-md);
-  font-size: 1.5rem;
-  color: var(--color-warning);
-  background: color-mix(in srgb, var(--color-warning) 14%, transparent);
-}
-
-.dashboard__streak-value {
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
 
   span {
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 0.8rem;
     color: var(--color-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
-.dashboard__streak-sub {
-  font-size: 0.85rem;
+.dash__tile-go {
+  flex: none;
   color: var(--color-text-muted);
 }
 
-.dashboard__muted {
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
-}
+// ── Interface-style variations of the hero card ──────────────────────────
+// Glass: a frosted, accent-tinted pane with a bright edge instead of a solid gradient.
+:host-context([data-ui-style='glass']) .dash__resume {
+  color: var(--color-text);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--color-primary) 38%, transparent),
+      color-mix(in srgb, var(--color-accent) 18%, transparent)
+    ),
+    var(--color-surface);
+  border: 1px solid var(--color-border);
+  -webkit-backdrop-filter: var(--surface-blur);
+  backdrop-filter: var(--surface-blur);
 
-.dashboard__continue {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
+  .btn--primary {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+  }
 
-.dashboard__continue-title {
-  font-weight: 700;
-}
+  .btn--ghost {
+    color: var(--color-text);
+    border-color: var(--color-border);
+    background: var(--color-surface-alt);
+  }
 
-.dashboard__continue-subject {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  font-weight: 600;
-}
-
-.dashboard__continue-btn {
-  margin-top: var(--space-1);
-  align-self: flex-start;
-  padding: var(--space-2) var(--space-4);
-  font-size: 0.85rem;
-}
-
-.dashboard__card-link {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--color-primary);
-  text-decoration: none;
-  margin-top: auto;
-
-  &:hover {
-    text-decoration: none;
-    color: var(--color-accent);
+  .dash__level {
+    background: var(--color-surface-raised);
   }
 }
 
-.dashboard__stats {
-  display: flex;
-  gap: var(--space-5);
-  margin: 0;
+// Spatial: a glossy, floating slab with a light sheen and a deep shadow.
+:host-context([data-ui-style='spatial']) .dash__resume {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.35);
+  box-shadow:
+    var(--shadow-lg),
+    0 24px 60px -20px color-mix(in srgb, var(--color-primary) 60%, transparent);
 
-  dt {
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(36rem 14rem at 0% 0%, rgb(255 255 255 / 0.32), transparent 60%),
+      linear-gradient(180deg, rgb(255 255 255 / 0.12), transparent 40%);
   }
 
-  dd {
-    margin: 0;
-    font-weight: 700;
-    font-size: 1.2rem;
+  > * {
+    position: relative;
   }
 }
 
-.dashboard__recent-achievements {
-  @include card;
-  padding: var(--space-4);
-  background: var(--gradient-tile);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.dashboard__recent-achievements-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
+// Neumorphic: the hero is a soft raised slab; the accent color moves to the text and button.
+:host-context([data-ui-style='neumorphic']) .dash__resume {
+  color: var(--color-text);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
 
   h2 {
-    margin: 0;
+    color: var(--color-primary);
   }
 
-  .dashboard__card-link {
-    margin-top: 0;
+  .btn--primary {
+    background: var(--gradient-primary);
+    border-color: transparent;
+    color: var(--color-primary-contrast);
+  }
+
+  .btn--ghost {
+    color: var(--color-text);
+    border-color: transparent;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .dash__level {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
   }
 }
 
-.dashboard__recent-achievements-list {
-  display: grid;
-  gap: var(--space-2);
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+// Brutalism: the hero is a flat block with a thick outline and a hard shadow.
+:host-context([data-ui-style='brutalism']) .dash__resume {
+  border: 3px solid var(--brut-ink);
+  box-shadow: 8px 8px 0 var(--brut-ink);
 }
 
-.dashboard__badge {
-  display: flex;
-  gap: var(--space-3);
-  align-items: flex-start;
-  padding: var(--space-3);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-border) 75%, transparent);
+// Multi-color palettes: each "Today" tile, chip and list heading picks up a different palette color.
+// Single-color themes derive these from their accent, so they stay harmonious.
+.dash__tiles li:nth-child(2) .dash__tile-icon,
+.dash__lists .dash__panel:nth-child(2) h2 app-icon,
+.dash__chips li:nth-child(2) .dash__chip app-icon {
+  color: var(--color-secondary);
 }
 
-.dashboard__badge-icon {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  display: grid;
-  place-items: center;
-  background: var(--gradient-primary);
-  color: var(--color-primary-contrast);
-  box-shadow: var(--shadow-primary);
+.dash__tiles li:nth-child(3) .dash__tile-icon,
+.dash__lists .dash__panel:nth-child(3) h2 app-icon {
+  color: var(--color-tertiary);
 }
 
-.dashboard__badge-title {
-  margin: 0;
-  font-weight: 700;
-  font-size: 0.92rem;
+.dash__tiles li:nth-child(2) .dash__tile-icon {
+  background: color-mix(in srgb, var(--color-secondary) 14%, transparent);
 }
 
-.dashboard__badge-desc {
-  margin: 2px 0 0;
-  color: var(--color-text-muted);
-  font-size: 0.8rem;
+.dash__tiles li:nth-child(3) .dash__tile-icon {
+  background: color-mix(in srgb, var(--color-tertiary) 14%, transparent);
+}
+
+.dash__tiles li:nth-child(4) .dash__tile-icon {
+  color: var(--color-primary-strong);
+  background: color-mix(in srgb, var(--color-primary-strong) 12%, transparent);
 }

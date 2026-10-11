@@ -1,0 +1,761 @@
+@switch (phase()) {
+  @case ('setup') {
+    <div class="mock mock--setup">
+      <header class="mock__hero">
+        <div class="mock__hero-main">
+          <span class="mock__hero-icon" aria-hidden="true"
+            ><app-icon name="flame" [filled]="true"
+          /></span>
+          <div>
+            <p class="mock__eyebrow">Practise like it's the real thing</p>
+            <h1>Mock Interview</h1>
+            <p class="mock__hero-sub">
+              Timed questions on one subject. Rate yourself honestly, then see exactly what to study
+              next.
+            </p>
+          </div>
+        </div>
+
+        @if (allResults().length > 0) {
+          <ul class="mock__hero-stats" aria-label="Your numbers so far">
+            <li>
+              <strong>{{ stats().count }}</strong
+              ><span>Interviews</span>
+            </li>
+            <li>
+              <strong>{{ stats().average }}%</strong><span>Average</span>
+            </li>
+            <li>
+              <strong>{{ stats().best }}%</strong><span>Best</span>
+            </li>
+          </ul>
+        } @else {
+          <ol class="mock__hero-steps" aria-label="How it works">
+            <li><span>1</span> Answer out loud</li>
+            <li><span>2</span> Check the answer</li>
+            <li><span>3</span> Get your score</li>
+          </ol>
+        }
+      </header>
+
+      <div class="mock__tabs" role="tablist" aria-label="Mock interview sections">
+        <button
+          type="button"
+          role="tab"
+          id="mock-tab-new"
+          class="mock__tab"
+          [class.mock__tab--active]="activeTab() === 'new'"
+          [attr.aria-selected]="activeTab() === 'new'"
+          aria-controls="mock-panel-new"
+          (click)="setTab('new')"
+        >
+          <app-icon name="play" /> New interview
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="mock-tab-results"
+          class="mock__tab"
+          [class.mock__tab--active]="activeTab() === 'results'"
+          [attr.aria-selected]="activeTab() === 'results'"
+          aria-controls="mock-panel-results"
+          (click)="setTab('results')"
+        >
+          <app-icon name="bar-chart" /> My results
+          @if (allResults().length > 0) {
+            <span class="mock__tab-count">{{ allResults().length }}</span>
+          }
+        </button>
+      </div>
+
+      @if (activeTab() === 'new') {
+        <div
+          class="mock__layout"
+          role="tabpanel"
+          id="mock-panel-new"
+          aria-labelledby="mock-tab-new"
+        >
+          <div class="mock__flow">
+            @if (recommendation(); as rec) {
+              <aside class="mock__recommend" aria-label="Suggestion">
+                <span class="mock__recommend-icon" aria-hidden="true"
+                  ><app-icon name="lightbulb"
+                /></span>
+                <p>
+                  <strong>Try {{ rec.title }}.</strong> {{ rec.text }}
+                </p>
+                <button type="button" class="btn" (click)="selectSubject(rec.subjectId)">
+                  Choose it
+                </button>
+              </aside>
+            }
+
+            <section class="mock__card" aria-labelledby="mock-step-subject">
+              <header class="mock__card-head">
+                <span class="mock__step">1</span>
+                <div>
+                  <h2 id="mock-step-subject">Choose a subject</h2>
+                  <p>Questions come from that subject's topics, mixed across question types.</p>
+                </div>
+              </header>
+
+              @if (subjectsWithTopics()) {
+                <div class="mock__subjects" role="radiogroup" aria-labelledby="mock-step-subject">
+                  @for (card of subjectCards(); track card.entry.subject.id) {
+                    <label
+                      class="mock__subject"
+                      [class.mock__subject--selected]="
+                        selectedSubjectId() === card.entry.subject.id
+                      "
+                      [style.--subject-color]="visual(card.entry.subject.id).color"
+                    >
+                      <input
+                        type="radio"
+                        class="mock__radio"
+                        name="mock-subject"
+                        [value]="card.entry.subject.id"
+                        [checked]="selectedSubjectId() === card.entry.subject.id"
+                        [disabled]="card.entry.questionCount === 0"
+                        (change)="selectSubject(card.entry.subject.id)"
+                      />
+                      <span class="mock__subject-top">
+                        <span class="mock__subject-emoji" aria-hidden="true">{{
+                          visual(card.entry.subject.id).emoji
+                        }}</span>
+                        <span class="mock__status" [attr.data-status]="card.status">{{
+                          statusLabels[card.status]
+                        }}</span>
+                      </span>
+                      <span class="mock__subject-name">{{ card.entry.subject.title }}</span>
+                      <span class="mock__subject-desc">{{ card.entry.subject.description }}</span>
+                      <span class="mock__subject-foot">
+                        <span>{{ card.entry.questionCount }} questions</span>
+                        @if (card.best !== null) {
+                          <span class="mock__subject-best"
+                            ><app-icon name="trophy" [filled]="true" /> Best {{ card.best }}%</span
+                          >
+                        }
+                      </span>
+                      @if (card.best !== null) {
+                        <span class="mock__subject-bar" aria-hidden="true"
+                          ><span [style.width.%]="card.best"></span
+                        ></span>
+                      }
+                    </label>
+                  }
+                </div>
+              } @else {
+                <div class="mock__subjects" aria-busy="true">
+                  @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+                    <div class="mock__subject mock__subject--skeleton"></div>
+                  }
+                </div>
+              }
+            </section>
+
+            <section class="mock__card" aria-labelledby="mock-step-level">
+              <header class="mock__card-head">
+                <span class="mock__step">2</span>
+                <div>
+                  <h2 id="mock-step-level">Pick a level</h2>
+                  <p>Mixed is closest to a real interview. Narrow it down to focus.</p>
+                </div>
+              </header>
+              <div class="mock__levels" role="radiogroup" aria-labelledby="mock-step-level">
+                @for (option of difficultyOptions; track option.id) {
+                  <label
+                    class="mock__level"
+                    [class.mock__level--selected]="selectedDifficulty() === option.id"
+                  >
+                    <input
+                      type="radio"
+                      class="mock__radio"
+                      name="mock-level"
+                      [value]="option.id"
+                      [checked]="selectedDifficulty() === option.id"
+                      [disabled]="!!levelCounts() && levelCounts()![option.id] === 0"
+                      (change)="selectDifficulty(option.id)"
+                    />
+                    <span class="mock__level-emoji" aria-hidden="true">{{ option.emoji }}</span>
+                    <span class="mock__level-name">{{ option.label }}</span>
+                    <span class="mock__level-hint">{{ option.hint }}</span>
+                    @if (levelCounts(); as counts) {
+                      <span class="mock__level-count">
+                        {{
+                          counts[option.id] === 0
+                            ? 'None for this subject'
+                            : counts[option.id] + ' questions'
+                        }}
+                      </span>
+                    }
+                  </label>
+                }
+              </div>
+            </section>
+
+            <section class="mock__card" aria-labelledby="mock-step-length">
+              <header class="mock__card-head">
+                <span class="mock__step">3</span>
+                <div>
+                  <h2 id="mock-step-length">How long?</h2>
+                  <p>
+                    You get about 2 minutes per question, just like thinking out loud in a round.
+                  </p>
+                </div>
+              </header>
+              <div class="mock__lengths" role="radiogroup" aria-labelledby="mock-step-length">
+                @for (option of lengths; track option.id) {
+                  <label
+                    class="mock__length"
+                    [class.mock__length--selected]="selectedLength().id === option.id"
+                  >
+                    <input
+                      type="radio"
+                      class="mock__radio"
+                      name="mock-length"
+                      [value]="option.id"
+                      [checked]="selectedLength().id === option.id"
+                      (change)="selectLength(option)"
+                    />
+                    <span class="mock__length-emoji" aria-hidden="true">{{
+                      lengthEmoji[option.id]
+                    }}</span>
+                    <span class="mock__length-name">{{ option.label }}</span>
+                    <span class="mock__length-numbers">
+                      <strong>{{ option.questions }}</strong> questions
+                      <span aria-hidden="true">·</span>
+                      <strong>{{ option.minutes }}</strong> min
+                    </span>
+                    <span class="mock__length-blurb">{{ option.blurb }}</span>
+                  </label>
+                }
+              </div>
+            </section>
+          </div>
+
+          <aside class="mock__summary" aria-label="Your interview">
+            <h2>Your interview</h2>
+            @if (selectedEntry(); as entry) {
+              <div
+                class="mock__summary-subject"
+                [style.--subject-color]="visual(entry.subject.id).color"
+              >
+                <span class="mock__summary-emoji" aria-hidden="true">{{
+                  visual(entry.subject.id).emoji
+                }}</span>
+                <div>
+                  <strong>{{ entry.subject.title }}</strong>
+                  <small>{{ entry.questionCount }} questions to draw from</small>
+                </div>
+              </div>
+            } @else {
+              <p class="mock__summary-empty">
+                Choose a subject on the left and your interview will be built here.
+              </p>
+            }
+
+            <dl class="mock__summary-list">
+              <div>
+                <dt>Level</dt>
+                <dd>
+                  @for (option of difficultyOptions; track option.id) {
+                    @if (option.id === selectedDifficulty()) {
+                      {{ option.label }}
+                    }
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>Questions</dt>
+                <dd>{{ selectedEntry() ? plannedQuestions() : '—' }}</dd>
+              </div>
+              <div>
+                <dt>Time limit</dt>
+                <dd>{{ selectedEntry() ? plannedMinutes() + ' min' : '—' }}</dd>
+              </div>
+            </dl>
+
+            @if (selectedEntry() && plannedQuestions() < selectedLength().questions) {
+              <p class="mock__summary-note" role="status">
+                Only {{ plannedQuestions() }} questions match, so this interview is shorter.
+              </p>
+            }
+
+            <button
+              type="button"
+              class="btn btn--primary mock__start-btn"
+              [disabled]="!selectedEntry() || plannedQuestions() === 0"
+              (click)="start()"
+            >
+              <app-icon name="play" [filled]="true" /> Start interview
+            </button>
+            <p class="mock__summary-tip">
+              <app-icon name="lightbulb" /> After the answer shows, press <kbd>1</kbd> <kbd>2</kbd>
+              <kbd>3</kbd> to rate yourself fast.
+            </p>
+          </aside>
+        </div>
+      } @else {
+        <div
+          class="mock__results-view"
+          role="tabpanel"
+          id="mock-panel-results"
+          aria-labelledby="mock-tab-results"
+        >
+          @if (allResults().length === 0) {
+            <section class="mock__empty">
+              <span class="mock__empty-icon" aria-hidden="true">📊</span>
+              <h2>No interviews yet</h2>
+              <p>
+                Take your first mock interview and your scores, trend and answer reviews will appear
+                here.
+              </p>
+              <button type="button" class="btn btn--primary" (click)="setTab('new')">
+                <app-icon name="play" [filled]="true" /> Start your first interview
+              </button>
+            </section>
+          } @else {
+            <div class="mock__big-tiles">
+              <div class="mock__big-tile">
+                <span class="mock__big-icon" aria-hidden="true"><app-icon name="repeat" /></span>
+                <strong>{{ stats().count }}</strong
+                ><span>Interviews taken</span>
+              </div>
+              <div class="mock__big-tile">
+                <span class="mock__big-icon" aria-hidden="true"><app-icon name="bar-chart" /></span>
+                <strong>{{ stats().average }}%</strong><span>Average score</span>
+              </div>
+              <div class="mock__big-tile">
+                <span class="mock__big-icon" aria-hidden="true"
+                  ><app-icon name="trophy" [filled]="true"
+                /></span>
+                <strong>{{ stats().best }}%</strong><span>Best score</span>
+              </div>
+              <div class="mock__big-tile">
+                <span class="mock__big-icon" aria-hidden="true"><app-icon name="flame" /></span>
+                <strong>
+                  {{ stats().last }}%
+                  @if (stats().changeFromPrevious; as change) {
+                    <small class="mock__delta" [class.mock__delta--down]="change < 0">
+                      {{ change > 0 ? '▲ +' : '▼ ' }}{{ change }}
+                    </small>
+                  }
+                </strong>
+                <span>Latest score</span>
+              </div>
+            </div>
+
+            @if (trend().length > 1) {
+              <section class="mock__card" aria-labelledby="mock-trend-title">
+                <header class="mock__card-head">
+                  <div>
+                    <h2 id="mock-trend-title">Your progress</h2>
+                    <p>Your last {{ trend().length }} interviews, oldest to newest.</p>
+                  </div>
+                </header>
+                <div class="mock__chart" role="list" aria-label="Recent scores">
+                  @for (point of trend(); track point.id) {
+                    <div class="mock__chart-col" role="listitem" [attr.aria-label]="point.label">
+                      <span class="mock__chart-value">{{ point.score }}%</span>
+                      <span class="mock__chart-track">
+                        <span
+                          class="mock__chart-bar"
+                          [attr.data-tone]="point.tone"
+                          [style.height.%]="point.score"
+                        ></span>
+                      </span>
+                      <span class="mock__chart-emoji" aria-hidden="true">{{ point.emoji }}</span>
+                    </div>
+                  }
+                </div>
+              </section>
+            }
+
+            <section class="mock__card" aria-labelledby="mock-history-title">
+              <header class="mock__card-head">
+                <div>
+                  <h2 id="mock-history-title">All interviews</h2>
+                  <p>Open any one to review your answers next to the model answers.</p>
+                </div>
+              </header>
+
+              @if (subjectsWithResults().length > 1) {
+                <div class="mock__filters" role="group" aria-label="Filter by subject">
+                  <button
+                    type="button"
+                    class="mock__filter"
+                    [class.mock__filter--active]="resultsFilter() === 'all'"
+                    [attr.aria-pressed]="resultsFilter() === 'all'"
+                    (click)="setResultsFilter('all')"
+                  >
+                    All
+                  </button>
+                  @for (s of subjectsWithResults(); track s.id) {
+                    <button
+                      type="button"
+                      class="mock__filter"
+                      [class.mock__filter--active]="resultsFilter() === s.id"
+                      [attr.aria-pressed]="resultsFilter() === s.id"
+                      (click)="setResultsFilter(s.id)"
+                    >
+                      <span aria-hidden="true">{{ visual(s.id).emoji }}</span> {{ s.title }}
+                    </button>
+                  }
+                </div>
+              }
+
+              <ul class="mock__history">
+                @for (r of filteredResults(); track r.id) {
+                  <li>
+                    <button
+                      type="button"
+                      class="mock__history-row"
+                      [disabled]="!r.items?.length"
+                      [attr.aria-label]="
+                        'Open ' +
+                        subjectTitle(r.subjectId) +
+                        ' interview, score ' +
+                        r.score +
+                        ' percent'
+                      "
+                      (click)="openSaved(r)"
+                    >
+                      <span class="mock__history-emoji" aria-hidden="true">{{
+                        visual(r.subjectId).emoji
+                      }}</span>
+                      <span class="mock__history-main">
+                        <strong>{{ subjectTitle(r.subjectId) }}</strong>
+                        <small
+                          >{{ r.finishedAt | date: 'MMM d, y · h:mm a' }} ·
+                          {{ r.totalQuestions }} questions ·
+                          {{ durationText(r.durationSeconds) }}</small
+                        >
+                      </span>
+                      <span class="mock__history-counts" aria-hidden="true">
+                        <span class="mock__dot mock__dot--good">{{ r.gotIt }}</span>
+                        <span class="mock__dot mock__dot--mid">{{ r.partly }}</span>
+                        <span class="mock__dot mock__dot--bad">{{ r.missed + r.skipped }}</span>
+                      </span>
+                      <span class="mock__pill" [attr.data-tone]="toneFor(r.score)"
+                        >{{ r.score }}%</span
+                      >
+                      <span class="mock__history-go" aria-hidden="true">
+                        @if (r.items?.length) {
+                          <app-icon name="chevron-right" />
+                        }
+                      </span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            </section>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @case ('running') {
+    <div class="mock stack">
+      <div class="mock__bar" [attr.data-tone]="timerTone()">
+        <div class="mock__bar-row">
+          <span class="mock__count">
+            Question <strong>{{ currentIndex() + 1 }}</strong> of {{ questions().length }}
+          </span>
+          <span class="mock__clock" role="timer" aria-label="Time left">
+            <app-icon name="clock" /> {{ clock() }}
+          </span>
+        </div>
+        <div class="mock__track" aria-hidden="true">
+          <div class="mock__track-fill" [style.width.%]="timerPercent()"></div>
+        </div>
+        <nav class="mock__dots" aria-label="Questions">
+          @for (state of states(); track $index) {
+            <button
+              type="button"
+              class="mock__dot"
+              [class.mock__dot--current]="$index === currentIndex()"
+              [class.mock__dot--done]="state.rating !== null && state.rating !== 'skipped'"
+              [class.mock__dot--skipped]="state.rating === 'skipped'"
+              [disabled]="state.rating !== null && state.rating !== 'skipped'"
+              [attr.aria-label]="
+                'Question ' + ($index + 1) + (state.rating === 'skipped' ? ' (skipped)' : '')
+              "
+              [attr.aria-current]="$index === currentIndex() ? 'step' : null"
+              (click)="jumpTo($index)"
+            >
+              {{ $index + 1 }}
+            </button>
+          }
+        </nav>
+      </div>
+
+      @if (current(); as q) {
+        <article class="mock__card">
+          <header class="mock__card-head">
+            <span class="mock__chip">{{ typeLabels[q.block.type] }}</span>
+            <span class="mock__chip mock__chip--soft">{{ q.difficulty }}</span>
+          </header>
+
+          @if (q.block.title && !isGenericTitle(q.block.title)) {
+            <h2 class="mock__title">{{ q.block.title }}</h2>
+          }
+          <p class="mock__question" [innerHTML]="q.block.question | markdownInline"></p>
+          @if (q.block.code) {
+            <app-code-block [code]="q.block.code" [language]="q.block.language ?? 'javascript'" />
+          }
+
+          @if (!answerRevealed()) {
+            <label class="mock__answer-field">
+              <span>Your answer <small>(optional — saying it out loud works too)</small></span>
+              <textarea
+                rows="4"
+                placeholder="Type what you would say in the interview…"
+                [value]="currentState()?.typedAnswer ?? ''"
+                (input)="updateTypedAnswer($any($event.target).value)"
+              ></textarea>
+            </label>
+
+            <div class="mock__actions">
+              <button type="button" class="btn btn--primary" (click)="revealAnswer()">
+                <app-icon name="eye" /> Show answer
+              </button>
+              <button type="button" class="btn btn--ghost" (click)="skip()">Skip for now</button>
+            </div>
+          } @else {
+            @if (currentState()?.typedAnswer; as typed) {
+              <div class="mock__yours">
+                <strong>You said</strong>
+                <p>{{ typed }}</p>
+              </div>
+            }
+
+            <section class="mock__model">
+              <p class="mock__model-label"><app-icon name="thumbs-up" /> Model answer</p>
+              <div class="markdown-body" [innerHTML]="q.block.answer | markdown"></div>
+              @if (q.block.explanation) {
+                <div
+                  class="markdown-body mock__model-more"
+                  [innerHTML]="q.block.explanation | markdown"
+                ></div>
+              }
+            </section>
+
+            <div class="mock__rate">
+              <p class="mock__rate-title">How did you do?</p>
+              <div class="mock__rate-buttons">
+                <button
+                  type="button"
+                  class="mock__rate-btn mock__rate-btn--good"
+                  (click)="rate('got-it')"
+                >
+                  <span class="mock__rate-emoji" aria-hidden="true">😎</span>
+                  <span class="mock__rate-label">Got it</span>
+                  <small>I knew this <kbd>1</kbd></small>
+                </button>
+                <button
+                  type="button"
+                  class="mock__rate-btn mock__rate-btn--mid"
+                  (click)="rate('partly')"
+                >
+                  <span class="mock__rate-emoji" aria-hidden="true">🤔</span>
+                  <span class="mock__rate-label">Partly</span>
+                  <small>I knew some <kbd>2</kbd></small>
+                </button>
+                <button
+                  type="button"
+                  class="mock__rate-btn mock__rate-btn--bad"
+                  (click)="rate('missed')"
+                >
+                  <span class="mock__rate-emoji" aria-hidden="true">😅</span>
+                  <span class="mock__rate-label">Missed</span>
+                  <small>I didn't know <kbd>3</kbd></small>
+                </button>
+              </div>
+            </div>
+          }
+        </article>
+      }
+
+      <footer class="mock__footer">
+        @if (confirmingFinish()) {
+          <div class="mock__confirm" role="alertdialog" aria-label="Finish the interview?">
+            <p>
+              Finish now?
+              @if (unfinishedCount() > 0) {
+                {{ unfinishedCount() }} unanswered
+                {{ unfinishedCount() === 1 ? 'question counts' : 'questions count' }} as skipped.
+              }
+            </p>
+            <button type="button" class="btn btn--primary" (click)="finish()">
+              Yes, show my score
+            </button>
+            <button type="button" class="btn btn--ghost" (click)="cancelFinish()">
+              Keep going
+            </button>
+          </div>
+        } @else {
+          <button type="button" class="btn btn--ghost" (click)="askFinish()">Finish early</button>
+        }
+      </footer>
+    </div>
+  }
+
+  @case ('results') {
+    @if (result(); as r) {
+      <div class="mock stack">
+        @if (reopened()) {
+          <div class="mock__reopened">
+            <button type="button" class="btn btn--ghost" (click)="backToResults()">
+              <app-icon name="chevron-left" /> All my results
+            </button>
+            <span>Interview from {{ r.finishedAt | date: 'MMMM d, y, h:mm a' }}</span>
+          </div>
+        }
+        <section class="mock__score" [attr.data-tone]="grade().tone">
+          @if (r.timedOut) {
+            <p class="mock__timeup"><app-icon name="clock" /> Time's up!</p>
+          }
+          <div class="mock__ring" [style.background]="ringGradient()">
+            <div class="mock__ring-hole">
+              <strong>{{ r.score }}%</strong>
+              <span>self-rated</span>
+            </div>
+          </div>
+          <h1>
+            <span aria-hidden="true">{{ gradeEmoji() }}</span> {{ grade().title }}
+          </h1>
+          <p class="mock__score-message">{{ grade().message }}</p>
+          <p class="mock__score-basis">
+            Based on how you rated your own answers: Got it = 1 point, Partly = half, Missed or
+            Skipped = 0.
+          </p>
+          <ul class="mock__legend">
+            @for (s of segments(); track s.label) {
+              @if (s.value > 0) {
+                <li>
+                  <span class="mock__legend-dot" [style.background]="s.color"></span>{{ s.value }}
+                  {{ s.label }}
+                </li>
+              }
+            }
+          </ul>
+          @if (changeVsLast(); as change) {
+            <p class="mock__badge mock__badge--plain">
+              {{ change > 0 ? '▲ Up ' : '▼ Down ' }}{{ change > 0 ? change : -change }} points since
+              your last {{ subjectTitle(r.subjectId) }} interview
+            </p>
+          }
+          @if (isNewBest()) {
+            <p class="mock__badge"><app-icon name="trophy" [filled]="true" /> New personal best!</p>
+          } @else if (previousBest() !== null) {
+            <p class="mock__badge mock__badge--plain">Your best here: {{ previousBest() }}%</p>
+          }
+        </section>
+
+        <section class="mock__stats">
+          <div>
+            <strong>{{ r.gotIt }}</strong
+            ><span>Got it</span>
+          </div>
+          <div>
+            <strong>{{ r.partly }}</strong
+            ><span>Partly</span>
+          </div>
+          <div>
+            <strong>{{ r.missed + r.skipped }}</strong
+            ><span>Missed or skipped</span>
+          </div>
+          <div>
+            <strong>{{ durationLabel() }}</strong
+            ><span>Time used</span>
+          </div>
+          <div>
+            <strong>{{ averageLabel() }}</strong
+            ><span>Per question</span>
+          </div>
+        </section>
+
+        @if (weakTopics().length > 0) {
+          <section class="mock__section">
+            <h2>Study these next</h2>
+            <p class="mock__hint">We added them to your Revision list.</p>
+            <ul class="mock__weak">
+              @for (t of weakTopics(); track t.topicId) {
+                <li>
+                  <span>{{ t.title }}</span>
+                  <a
+                    class="btn btn--ghost"
+                    [routerLink]="['/subjects', t.subjectId, 'topics', t.topicId]"
+                  >
+                    Open topic <app-icon name="chevron-right" />
+                  </a>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+        <section class="mock__section">
+          <h2>Review your answers</h2>
+          <ul class="mock__review">
+            @for (item of reviewItems(); track item.question.block.id; let i = $index) {
+              <li>
+                <details class="mock__review-item" [attr.data-rating]="item.rating">
+                  <summary>
+                    <span class="mock__review-num">{{ i + 1 }}</span>
+                    <span
+                      class="mock__review-q"
+                      [innerHTML]="item.question.block.question | markdownInline"
+                    ></span>
+                    <span class="mock__tag" [attr.data-rating]="item.rating">{{
+                      ratingLabels[item.rating]
+                    }}</span>
+                  </summary>
+                  <div class="mock__review-body">
+                    <p class="mock__review-topic">
+                      {{ typeLabels[item.question.block.type] }} · {{ item.question.topicTitle }}
+                    </p>
+                    @if (item.typedAnswer) {
+                      <div class="mock__yours">
+                        <strong>You said</strong>
+                        <p>{{ item.typedAnswer }}</p>
+                      </div>
+                    }
+                    <section class="mock__model">
+                      <p class="mock__model-label"><app-icon name="thumbs-up" /> Model answer</p>
+                      <div
+                        class="markdown-body"
+                        [innerHTML]="item.question.block.answer | markdown"
+                      ></div>
+                      @if (item.question.block.explanation) {
+                        <div
+                          class="markdown-body mock__model-more"
+                          [innerHTML]="item.question.block.explanation | markdown"
+                        ></div>
+                      }
+                    </section>
+                  </div>
+                </details>
+              </li>
+            }
+          </ul>
+        </section>
+
+        <div class="mock__actions mock__actions--end">
+          @if (needsRetry()) {
+            <button type="button" class="btn btn--primary" (click)="retryMissed()">
+              <app-icon name="repeat" /> Retry the ones I missed
+            </button>
+          }
+          <button type="button" class="btn" (click)="start()">
+            <app-icon name="play" /> New interview, same subject
+          </button>
+          <button type="button" class="btn btn--ghost" (click)="backToResults()">
+            All my results
+          </button>
+        </div>
+      </div>
+    }
+  }
+}

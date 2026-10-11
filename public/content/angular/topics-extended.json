@@ -21,9 +21,9 @@
         "title": "Cold Observables, Not Promises",
         "content": "`HttpClient` methods return cold observables: no request is sent until something subscribes, and each new subscription triggers its own independent request. Response typing (`http.get<User>(url)`) tells the compiler the expected shape but performs no runtime validation of the actual JSON.",
         "keyPoints": [
-          "Subscribing twice to the same `http.get()` call issues two separate HTTP requests \u2014 use `shareReplay()` or a store to share one response.",
+          "Subscribing twice to the same `http.get()` call issues two separate HTTP requests — use `shareReplay()` or a store to share one response.",
           "`HttpClient` automatically parses JSON responses and surfaces non-2xx responses as an `HttpErrorResponse` through the error channel.",
-          "Type parameters are a compile-time convenience only \u2014 validate untrusted response shapes explicitly if correctness matters."
+          "Type parameters are a compile-time convenience only — validate untrusted response shapes explicitly if correctness matters."
         ]
       },
       {
@@ -39,7 +39,7 @@
         "type": "tricky-question",
         "order": 3,
         "question": "A component binds the same `http.get()` observable to two different places in its template with two separate `async` pipes. What happens, and how do you fix it?",
-        "answer": "Two subscriptions mean two separate HTTP requests fire for the same data. Fix it by sharing one subscription \u2014 pipe the observable through `shareReplay({ bufferSize: 1, refCount: true })` before binding it twice, or subscribe once (e.g. via `toSignal()`) and read the resulting signal in both template locations.",
+        "answer": "Two subscriptions mean two separate HTTP requests fire for the same data. Fix it by sharing one subscription — pipe the observable through `shareReplay({ bufferSize: 1, refCount: true })` before binding it twice, or subscribe once (e.g. via `toSignal()`) and read the resulting signal in both template locations.",
         "explanation": "This is a common source of duplicate network calls in Angular apps, and it's exactly why `ContentService` in this app caches its `subjects$` observable with `shareReplay` rather than exposing the raw `http.get()` call."
       },
       {
@@ -103,6 +103,18 @@
         "question": "Where should DTO-to-view-model mapping happen in a complex feature?",
         "answer": "Answer the follow-up by making the hidden constraint explicit, comparing at least two valid options, and stating how you would measure the result.",
         "explanation": "A strong follow-up answer names the hidden constraint, compares at least two valid options, and states how you would measure the result rather than repeating the primary answer."
+      },
+      {
+        "id": "angular-http-client-tricky-generic-validation",
+        "type": "tricky-question",
+        "order": 10,
+        "title": "The typed response that is not a User",
+        "question": "Does `http.get<User>(url)` reject a successful response whose JSON is missing required User fields?",
+        "answer": "No. The generic describes the expected type; HttpClient does not validate that shape. Validate untrusted data at the API boundary before treating it as a User.",
+        "explanation": "A compile-time annotation cannot repair or reject malformed runtime JSON. Distinguish transport failures from schema validation failures in the UI.\n\n[Further reading](https://angular.dev/guide/http/making-requests)",
+        "hints": [
+          "Where would a runtime check execute?"
+        ]
       }
     ]
   },
@@ -111,7 +123,7 @@
     "subjectId": "angular",
     "categoryId": "angular-routing-forms",
     "title": "Route Guards",
-    "description": "Controlling navigation with functional CanActivate/CanDeactivate guards \u2014 and their real security limits.",
+    "description": "Controlling navigation with functional CanActivate/CanDeactivate guards — and their real security limits.",
     "difficulty": "advanced",
     "interviewPriority": "must-know",
     "estimatedMinutes": 35,
@@ -139,14 +151,14 @@
         "order": 2,
         "language": "typescript",
         "code": "export const authGuard: CanActivateFn = () => {\n  const session = inject(SessionService);\n  const router = inject(Router);\n  return session.isAuthenticated() ? true : router.parseUrl('/login');\n};\n\n// route config\n{ path: 'settings', canActivate: [authGuard], loadComponent: () => import('./settings') }",
-        "explanation": "The guard is a pure function with dependencies pulled via `inject()` \u2014 no class or constructor boilerplate required."
+        "explanation": "The guard is a pure function with dependencies pulled via `inject()` — no class or constructor boilerplate required."
       },
       {
         "id": "route-guards-question-1",
         "type": "interview-question",
         "order": 3,
         "question": "Is a route guard a security boundary? Why or why not?",
-        "answer": "No. A guard only controls client-side navigation inside the already-downloaded Angular application \u2014 it improves UX by hiding routes a user shouldn't casually reach, but the underlying JavaScript and any data the guarded component would fetch are still present in the bundle and reachable by directly calling the API. Every protected operation must be authorized again on the server.",
+        "answer": "No. A guard only controls client-side navigation inside the already-downloaded Angular application — it improves UX by hiding routes a user shouldn't casually reach, but the underlying JavaScript and any data the guarded component would fetch are still present in the bundle and reachable by directly calling the API. Every protected operation must be authorized again on the server.",
         "explanation": "This is one of the most common senior-level 'gotcha' questions: candidates who say a guard 'protects' a route usually haven't internalized that all client-side logic is inherently visible and bypassable."
       },
       {
@@ -210,6 +222,18 @@
         "question": "How would you implement maker-checker approval without relying on disabled buttons alone?",
         "answer": "Answer the follow-up by making the hidden constraint explicit, comparing at least two valid options, and stating how you would measure the result.",
         "explanation": "A strong follow-up answer names the hidden constraint, compares at least two valid options, and states how you would measure the result rather than repeating the primary answer."
+      },
+      {
+        "id": "angular-route-guards-tricky-guard-security",
+        "type": "tricky-question",
+        "order": 10,
+        "title": "A guarded route with an exposed API",
+        "question": "A route guard rejects non-admin users. Can the admin API now omit permission checks?",
+        "answer": "No. Guards control client navigation. The server must authenticate and authorize every protected operation and resource.",
+        "explanation": "A caller can bypass the application and request the endpoint directly. A guard remains useful for navigation and feedback, but it cannot establish a server trust boundary.\n\n[Further reading](https://angular.dev/guide/routing/route-guards)",
+        "hints": [
+          "Consider a request made without loading the Angular application."
+        ]
       }
     ]
   },
@@ -235,7 +259,7 @@
         "title": "An Explicit Model in TypeScript",
         "content": "Reactive forms define the entire form structure and validation rules in the component class as a typed `FormGroup` tree, rather than inferring structure from template directives. Strictly-typed forms (`FormGroup<{...}>`) catch mismatched control names and value types at compile time.",
         "keyPoints": [
-          "`valueChanges` and `statusChanges` are observables \u2014 pipe them through `debounceTime`, `distinctUntilChanged`, etc. for expensive validation or autosave.",
+          "`valueChanges` and `statusChanges` are observables — pipe them through `debounceTime`, `distinctUntilChanged`, etc. for expensive validation or autosave.",
           "Client-side validators (`Validators.required`, custom validator functions) improve UX; the server remains the authority on whether data is actually valid.",
           "Reactive forms scale better than template-driven forms for dynamic, deeply nested, or heavily-tested forms."
         ]
@@ -317,6 +341,30 @@
         "question": "How would you implement an asynchronous uniqueness validator without race conditions?",
         "answer": "Answer the follow-up by making the hidden constraint explicit, comparing at least two valid options, and stating how you would measure the result.",
         "explanation": "A strong follow-up answer names the hidden constraint, compares at least two valid options, and states how you would measure the result rather than repeating the primary answer."
+      },
+      {
+        "id": "angular-reactive-forms-tricky-disabled-values",
+        "type": "tricky-question",
+        "order": 10,
+        "title": "The missing form field",
+        "question": "An enabled FormGroup contains an accountId control that you disable. Why is accountId absent from form.value, and how can you include it deliberately?",
+        "answer": "Disabled controls are excluded from the value of an enabled group. Use getRawValue() when you intentionally need values from both enabled and disabled controls.",
+        "explanation": "Disabling an input is UI behavior, not authorization. The server must still decide whether accountId is permitted, even when the UI displays it as read-only.\n\n[Further reading](https://angular.dev/guide/forms/typed-forms)",
+        "hints": [
+          "Compare the enabled group's value with its raw value."
+        ]
+      },
+      {
+        "id": "angular-reactive-forms-tricky-reset-nullability",
+        "type": "tricky-question",
+        "order": 11,
+        "title": "Reset does not always mean empty",
+        "question": "Two FormControls start with 'draft'; only one uses `{ nonNullable: true }`. What happens when reset() is called without arguments?",
+        "answer": "The default nullable control resets to null. The non-nullable control resets to its initial value, 'draft'.",
+        "explanation": "The option changes runtime reset behavior as well as the TypeScript type. Pick a reset policy deliberately; non-nullable does not mean an empty string.\n\n[Further reading](https://angular.dev/guide/forms/typed-forms)",
+        "hints": [
+          "Ask what value each control considers its reset default."
+        ]
       }
     ]
   },
@@ -340,9 +388,9 @@
         "type": "concept",
         "order": 1,
         "title": "Core, Shared, Features",
-        "content": "A common, scalable structure splits an Angular app into `core/` (app-wide singletons: layout, auth, HTTP interceptors \u2014 imported once), `shared/` (stateless, reusable presentation components/pipes/directives with no business logic), and `features/` (one folder per business capability, each importing only from core/shared, never from another feature directly).",
+        "content": "A common, scalable structure splits an Angular app into `core/` (app-wide singletons: layout, auth, HTTP interceptors — imported once), `shared/` (stateless, reusable presentation components/pipes/directives with no business logic), and `features/` (one folder per business capability, each importing only from core/shared, never from another feature directly).",
         "keyPoints": [
-          "A feature should expose a small, intentional public surface (its routed components) \u2014 internals stay private to the feature folder.",
+          "A feature should expose a small, intentional public surface (its routed components) — internals stay private to the feature folder.",
           "`shared/` should never accumulate business logic; if a 'shared' component starts needing feature-specific state, it usually means it isn't actually shared.",
           "Lint rules (e.g. module/import boundaries) can enforce these dependency directions automatically so architecture doesn't erode as the app and team grow."
         ]
@@ -352,16 +400,16 @@
         "type": "code-example",
         "order": 2,
         "language": "text",
-        "code": "src/app/\n  core/        (layout, auth, http interceptors \u2014 provided once)\n  shared/      (dumb, reusable UI: buttons, cards, pipes)\n  features/\n    dashboard/\n    subjects/\n    practice/    (imports core + shared only, never another feature)",
-        "explanation": "This is exactly the structure this app uses (`core/`, `shared/`, `features/*`) \u2014 each feature folder is self-contained and only reaches into `core`/`shared`."
+        "code": "src/app/\n  core/        (layout, auth, http interceptors — provided once)\n  shared/      (dumb, reusable UI: buttons, cards, pipes)\n  features/\n    dashboard/\n    subjects/\n    practice/    (imports core + shared only, never another feature)",
+        "explanation": "This is exactly the structure this app uses (`core/`, `shared/`, `features/*`) — each feature folder is self-contained and only reaches into `core`/`shared`."
       },
       {
         "id": "app-architecture-question-1",
         "type": "interview-question",
         "order": 3,
         "question": "Two features need to show the same 'topic card' UI. Where does that component belong, and where does the data for it come from?",
-        "answer": "The presentational card component (markup/styling only, driven entirely by `@Input()`s) belongs in `shared/components`. The data it displays should come from a `core/services` data-access service (or a feature-owned store, if the data is feature-specific) \u2014 never duplicated inside each feature \u2014 so both features read from the same source of truth.",
-        "explanation": "This distinction \u2014 shared presentation vs. centralized data ownership \u2014 is exactly why this app's `TopicCardComponent` lives in `shared/components` while all progress/bookmark state lives in single `core/services` stores that every feature reads from."
+        "answer": "The presentational card component (markup/styling only, driven entirely by `@Input()`s) belongs in `shared/components`. The data it displays should come from a `core/services` data-access service (or a feature-owned store, if the data is feature-specific) — never duplicated inside each feature — so both features read from the same source of truth.",
+        "explanation": "This distinction — shared presentation vs. centralized data ownership — is exactly why this app's `TopicCardComponent` lives in `shared/components` while all progress/bookmark state lives in single `core/services` stores that every feature reads from."
       },
       {
         "id": "senior-ng-02-designing-an-enterprise-angular-architecture-concept-1",
@@ -430,10 +478,10 @@
         "type": "concept",
         "title": "Architect-level framing",
         "order": 10,
-        "content": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Define project types and domain tags such as app, feature, data-access, UI, utility, and platform. Enforce allowed dependency directions in lint and CI.\n\nFor implementation, Expose public entry points and prohibit deep imports into another library\u2019s internal folders. Split libraries by cohesive ownership and change pattern, not by one component per library or one giant common library.\n\nAt enterprise scale, I would also cover Use affected builds/tests, remote caching, incremental TypeScript projects, and dependency graph analysis to control CI time. Remove circular dependencies and shared mutable singletons. Track boundary exceptions as temporary debt with owners.\n\nFinally, Review whether all projects truly benefit from one repository; monorepo is a governance choice, not a universal answer.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "content": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Define project types and domain tags such as app, feature, data-access, UI, utility, and platform. Enforce allowed dependency directions in lint and CI.\n\nFor implementation, Expose public entry points and prohibit deep imports into another library’s internal folders. Split libraries by cohesive ownership and change pattern, not by one component per library or one giant common library.\n\nAt enterprise scale, I would also cover Use affected builds/tests, remote caching, incremental TypeScript projects, and dependency graph analysis to control CI time. Remove circular dependencies and shared mutable singletons. Track boundary exceptions as temporary debt with owners.\n\nFinally, Review whether all projects truly benefit from one repository; monorepo is a governance choice, not a universal answer.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
         "keyPoints": [
           "Define project types and domain tags such as app, feature, data-access, UI, utility, and platform. Enforce allowed dependency directions in lint and CI.",
-          "Expose public entry points and prohibit deep imports into another library\u2019s internal folders.",
+          "Expose public entry points and prohibit deep imports into another library’s internal folders.",
           "Split libraries by cohesive ownership and change pattern, not by one component per library or one giant common library.",
           "Use affected builds/tests, remote caching, incremental TypeScript projects, and dependency graph analysis to control CI time.",
           "Remove circular dependencies and shared mutable singletons. Track boundary exceptions as temporary debt with owners.",
@@ -445,7 +493,7 @@
         "type": "scenario-question",
         "order": 11,
         "question": "A monorepo has become slow and every feature imports every shared library. How would you restore boundaries?",
-        "answer": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Define project types and domain tags such as app, feature, data-access, UI, utility, and platform. Enforce allowed dependency directions in lint and CI.\n\nFor implementation, Expose public entry points and prohibit deep imports into another library\u2019s internal folders. Split libraries by cohesive ownership and change pattern, not by one component per library or one giant common library.\n\nAt enterprise scale, I would also cover Use affected builds/tests, remote caching, incremental TypeScript projects, and dependency graph analysis to control CI time. Remove circular dependencies and shared mutable singletons. Track boundary exceptions as temporary debt with owners.\n\nFinally, Review whether all projects truly benefit from one repository; monorepo is a governance choice, not a universal answer.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
+        "answer": "I would answer this as an architecture and lifecycle problem, not only as an Angular API question. My first decision would be: Define project types and domain tags such as app, feature, data-access, UI, utility, and platform. Enforce allowed dependency directions in lint and CI.\n\nFor implementation, Expose public entry points and prohibit deep imports into another library’s internal folders. Split libraries by cohesive ownership and change pattern, not by one component per library or one giant common library.\n\nAt enterprise scale, I would also cover Use affected builds/tests, remote caching, incremental TypeScript projects, and dependency graph analysis to control CI time. Remove circular dependencies and shared mutable singletons. Track boundary exceptions as temporary debt with owners.\n\nFinally, Review whether all projects truly benefit from one repository; monorepo is a governance choice, not a universal answer.\n\nI would explicitly discuss provider and state lifetimes, request cancellation, security, accessibility, testability, deployment and rollback. I would avoid adding framework complexity unless the measured scale or ownership model requires it.\n\nI would finish with how I would prove it: targeted unit/component tests, critical end-to-end journeys, production-like profiling, telemetry by route and application version, and measurable before/after results.",
         "hints": [
           "Clarify scale, user journey and constraints.",
           "Explain the implementation and why alternatives were rejected.",
@@ -1125,6 +1173,18 @@
         "question": "When would @defer improve JavaScript cost but worsen user experience?",
         "answer": "@defer can reduce initial JavaScript but hurt UX when the deferred content is likely to be needed immediately, such as reviews visible on common mobile viewports or an assistant opened during the main task. It can also hurt if the placeholder shifts layout, the trigger is hard for keyboard users to reach, or the network is slow and the second chunk loads at the worst moment.",
         "explanation": "It is strong because it balances bundle cost with timing, layout stability, and accessibility."
+      },
+      {
+        "id": "senior-ng-20-using-at-defer-correctly-tricky-eager-reference",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "A deferred component in the eager bundle",
+        "question": "A standalone chart appears in an @defer block and also outside any defer block in the same file. Is that dependency guaranteed to be deferred?",
+        "answer": "No. A dependency referenced outside the defer block in the same file does not meet the deferral conditions. Remove the eager reference or choose another loading boundary.",
+        "explanation": "A visual placeholder alone does not prove code splitting. Inspect the production dependency graph and network requests.\n\n[Further reading](https://angular.dev/guide/templates/defer)",
+        "hints": [
+          "Look for every reference in the component file."
+        ]
       }
     ]
   },
@@ -1206,6 +1266,18 @@
         "question": "How would you debug a hydration mismatch that occurs only in one timezone?",
         "answer": "I would compare the exact server HTML and client expectation for any date or formatted value on that route. Then I would force deterministic formatting by using an explicit locale and timezone, usually UTC or the business timezone, instead of relying on the server or browser default. I would reproduce the issue with tests that run under the failing TZ setting and check that server-fetched data is transferred rather than recalculated differently on the client.",
         "explanation": "It is strong because it focuses on deterministic rendering across environments, which is the usual cause of timezone-only hydration bugs."
+      },
+      {
+        "id": "senior-ng-21-ssr-hydration-and-rendering-strategy-tricky-random-markup",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Random values during hydration",
+        "question": "The server and browser independently choose a random promotion during initial render. Can hydration assume the markup matches?",
+        "answer": "No. Different choices can produce a hydration mismatch. Share the initial choice with the client or defer the client-only variation until after hydration.",
+        "explanation": "Hydration reuses server-rendered DOM and relies on compatible initial structure. Time-dependent, random, or browser-only branching deserves explicit handling.\n\n[Further reading](https://angular.dev/guide/hydration)",
+        "hints": [
+          "Do both environments use the same initial data?"
+        ]
       }
     ]
   },
@@ -1602,6 +1674,18 @@
         "question": "What is the difference between escaping, sanitizing, and trusting content?",
         "answer": "Escaping turns special characters into text so markup is displayed instead of executed. Sanitizing parses content and removes or changes unsafe parts while allowing approved markup. Trusting does not clean anything; it marks a value as already safe and tells Angular not to sanitize it.",
         "explanation": "It is strong because it clearly separates three security concepts that are often confused in Angular interviews."
+      },
+      {
+        "id": "senior-ng-27-angular-security-and-sanitization-tricky-bypass-trust",
+        "type": "tricky-question",
+        "order": 7,
+        "title": "Trusting HTML is not sanitizing it",
+        "question": "Does bypassSecurityTrustHtml clean unsafe HTML from a user upload?",
+        "answer": "No. It marks a value as trusted for that security context and bypasses Angular's normal sanitization. Do not use it to make untrusted uploads safe.",
+        "explanation": "The trap is interpreting the word trust as a cleaning operation. Establish the origin and validation policy before any narrowly justified bypass.\n\n[Further reading](https://angular.dev/best-practices/security)",
+        "hints": [
+          "What does bypass mean for the sanitizer?"
+        ]
       }
     ]
   },
@@ -1891,7 +1975,7 @@
         "order": 3,
         "language": "typescript",
         "code": "export const APP_CONFIG = new InjectionToken<AppConfig>('APP_CONFIG');\n\nexport function featureEnabled(name: keyof AppConfig['features']) {\n  return inject(APP_CONFIG).features[name] === true;\n}",
-        "explanation": "Runtime flags need ownership, expiry, telemetry, and a safe fallback\u2014not scattered string checks."
+        "explanation": "Runtime flags need ownership, expiry, telemetry, and a safe fallback—not scattered string checks."
       },
       {
         "id": "senior-ng-31-feature-flags-and-controlled-rollout-mistake-1",
@@ -2334,7 +2418,7 @@
           "Start with design tokens and foundational primitives, then build high-value components with documented states, accessibility, and content guidance.",
           "Separate visual tokens from component behavior. Support themes through CSS custom properties or generated token artifacts.",
           "Publish components as versioned libraries with semantic versioning, changelogs, migration schematics, and a deprecation window.",
-          "Provide examples, do/don\u2019t guidance, design files, test harnesses, and an issue/contribution process.",
+          "Provide examples, do/don’t guidance, design files, test harnesses, and an issue/contribution process.",
           "Measure adoption, duplicate component reduction, accessibility defects, and upgrade cost.",
           "Create governance that enables contribution rather than turning the central team into a bottleneck."
         ]
@@ -2359,7 +2443,7 @@
         "order": 3,
         "language": "typescript",
         "code": "@Component({\n  selector: 'ui-button', standalone: true,\n  host: { '[class.ui-button--busy]': 'busy()', '[attr.aria-busy]': 'busy()' },\n  template: `<button type=\"button\" [disabled]=\"disabled() || busy()\"><ng-content /></button>`\n})\nexport class UiButton {\n  readonly disabled = input(false);\n  readonly busy = input(false);\n}",
-        "explanation": "A design-system component owns semantics, state behavior, tokens, and accessibility\u2014not just appearance."
+        "explanation": "A design-system component owns semantics, state behavior, tokens, and accessibility—not just appearance."
       },
       {
         "id": "senior-ng-37-design-system-architecture-mistake-1",

@@ -1,6 +1,51 @@
 @use 'breakpoints' as *;
 @use 'mixins' as *;
 
+.practice__presets,
+.practice__session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.practice__presets [aria-pressed='true'] {
+  border-color: var(--color-primary);
+  background: var(--color-surface-alt);
+}
+.practice__session-actions {
+  margin-top: var(--space-4);
+  justify-content: space-between;
+}
+.practice__review {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  details {
+    @include card;
+    padding: var(--space-4);
+    min-width: 0;
+  }
+  summary {
+    @include focus-ring;
+    cursor: pointer;
+    padding: var(--space-2) 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    span {
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+      text-transform: capitalize;
+      margin-left: var(--space-2);
+    }
+  }
+  app-question-card {
+    display: block;
+    margin-block: var(--space-3);
+  }
+  a {
+    @include focus-ring;
+  }
+}
+
 .practice__subtitle {
   color: var(--color-text-muted);
   margin-top: var(--space-1);

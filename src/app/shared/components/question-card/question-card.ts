@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, viewChild } from '@angular/core';
 import { QuestionBlock } from '../../../core/models';
 import { CodeBlockComponent } from '../code-block/code-block';
 import { AnswerRevealComponent } from '../answer-reveal/answer-reveal';
@@ -41,6 +41,7 @@ export class QuestionCardComponent {
 
   bookmarkToggled = output<void>();
   assessed = output<'correct' | 'incorrect' | 'needs-revision'>();
+  readonly answerPanel = viewChild(AnswerRevealComponent);
 
   readonly typeLabels = TYPE_LABELS;
   readonly typeIcons = TYPE_ICONS;

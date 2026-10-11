@@ -545,9 +545,21 @@
         ]
       },
       {
+        "id": "js-promises-async-await-tricky-foreach-await",
+        "type": "tricky-question",
+        "order": 9,
+        "title": "Awaiting forEach",
+        "question": "Does `await items.forEach(async item => save(item))` wait for every save operation?",
+        "answer": "No. forEach returns undefined and ignores callback promises. Use a for...of loop with await for sequential work, or await Promise.all(items.map(save)) for concurrent work.",
+        "explanation": "Choose concurrency deliberately. An unbounded map can overload a service; a large batch may need a worker pool. Attach error handling to the promises you actually await.\n\n[Further reading](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)",
+        "hints": [
+          "What value does forEach return?"
+        ]
+      },
+      {
         "id": "promises-summary-1",
         "type": "summary",
-        "order": 9,
+        "order": 10,
         "title": "Quick Revision and References",
         "content": "Quick revision:\n\n- Promise = future success or failure.\n- `async` function = always returns a Promise.\n- `await` = pause this async function, not the thread.\n- `all` = all required.\n- `allSettled` = inspect all outcomes.\n- `any` = first success.\n- `race` = first settlement.\n- Cancellation is separate.\n\nOfficial references:\n\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise\n- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function\n- https://developer.mozilla.org/en-US/docs/Web/API/AbortController\n- https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/any\n- https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch"
       }

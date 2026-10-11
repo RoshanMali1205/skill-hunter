@@ -1,0 +1,412 @@
+@use 'breakpoints' as *;
+@use 'mixins' as *;
+
+.settings__fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+
+  legend {
+    padding: 0;
+    font-weight: 600;
+  }
+}
+
+.settings__styles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.settings__style {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 50%, var(--color-border));
+  }
+
+  &:has(.settings__style-input:focus-visible) {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  &--active {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 1px var(--color-primary);
+  }
+}
+
+// The real radio sits invisibly over the whole card so arrow keys and clicks work natively.
+.settings__style-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.settings__style-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    font-size: 0.95rem;
+  }
+
+  span {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+}
+
+// Mini previews drawn with fixed colors so each style looks the same regardless of the current one.
+.settings__style-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 8px;
+  height: 84px;
+  padding: 10px;
+  border-radius: 12px;
+
+  span {
+    border-radius: 8px;
+
+    &:first-child {
+      grid-row: span 2;
+    }
+  }
+
+  &[data-preview='classic'] {
+    background: #f6f7f9;
+
+    span {
+      background: #fff;
+      border: 1px solid #e3e7ec;
+      box-shadow: 0 1px 2px rgb(31 41 55 / 0.06);
+    }
+  }
+
+  &[data-preview='glass'] {
+    background:
+      radial-gradient(circle at 15% 20%, #38bdf8 0, transparent 55%),
+      radial-gradient(circle at 90% 85%, #a78bfa 0, transparent 55%), #dbe7f4;
+
+    span {
+      background: rgb(255 255 255 / 0.55);
+      border: 1px solid rgb(255 255 255 / 0.85);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+    }
+  }
+
+  &[data-preview='neumorphic'] {
+    background: #e4e8ef;
+
+    span {
+      background: #e4e8ef;
+      box-shadow:
+        4px 4px 8px #b8bfcc,
+        -4px -4px 8px #fff;
+    }
+
+    span:nth-child(3) {
+      box-shadow:
+        inset 3px 3px 6px #b8bfcc,
+        inset -3px -3px 6px #fff;
+    }
+  }
+
+  &[data-preview='spatial'] {
+    background:
+      radial-gradient(circle at 10% 0, #60a5fa 0, transparent 55%),
+      radial-gradient(circle at 100% 20%, #f472b6 0, transparent 50%),
+      radial-gradient(circle at 60% 120%, #67e8f9 0, transparent 55%), #e6eaf5;
+
+    span {
+      border-radius: 14px;
+      background: rgb(255 255 255 / 0.6);
+      border: 1px solid rgb(255 255 255 / 0.9);
+      box-shadow:
+        0 10px 18px -6px rgb(30 40 90 / 0.35),
+        inset 0 1px 0 #fff;
+    }
+  }
+}
+
+.settings__themes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+
+  @media (min-width: 520px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 900px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.settings__theme {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--t-primary) 55%, var(--color-border));
+    box-shadow: var(--shadow-md);
+  }
+
+  &:has(.settings__style-input:focus-visible) {
+    outline: 3px solid var(--t-primary);
+    outline-offset: 2px;
+  }
+
+  &--active {
+    border-color: var(--t-primary);
+    box-shadow: 0 0 0 1px var(--t-primary);
+  }
+}
+
+// A tiny app screen drawn in the theme's own colors, so you see exactly what you will get.
+.settings__theme-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border-radius: calc(var(--radius-md) - 4px);
+  background: #f6f7f9;
+}
+
+.settings__theme-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 46px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--t-primary) 86%, var(--t-accent)) 0%,
+    var(--t-primary) 50%,
+    var(--t-deep) 100%
+  );
+}
+
+.settings__theme-btn {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--t-primary);
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.settings__theme-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--t-accent);
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.35);
+}
+
+.settings__theme-lines {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings__theme-chip {
+  flex: none;
+  width: 30px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--t-tint);
+  border: 1px solid color-mix(in srgb, var(--t-primary) 30%, transparent);
+}
+
+.settings__theme-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: #dde2e8;
+  overflow: hidden;
+
+  span {
+    display: block;
+    width: 64%;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--t-primary);
+  }
+}
+
+.settings__theme-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 var(--space-2) var(--space-1);
+
+  strong {
+    font-size: 0.95rem;
+  }
+
+  span {
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: var(--color-text-muted);
+  }
+}
+
+.settings__theme-check {
+  position: absolute;
+  top: -10px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--t-primary);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  box-shadow: var(--shadow-sm);
+}
+
+// Previews for the three newer interface styles.
+.settings__style-preview {
+  &[data-preview='brutalism'] {
+    background: #fff4d6;
+
+    span {
+      background: #fff;
+      border: 2px solid #111;
+      border-radius: 3px;
+      box-shadow: 3px 3px 0 #111;
+    }
+
+    span:nth-child(2) {
+      background: #fde047;
+    }
+
+    span:nth-child(3) {
+      background: #7dd3fc;
+    }
+  }
+
+  &[data-preview='aurora'] {
+    background:
+      radial-gradient(circle at 12% 15%, #34d399 0, transparent 52%),
+      radial-gradient(circle at 92% 12%, #8b5cf6 0, transparent 50%),
+      radial-gradient(circle at 60% 120%, #22d3ee 0, transparent 55%), #0b1020;
+
+    span {
+      background: rgb(255 255 255 / 0.12);
+      border: 1px solid rgb(255 255 255 / 0.3);
+      box-shadow: 0 6px 16px -4px rgb(139 92 246 / 0.6);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+    }
+  }
+
+  &[data-preview='clay'] {
+    background: linear-gradient(135deg, #fde8f1, #e9e6ff 55%, #dff7ee);
+
+    span {
+      border-radius: 14px;
+      background: #fbf9ff;
+      box-shadow:
+        0 6px 12px rgb(88 60 150 / 0.2),
+        inset 3px 3px 6px #fff,
+        inset -3px -4px 8px rgb(120 90 190 / 0.14);
+    }
+  }
+}
+
+.settings__group-title {
+  margin: var(--space-4) 0 0;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+// Multi-color cards blend all three colors in the banner, dots and progress bar.
+.settings__theme--palette {
+  .settings__theme-banner {
+    background: linear-gradient(
+      135deg,
+      var(--t-primary) 0%,
+      var(--t-secondary) 55%,
+      var(--t-tertiary) 100%
+    );
+  }
+
+  .settings__theme-bar span {
+    background: linear-gradient(90deg, var(--t-primary), var(--t-secondary), var(--t-tertiary));
+  }
+
+  .settings__theme-chip {
+    background: color-mix(in srgb, var(--t-secondary) 18%, #fff);
+    border-color: color-mix(in srgb, var(--t-secondary) 40%, transparent);
+  }
+}
+
+.settings__theme-dots {
+  display: flex;
+  gap: 4px;
+
+  span {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 0.4);
+
+    &:nth-child(1) {
+      background: var(--t-primary);
+    }
+
+    &:nth-child(2) {
+      background: var(--t-secondary);
+    }
+
+    &:nth-child(3) {
+      background: var(--t-tertiary);
+    }
+  }
+}

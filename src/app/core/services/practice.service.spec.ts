@@ -96,6 +96,12 @@ describe('PracticeService', () => {
       ['q-output', 'q-interview'],
     ],
     ['question type', { questionType: 'interview-question' }, ['q-interview']],
+    ['exact question', { questionId: 'q-rxjs', questionType: 'tricky-question' }, ['q-rxjs']],
+    ['subject isolation', { subjectId: 'javascript' }, []],
+    ['case-insensitive topic search', { searchTerm: ' RXJS ' }, ['q-rxjs']],
+    ['prompt search', { searchTerm: 'Output?' }, ['q-output']],
+    ['hidden answer excluded from search', { searchTerm: 'Because' }, []],
+    ['unknown question', { questionId: 'missing' }, []],
     ['bookmarks', { onlyBookmarked: true }, ['q-output']],
     ['weak topics', { onlyWeak: true }, ['q-rxjs']],
   ])('filters questions by %s', (_label, filter, expected) => {

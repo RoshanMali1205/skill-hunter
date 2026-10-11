@@ -3,8 +3,12 @@
     <button type="button" class="btn btn--ghost" (click)="togglePreview()">
       {{ showPreview() ? 'Edit' : 'Preview' }}
     </button>
-    @if (formattedUpdatedAt(); as updated) {
-      <span class="note-editor__meta">Last updated {{ updated }}</span>
+    @if (isDirty()) {
+      <span class="note-editor__status note-editor__status--dirty" role="status"
+        >Unsaved changes</span
+      >
+    } @else if (formattedUpdatedAt(); as updated) {
+      <span class="note-editor__meta" role="status">Saved · last updated {{ updated }}</span>
     }
   </div>
 
@@ -19,6 +23,7 @@
   } @else {
     <textarea
       class="note-editor__textarea"
+      aria-label="Note"
       [ngModel]="draft()"
       (ngModelChange)="draft.set($event)"
       rows="8"
@@ -26,13 +31,28 @@
     ></textarea>
   }
 
-  <div class="cluster">
-    <button type="button" class="btn btn--primary" [disabled]="!isDirty()" (click)="save()">
-      Save Note
-    </button>
-    @if (hasSavedNote()) {
-      <button type="button" class="btn btn--danger" (click)="delete()">Delete Note</button>
-    }
-    <button type="button" class="btn btn--ghost" (click)="closed.emit()">Close</button>
-  </div>
+  @if (confirmingClose()) {
+    <div class="note-editor__confirm" role="alertdialog" aria-label="Unsaved changes">
+      <p><strong>You have unsaved changes.</strong> What would you like to do?</p>
+      <div class="cluster">
+        <button type="button" class="btn btn--primary" (click)="saveAndClose()">
+          Save and close
+        </button>
+        <button type="button" class="btn btn--danger" (click)="discardAndClose()">
+          Discard changes
+        </button>
+        <button type="button" class="btn" (click)="keepEditing()">Keep editing</button>
+      </div>
+    </div>
+  } @else {
+    <div class="cluster">
+      <button type="button" class="btn btn--primary" [disabled]="!isDirty()" (click)="save()">
+        Save Note
+      </button>
+      @if (hasSavedNote()) {
+        <button type="button" class="btn btn--danger" (click)="delete()">Delete Note</button>
+      }
+      <button type="button" class="btn btn--ghost" (click)="requestClose()">Close</button>
+    </div>
+  }
 </div>

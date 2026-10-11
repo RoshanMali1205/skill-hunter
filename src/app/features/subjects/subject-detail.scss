@@ -1,6 +1,35 @@
 @use 'breakpoints' as *;
 @use 'mixins' as *;
 
+.subject-detail__views {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  a {
+    @include focus-ring;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 48px;
+    padding: var(--space-3) var(--space-4);
+    color: var(--color-text-muted);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+    &[aria-current='page'] {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+    span {
+      border-radius: 999px;
+      background: var(--color-surface-alt);
+      padding: 2px 8px;
+      font-size: 0.8rem;
+    }
+  }
+}
+
 .subject-detail__back {
   align-self: flex-start;
   text-decoration: none;

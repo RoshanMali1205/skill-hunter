@@ -16,7 +16,8 @@ describe('SettingsComponent', () => {
   const setPhotoFromFile = vi.fn();
   const promptInstall = vi.fn();
   const resetAllProgress = vi.fn();
-  const importFromJson = vi.fn();
+  const previewImport = vi.fn();
+  const applyImport = vi.fn();
   const downloadExport = vi.fn();
 
   beforeEach(() => {
@@ -37,7 +38,7 @@ describe('SettingsComponent', () => {
         },
         {
           provide: DataManagementService,
-          useValue: { resetAllProgress, importFromJson, downloadExport },
+          useValue: { resetAllProgress, previewImport, applyImport, downloadExport },
         },
         {
           provide: ProfileService,
@@ -89,17 +90,49 @@ describe('SettingsComponent', () => {
     expect(component.installMessage()).toContain('browser menu');
   });
 
-  it('imports valid data and handles malformed JSON', async () => {
+  it('previews a valid backup without writing, then applies it only after confirmation', async () => {
     const component = create();
-    importFromJson.mockReturnValue({ success: true });
+    const data = { version: 1 };
+    previewImport.mockReturnValue({
+      success: true,
+      data,
+      preview: { incoming: {}, current: {} },
+    });
+    applyImport.mockReturnValue({ success: true });
     const validInput = {
-      files: [{ text: () => Promise.resolve('{"version":1}') }],
+      files: [{ name: 'b.json', text: () => Promise.resolve('{"version":1}') }],
       value: 'file',
     } as unknown as HTMLInputElement;
     await component.onImportFile({ target: validInput } as unknown as Event);
-    expect(importFromJson).toHaveBeenCalledWith({ version: 1 });
-    expect(component.importMessage()?.success).toBe(true);
+    expect(previewImport).toHaveBeenCalledWith({ version: 1 });
+    expect(applyImport).not.toHaveBeenCalled();
+    expect(component.pendingImport()).not.toBeNull();
 
+    component.confirmImport();
+    expect(applyImport).toHaveBeenCalledWith(data);
+    expect(component.pendingImport()).toBeNull();
+    expect(component.importMessage()?.success).toBe(true);
+  });
+
+  it('cancel leaves data untouched', async () => {
+    const component = create();
+    previewImport.mockReturnValue({
+      success: true,
+      data: {},
+      preview: { incoming: {}, current: {} },
+    });
+    const input = {
+      files: [{ name: 'b.json', text: () => Promise.resolve('{}') }],
+      value: 'file',
+    } as unknown as HTMLInputElement;
+    await component.onImportFile({ target: input } as unknown as Event);
+    component.cancelImport();
+    expect(applyImport).not.toHaveBeenCalled();
+    expect(component.pendingImport()).toBeNull();
+  });
+
+  it('handles malformed JSON', async () => {
+    const component = create();
     const invalidInput = {
       files: [{ text: () => Promise.resolve('{bad') }],
       value: 'file',
