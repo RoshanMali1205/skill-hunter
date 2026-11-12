@@ -3362,5 +3362,408 @@
         "explanation": "It is strong because it separates bounded implementation debt from risks that should not be traded away."
       }
     ]
+  },
+  {
+    "id": "angular-modern-inputs-outputs",
+    "subjectId": "angular",
+    "categoryId": "angular-fundamentals",
+    "title": "Signal Inputs, Outputs, and Models",
+    "description": "Angular's modern component API: input(), output(), and model() for signal-first component contracts on Angular 19+ / 22.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 40,
+    "tags": [
+      "input",
+      "output",
+      "model",
+      "signals",
+      "component-api",
+      "angular-22"
+    ],
+    "blocks": [
+      {
+        "id": "ang-mio-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Why signal inputs replaced decorator Inputs",
+        "content": "Modern Angular components prefer `input()`, `output()`, and `model()` over `@Input()` / `@Output()`. These APIs return signals (or event emitters designed for signals-first apps), so templates and computed values can react without manual change-detection gymnastics.\n\nA simple analogy: `@Input()` was a mailbox you peeked into when Angular knocked. `input()` is a live dashboard value — consumers always read the current value by calling it, and Angular already knows who depends on it.\n\n`input.required<T>()` makes missing bindings a compile-time/build-time problem. `input({ transform })` keeps coercion next to the contract. `output()` replaces `EventEmitter` ceremony with a typed emitter. `model()` is two-way state for cases that truly need banana-in-a-box binding without inventing a custom pair of input+output names.",
+        "keyPoints": [
+          "Prefer `input()` / `output()` / `model()` for new Angular 19+ components.",
+          "`input()` values are signals — read them with `name()`.",
+          "`model()` is for genuine two-way binding, not every editable field.",
+          "Transforms and required inputs belong on the input definition, not scattered in setters."
+        ]
+      },
+      {
+        "id": "ang-mio-code-1",
+        "type": "code-example",
+        "order": 2,
+        "title": "Modern child component contract",
+        "language": "typescript",
+        "code": "@Component({\n  selector: 'app-filter-chip',\n  template: `\n    <button type=\"button\" [attr.aria-pressed]=\"selected()\" (click)=\"toggle()\">\n      {{ label() }}\n    </button>\n  `,\n})\nexport class FilterChip {\n  readonly label = input.required<string>();\n  readonly selected = model(false);\n  readonly removed = output<void>();\n\n  toggle(): void {\n    this.selected.update(value => !value);\n  }\n\n  remove(): void {\n    this.removed.emit();\n  }\n}",
+        "explanation": "The parent binds `[label]`, uses two-way `[(selected)]` via `model()`, and listens to `(removed)`. The child never needs `@Input` setters."
+      },
+      {
+        "id": "ang-mio-q-1",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "When would you choose model() instead of a separate input() and output()?",
+        "answer": "I use `model()` when the component owns a single synchronized value that parents commonly bind with `[(name)]`, such as a selected flag, open state, or compact filter value. If the write path needs validation, mapping, or side effects beyond updating that value, I prefer an explicit `input()` plus a named `output()` so the contract stays clear.",
+        "explanation": "Interviewers want judgment, not a rule that model replaces every EventEmitter."
+      },
+      {
+        "id": "ang-mio-tricky-transform",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Input transforms and nullish values",
+        "question": "An input uses transform: (value: string | number) => Number(value). A parent passes [count]=\"null\". What should you worry about?",
+        "answer": "The transform runs on the bound value. If null/undefined are possible, the transform must accept them or the template binding must prevent them. Otherwise you can get NaN, runtime errors, or a type lie where TypeScript thinks the signal is number while runtime received an unexpected value.",
+        "explanation": "Transforms are part of the public contract. Treat them like parsers at a boundary.\n\n[Further reading](https://angular.dev/guide/components/inputs)",
+        "hints": [
+          "Ask what types the parent can actually pass.",
+          "Transforms should be total for the allowed binding domain."
+        ]
+      },
+      {
+        "id": "ang-mio-scenario-1",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Senior scenario",
+        "question": "A design-system team still ships decorator Inputs while product teams write signal stores. How do you migrate without breaking consumers?",
+        "answer": "Migrate leaf presentational components first to `input()`/`output()`/`model()`, keep selector and binding names stable, and publish a short codemod or lint rule. Avoid mixing setter `@Input()` side effects with signal inputs in the same component. For v1 compatibility, wrap legacy components rather than forcing a big-bang rewrite. Prove the migration with template type-check, visual regression, and a few consumer apps upgrading one package version.",
+        "explanation": "API stability and incremental adoption matter more than deleting decorators quickly."
+      },
+      {
+        "id": "ang-mio-mistake-1",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Reading an input signal once in the constructor and caching the primitive forever.",
+        "whyItHappens": "Developers treat inputs like constructor parameters, but input signals are reactive and can change when the parent rebinds them.",
+        "correctApproach": "Read `input()` inside computed values, templates, or methods that run when the value is needed. If construction-time setup is required, use an effect carefully or react to changes explicitly."
+      },
+      {
+        "id": "ang-mio-practice-1",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Production guidance",
+        "content": "Treat the component API as a versioned contract: required vs optional, transforms, output payload shapes, and two-way models should be intentional and documented.",
+        "keyPoints": [
+          "Default to `input()`/`output()` for new code.",
+          "Use `model()` sparingly for true two-way cases.",
+          "Keep output payloads small and serializable.",
+          "Rely on template type-checking in CI."
+        ]
+      },
+      {
+        "id": "ang-mio-summary-1",
+        "type": "summary",
+        "order": 8,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- `input()` / `output()` / `model()` are the modern Angular component API.\n- Input values are signals; call them to read.\n- `model()` is two-way convenience, not a generic state store.\n- Transforms belong at the boundary and must handle real runtime values.\n\nOfficial references\n\n- https://angular.dev/guide/components/inputs\n- https://angular.dev/guide/components/outputs\n- https://angular.dev/guide/signals/model"
+      }
+    ]
+  },
+  {
+    "id": "angular-linked-signal",
+    "subjectId": "angular",
+    "categoryId": "angular-change-detection",
+    "title": "linkedSignal",
+    "description": "Resettable local state that stays synchronized with a source signal — Angular's linkedSignal pattern for forms, selection, and wizard state.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 35,
+    "tags": [
+      "linkedSignal",
+      "signals",
+      "state",
+      "angular-22"
+    ],
+    "blocks": [
+      {
+        "id": "ang-ls-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "linkedSignal in plain language",
+        "content": "`linkedSignal` creates writable local state that is seeded from another signal and can reset when that source changes. It solves a common UI problem: “keep my draft selection, but if the list of options changes, start from a sensible default again.”\n\nAnalogy: a thermostat has a preferred temperature from a schedule (the source), but you can temporarily override it. When the schedule period changes, the thermostat returns to the new scheduled value unless you override again.\n\nUse `linkedSignal` when local writable state should follow a source of truth without writing an effect that copies one signal into another — effects for that pattern are a common anti-pattern.",
+        "keyPoints": [
+          "`linkedSignal` is writable local state linked to a source signal.",
+          "Prefer it over an effect that only syncs/resets state.",
+          "Good fits: selected id, draft fields, pagination tied to a filter.",
+          "Do not use it as a general replacement for computed."
+        ]
+      },
+      {
+        "id": "ang-ls-code-1",
+        "type": "code-example",
+        "order": 2,
+        "title": "Selection that resets when the option list changes",
+        "language": "typescript",
+        "code": "readonly options = signal<Item[]>([]);\nreadonly selectedId = linkedSignal({\n  source: this.options,\n  computation: (options, previous) => {\n    const stillThere = options.some(item => item.id === previous()?.value);\n    return stillThere ? previous()!.value : options[0]?.id ?? null;\n  },\n});\n\nchoose(id: string): void {\n  this.selectedId.set(id);\n}",
+        "explanation": "The user can change `selectedId`, but when `options` changes the computation decides whether to keep or reset the value."
+      },
+      {
+        "id": "ang-ls-q-1",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "How is linkedSignal different from computed?",
+        "answer": "`computed` is read-only derived state. `linkedSignal` is writable state that can be set by the user/UI and also recomputed from a source when that source changes. If the value should only ever be derived, use `computed`. If the user must override it, use `linkedSignal` or an explicit store command.",
+        "explanation": "This distinction is a frequent Angular interview probe around signals API design."
+      },
+      {
+        "id": "ang-ls-tricky-effect-copy",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Effects that copy signals",
+        "question": "A teammate writes an effect that does draft.set(source()) whenever source changes. Why is linkedSignal usually better?",
+        "answer": "An effect that copies signals creates hidden write cycles, ordering surprises, and harder testing. `linkedSignal` expresses resettable linked state in the reactive graph intentionally, with a clear computation and writable API, instead of a side effect pretending to be state synchronization.",
+        "explanation": "Effects are for external side effects, not for deriving or resetting signal state.\n\n[Further reading](https://angular.dev/guide/signals/linked-signal)",
+        "hints": [
+          "Ask whether the state is derived, overridden, or both.",
+          "Look for write cycles in effects."
+        ]
+      },
+      {
+        "id": "ang-ls-scenario-1",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Senior scenario",
+        "question": "A multi-step wizard stores step drafts. Changing the account type should reset later steps but keep untouched earlier answers when safe. How would you model this?",
+        "answer": "Keep account type as source state. Use `linkedSignal` (or explicit store commands) for later-step drafts that must reset when account type changes. Keep independent earlier answers in separate writable signals. Document which fields are linked to which sources so product rules stay reviewable. Avoid one giant effect that resets everything on any change.",
+        "explanation": "Product rules for reset boundaries should be visible in the state model."
+      },
+      {
+        "id": "ang-ls-mistake-1",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Using linkedSignal for values that should be pure derivations.",
+        "whyItHappens": "Writable APIs look flexible, but they invite accidental local overrides that diverge from the source of truth.",
+        "correctApproach": "If nothing should override the value, use `computed`. Reserve `linkedSignal` for override-and-reset cases."
+      },
+      {
+        "id": "ang-ls-practice-1",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Production guidance",
+        "content": "Name linked signals after the UI concept they own (selectedId, draftQuery) and keep the source signal authoritative for identity/list changes.",
+        "keyPoints": [
+          "Prefer linkedSignal over sync effects.",
+          "Make reset rules explicit in the computation.",
+          "Test keep vs reset paths when the source changes."
+        ]
+      },
+      {
+        "id": "ang-ls-summary-1",
+        "type": "summary",
+        "order": 8,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- `linkedSignal` = writable local state linked to a source.\n- Use it for override + reset behavior.\n- Prefer it over effects that only copy signals.\n- Use `computed` when the value is never overridden.\n\nOfficial references\n\n- https://angular.dev/guide/signals/linked-signal\n- https://angular.dev/guide/signals"
+      }
+    ]
+  },
+  {
+    "id": "angular-http-resource",
+    "subjectId": "angular",
+    "categoryId": "angular-rxjs",
+    "title": "resource() and httpResource",
+    "description": "Angular's resource APIs for async state: loading, error, and value as signals — and when to still use HttpClient + RxJS.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 45,
+    "tags": [
+      "httpResource",
+      "resource",
+      "signals",
+      "http",
+      "angular-22"
+    ],
+    "blocks": [
+      {
+        "id": "ang-hr-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Async state without hand-rolled loading flags",
+        "content": "`resource()` and `httpResource()` give Angular a first-class way to model asynchronous values as signals: request status, value, and error are readable without inventing a new BehaviorSubject store for every GET.\n\nAnalogy: instead of calling a restaurant and keeping sticky notes for “ordered / arrived / failed,” you get a single order tracker object that always shows the current status.\n\n`httpResource` is specialized for HTTP reads. It shines for declarative data tied to signal parameters (ids, filters). It does not replace every RxJS workflow — complex mutation pipelines, multi-request orchestration, upload progress, and fine-grained cancellation strategies may still belong in `HttpClient` + operators.",
+        "keyPoints": [
+          "Resources expose async value/status/error as signals.",
+          "Best for read models driven by other signals.",
+          "Still use RxJS for complex temporal orchestration.",
+          "Treat resource params as the cache/identity key of the request."
+        ]
+      },
+      {
+        "id": "ang-hr-code-1",
+        "type": "code-example",
+        "order": 2,
+        "title": "httpResource driven by a route param signal",
+        "language": "typescript",
+        "code": "readonly topicId = signal('');\n\nreadonly topic = httpResource<Topic>(() => {\n  const id = this.topicId();\n  return id\n    ? { url: `/api/topics/${encodeURIComponent(id)}` }\n    : undefined; // no request while id is empty\n});\n\n// template:\n// @if (topic.isLoading()) { … }\n// @else if (topic.error(); as err) { … }\n// @else if (topic.value(); as value) { … }",
+        "explanation": "Returning `undefined` from the loader params skips the request. When `topicId` changes, the resource reloads with the new identity."
+      },
+      {
+        "id": "ang-hr-q-1",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "Should httpResource replace HttpClient in an Angular 22 app?",
+        "answer": "No. I use `httpResource`/`resource` for declarative read state that templates consume as signals. I still use `HttpClient` (often behind a repository) for mutations, retries with custom policy, upload/download streams, and multi-step workflows. Many apps will mix both: resources for GET screens, HttpClient for commands.",
+        "explanation": "Strong answers show API selection by problem shape, not hype."
+      },
+      {
+        "id": "ang-hr-tricky-reload",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Resource instance identity",
+        "question": "Two components create separate httpResource calls for the same URL. Do they automatically share one in-flight HTTP request?",
+        "answer": "Not automatically. Each resource instance manages its own async state. If you need shared caching or deduplication, put the resource in a shared service, use an HTTP cache interceptor, or design an explicit store. Assuming global request coalescing without an architecture for it leads to duplicate calls.",
+        "explanation": "Resource APIs model local async state; sharing is an ownership decision.\n\n[Further reading](https://angular.dev/guide/http/http-resource)",
+        "hints": [
+          "Ask where the resource is constructed.",
+          "Sharing requires an intentional owner."
+        ]
+      },
+      {
+        "id": "ang-hr-scenario-1",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Senior scenario",
+        "question": "A dashboard has five cards, each fetching related metrics. Product wants skeleton loading, per-card retry, and one global refresh. How do you design it?",
+        "answer": "Give each card a resource (or a store facade that owns resources) keyed by its metric query. Surface `isLoading`/`error`/`value` per card so one failure does not blank the page. Implement retry as a resource reload on that card. For global refresh, call reload on each owner or bump a shared `refreshTick` signal that resources depend on. Avoid one mega-request unless the backend provides a single aggregated endpoint — and if it does, prefer that for performance.",
+        "explanation": "Per-widget async state and backend aggregation are complementary levers."
+      },
+      {
+        "id": "ang-hr-mistake-1",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Putting POST/PUT/DELETE side effects into a resource loader because it is convenient.",
+        "whyItHappens": "Resources are designed around idempotent read models and reload semantics. Mutations need explicit commands, confirmation, and error handling.",
+        "correctApproach": "Keep reads in resources; keep writes in command methods using HttpClient or dedicated mutation APIs."
+      },
+      {
+        "id": "ang-hr-practice-1",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Production guidance",
+        "content": "Design resources like queries: stable keys, explicit empty params, typed values, and a clear owner for sharing.",
+        "keyPoints": [
+          "Skip requests with undefined params instead of calling APIs with empty ids.",
+          "Handle loading and error in the UI separately.",
+          "Document when to reload vs when to mutate via commands.",
+          "Compare waterfall requests vs aggregated endpoints."
+        ]
+      },
+      {
+        "id": "ang-hr-summary-1",
+        "type": "summary",
+        "order": 8,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- `resource` / `httpResource` expose async state as signals.\n- Great for GET/read models driven by signal params.\n- Not a blanket replacement for RxJS or HttpClient mutations.\n- Sharing and caching are architectural choices.\n\nOfficial references\n\n- https://angular.dev/guide/http/http-resource\n- https://angular.dev/guide/signals/resource"
+      }
+    ]
+  },
+  {
+    "id": "angular-signal-forms",
+    "subjectId": "angular",
+    "categoryId": "angular-routing-forms",
+    "title": "Signal Forms",
+    "description": "Angular's signal-based forms model: field state as signals, validation, and how it relates to reactive forms in Angular 21/22.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 40,
+    "tags": [
+      "signal-forms",
+      "forms",
+      "validation",
+      "signals",
+      "angular-22"
+    ],
+    "blocks": [
+      {
+        "id": "ang-sf-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Forms that speak signals",
+        "content": "Signal forms make form field values, touch state, and validity available as signals, so templates and store logic can use the same reactive model as the rest of a zoneless Angular 22 app.\n\nAnalogy: classic reactive forms were a separate control panel with its own observables. Signal forms put the switches on the same dashboard as the rest of your signal state.\n\nReactive forms remain fully relevant — especially in large enterprise apps with mature abstract control trees, dynamic FormArrays, and existing libraries. Signal forms are the modern direction for new signal-first screens. Interviews expect you to compare trade-offs, not declare one dead.",
+        "keyPoints": [
+          "Signal forms align form state with signal-first Angular apps.",
+          "Reactive forms remain important for complex legacy and dynamic graphs.",
+          "Validation still belongs close to the field and the domain rules.",
+          "Choose based on team standards, library support, and form complexity."
+        ]
+      },
+      {
+        "id": "ang-sf-code-1",
+        "type": "code-example",
+        "order": 2,
+        "title": "Sketch of signal field state consumed by a template",
+        "language": "typescript",
+        "code": "// Illustrative signal-first form shape used in modern Angular apps.\nreadonly profile = signal({\n  name: '',\n  email: '',\n});\n\nreadonly nameError = computed(() => {\n  const name = this.profile().name.trim();\n  if (!name) return 'Name is required';\n  if (name.length < 2) return 'Name is too short';\n  return null;\n});\n\nreadonly canSave = computed(() => !this.nameError() && this.profile().email.includes('@'));\n\npatchName(value: string): void {\n  this.profile.update(current => ({ ...current, name: value }));\n}",
+        "explanation": "Even before adopting a dedicated signal-forms API helper, the winning idea is the same: values and validation are signals, updates are explicit, and the template reads synchronous state."
+      },
+      {
+        "id": "ang-sf-q-1",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "A banking app has a 40-field dynamic KYC form generated from metadata. Would you push signal forms immediately?",
+        "answer": "Not automatically. Dynamic metadata-driven graphs, cross-field validators, async uniqueness checks, and existing control-value-accessor libraries often still fit reactive forms well. I would prototype signal forms on greenfield simpler flows first, keep a shared validation rules module, and migrate when the API and team patterns are stable enough for dynamic arrays and enterprise accessibility requirements.",
+        "explanation": "Scale and ecosystem fit beat novelty."
+      },
+      {
+        "id": "ang-sf-tricky-valueaccessor",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "CVA and signal writes",
+        "question": "Your design system exposes ControlValueAccessor-based inputs. What breaks if product teams suddenly use only raw signal writes?",
+        "answer": "CVA components integrate with Angular forms through writeValue/registerOnChange. If parents bypass forms and poke DOM or internal signals, accessibility, disabled-state propagation, touched/dirty semantics, and validation messaging can diverge. Bridge with proper form integration or provide a signal-friendly adapter — do not dual-drive the same control.",
+        "explanation": "Component libraries and form models must agree on a single source of truth.\n\n[Further reading](https://angular.dev/guide/forms)",
+        "hints": [
+          "Ask who owns the value.",
+          "Disabled/touched/dirty are part of the contract."
+        ]
+      },
+      {
+        "id": "ang-sf-scenario-1",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Senior scenario",
+        "question": "You are migrating a settings page from reactive forms to a signal-first model. How do you avoid a regression-heavy rewrite?",
+        "answer": "Freeze behavior with tests around validation messages, disabled states, and submit payloads. Extract pure validators first. Migrate section by section behind a feature flag. Keep the API DTO mapping in one adapter so UI model changes do not rewrite backend contracts. Measure bundle impact and keyboard/screen-reader flows before deleting FormGroup code.",
+        "explanation": "Migration is a compatibility project, not a rename."
+      },
+      {
+        "id": "ang-sf-mistake-1",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Duplicating the same field in a FormControl and a signal without a single owner.",
+        "whyItHappens": "Two sources of truth drift, causing submit bugs and flaky tests.",
+        "correctApproach": "Pick one form model per flow. If both APIs exist during migration, adapt at one boundary only."
+      },
+      {
+        "id": "ang-sf-practice-1",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Production guidance",
+        "content": "Keep validation pure, map UI models to DTOs explicitly, and test error rendering as carefully as happy-path submits.",
+        "keyPoints": [
+          "Prefer one form model per screen.",
+          "Share validators as pure functions.",
+          "Preserve a11y labeling and error announcements.",
+          "Migrate incrementally with flags and characterization tests."
+        ]
+      },
+      {
+        "id": "ang-sf-summary-1",
+        "type": "summary",
+        "order": 8,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- Signal forms align forms with signal-first Angular.\n- Reactive forms remain strong for complex dynamic enterprise graphs.\n- Avoid dual sources of truth during migration.\n- Validation and a11y are part of the architecture.\n\nOfficial references\n\n- https://angular.dev/guide/forms\n- https://angular.dev/guide/signals"
+      }
+    ]
   }
 ]

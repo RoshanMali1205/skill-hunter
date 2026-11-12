@@ -4389,5 +4389,84 @@
         "explanation": "User-agent detection is brittle, so it should be a targeted bug workaround rather than the main compatibility model."
       }
     ]
+  },
+  {
+    "id": "sd-frontend-llm-feature-architecture",
+    "subjectId": "system-design",
+    "categoryId": "sd-foundations",
+    "title": "Designing LLM Features in a Frontend App",
+    "description": "Architecture for in-product AI: BFF proxying, streaming UX, context assembly, failure modes, and cost controls for apps like Skill Hunter.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 40,
+    "tags": [
+      "llm",
+      "bff",
+      "streaming",
+      "architecture",
+      "cost"
+    ],
+    "blocks": [
+      {
+        "id": "sd-llm-fe-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "The browser is not the model client of record",
+        "content": "Production LLM features almost always put a backend or serverless BFF between the browser and the model provider. The BFF holds secrets, enforces auth/rate limits, assembles trusted system prompts, and streams tokens back to the UI.\n\nAnalogy: the browser is a phone handset; the BFF is the company switchboard that decides who can call expensive external lines.",
+        "keyPoints": [
+          "Never ship provider API keys to the browser.",
+          "Stream tokens for perceived performance.",
+          "Assemble context deliberately; do not dump localStorage into prompts.",
+          "Plan for rate limits, timeouts, and degraded modes."
+        ]
+      },
+      {
+        "id": "sd-llm-fe-q-1",
+        "type": "interview-question",
+        "order": 2,
+        "title": "Interview question",
+        "question": "How would you design AI Mentor so a Netlify function outage does not brick the whole PWA?",
+        "answer": "Isolate the mentor behind a clear error boundary, keep curriculum learning offline, show a retryable error state, optionally queue drafts locally, and monitor function error rates. The static knowledge base should remain usable without AI.",
+        "explanation": "Degraded mode is part of frontend system design."
+      },
+      {
+        "id": "sd-llm-fe-tricky-context",
+        "type": "tricky-question",
+        "order": 3,
+        "title": "Context assembly",
+        "question": "Why is sending the entire topic JSON as model context often a bad default?",
+        "answer": "It burns tokens, can include outdated or conflicting blocks, increases latency/cost, and expands prompt-injection surface. Prefer curated summaries, the active question, and short user goals. Retrieve more only when needed.",
+        "explanation": "Context assembly is an architecture decision with cost and safety impact.\n\n[Further reading](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)",
+        "hints": [
+          "Tokens cost money and attention.",
+          "More context is not always more accuracy."
+        ]
+      },
+      {
+        "id": "sd-llm-fe-scenario-1",
+        "type": "scenario-question",
+        "order": 4,
+        "title": "Senior scenario",
+        "question": "Traffic spikes after a launch. Model spend 5× and p95 latency doubles. What knobs do you turn first?",
+        "answer": "Tighten rate limits, enable prompt/response caching for safe prompts, route simple prompts to a cheaper/faster model, shrink context, add circuit breakers, and communicate partial outages. Measure cost per active learner, not only request count.",
+        "explanation": "Cost and latency controls are product features."
+      },
+      {
+        "id": "sd-llm-fe-mistake-1",
+        "type": "common-mistake",
+        "order": 5,
+        "title": "Common mistake",
+        "mistake": "Calling the provider directly from Angular with an API key in environment files.",
+        "whyItHappens": "Anything in the frontend bundle is public.",
+        "correctApproach": "Proxy through a BFF/function; keep secrets server-side."
+      },
+      {
+        "id": "sd-llm-fe-summary-1",
+        "type": "summary",
+        "order": 6,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- BFF for secrets, policy, and streaming.\n- Curate context; design degraded modes.\n- Control cost with routing, caching, and rate limits.\n\nFurther reading\n\n- https://web.dev/articles/fetch-streaming"
+      }
+    ]
   }
 ]

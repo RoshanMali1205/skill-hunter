@@ -2,7 +2,7 @@
   {
     "id": "angular",
     "title": "Angular",
-    "description": "Standalone components, signals, change detection, RxJS, and architecture for senior Angular interviews.",
+    "description": "Angular 22 interview prep: standalone APIs, zoneless + OnPush defaults, signals, linkedSignal, httpResource, modern input/output/model APIs, RxJS, and senior architecture scenarios.",
     "icon": "angular",
     "order": 1,
     "categories": [
@@ -124,6 +124,23 @@
               "architect",
               "third-party-widget-integration"
             ]
+          },
+          {
+            "id": "angular-modern-inputs-outputs",
+            "categoryId": "angular-fundamentals",
+            "title": "Signal Inputs, Outputs, and Models",
+            "description": "Angular's modern component API: input(), output(), and model() for signal-first component contracts on Angular 19+ / 22.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "input",
+              "output",
+              "model",
+              "signals",
+              "component-api",
+              "angular-22"
+            ]
           }
         ]
       },
@@ -180,6 +197,21 @@
               "scenario-based",
               "architect",
               "selecting-state-management"
+            ]
+          },
+          {
+            "id": "angular-linked-signal",
+            "categoryId": "angular-change-detection",
+            "title": "linkedSignal",
+            "description": "Resettable local state that stays synchronized with a source signal — Angular's linkedSignal pattern for forms, selection, and wizard state.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "linkedSignal",
+              "signals",
+              "state",
+              "angular-22"
             ]
           }
         ]
@@ -269,6 +301,22 @@
               "scenario-based",
               "architect",
               "multi-tab-state-synchronization"
+            ]
+          },
+          {
+            "id": "angular-http-resource",
+            "categoryId": "angular-rxjs",
+            "title": "resource() and httpResource",
+            "description": "Angular's resource APIs for async state: loading, error, and value as signals — and when to still use HttpClient + RxJS.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "httpResource",
+              "resource",
+              "signals",
+              "http",
+              "angular-22"
             ]
           }
         ]
@@ -394,6 +442,22 @@
               "scenario-based",
               "architect",
               "internationalization-at-scale"
+            ]
+          },
+          {
+            "id": "angular-signal-forms",
+            "categoryId": "angular-routing-forms",
+            "title": "Signal Forms",
+            "description": "Angular's signal-based forms model: field state as signals, validation, and how it relates to reactive forms in Angular 21/22.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 40,
+            "tags": [
+              "signal-forms",
+              "forms",
+              "validation",
+              "signals",
+              "angular-22"
             ]
           }
         ]
@@ -855,7 +919,7 @@
   {
     "id": "javascript",
     "title": "JavaScript",
-    "description": "Scope, closures, the event loop, prototypes, and the performance patterns interviewers love to probe.",
+    "description": "Modern JavaScript for interviews: scope, closures, the event loop, async cancellation, modules, performance, and production debugging patterns.",
     "icon": "javascript",
     "order": 2,
     "categories": [
@@ -2032,7 +2096,7 @@
   {
     "id": "typescript",
     "title": "TypeScript",
-    "description": "Interfaces, generics, utility types, and the type-system tricks senior interviews probe for.",
+    "description": "TypeScript 5/6 type-system mastery: generics, literal inference, satisfies, NoInfer, const type parameters, resource management, and safe API boundaries.",
     "icon": "typescript",
     "order": 3,
     "categories": [
@@ -2478,6 +2542,21 @@
               "record",
               "dictionary"
             ]
+          },
+          {
+            "id": "ts-const-type-parameters",
+            "categoryId": "ts-generics-utility",
+            "title": "Const Type Parameters",
+            "description": "Using const type parameters (const T) to preserve literal types through generic helpers — a TypeScript 5+ interview favorite.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "const-type-parameters",
+              "literals",
+              "generics",
+              "typescript-5"
+            ]
           }
         ]
       },
@@ -2730,6 +2809,36 @@
               "interface",
               "augmentation"
             ]
+          },
+          {
+            "id": "ts-noinfer",
+            "categoryId": "ts-advanced-types",
+            "title": "NoInfer and Inference Control",
+            "description": "Controlling generic inference with NoInfer so one parameter does not accidentally poison another — TypeScript 5.4+.",
+            "difficulty": "advanced",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 20,
+            "tags": [
+              "NoInfer",
+              "inference",
+              "generics",
+              "typescript-5"
+            ]
+          },
+          {
+            "id": "ts-using-resource-management",
+            "categoryId": "ts-advanced-types",
+            "title": "await using and Resource Management",
+            "description": "Explicit Resource Management with using / await using for deterministic cleanup in TypeScript and modern runtimes.",
+            "difficulty": "advanced",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 25,
+            "tags": [
+              "using",
+              "Disposable",
+              "resource-management",
+              "typescript-5"
+            ]
           }
         ]
       }
@@ -2738,7 +2847,7 @@
   {
     "id": "ui",
     "title": "UI Engineering",
-    "description": "HTML5, CSS, SCSS, and responsive design fundamentals for building accessible, adaptive interfaces.",
+    "description": "UI Engineering for accessible, responsive interfaces: modern CSS (grid, container queries, cascade layers), SCSS architecture, and design tokens.",
     "icon": "ui",
     "order": 4,
     "categories": [
@@ -3770,7 +3879,7 @@
   {
     "id": "system-design",
     "title": "Frontend System Design",
-    "description": "50 lead-level architecture questions covering domain architecture, caching, performance, security, auth, state, complex data flows, platform architecture, quality and delivery for Senior/Lead interviews.",
+    "description": "Frontend system design for leads: domain boundaries, caching, performance, security, state, delivery — plus in-product LLM feature architecture.",
     "icon": "system-design",
     "order": 5,
     "categories": [
@@ -3907,6 +4016,22 @@
               "scenario-based",
               "architect",
               "frontend-platform-and-golden-path"
+            ]
+          },
+          {
+            "id": "sd-frontend-llm-feature-architecture",
+            "categoryId": "sd-foundations",
+            "title": "Designing LLM Features in a Frontend App",
+            "description": "Architecture for in-product AI: BFF proxying, streaming UX, context assembly, failure modes, and cost controls for apps like Skill Hunter.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 40,
+            "tags": [
+              "llm",
+              "bff",
+              "streaming",
+              "architecture",
+              "cost"
             ]
           }
         ]
@@ -4634,7 +4759,7 @@
   {
     "id": "design-patterns",
     "title": "Design Patterns",
-    "description": "JavaScript and Angular design patterns, SOLID principles, dependency injection, trade-offs and simple practical implementations.",
+    "description": "Design patterns and SOLID for JavaScript/Angular codebases — practical trade-offs, not pattern trivia.",
     "icon": "design-patterns",
     "order": 6,
     "categories": [
@@ -5413,7 +5538,7 @@
   {
     "id": "ai-concepts",
     "title": "AI Concepts",
-    "description": "AI and LLM fundamentals explained in simple human language, including transformers, prompting, embeddings, vector search, RAG types, agents, evaluation, security, production design, System One decision models, and 2026 research on test-time reasoning and multi-agent organizations.",
+    "description": "Current AI/LLM literacy for product engineers: transformers, prompting, RAG, agents, MCP, reasoning models, multimodal, evals, security, and production design.",
     "icon": "🤖",
     "order": 7,
     "categories": [
@@ -5492,6 +5617,37 @@
               "ai-concepts",
               "foundations",
               "model-scale-and-capability"
+            ]
+          },
+          {
+            "id": "ai-reasoning-models",
+            "categoryId": "ai-foundations",
+            "title": "Reasoning and Thinking Models",
+            "description": "How modern reasoning models differ from fast chat models, when to use them, and how they change latency, cost, and product UX.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 30,
+            "tags": [
+              "reasoning-models",
+              "thinking",
+              "latency",
+              "cost",
+              "product"
+            ]
+          },
+          {
+            "id": "ai-multimodal-models",
+            "categoryId": "ai-foundations",
+            "title": "Multimodal Models",
+            "description": "Models that accept images, audio, or video with text — practical frontend use cases, limits, and privacy concerns.",
+            "difficulty": "intermediate",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 25,
+            "tags": [
+              "multimodal",
+              "vision",
+              "audio",
+              "privacy"
             ]
           }
         ]
@@ -5888,6 +6044,22 @@
               "agents",
               "agent-memory-and-the-model-context-protocol"
             ]
+          },
+          {
+            "id": "ai-mcp-for-product-engineers",
+            "categoryId": "ai-agents",
+            "title": "MCP for Product Engineers",
+            "description": "Model Context Protocol as a product surface: tools, resources, prompts, auth boundaries, and how apps like Skill Hunter expose skills safely.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "mcp",
+              "tools",
+              "agents",
+              "skills",
+              "security"
+            ]
           }
         ]
       },
@@ -6204,6 +6376,22 @@
               "production",
               "model-routing-and-fallback"
             ]
+          },
+          {
+            "id": "ai-prompt-and-context-caching",
+            "categoryId": "ai-production",
+            "title": "Prompt and Context Caching",
+            "description": "Provider prompt caching and application-level response caching — cutting cost and latency for repeated system prompts and stable context.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 30,
+            "tags": [
+              "caching",
+              "prompt-caching",
+              "latency",
+              "cost",
+              "production"
+            ]
           }
         ]
       },
@@ -6289,8 +6477,8 @@
       {
         "id": "ai-research-frontiers",
         "subjectId": "ai-concepts",
-        "title": "2026 Research Frontiers",
-        "description": "Test-time reasoning, stability-aware adaptation, self-organizing agent organizations, inference-time workflow graphs, and token-budget scaling.",
+        "title": "Research Frontiers (2025–2026)",
+        "description": "Emerging research themes shaping agents, evaluation, and adaptive systems — framed for engineers, not hype.",
         "order": 12,
         "topics": [
           {

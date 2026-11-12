@@ -1,6 +1,6 @@
 # Skill Hunter MCP server
 
-A [Model Context Protocol](https://modelcontextprotocol.io) server that exposes Skill Hunter learning topics to VS Code, Cursor, and other MCP hosts. It implements the 2026-07-28 protocol revision.
+A [Model Context Protocol](https://modelcontextprotocol.io) server that exposes Skill Hunter learning skills (curated interview topics) to VS Code, Cursor, and other MCP hosts. It implements the 2026-07-28 protocol revision and covers current Angular 22, TypeScript, AI/MCP, and frontend LLM architecture skills.
 
 Hosts connect the same way they add Azure DevOps or Figma: paste a URL (and an optional PAT-style token). The Angular app does not talk to MCP directly.
 
