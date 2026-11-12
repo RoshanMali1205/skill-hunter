@@ -154,8 +154,9 @@ export function buildServer(
             type: 'text' as const,
             text: [
               `Create one Frontend Architect interview question about ${topic}.`,
-              'Include a practical Angular scenario.',
-              'Ask about trade-offs, security, performance and testing.',
+              'Assume current defaults unless I say otherwise: Angular 22 (standalone, OnPush/zoneless, signals), TypeScript 5/6, and modern browser APIs.',
+              'Include a practical production scenario (not trivia).',
+              'Ask about trade-offs, security, performance, and testing.',
               'Do not provide the answer until I attempt it.',
             ].join('\n'),
           },

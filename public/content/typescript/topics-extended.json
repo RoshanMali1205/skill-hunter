@@ -1865,5 +1865,228 @@
         "explanation": "One poorly typed boundary can weaken many otherwise well-typed consumers."
       }
     ]
+  },
+  {
+    "id": "ts-const-type-parameters",
+    "subjectId": "typescript",
+    "categoryId": "ts-generics-utility",
+    "title": "Const Type Parameters",
+    "description": "Using const type parameters (const T) to preserve literal types through generic helpers — a TypeScript 5+ interview favorite.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 25,
+    "tags": [
+      "const-type-parameters",
+      "literals",
+      "generics",
+      "typescript-5"
+    ],
+    "blocks": [
+      {
+        "id": "ts-ctp-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Why generics widen literals",
+        "content": "Ordinary type parameters often widen literal values. `const` type parameters tell TypeScript to infer the most specific literal type it can, which is useful for route maps, event name registries, and UI token catalogs.\n\nAnalogy: without `const`, TypeScript stores your shopping list as “food.” With `const`, it keeps “oats, mangoes, yogurt.”",
+        "keyPoints": [
+          "`const T` preserves literal inference through generics.",
+          "Useful for APIs that return keys derived from inputs.",
+          "Prefer it when callers pass object/array literals they want typed precisely."
+        ]
+      },
+      {
+        "id": "ts-ctp-code-1",
+        "type": "code-example",
+        "order": 2,
+        "title": "Preserving keys with const type parameters",
+        "language": "typescript",
+        "code": "function defineRoutes<const T extends Record<string, string>>(routes: T) {\n  return routes;\n}\n\nconst routes = defineRoutes({\n  home: '/',\n  topic: '/topics/:id',\n});\n\n// typeof routes.home is '/' not string",
+        "explanation": "`const T` keeps the literal path values instead of widening them to string."
+      },
+      {
+        "id": "ts-ctp-q-1",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "When do const type parameters matter in application code?",
+        "answer": "When a helper accepts a literal configuration object and later code depends on those exact keys or values — routers, i18n dictionaries, permission maps, and design-token registries. If values are already typed variables, `const` may not change much.",
+        "explanation": "Interviewers look for concrete API design examples."
+      },
+      {
+        "id": "ts-ctp-tricky-as-const",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "const T vs as const",
+        "question": "Is const T the same as writing as const on the argument?",
+        "answer": "They overlap but are not identical. `as const` asserts a specific value as deeply readonly/literal at the call site. A `const` type parameter makes the generic function itself request literal inference for that parameter, so every caller benefits without remembering `as const`.",
+        "explanation": "Library authors often prefer `const` type parameters for better DX.\n\n[Further reading](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters)",
+        "hints": [
+          "Who controls the inference — caller or API?",
+          "Think about reusable helpers."
+        ]
+      },
+      {
+        "id": "ts-ctp-mistake-1",
+        "type": "common-mistake",
+        "order": 5,
+        "title": "Common mistake",
+        "mistake": "Adding const type parameters everywhere “for strictness.”",
+        "whyItHappens": "It can make APIs harder to satisfy with non-literal values and produce noisy types.",
+        "correctApproach": "Use `const T` where literal preservation is part of the API contract."
+      },
+      {
+        "id": "ts-ctp-summary-1",
+        "type": "summary",
+        "order": 6,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- `const` type parameters preserve literal inference.\n- Great for config registries and typed key maps.\n- Not a blanket replacement for `as const`.\n\nOfficial references\n\n- https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html#const-type-parameters"
+      }
+    ]
+  },
+  {
+    "id": "ts-noinfer",
+    "subjectId": "typescript",
+    "categoryId": "ts-advanced-types",
+    "title": "NoInfer and Inference Control",
+    "description": "Controlling generic inference with NoInfer so one parameter does not accidentally poison another — TypeScript 5.4+.",
+    "difficulty": "advanced",
+    "interviewPriority": "medium",
+    "estimatedMinutes": 20,
+    "tags": [
+      "NoInfer",
+      "inference",
+      "generics",
+      "typescript-5"
+    ],
+    "blocks": [
+      {
+        "id": "ts-ni-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Stop the wrong argument from winning inference",
+        "content": "`NoInfer<T>` marks a usage of `T` that should not be a candidate for inferring `T`. This helps when a default value or secondary argument would otherwise widen or conflict with the primary source of inference.\n\nAnalogy: the first speaker at a meeting sets the agenda; `NoInfer` tells the second speaker not to rewrite the agenda by accident.",
+        "keyPoints": [
+          "`NoInfer<T>` blocks a site from contributing to inferring T.",
+          "Useful in defaults, fallbacks, and comparison helpers.",
+          "Improves API ergonomics without forcing callers to annotate."
+        ]
+      },
+      {
+        "id": "ts-ni-code-1",
+        "type": "code-example",
+        "order": 2,
+        "title": "Default value that should not widen T",
+        "language": "typescript",
+        "code": "function lookup<T extends string>(\n  key: T,\n  fallback: NoInfer<T> | undefined = undefined,\n) {\n  return fallback;\n}\n\n// key infers 'admin' instead of being widened by a broader fallback type\nlookup('admin');",
+        "explanation": "Without `NoInfer`, fallback positions often participate in inference and widen `T` unexpectedly."
+      },
+      {
+        "id": "ts-ni-q-1",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "How would you explain NoInfer to a teammate who only knows basic generics?",
+        "answer": "Sometimes TypeScript looks at every argument to guess a type parameter. `NoInfer` says “use this type, but do not guess the type parameter from this argument.” It keeps defaults and secondary parameters from making the API infer something wider or conflicting.",
+        "explanation": "Plain-language explanations beat reciting release notes."
+      },
+      {
+        "id": "ts-ni-tricky-vs-constraint",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Constraints vs NoInfer",
+        "question": "Can a tighter constraint replace NoInfer?",
+        "answer": "Not always. Constraints limit what `T` may be, but they do not stop a secondary parameter from participating in inferring `T`. `NoInfer` specifically controls inference sites.",
+        "explanation": "Constraints and inference control solve different problems.\n\n[Further reading](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type)",
+        "hints": [
+          "Constraints bound the type.",
+          "NoInfer controls where inference reads from."
+        ]
+      },
+      {
+        "id": "ts-ni-summary-1",
+        "type": "summary",
+        "order": 5,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- `NoInfer<T>` excludes a position from inferring T.\n- Use it for defaults/fallbacks in generic APIs.\n- Different from constraints and `as const`.\n\nOfficial references\n\n- https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type"
+      }
+    ]
+  },
+  {
+    "id": "ts-using-resource-management",
+    "subjectId": "typescript",
+    "categoryId": "ts-advanced-types",
+    "title": "await using and Resource Management",
+    "description": "Explicit Resource Management with using / await using for deterministic cleanup in TypeScript and modern runtimes.",
+    "difficulty": "advanced",
+    "interviewPriority": "medium",
+    "estimatedMinutes": 25,
+    "tags": [
+      "using",
+      "Disposable",
+      "resource-management",
+      "typescript-5"
+    ],
+    "blocks": [
+      {
+        "id": "ts-using-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Deterministic cleanup as language syntax",
+        "content": "`using` and `await using` implement Explicit Resource Management: values with `[Symbol.dispose]` or `[Symbol.asyncDispose]` are cleaned up automatically when a block exits, including on thrown errors.\n\nAnalogy: it is a built-in try/finally for objects that know how to close themselves — files, locks, temporary subscriptions, or test sandboxes.",
+        "keyPoints": [
+          "`using` disposes resources when the block ends.",
+          "Works with sync and async disposal protocols.",
+          "Helps avoid leaked handles in scripts, tests, and tooling.",
+          "Browser support depends on runtime/polyfills; Node and modern tooling are the common homes today."
+        ]
+      },
+      {
+        "id": "ts-using-code-1",
+        "type": "code-example",
+        "order": 2,
+        "title": "await using a temporary resource",
+        "language": "typescript",
+        "code": "class TempDir implements AsyncDisposable {\n  constructor(readonly path: string) {}\n  async [Symbol.asyncDispose]() {\n    await fs.rm(this.path, { recursive: true, force: true });\n  }\n}\n\nasync function run() {\n  await using dir = new TempDir('/tmp/skill-hunter-demo');\n  // work with dir.path\n} // automatically disposed",
+        "explanation": "The dispose method runs when `run` exits, success or failure."
+      },
+      {
+        "id": "ts-using-q-1",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "Would you use await using in an Angular UI component today?",
+        "answer": "Usually not as the primary lifetime model. Angular already has `DestroyRef`, `takeUntilDestroyed`, and signal/effect cleanup. `using` is more natural in Node scripts, build tooling, tests, and backend-ish TypeScript. In the browser I would adopt it only with clear runtime support and a disposable that maps cleanly to component teardown.",
+        "explanation": "Good answers separate language features from framework lifetime APIs."
+      },
+      {
+        "id": "ts-using-tricky-order",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Disposal order",
+        "question": "If two using bindings are declared in one block, in what order do they dispose?",
+        "answer": "They dispose in reverse order of declaration — like stacked try/finally blocks — so later resources that depend on earlier ones can close first.",
+        "explanation": "Disposal order matters when resources nest (connection then transaction, directory then file).\n\n[Further reading](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html#using-declarations-and-explicit-resource-management)",
+        "hints": [
+          "Think stack discipline.",
+          "Later resources often depend on earlier ones."
+        ]
+      },
+      {
+        "id": "ts-using-mistake-1",
+        "type": "common-mistake",
+        "order": 5,
+        "title": "Common mistake",
+        "mistake": "Forgetting that dispose can itself throw and must be written defensively.",
+        "whyItHappens": "Cleanup code is easy to treat as best-effort and then hides the original error or fails tests intermittently.",
+        "correctApproach": "Keep dispose idempotent and simple; log secondary failures carefully."
+      },
+      {
+        "id": "ts-using-summary-1",
+        "type": "summary",
+        "order": 6,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- `using` / `await using` automate disposal.\n- Implement `Disposable` / `AsyncDisposable`.\n- Dispose order is reverse declaration order.\n- Prefer Angular lifetime APIs in UI code.\n\nOfficial references\n\n- https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html#using-declarations-and-explicit-resource-management"
+      }
+    ]
   }
 ]

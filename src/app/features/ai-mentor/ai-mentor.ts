@@ -45,28 +45,28 @@ const QUICK_PROMPTS: QuickPrompt[] = [
     label: 'Explain it simply',
     description: 'A real-life analogy, one practical example, and why it matters in interviews.',
     prompt:
-      'Explain this concept in simple everyday language. Start with a real-life analogy, then give one practical coding/UI example, say why it matters in interviews, and end with 2 short questions to check my deep understanding. If I have a current topic in context, use that topic; otherwise pick closures.',
+      'Explain this concept in simple everyday language using current Angular 22 / TypeScript 5+ / modern frontend defaults where relevant. Start with a real-life analogy, then give one practical coding/UI example, say why it matters in interviews, and end with 2 short questions to check my deep understanding. If I have a current topic in context, use that topic; otherwise pick signals.',
   },
   {
     icon: 'target',
     label: 'Quiz me',
     description: 'One realistic interview question. I answer first, then you give feedback.',
     prompt:
-      'Ask me one realistic frontend interview question (use my current topic if I have one). Wait for my answer before revealing yours. After I answer, tell me what was strong, what I missed, give a better simple answer, and ask one follow-up that checks deeper understanding.',
+      'Ask me one realistic interview question for my current topic (or a current Angular 22 / modern frontend topic if I have none). Wait for my answer before revealing yours. After I answer, tell me what was strong, what I missed, give a better simple answer, and ask one follow-up that checks deeper understanding.',
   },
   {
     icon: 'file-pen',
     label: 'Review my answer',
     description: 'Paste your answer and get honest, friendly feedback.',
     draft:
-      'Here is my answer to an interview question. Please tell me what is strong, what is missing, and how to say it better.\n\nQuestion: \n\nMy answer: ',
+      'Here is my answer to an interview question. Please tell me what is strong, what is missing, and how to say it better with current best practices.\n\nQuestion: \n\nMy answer: ',
   },
   {
     icon: 'flame',
     label: 'Common traps',
     description: 'Mistakes people make and the follow-up questions interviewers love.',
     prompt:
-      'What are the most common mistakes candidates make on this topic (use my current topic if I have one, otherwise closures), and what follow-up questions do interviewers usually ask? Keep it short and practical.',
+      'What are the most common mistakes candidates make on this topic (use my current topic if I have one, otherwise httpResource vs HttpClient), and what follow-up questions do interviewers usually ask? Keep it short, practical, and aligned with current Angular 22 / modern AI-aware frontend practice.',
   },
 ];
 
