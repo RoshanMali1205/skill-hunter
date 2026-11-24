@@ -1,4 +1,64 @@
-.subject-list__subtitle {
-  color: var(--color-text-muted);
-  margin-top: var(--space-1);
+@use 'breakpoints' as *;
+
+.subject-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 1120px;
+}
+
+.subject-list__intro {
+  p {
+    margin-top: var(--space-1);
+    max-width: 46rem;
+    color: var(--color-text-muted);
+  }
+}
+
+.subject-list__track {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.subject-list__track-head {
+  h2 {
+    font-size: 1.15rem;
+  }
+
+  p {
+    margin-top: 2px;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+}
+
+.subject-list__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: stretch;
+
+  @include respond-to(tablet) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    &[data-count='1'] {
+      grid-template-columns: minmax(0, 420px);
+    }
+  }
+
+  @include respond-to(desktop) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    &[data-count='1'] {
+      grid-template-columns: minmax(0, 420px);
+    }
+
+    // Pairs and a set of four read better as two wide columns than as a row with a gap.
+    &[data-count='2'],
+    &[data-count='4'] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
 }

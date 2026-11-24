@@ -1,23 +1,35 @@
 @use 'mixins' as *;
 
-.subject-card {
-  @include card-interactive;
-  background: var(--gradient-tile);
+:host {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+}
+
+.subject-card {
+  @include card-interactive;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   gap: var(--space-3);
-  padding: var(--space-5) var(--space-4) var(--space-4);
+  padding: var(--space-4);
   text-decoration: none;
   color: var(--color-text);
-  border-top: 3px solid var(--accent, var(--color-primary));
-  height: 100%;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--accent, var(--color-primary)) 18%, var(--color-surface)) 0%,
+      var(--color-surface) 62%
+    ),
+    var(--color-surface);
+  border-color: color-mix(in srgb, var(--accent, var(--color-border)) 28%, var(--color-border));
 
   h3 {
-    letter-spacing: -0.01em;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    overflow: hidden;
+    letter-spacing: -0.02em;
+    font-size: 1.15rem;
   }
 }
 
@@ -25,13 +37,43 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: var(--radius-md);
-  font-size: 1.4rem;
-  background: var(--gradient-primary);
-  color: var(--color-primary-contrast);
-  box-shadow: var(--shadow-primary);
+  font-size: 1.45rem;
+  background: color-mix(in srgb, var(--accent, var(--color-primary)) 18%, var(--color-surface));
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--accent, var(--color-primary)) 35%, transparent);
+}
+
+.subject-card__areas {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+
+  li {
+    min-width: 0;
+    max-width: 100%;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent, var(--color-primary)) 12%, var(--color-surface));
+    color: var(--color-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.subject-card__areas li.subject-card__more {
+  color: var(--color-text-muted);
+  background: var(--color-surface-alt);
 }
 
 .subject-card__description {
@@ -50,4 +92,14 @@ app-progress-bar {
 .subject-card__count {
   font-size: 0.85rem;
   color: var(--color-text-muted);
+}
+
+// Flat styles keep a solid card; the subject color stays on the icon and the edge.
+:host-context([data-ui-style='brutalism']) .subject-card {
+  background: var(--color-surface);
+  border-top: 4px solid var(--accent, var(--brut-ink));
+}
+
+:host-context([data-ui-style='neumorphic']) .subject-card {
+  background: var(--color-surface);
 }

@@ -1,17 +1,25 @@
-<div class="stack">
-  <div>
+<div class="subject-list">
+  <header class="subject-list__intro">
     <h1>Subjects</h1>
-    <p class="subject-list__subtitle">Pick an area to prepare systematically.</p>
-  </div>
+    <p>Choose a track, then a subject. Each card shows the areas waiting inside it.</p>
+  </header>
 
-  <div class="grid-cards">
-    @for (item of subjectMetrics(); track item.subject.id) {
-      <app-subject-card
-        [subject]="item.subject"
-        [completed]="item.completed"
-        [total]="item.total"
-        [percentage]="item.percentage"
-      />
-    }
-  </div>
+  @for (track of tracks(); track track.id) {
+    <section class="subject-list__track" [attr.aria-labelledby]="'track-' + track.id">
+      <header class="subject-list__track-head">
+        <h2 [id]="'track-' + track.id">{{ track.title }}</h2>
+        <p>{{ track.blurb }}</p>
+      </header>
+      <div class="subject-list__grid" [attr.data-count]="track.items.length">
+        @for (item of track.items; track item.subject.id) {
+          <app-subject-card
+            [subject]="item.subject"
+            [completed]="item.completed"
+            [total]="item.total"
+            [percentage]="item.percentage"
+          />
+        }
+      </div>
+    </section>
+  }
 </div>

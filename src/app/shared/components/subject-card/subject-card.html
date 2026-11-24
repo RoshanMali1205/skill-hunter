@@ -5,7 +5,18 @@
 >
   <span class="subject-card__icon" aria-hidden="true">{{ visual().emoji }}</span>
   <h3>{{ subject().title }}</h3>
-  <p class="subject-card__description">{{ subject().description }}</p>
+  @if (areas().length > 0) {
+    <ul class="subject-card__areas">
+      @for (area of areas(); track area) {
+        <li>{{ area }}</li>
+      }
+      @if (extraAreas() > 0) {
+        <li class="subject-card__more">+{{ extraAreas() }} more</li>
+      }
+    </ul>
+  } @else {
+    <p class="subject-card__description">{{ subject().description }}</p>
+  }
   <app-progress-bar [percentage]="percentage()" />
   <p class="subject-card__count">{{ completed() }} / {{ total() }} topics completed</p>
 </a>
