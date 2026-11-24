@@ -3,8 +3,10 @@ import {
   ElementRef,
   HostListener,
   OnDestroy,
+  Renderer2,
   inject,
   input,
+  signal,
 } from '@angular/core';
 
 type TooltipPos = 'top' | 'bottom' | 'right';
@@ -16,6 +18,9 @@ type TooltipAlign = 'center' | 'end';
  *
  * On touch / coarse-pointer devices tooltips are suppressed — aria-labels
  * already cover accessibility, and tap+focus otherwise leaves sticky tips.
+ * Listeners are not registered there at all: iOS treats mouseenter on a
+ * control as "this tap is hover" and never fires click, so More-sheet links
+ * (Settings and the rest) do not navigate in the installed iPhone app.
  */
 @Directive({
   selector: '[appTooltip]',
@@ -25,6 +30,8 @@ type TooltipAlign = 'center' | 'end';
 })
 export class TooltipDirective implements OnDestroy {
   private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly renderer = inject(Renderer2);
+  private readonly unlisten: Array<() => void> = [];
 
   readonly appTooltip = input.required<string>();
   readonly tooltipPos = input<TooltipPos>('top');
@@ -32,32 +39,30 @@ export class TooltipDirective implements OnDestroy {
 
   private tipEl: HTMLDivElement | null = null;
   private tipId = `tip-${Math.random().toString(36).slice(2, 9)}`;
+  private readonly describedById = signal<string | null>(null);
+
+  constructor() {
+    if (!this.supportsHoverTooltips()) return;
+    const el = this.host.nativeElement;
+    this.unlisten.push(
+      this.renderer.listen(el, 'mouseenter', () => this.show()),
+      this.renderer.listen(el, 'focus', () => this.show()),
+      this.renderer.listen(el, 'mouseleave', () => this.hide()),
+      this.renderer.listen(el, 'blur', () => this.hide()),
+      this.renderer.listen(el, 'click', () => this.hide()),
+      this.renderer.listen(el, 'pointerdown', () => this.hide()),
+    );
+  }
 
   get describedBy(): string | null {
-    return this.tipEl ? this.tipId : null;
+    return this.describedById();
   }
 
-  @HostListener('mouseenter')
-  onMouseEnter(): void {
-    if (!this.supportsHoverTooltips()) return;
-    this.show();
-  }
-
-  @HostListener('focus')
-  onFocus(): void {
-    // Keyboard focus only — ignore post-tap focus on phones.
-    if (!this.supportsHoverTooltips()) return;
-    this.show();
-  }
-
-  @HostListener('mouseleave')
-  @HostListener('blur')
-  @HostListener('click')
-  @HostListener('pointerdown')
   hide(): void {
     if (!this.tipEl) return;
     this.tipEl.remove();
     this.tipEl = null;
+    this.describedById.set(null);
   }
 
   @HostListener('window:scroll', ['$event'])
@@ -76,6 +81,7 @@ export class TooltipDirective implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    for (const stop of this.unlisten) stop();
     this.hide();
   }
 
@@ -91,6 +97,7 @@ export class TooltipDirective implements OnDestroy {
     tip.textContent = text;
     document.body.appendChild(tip);
     this.tipEl = tip;
+    this.describedById.set(this.tipId);
     this.place(tip);
     requestAnimationFrame(() => tip.classList.add('app-tooltip--visible'));
   }
@@ -138,10 +145,7 @@ export class TooltipDirective implements OnDestroy {
 
     // Point arrow toward the trigger center when possible.
     const triggerCenterX = rect.left + rect.width / 2;
-    const arrowX = Math.min(
-      Math.max(12, triggerCenterX - left),
-      tipRect.width - 12,
-    );
+    const arrowX = Math.min(Math.max(12, triggerCenterX - left), tipRect.width - 12);
     tip.style.setProperty('--arrow-x', `${Math.round(arrowX)}px`);
   }
 }

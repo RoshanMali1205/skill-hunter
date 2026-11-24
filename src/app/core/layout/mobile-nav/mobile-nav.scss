@@ -41,10 +41,12 @@
   font-size: 0.7rem;
   font-weight: 600;
   cursor: pointer;
+  touch-action: manipulation;
   position: relative;
 
   app-icon {
     font-size: 1.3rem;
+    pointer-events: none;
   }
 
   &--active {
@@ -62,12 +64,9 @@
   }
 }
 
-.mobile-nav__backdrop {
+.mobile-nav__overlay {
   position: fixed;
   inset: 0;
-  border: none;
-  padding: 0;
-  background: rgba(10, 11, 20, 0.45);
   z-index: 21;
 
   @include respond-to(desktop) {
@@ -75,12 +74,21 @@
   }
 }
 
+.mobile-nav__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: none;
+  padding: 0;
+  background: rgba(10, 11, 20, 0.45);
+}
+
 .mobile-nav__sheet {
-  position: fixed;
+  position: absolute;
   left: var(--space-3);
   right: var(--space-3);
   bottom: calc(var(--mobile-nav-offset) + var(--space-3));
-  z-index: 22;
+  z-index: 1;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -95,10 +103,6 @@
     100dvh - var(--mobile-nav-offset) - var(--space-5) - env(safe-area-inset-top, 0px)
   );
   overflow: hidden;
-
-  @include respond-to(desktop) {
-    display: none;
-  }
 }
 
 .mobile-nav__sheet-head {
@@ -154,14 +158,21 @@
   color: var(--color-text);
   text-decoration: none;
   font-weight: 600;
+  // iOS will not synthesize a click on the first tap unless the row is an
+  // obvious control and double-tap zoom is turned off.
+  cursor: pointer;
+  touch-action: manipulation;
 
   app-icon {
     font-size: 1.1rem;
     color: var(--color-text-muted);
+    pointer-events: none;
   }
 
-  &:hover {
-    background: var(--color-surface-alt);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--color-surface-alt);
+    }
   }
 
   &--active {

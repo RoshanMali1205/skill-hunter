@@ -9,12 +9,26 @@
   align-items: center;
   gap: var(--space-3);
   padding-inline: var(--space-4);
-  background: var(--header-wash), color-mix(in srgb, var(--color-surface) 92%, transparent);
-  backdrop-filter: blur(12px);
+  // Blur sits on ::before. backdrop-filter on this bar makes it the containing
+  // block for the account menu, and iOS then drops taps on rows that paint
+  // outside the bar (Settings, Achievements, Log out).
+  background: transparent;
   border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 20;
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--header-wash), color-mix(in srgb, var(--color-surface) 92%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    pointer-events: none;
+  }
 }
 
 .header__brand {
@@ -336,14 +350,18 @@
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
+  touch-action: manipulation;
   text-align: left;
 
   app-icon {
     color: var(--color-text-muted);
+    pointer-events: none;
   }
 
-  &:hover {
-    background: var(--color-surface-alt);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--color-surface-alt);
+    }
   }
 
   &--danger {
@@ -353,8 +371,10 @@
       color: var(--color-danger);
     }
 
-    &:hover {
-      background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+      }
     }
   }
 }

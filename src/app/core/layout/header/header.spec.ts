@@ -1,6 +1,6 @@
-import { signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AchievementsService } from '../../services/achievements.service';
 import { ActivityService } from '../../services/activity.service';
@@ -9,6 +9,9 @@ import { ContentService } from '../../services/content.service';
 import { ProfileService } from '../../services/profile.service';
 import { SettingsService } from '../../services/settings.service';
 import { HeaderComponent } from './header';
+
+@Component({ template: '' })
+class RouteStubComponent {}
 
 describe('HeaderComponent', () => {
   const user = signal<{ id: string; name: string } | null>({ id: 'u1', name: 'Ada' });
@@ -22,7 +25,7 @@ describe('HeaderComponent', () => {
     TestBed.configureTestingModule({
       imports: [HeaderComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([{ path: 'settings', component: RouteStubComponent }]),
         { provide: AuthService, useValue: { user, logout: vi.fn() } },
         {
           provide: ProfileService,
@@ -74,6 +77,27 @@ describe('HeaderComponent', () => {
     Object.defineProperty(typing, 'target', { value: document.createElement('input') });
     component.onGlobalKeydown(typing);
     expect(component.mobileSearchOpen()).toBe(false);
+  });
+
+  it('opens Settings from the account menu on the first click', async () => {
+    const fixture = TestBed.createComponent(HeaderComponent);
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('.header__user-trigger') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const settings = Array.from(root.querySelectorAll('a.header__user-menu-item')).find((item) =>
+      item.textContent?.includes('Settings'),
+    ) as HTMLAnchorElement | undefined;
+    expect(settings?.getAttribute('href')).toBe('/settings');
+
+    settings!.click();
+    await fixture.whenStable();
+    expect(TestBed.inject(Router).url).toBe('/settings');
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.menuOpen()).toBe(false);
   });
 
   it('ignores global shortcuts for signed-out users', () => {

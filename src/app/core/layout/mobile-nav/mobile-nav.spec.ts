@@ -17,6 +17,7 @@ describe('MobileNavComponent', () => {
         provideRouter([
           { path: 'notes', component: RouteStubComponent },
           { path: 'dashboard', component: RouteStubComponent },
+          { path: 'settings', component: RouteStubComponent },
         ]),
       ],
     });
@@ -37,6 +38,29 @@ describe('MobileNavComponent', () => {
     expect(component.moreOpen()).toBe(false);
   });
 
+  it('navigates to Settings from the More sheet on the first click', async () => {
+    const fixture = TestBed.createComponent(MobileNavComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.toggleMore();
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const settings = Array.from(root.querySelectorAll('a.mobile-nav__sheet-link')).find((anchor) =>
+      anchor.textContent?.includes('Settings'),
+    ) as HTMLAnchorElement | undefined;
+    expect(settings?.getAttribute('href')).toBe('/settings');
+
+    settings!.click();
+    await fixture.whenStable();
+    expect(router.url).toBe('/settings');
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.moreOpen()).toBe(false);
+    expect(document.documentElement.style.overflow).toBe('');
+    expect(document.body.style.overflow).toBe('');
+  });
+
   it('marks More active for overflow routes', async () => {
     const component = TestBed.createComponent(MobileNavComponent).componentInstance;
     await router.navigateByUrl('/notes');
@@ -49,6 +73,7 @@ describe('MobileNavComponent', () => {
     beforeEach(() => vi.useFakeTimers());
     afterEach(() => {
       vi.useRealTimers();
+      document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
     });
 
@@ -71,7 +96,8 @@ describe('MobileNavComponent', () => {
       expect(sheet.getAttribute('aria-modal')).toBe('true');
       expect(sheet.querySelector('.mobile-nav__sheet-close')).not.toBeNull();
       expect(sheet.contains(document.activeElement)).toBe(true);
-      expect(document.body.style.overflow).toBe('hidden');
+      expect(document.documentElement.style.overflow).toBe('hidden');
+      expect(document.body.style.overflow).toBe('');
     });
 
     it('closes on Escape and returns focus to the More button', () => {

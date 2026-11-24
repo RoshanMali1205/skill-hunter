@@ -1,39 +1,41 @@
 @if (moreOpen()) {
-  <button
-    type="button"
-    class="mobile-nav__backdrop"
-    aria-label="Close menu"
-    tabindex="-1"
-    (click)="closeMore(true)"
-  ></button>
-  <div
-    #sheet
-    class="mobile-nav__sheet"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="mobile-more-title"
-  >
-    <div class="mobile-nav__sheet-head">
-      <h2 id="mobile-more-title">More</h2>
-      <button type="button" class="mobile-nav__sheet-close" (click)="closeMore(true)">
-        <app-icon name="x" />
-        <span>Close</span>
-      </button>
-    </div>
-    <div class="mobile-nav__sheet-list">
-      @for (item of moreItems; track item.path) {
-        <a
-          [routerLink]="item.path"
-          routerLinkActive="mobile-nav__sheet-link--active"
-          class="mobile-nav__sheet-link"
-          [appTooltip]="item.hint"
-          tooltipPos="top"
-          (click)="closeMore()"
-        >
-          <app-icon [name]="item.icon" />
-          <span>{{ item.label }}</span>
-        </a>
-      }
+  <div class="mobile-nav__overlay">
+    <button
+      type="button"
+      class="mobile-nav__backdrop"
+      aria-label="Close menu"
+      tabindex="-1"
+      (click)="closeMore(true)"
+    ></button>
+    <div
+      #sheet
+      class="mobile-nav__sheet"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="mobile-more-title"
+    >
+      <div class="mobile-nav__sheet-head">
+        <h2 id="mobile-more-title">More</h2>
+        <button type="button" class="mobile-nav__sheet-close" (click)="closeMore(true)">
+          <app-icon name="x" />
+          <span>Close</span>
+        </button>
+      </div>
+      <div class="mobile-nav__sheet-list">
+        @for (item of moreItems; track item.path) {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="mobile-nav__sheet-link--active"
+            class="mobile-nav__sheet-link"
+            [appTooltip]="item.hint"
+            tooltipPos="top"
+            (click)="closeAfterNavigation()"
+          >
+            <app-icon [name]="item.icon" />
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      </div>
     </div>
   </div>
 }
@@ -44,7 +46,7 @@
       [routerLink]="item.path"
       routerLinkActive="mobile-nav__link--active"
       class="mobile-nav__link"
-      (click)="closeMore()"
+      (click)="closeAfterNavigation()"
     >
       <app-icon [name]="item.icon" />
       <span>{{ item.label }}</span>
