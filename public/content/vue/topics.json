@@ -1,0 +1,1675 @@
+[
+  {
+    "id": "vue-sfc-script-setup",
+    "subjectId": "vue",
+    "categoryId": "vue-fundamentals",
+    "title": "Single-File Components and script setup",
+    "description": "How <script setup> compiles, which macros are compile-time only, and what is actually exposed to the template.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 40,
+    "tags": [
+      "sfc",
+      "script-setup",
+      "vue-3.5",
+      "macros"
+    ],
+    "blocks": [
+      {
+        "id": "vue-sfc-script-setup-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "What an SFC actually compiles to",
+        "content": "A Vue single-file component is one file with three cooperating blocks: `<script>`, `<template>`, and optional `<style>`. The build tool (`@vitejs/plugin-vue` in a Vite app) splits those blocks and compiles the template into a render function. `<script setup>` is not a runtime feature you call. The compiler rewrites it into a `setup()` function and exposes top-level bindings to the template automatically.\n\nA useful mental model: `<script setup>` is a closed module. Bindings are visible to this component's template. They are not automatically visible to a parent that holds a template ref. `defineExpose()` is the explicit window when a parent must call a method or read a child binding.",
+        "keyPoints": [
+          "`<script setup>` compiles to `setup()`; macros such as `defineProps` disappear before the code runs.",
+          "Top-level bindings are template-visible. Parent template refs only see what `defineExpose()` returns.",
+          "Macros must be called at the top level of `<script setup>`. They cannot be imported or called inside a function.",
+          "The runtime-only Vue build cannot compile template strings in the browser. In-DOM templates need the full build with the compiler."
+        ]
+      },
+      {
+        "id": "vue-sfc-script-setup-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "Vue 3.5 props destructure stays reactive",
+        "content": "Since Vue 3.5, destructuring the result of `defineProps()` keeps those bindings reactive inside `<script setup>`. The compiler rewrites each destructured name so a later prop change is still tracked by the template, `watch`, and `computed` in that same file.\n\nThe rewrite is a compiler behavior, not a JavaScript language feature. Passing the destructured value into an external function passes the current value. If the callee needs live updates, pass a getter `() => count` or the props object. Defaults written in the destructure pattern (`const { count = 0 } = defineProps()`) are also compiled into the prop default.",
+        "keyPoints": [
+          "Vue 3.5 reactive props destructure applies inside `<script setup>`, not to a hand-written `setup(props)` that you destructure yourself.",
+          "A destructured prop passed by value into another module does not stay live.",
+          "Use `withDefaults` or the destructure default for optional props. Do not mutate props to \"fill in\" a default after the fact.",
+          "Stable production line as of November 2026 is Vue 3.5.x. Vue 3.6, including Vapor Mode, is still a release candidate."
+        ]
+      },
+      {
+        "id": "vue-sfc-script-setup-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "script setup with typed props and a closed public surface",
+        "language": "html",
+        "code": "<script setup lang=\"ts\">\nimport { computed } from 'vue'\n\nconst props = defineProps<{\n  userId: string\n  label?: string\n}>()\n\nconst emit = defineEmits<{\n  saved: [id: string]\n}>()\n\nconst heading = computed(() => props.label ?? `User ${props.userId}`)\n\nfunction save() {\n  emit('saved', props.userId)\n}\n\ndefineExpose({ save })\n</script>\n\n<template>\n  <header>\n    <h2>{{ heading }}</h2>\n    <button type=\"button\" @click=\"save\">Save</button>\n  </header>\n</template>",
+        "explanation": "The template can read `heading` and call `save` because both are top-level bindings. A parent template ref can call `save` only because `defineExpose` published it. `userId` is not exposed."
+      },
+      {
+        "id": "vue-sfc-script-setup-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "Why do teams prefer `<script setup>` over a hand-written `setup()` return object?",
+        "answer": "`<script setup>` removes the return-object bookkeeping and makes template dependencies local: if a binding is declared in the module, the template can use it. Typed `defineProps` and `defineEmits` give the compiler a real contract instead of a runtime `props: { ... }` object that TypeScript only partially understands. The component stays closed unless `defineExpose` opts into a parent API.\n\nThe trade-off is that macros are compile-time. You cannot pass `defineProps` around, and a non-SFC `setup()` function is still the right tool when a component is generated or written in a plain `.ts` file. Options API components remain valid; `<script setup>` is the default for new Vue 3 code, not a ban on existing components.",
+        "explanation": "A strong answer names the compiler boundary and the closed-by-default public surface, not only \"less boilerplate\"."
+      },
+      {
+        "id": "vue-sfc-script-setup-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "The macro that cannot be imported",
+        "question": "A teammate moves `defineProps` into `useUserProps()` in another file and calls that composable from `<script setup>`. Why does the build fail or the props disappear?",
+        "answer": "`defineProps`, `defineEmits`, `defineModel`, `defineExpose`, `defineOptions`, and `defineSlots` are compiler macros. The SFC compiler looks for those exact calls at the top level of `<script setup>` and rewrites them. A call hidden inside an imported function is invisible to that transform, so there is no props declaration on the component.",
+        "explanation": "Composables can accept the props object after it is declared. They cannot declare the component's props for you.\n\n[Further reading](https://vuejs.org/api/sfc-script-setup.html)",
+        "hints": [
+          "Is `defineProps` a function that exists at runtime?"
+        ]
+      },
+      {
+        "id": "vue-sfc-script-setup-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "A large Vue 2 Options API app still ships features every week. How do you introduce `<script setup>` without a freeze?",
+        "answer": "Keep the Options API components that are stable and covered by tests. New leaf components can be `<script setup>` immediately because Vue 3 lets both styles sit in one tree. When an old component must change, migrate that file, not the whole folder: replace `data`/`computed`/`methods` with bindings, move `props` and `emits` to macros, and re-check `this.$refs` against `defineExpose` because script-setup children are closed.\n\nDo not mix a `setup()` return and Options API state for the same piece of data. One source of truth per field. Run the existing component tests after each slice and treat mixin-dependent components as a later, explicit migration because mixins do not map cleanly onto macros.",
+        "explanation": "The migration unit is a component with a test, not a repository-wide rewrite."
+      },
+      {
+        "id": "vue-sfc-script-setup-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Importing a child component and forgetting to use it, or expecting a TypeScript import alone to register a template tag.",
+        "whyItHappens": "In `<script setup>`, imported components are registered automatically, but only the bindings the template references stay meaningful. People coming from NgModules sometimes build a shared import barrel and assume every component is globally available.",
+        "correctApproach": "Import the component in the file that uses it. Register a component globally only when it is a true design-system primitive used everywhere, and prefer local imports so the dependency stays visible."
+      },
+      {
+        "id": "vue-sfc-script-setup-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Treat `<script setup>` as a compiler contract. Review macros, exposure, and prop defaults the same way you review a public function signature.",
+        "keyPoints": [
+          "Keep `defineProps`, `defineEmits`, and `defineModel` at the top level of the SFC.",
+          "Expose the smallest parent API through `defineExpose`.",
+          "In Vue 3.5, destructured props are reactive inside the SFC. Pass getters when another module must track them.",
+          "Do not ship in-DOM templates against the runtime-only build."
+        ]
+      },
+      {
+        "id": "vue-sfc-script-setup-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- `<script setup>` compiles to `setup()` and exposes top-level bindings to the template.\n- Macros are compile-time and must stay at the top level of the SFC.\n- Vue 3.5 keeps destructured props reactive inside `<script setup>`.\n- Parents see only what `defineExpose` publishes.\n\nOfficial references\n\n- https://vuejs.org/api/sfc-script-setup.html\n- https://vuejs.org/guide/introduction.html"
+      }
+    ]
+  },
+  {
+    "id": "vue-template-syntax",
+    "subjectId": "vue",
+    "categoryId": "vue-fundamentals",
+    "title": "Template syntax",
+    "description": "Interpolation, directives, v-if versus v-show, and the Vue 3 priority rule when v-if and v-for meet.",
+    "difficulty": "beginner",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 35,
+    "tags": [
+      "template",
+      "v-if",
+      "v-for",
+      "directives"
+    ],
+    "blocks": [
+      {
+        "id": "vue-template-syntax-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Templates are a compiled render function",
+        "content": "Mustache interpolation (`{{ name }}`) writes text. Vue escapes that text, so a string containing `<script>` shows up as characters, not as HTML. Directives are attributes that compile into render-function logic: `v-bind` (or `:`) passes a JavaScript expression as a DOM property or attribute, `v-on` (or `@`) listens, `v-if` adds or removes nodes, and `v-show` toggles `display`.\n\nExpressions inside templates are JavaScript expressions, not statements. You can call a method, but you should not put assignments, loops, or network calls there. A template that does heavy work redoes that work on every render that touches the component.",
+        "keyPoints": [
+          "Interpolation is escaped text. `v-html` is the opt-in that skips escaping.",
+          "`v-if` destroys and recreates the subtree. `v-show` keeps the nodes and changes CSS display.",
+          "Template expressions must be cheap. Filtering and sorting belong in a computed.",
+          "Vue 3 gives `v-if` higher priority than `v-for` when both sit on the same element."
+        ]
+      },
+      {
+        "id": "vue-template-syntax-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "v-if and v-for do not share a scope on one element",
+        "content": "In Vue 3, `v-if` is compiled before `v-for` on the same element. The `v-if` expression cannot see the `v-for` alias. That is the opposite of the Vue 2 priority, and it is a common migration bug. The readable structure is a computed list that is already filtered, then a `v-for` with a stable key. A `<template v-for>` wrapper is the other legal way to give `v-if` access to the alias, and it still needs a key on the real child.",
+        "keyPoints": [
+          "Do not write `v-for` and `v-if` on the same element.",
+          "Filter in a computed so the template only walks the rows it should render.",
+          "`:key` identifies the node across updates. The key belongs on the element that `v-for` creates.",
+          "`v-once` and `v-memo` skip updates. They are performance tools, not correctness tools."
+        ]
+      },
+      {
+        "id": "vue-template-syntax-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Filter first, then render with a stable key",
+        "language": "html",
+        "code": "<script setup lang=\"ts\">\nimport { computed } from 'vue'\n\nconst props = defineProps<{\n  users: { id: string; name: string; active: boolean }[]\n  query: string\n}>()\n\nconst visible = computed(() => {\n  const q = props.query.trim().toLowerCase()\n  return props.users.filter((user) => {\n    if (!user.active) return false\n    return q.length === 0 || user.name.toLowerCase().includes(q)\n  })\n})\n</script>\n\n<template>\n  <ul>\n    <li v-for=\"user in visible\" :key=\"user.id\">{{ user.name }}</li>\n  </ul>\n</template>",
+        "explanation": "The computed owns the filtering rule. The template walks a ready list and keys each row by `user.id`, so reordering does not reuse the wrong DOM node."
+      },
+      {
+        "id": "vue-template-syntax-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "When do you choose `v-show` instead of `v-if`?",
+        "answer": "`v-if` is a real structural change: listeners, child state, and watchers inside the branch go away when the condition is false, and they are created again when it becomes true. That is what you want for a rare panel, a permission branch, or anything that should not run while hidden.\n\n`v-show` pays the render cost up front and then toggles CSS. It fits a tab or disclosure that toggles often and whose inner state should survive. Neither directive virtualizes a long list. A thousand `v-show` rows are still a thousand rows in the DOM.",
+        "explanation": "The decision is about lifecycle and DOM cost, not about which syntax is shorter."
+      },
+      {
+        "id": "vue-template-syntax-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "Vue 3 flipped the v-if / v-for priority",
+        "question": "This Vue 3 template is meant to skip inactive users. What goes wrong?\n\n`<li v-for=\"user in users\" v-if=\"user.active\" :key=\"user.id\">`",
+        "answer": "In Vue 3, `v-if` has higher priority than `v-for` on the same element, so `user` does not exist in the `v-if` expression. The template does not compile the way a Vue 2 developer expects. Filter with a computed, or put `v-for` on a `<template>` and `v-if` on the child.",
+        "explanation": "Vue 2 gave `v-for` higher priority. Copying that pattern into Vue 3 is a migration bug, not a styling bug.\n\n[Further reading](https://vuejs.org/guide/essentials/list.html)",
+        "hints": [
+          "Which directive does the Vue 3 compiler apply first?"
+        ]
+      },
+      {
+        "id": "vue-template-syntax-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "A settings page has 40 fields. Half of them are irrelevant unless an earlier toggle is on. The page feels slow and child components reset while people tab around. How do you structure the template?",
+        "answer": "Split rare sections with `v-if` so their watchers and child instances do not exist until needed. Keep frequently toggled sections mounted with `v-show` if resetting their form state would annoy people. Move each section into its own component so the parent render does not re-evaluate every field's expressions.\n\nMeasure before adding `v-memo`. If the cost is a large list, window the rows. If the cost is a chart inside a hidden `v-show`, `v-if` is the better default because the chart should not keep drawing off-screen.",
+        "explanation": "Visibility, instance lifetime, and render cost are three different decisions."
+      },
+      {
+        "id": "vue-template-syntax-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Calling a filter method from the template: `v-for=\"user in filterUsers(users)\"`.",
+        "whyItHappens": "It looks like a computed, but a method call returns a new array on every render and gives Vue nothing stable to cache.",
+        "correctApproach": "Put the filter in a `computed`. Pass primitive props into children so unchanged rows can bail out."
+      },
+      {
+        "id": "vue-template-syntax-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Templates should read like a rendering of finished state. Derivation belongs in script.",
+        "keyPoints": [
+          "Escape text with interpolation. Reach for `v-html` only with sanitized HTML.",
+          "Prefer `v-if` when hidden work should stop. Prefer `v-show` when the instance should stay alive.",
+          "Never combine `v-if` and `v-for` on one element in Vue 3.",
+          "Key rows by a stable id."
+        ]
+      },
+      {
+        "id": "vue-template-syntax-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- Interpolation escapes text. Directives compile into render logic.\n- `v-if` adds and removes instances. `v-show` toggles CSS.\n- Vue 3 compiles `v-if` before `v-for` on the same element.\n- Filter in a computed, then render with a stable key.\n\nOfficial references\n\n- https://vuejs.org/guide/essentials/template-syntax.html\n- https://vuejs.org/guide/essentials/conditional.html\n- https://vuejs.org/guide/essentials/list.html"
+      }
+    ]
+  },
+  {
+    "id": "vue-lifecycle",
+    "subjectId": "vue",
+    "categoryId": "vue-fundamentals",
+    "title": "Lifecycle and cleanup",
+    "description": "When setup, mount, update, and unmount run, and how composable effects are stopped.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 40,
+    "tags": [
+      "lifecycle",
+      "onMounted",
+      "onUnmounted",
+      "cleanup"
+    ],
+    "blocks": [
+      {
+        "id": "vue-lifecycle-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Lifecycle hooks are ownership checkpoints",
+        "content": "In `<script setup>`, the module body is `setup()`. It runs before the component is mounted, so there is no DOM yet and `document` work does not belong there. `onBeforeMount` runs after the render function has been created and before the first DOM insert. `onMounted` runs after the instance is inserted. `onBeforeUpdate` and `onUpdated` wrap later renders. `onBeforeUnmount` and `onUnmounted` run when the instance is removed.\n\n`onMounted` does not run during server rendering. Code that touches `window`, focus, or a chart library belongs in `onMounted` or in a watcher that is guarded for the client. Data that the server must finish before sending HTML belongs in `onServerPrefetch` or in the router, not in `onMounted`.",
+        "keyPoints": [
+          "Setup runs before the first mount. DOM reads belong in `onMounted` or a template ref watcher.",
+          "`onMounted` is client-only. SSR will not call it while producing the HTML string.",
+          "Update hooks run often. Fetching or writing state from `onUpdated` is a loop waiting to happen.",
+          "The code that starts a listener, timer, or socket registers the stop handle immediately."
+        ]
+      },
+      {
+        "id": "vue-lifecycle-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "Effects registered in setup stop with the instance",
+        "content": "`watch`, `watchEffect`, and computed subscriptions created synchronously during setup are tied to the current component instance. Vue stops them when the component unmounts. That link exists only while setup is the active instance. Starting a composable inside `setTimeout`, after an `await` that yielded past setup, or from a random event handler can lose that link, and the effect then outlives the component.\n\n`onUnmounted` is still the right place for resources Vue does not know about: `ResizeObserver`, `setInterval`, a map library, or `addEventListener` on `window`. `onWatcherCleanup`, added as a stable helper in Vue 3.5, registers that kind of cleanup from inside a watcher callback.",
+        "keyPoints": [
+          "Call composables synchronously in setup so their effects attach to the instance.",
+          "`watch` and `watchEffect` created in setup are stopped on unmount.",
+          "Browser observers and window listeners need an explicit disconnect.",
+          "`onActivated` and `onDeactivated` exist for `KeepAlive` caches, which unmount only when the cache drops them."
+        ]
+      },
+      {
+        "id": "vue-lifecycle-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Subscribe in setup and stop on unmount",
+        "language": "html",
+        "code": "<script setup lang=\"ts\">\nimport { onMounted, onUnmounted, ref } from 'vue'\n\nconst box = ref<HTMLElement | null>(null)\nconst width = ref(0)\nlet observer: ResizeObserver | undefined\n\nonMounted(() => {\n  const el = box.value\n  if (!el) return\n  observer = new ResizeObserver((entries) => {\n    width.value = entries[0]?.contentRect.width ?? 0\n  })\n  observer.observe(el)\n})\n\nonUnmounted(() => observer?.disconnect())\n</script>\n\n<template>\n  <div ref=\"box\">{{ width }}</div>\n</template>",
+        "explanation": "The observer is created only after the element exists, and `disconnect` runs when this instance goes away. Without that call, the observer retains the element after the route has changed."
+      },
+      {
+        "id": "vue-lifecycle-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "A route change leaves a WebSocket open and a `setInterval` running. Where do you look first?",
+        "answer": "I look for resources created outside Vue's effect ownership: timers, sockets, observers, and global listeners. If they were started in `onMounted` or in a watcher, the matching stop must be registered with `onUnmounted` or `onWatcherCleanup`. If a composable was called after an await, its `watch` may never have been attached to the instance, so unmount does nothing.\n\nI also check `KeepAlive`. A cached view is deactivated, not unmounted, so `onUnmounted` will not run when the user switches tabs. Those views need `onDeactivated` as well, or they should not be cached.",
+        "explanation": "A leak is a longer-lived owner retaining this instance. The hook name is a clue, not the whole diagnosis."
+      },
+      {
+        "id": "vue-lifecycle-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "Await before the composable",
+        "question": "This setup awaits a flag and then calls `useWindowSize()`, which registers a `watchEffect` and a window listener. After navigation, the listener is still attached. Why?",
+        "answer": "After the `await`, `<script setup>` is no longer the synchronous setup context that binds effects to the instance. The watcher and the listener created by `useWindowSize()` are not stopped on unmount. Call the composable synchronously in setup, or create an explicit `effectScope` and stop it in `onUnmounted`.",
+        "explanation": "Top-level await in `<script setup>` is supported, but composables that register effects still need to run in an active instance or an effect scope you own.\n\n[Further reading](https://vuejs.org/guide/reusability/composables.html)",
+        "hints": [
+          "When is the current component instance active for effect registration?"
+        ]
+      },
+      {
+        "id": "vue-lifecycle-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "A chart page initializes ECharts in setup and the server render throws `window is not defined`. The same page also double-fetches when users move from `/markets/A` to `/markets/B` because the component instance is reused. What do you change?",
+        "answer": "Move chart construction to `onMounted` so SSR never touches `window`, and disconnect the chart in `onUnmounted`. For the data load, watch `() => route.params.symbol` instead of fetching only in setup or `onMounted`. Vue Router reuses the component when only params change, so mount hooks do not run again.\n\nCancel the previous request when the symbol changes. The watcher cleanup callback is the right place to abort the previous `fetch`.",
+        "explanation": "SSR safety and route-param reuse are two different lifecycle facts."
+      },
+      {
+        "id": "vue-lifecycle-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Writing state from `onUpdated` because \"the DOM changed, so we should sync the model\".",
+        "whyItHappens": "The update hook is easy to confuse with a watcher. Setting state there schedules another render.",
+        "correctApproach": "Derive state with `computed`. Use `watch` when a side effect must run because a specific source changed. Leave `onUpdated` for integrating with a library that must read the DOM after paint."
+      },
+      {
+        "id": "vue-lifecycle-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Every external resource has a start site and a stop site next to each other.",
+        "keyPoints": [
+          "DOM and `window` work go in `onMounted`, not in the setup body, when the app is server-rendered.",
+          "Call composables synchronously during setup.",
+          "Stop timers, sockets, and observers in `onUnmounted` or watcher cleanup.",
+          "Cached `KeepAlive` views need `onDeactivated`, not only `onUnmounted`."
+        ]
+      },
+      {
+        "id": "vue-lifecycle-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- Setup runs before mount. `onMounted` is client-only.\n- Effects created synchronously in setup stop with the instance.\n- External resources need an explicit disconnect.\n- Param-only navigations reuse the instance.\n\nOfficial references\n\n- https://vuejs.org/guide/essentials/lifecycle.html\n- https://vuejs.org/guide/reusability/composables.html"
+      }
+    ]
+  },
+  {
+    "id": "vue-template-refs",
+    "subjectId": "vue",
+    "categoryId": "vue-fundamentals",
+    "title": "Template refs, useTemplateRef, and useId",
+    "description": "How Vue 3.5 binds refs to elements, why script-setup children stay closed, and how useId stays stable in SSR.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 35,
+    "tags": [
+      "useTemplateRef",
+      "useId",
+      "vue-3.5",
+      "refs"
+    ],
+    "blocks": [
+      {
+        "id": "vue-template-refs-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "A template ref is a shallow ref filled after render",
+        "content": "The `ref` attribute on an element or component tells Vue to write that instance into a ref after render. Vue 3.5's `useTemplateRef('input')` returns a readonly shallow ref that follows the element whose `ref` attribute is the string `input`. Matching a `ref()` variable by name still works, and `useTemplateRef` is preferred because the string key cannot drift from a renamed binding by accident.\n\nThe value is `null` during setup and during server rendering. Read it in `onMounted`, in a watcher, or from an event handler. A `v-for` ref collects an array. When the list changes, the array is replaced with the current instances.",
+        "keyPoints": [
+          "`useTemplateRef(key)` returns a `Readonly<ShallowRef<T | null>>`.",
+          "The ref is null until render assigns it. SSR does not populate element refs.",
+          "Function refs and string refs should not be mixed on the same key without a reason.",
+          "A ref on a component instance is the component public proxy, not the root DOM node, and script setup exposes nothing until `defineExpose`."
+        ]
+      },
+      {
+        "id": "vue-template-refs-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "useId is for accessibility attributes, not for list keys",
+        "content": "`useId()` returns an application-unique string that matches between the server render and the client hydration. Use it for `for`/`id` pairs, `aria-controls`, and `aria-describedby`. Call it during setup, not inside `computed()`, because generating an id inside a computed can collide across instances.\n\nIf two Vue applications exist on one page, set `app.config.idPrefix` so their ids do not clash. `useId()` is not a database key and not a `v-for` key. Those keys must come from the data.",
+        "keyPoints": [
+          "`useId()` is stable across SSR and hydration.",
+          "Each call in a component returns a different id. Each instance gets its own ids.",
+          "Do not call `useId()` inside `computed()`.",
+          "Multiple roots on one page need `app.config.idPrefix`."
+        ]
+      },
+      {
+        "id": "vue-template-refs-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Focus an input and pair a label with useId",
+        "language": "html",
+        "code": "<script setup lang=\"ts\">\nimport { onMounted, useId, useTemplateRef } from 'vue'\n\nconst input = useTemplateRef<HTMLInputElement>('name-input')\nconst id = useId()\n\nonMounted(() => input.value?.focus())\n</script>\n\n<template>\n  <label :for=\"id\">Name</label>\n  <input :id=\"id\" ref=\"name-input\" type=\"text\" />\n</template>",
+        "explanation": "`useTemplateRef` follows the string key `name-input`. `useId()` supplies one id for both the label and the input, including during a server render."
+      },
+      {
+        "id": "vue-template-refs-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "A parent holds a template ref to a `<script setup>` child and `child.save` is undefined. What is missing?",
+        "answer": "`<script setup>` components are closed. The parent ref points at the component instance, but the instance does not publish `save` unless the child calls `defineExpose({ save })`. The alternative is to stop calling child methods and emit an event or pass a callback prop, which is usually the clearer contract.\n\nIf the parent needed the root DOM node, a component ref is the wrong tool. Expose the element from the child, or put the template ref on a native element.",
+        "explanation": "The failure is the closed public surface, not a timing issue, when the method is absent even in `onMounted`."
+      },
+      {
+        "id": "vue-template-refs-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "useId inside computed",
+        "question": "Why does the Vue documentation tell you not to call `useId()` inside a `computed()`?",
+        "answer": "`useId()` advances per-instance id state as a setup side effect. A computed may re-run, and calling `useId()` there can generate conflicting or unstable ids. Create the id once during setup and read that constant from the computed or the template.",
+        "explanation": "Ids must be stable for labels and for hydration. A computed is allowed to re-evaluate.\n\n[Further reading](https://vuejs.org/api/composition-api-helpers.html#useid)",
+        "hints": [
+          "Is id generation a pure derivation?"
+        ]
+      },
+      {
+        "id": "vue-template-refs-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "A modal focuses the first field on open, but the focus call throws because the input is inside `v-if=\"open\"`. How do you sequence it?",
+        "answer": "Keep the template ref on the input. Watch `open`, and when it becomes true wait for the DOM update with `nextTick` or `watch` plus `flush: 'post'` before calling `focus()`. Do not cache the element from a previous open if `v-if` destroyed it; `useTemplateRef` updates to the new element or back to `null`.\n\nMove the focus back to the button that opened the dialog when `open` becomes false. That work is part of the same watcher, not a second global listener.",
+        "explanation": "A `v-if` ref is null while the branch is gone. Focus after the branch has rendered."
+      },
+      {
+        "id": "vue-template-refs-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Using the array index or `Math.random()` as a `useId()` replacement for labelled inputs.",
+        "whyItHappens": "It looks unique in the browser and then mismatches the server HTML, or it changes when the list reorders and breaks the label association.",
+        "correctApproach": "Use `useId()` for accessibility ids. Use the row's own id for `:key`."
+      },
+      {
+        "id": "vue-template-refs-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Template refs are an escape hatch to the DOM or to an explicit child API. Most data flow should stay in props and emits.",
+        "keyPoints": [
+          "Prefer `useTemplateRef` in Vue 3.5.",
+          "Read element refs after mount or after `nextTick` when `v-if` just became true.",
+          "`defineExpose` is required before a parent can call a script-setup method.",
+          "Generate label ids with `useId()`, once per setup."
+        ]
+      },
+      {
+        "id": "vue-template-refs-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- `useTemplateRef` syncs a shallow ref with a string `ref` attribute.\n- Element refs are null on the server and before mount.\n- Script-setup children expose only `defineExpose` bindings.\n- `useId()` is stable across SSR and must run in setup.\n\nOfficial references\n\n- https://vuejs.org/api/composition-api-helpers.html#usetemplateref\n- https://vuejs.org/guide/essentials/template-refs.html\n- https://vuejs.org/api/composition-api-helpers.html#useid"
+      }
+    ]
+  },
+  {
+    "id": "vue-next-tick",
+    "subjectId": "vue",
+    "categoryId": "vue-fundamentals",
+    "title": "Rendering and nextTick",
+    "description": "Why state changes do not update the DOM immediately, and when nextTick is the wrong fix.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 30,
+    "tags": [
+      "nextTick",
+      "render",
+      "async-update"
+    ],
+    "blocks": [
+      {
+        "id": "vue-next-tick-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Vue buffers state changes into one render",
+        "content": "Changing a ref inside an event handler does not rewrite the DOM line by line. Vue queues a component update and flushes it after the current call stack, batching every mutation from that turn into one render. That is why reading `element.textContent` immediately after `count.value++` still shows the old text.\n\n`nextTick()` returns a promise that resolves after Vue has flushed the pending DOM updates. Use it when you must measure or focus a node that this state change just created. Do not use it to wait for a network request, a CSS transition, or a child component's own async work.",
+        "keyPoints": [
+          "DOM updates are asynchronous and batched.",
+          "`nextTick` waits for the render flush, not for data loading.",
+          "If you can express the relationship as `computed`, you do not need `nextTick`.",
+          "A watcher with `flush: 'post'` runs after the component's DOM update and is often clearer than `nextTick` inside the watcher."
+        ]
+      },
+      {
+        "id": "vue-next-tick-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "Parent and child flush order still needs an explicit contract",
+        "content": "Parent updates run before child updates in a normal flush. A parent that measures a child's DOM in the same turn can still see stale layout if the child has not flushed. `flush: 'post'` or a `nextTick` after the child's state is committed is the precise tool. Repeated `nextTick` chains are a sign that ownership of the measurement is in the wrong component.",
+        "keyPoints": [
+          "One `nextTick` waits for the queued render, not for every future render.",
+          "Child components created by `v-if` in this turn exist after the flush.",
+          "Layout reads inside a render or computed can force extra work. Measure after paint on purpose.",
+          "Tests should `await nextTick()` or use Vue Test Utils' `flushPromises` only when the component really defers work."
+        ]
+      },
+      {
+        "id": "vue-next-tick-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Focus a newly revealed input after the flush",
+        "language": "html",
+        "code": "<script setup lang=\"ts\">\nimport { nextTick, ref, useTemplateRef } from 'vue'\n\nconst open = ref(false)\nconst input = useTemplateRef<HTMLInputElement>('query')\n\nasync function showSearch() {\n  open.value = true\n  await nextTick()\n  input.value?.focus()\n}\n</script>\n\n<template>\n  <button type=\"button\" @click=\"showSearch\">Search</button>\n  <input v-if=\"open\" ref=\"query\" type=\"search\" />\n</template>",
+        "explanation": "The input does not exist until the render caused by `open.value = true` is flushed. `nextTick` is the boundary between that state change and the DOM read."
+      },
+      {
+        "id": "vue-next-tick-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "You set `list.value = next` and immediately read the list's `scrollHeight`, which is still the old value. What is happening?",
+        "answer": "The assignment queued a re-render. The browser DOM still reflects the previous virtual DOM until Vue flushes the queue. `await nextTick()` before the measurement reads the updated nodes.\n\nIf this measurement happens often, doing it in the event handler is the wrong design. A `watch` on the list with `flush: 'post'` keeps the side effect next to the source, and a `ResizeObserver` is better when the size can also change for reasons other than Vue state.",
+        "explanation": "The bug is timing against the render queue, not a failed assignment."
+      },
+      {
+        "id": "vue-next-tick-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "nextTick does not wait for the network",
+        "question": "A component sets `loading` to true, calls `fetch`, and uses `await nextTick()` before reading `data`. Why is `data` still empty?",
+        "answer": "`nextTick` resolves after the DOM flush for the `loading` change. It does not wait for `fetch`. The request result arrives in a later task. Read `data` in the lines after `await fetch(...)`, and use `nextTick` only if that result also created DOM you must measure.",
+        "explanation": "Render batching and network latency are different queues.\n\n[Further reading](https://vuejs.org/api/general.html#nexttick)",
+        "hints": [
+          "Which queue does `nextTick` flush?"
+        ]
+      },
+      {
+        "id": "vue-next-tick-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "An analytics bug report says a click handler sometimes records the old tab label. The handler increments a ref and then reads `event.currentTarget.textContent`. How do you fix the measurement?",
+        "answer": "Do not read the DOM for state Vue already has. Record the next label from the same source that drives the template, or compute it before the assignment. If a third-party widget really needs the updated text, await `nextTick` and then read.\n\nReading `textContent` inside the handler is how the old value leaks into analytics. The DOM has not flushed, and it is also the wrong source of truth if a translator or CSS truncation changes the visible string.",
+        "explanation": "Prefer the state you assigned over a DOM read of the render you just scheduled."
+      },
+      {
+        "id": "vue-next-tick-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Chaining two or three `nextTick` calls until a query selector finds a node.",
+        "whyItHappens": "The node is created by a child async component or a later watch, so one flush is not enough, and extra ticks hide the race.",
+        "correctApproach": "Wait on the actual condition: the async component's `onMounted`, a template ref watcher, or the promise that loads the data. Use one `nextTick` only to cross the render queue."
+      },
+      {
+        "id": "vue-next-tick-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Treat `nextTick` as a DOM synchronization primitive.",
+        "keyPoints": [
+          "Use it after a state change that creates or moves the node you must touch.",
+          "Prefer `computed` when you are trying to \"wait\" for derived data.",
+          "Prefer a post-flush watcher when the side effect is tied to a source.",
+          "In tests, await the same boundary the component awaits. Do not sprinkle `nextTick` until a flake disappears."
+        ]
+      },
+      {
+        "id": "vue-next-tick-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- State changes queue one render. The DOM is stale until that flush.\n- `nextTick` resolves after the queued DOM update.\n- It does not wait for network, transitions, or child async setup.\n- If the value already lives in a ref, read the ref.\n\nOfficial references\n\n- https://vuejs.org/api/general.html#nexttick\n- https://vuejs.org/guide/extras/rendering-mechanism.html"
+      }
+    ]
+  },
+  {
+    "id": "vue-ref-reactive",
+    "subjectId": "vue",
+    "categoryId": "vue-reactivity",
+    "title": "ref and reactive",
+    "description": "When to wrap a value in ref, when a reactive object is enough, and how unwrapping really works.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 45,
+    "tags": [
+      "ref",
+      "reactive",
+      "proxy",
+      "unwrapping"
+    ],
+    "blocks": [
+      {
+        "id": "vue-ref-reactive-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "ref boxes a value, reactive proxies an object",
+        "content": "`ref` holds any value behind `.value`. In the template, a top-level ref auto-unwraps, so you write `count` instead of `count.value`. `reactive` returns a proxy of an object, array, `Map`, or `Set`. You read and write its fields directly. There is no `.value`, and you cannot replace the proxy itself by reassigning the variable.\n\nUse `ref` for primitives and for values that get replaced: a selected id, a request result, a nullable object. Use `reactive` for a fixed bag of related fields you mutate in place, such as a form draft that will not be swapped for another object. A single `ref` of an object is also a good form model when the whole draft is replaced by a server response.",
+        "keyPoints": [
+          "`ref` is required for primitives. `reactive` cannot take a string or number.",
+          "Reassigning a `reactive` binding does not update consumers who hold the old proxy.",
+          "Templates unwrap refs. Script does not, except when a ref is a property of a `reactive` object.",
+          "The proxy only tracks access that goes through the proxy. A raw object taken from `toRaw` is not tracked."
+        ]
+      },
+      {
+        "id": "vue-ref-reactive-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "Destructuring and spreading break the tracking path",
+        "content": "A reactive proxy records the property you read. `const { count } = state` copies the current number into a plain binding. Later `state.count++` updates the proxy, and the local `count` stays put. `toRefs(state)` gives you refs that still read and write through the proxy.\n\nObject spread (`{ ...state }`) builds a plain object. Nested objects that were already reactive remain proxies, so mutating `copy.nested.name` can still trigger effects that read `state.nested.name`. Replacing `copy.name` does not update `state`. That split is a frequent source of \"half the UI updated\".",
+        "keyPoints": [
+          "Destructure `reactive` objects with `toRefs` or do not destructure them.",
+          "Spread is a shallow plain copy. Nested proxies are still shared.",
+          "A ref stored inside a `reactive` object unwraps when you read that property.",
+          "Arrays are reactive. Replacing an index or `length` through the proxy triggers effects."
+        ]
+      },
+      {
+        "id": "vue-ref-reactive-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Replace whole values with ref, mutate a fixed form with reactive",
+        "language": "typescript",
+        "code": "import { reactive, ref, toRefs } from 'vue'\n\nconst selectedId = ref<string | null>(null)\n\nconst draft = reactive({\n  name: '',\n  seats: 1,\n})\n\nfunction replaceFromServer(next: { name: string; seats: number }) {\n  draft.name = next.name\n  draft.seats = next.seats\n}\n\nconst { name, seats } = toRefs(draft)",
+        "explanation": "`selectedId` is replaced, so it is a ref. `draft` keeps one identity and is edited in place. `toRefs` lets a composable return individual fields without losing the proxy connection."
+      },
+      {
+        "id": "vue-ref-reactive-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "How do you decide between `ref`, `reactive`, and a computed?",
+        "answer": "`ref` is the default. It can hold a primitive or be replaced with a new object, and `.value` makes the container obvious in script. `reactive` fits a stable object whose fields change in place, with the warning that reassignment and destructuring are traps. `computed` is for values derived from other reactive sources. It should stay pure and cached.\n\nI would not wrap a reactive object in a ref and also keep using the inner proxy through another variable. One owner of the value is enough: either mutate the reactive object, or replace `draft.value` as a whole.",
+        "explanation": "The interview is really about identity and tracking, not about which API is newer."
+      },
+      {
+        "id": "vue-ref-reactive-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "Destructuring a reactive object",
+        "question": "What does the button show after one click?\n\n```\nconst state = reactive({ count: 0 })\nlet { count } = state\nfunction inc() { count += 1 }\n```\n\nTemplate: `{{ state.count }}` and a button that calls `inc`.",
+        "answer": "The button leaves `state.count` at 0. Destructuring copied the number into a local binding. `count += 1` updates that binding, not the proxy. Write `state.count += 1`, or destructure with `toRefs` and increment `count.value`.",
+        "explanation": "The template reads the proxy. The click handler writes a plain number that no longer has a path back to the proxy.\n\n[Further reading](https://vuejs.org/guide/essentials/reactivity-fundamentals.html)",
+        "hints": [
+          "Does `let { count } = state` create a tracked binding?"
+        ]
+      },
+      {
+        "id": "vue-ref-reactive-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "A store occasionally \"loses\" reactivity after a save, because the save handler does `state = reactive(response)`. Some components still show the previous profile. Why, and what do you change?",
+        "answer": "Those components captured the original proxy, either by closure or by a binding created before the reassignment. Reassigning the local `state` variable does not mutate that proxy, so their effects never rerun. Hold the profile in a `ref` and replace `profile.value`, or keep one `reactive` object and assign each field from the response.\n\nIf the response is a large immutable payload, `shallowRef` plus replacement is the better container. Consumers should read `profile.value` (or a computed) so they depend on the ref, not on a proxy that is about to be discarded.",
+        "explanation": "Reactive identity is the proxy. A new proxy is a new state container."
+      },
+      {
+        "id": "vue-ref-reactive-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Spreading a reactive object into a request body and also into a child prop, then mutating the nested address through either copy.",
+        "whyItHappens": "Spread looks like a clone. Nested objects are still shared proxies, so an edit mutates the source and any other copy of that child.",
+        "correctApproach": "Build a plain clone at the boundary where you need a snapshot (`structuredClone` or an explicit mapper). Keep the live draft as one reactive source."
+      },
+      {
+        "id": "vue-ref-reactive-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Pick the container that matches how the value is replaced.",
+        "keyPoints": [
+          "Default to `ref` unless you have a stable object you always mutate.",
+          "Never reassign a `reactive` variable and expect old holders to update.",
+          "Use `toRefs` when returning fields from a composable.",
+          "Do not mix a live proxy and a spread \"copy\" of the same nested object."
+        ]
+      },
+      {
+        "id": "vue-ref-reactive-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- `ref` boxes any value and is reassigned through `.value`.\n- `reactive` proxies an object. You mutate fields. You do not replace the proxy.\n- Destructuring and spreading drop or share tracking in specific ways.\n- Templates unwrap refs. Script uses `.value`.\n\nOfficial references\n\n- https://vuejs.org/guide/essentials/reactivity-fundamentals.html\n- https://vuejs.org/guide/extras/reactivity-in-depth.html"
+      }
+    ]
+  },
+  {
+    "id": "vue-computed",
+    "subjectId": "vue",
+    "categoryId": "vue-reactivity",
+    "title": "Computed state",
+    "description": "Lazy cached derivation, writable computed values, and the side effects that do not belong there.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 35,
+    "tags": [
+      "computed",
+      "derived-state",
+      "cache"
+    ],
+    "blocks": [
+      {
+        "id": "vue-computed-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Computed is a cached pure derivation",
+        "content": "A computed ref reruns its getter when a reactive dependency it read last time has changed, and then caches the result until that happens again. If nothing read the computed, Vue can skip the work. That is the opposite of a method called from the template, which runs on every render of the component.\n\nThe getter must be pure. Writing other state, fetching, or pushing into an array inside a computed makes the result depend on how many times Vue decides to evaluate it. Those effects belong in `watch`.",
+        "keyPoints": [
+          "Computed is lazy and cached. Methods in the template are not.",
+          "Only dependencies read during the last run are tracked. Branches can change the dependency set.",
+          "The cached value is read-only unless you provide a setter.",
+          "Returning a new object every time is fine. Mutating the previous returned object is not."
+        ]
+      },
+      {
+        "id": "vue-computed-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "Writable computed is a transform, not a second source of truth",
+        "content": "A writable computed has `get` and `set`. The setter should write back to the real source, usually another ref. It is useful for a formatted field: the getter returns a string, the setter parses it and stores a number. If the setter also stores its own copy, the UI now has two sources and they will drift.\n\nDo not use a writable computed to \"sync props into local state\" on every keystroke unless the local state is a real draft with a defined commit point. `defineModel` is the component contract for `v-model`. A watcher that copies props into local state is the usual way to get a stale draft.",
+        "keyPoints": [
+          "Getters derive. Setters write through to the source.",
+          "A computed that copies a prop into a ref duplicates state.",
+          "Expensive filters and sorts over a list belong in computed, then the template only iterates the result.",
+          "A computed that reads `Date.now()` or `Math.random()` lies, because those calls are not reactive dependencies."
+        ]
+      },
+      {
+        "id": "vue-computed-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Derive the visible rows and a writable cents field",
+        "language": "typescript",
+        "code": "import { computed, reactive } from 'vue'\n\nconst draft = reactive({ query: '', cents: 0 })\nconst products = reactive<{ id: string; name: string; cents: number }[]>([])\n\nconst visible = computed(() => {\n  const q = draft.query.trim().toLowerCase()\n  return products.filter((item) => item.name.toLowerCase().includes(q))\n})\n\nconst dollars = computed({\n  get: () => (draft.cents / 100).toFixed(2),\n  set: (input: string) => {\n    const next = Number(input)\n    if (Number.isFinite(next)) draft.cents = Math.round(next * 100)\n  },\n})",
+        "explanation": "`visible` reruns only when `draft.query` or `products` change, because those are the reads. `dollars` writes through to `draft.cents`, which remains the only stored price."
+      },
+      {
+        "id": "vue-computed-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "Why can a computed be cheaper than the same function used directly in the template?",
+        "answer": "The template function runs whenever the component renders, including renders caused by unrelated state. A computed runs again only when one of the reactive values it actually read has changed, and readers share the cached result. If the derivation is trivial, the caching does not matter and a method is fine. If it filters a large list or formats many rows, the computed avoids repeating that work and gives child props a stable reference when the result is unchanged.\n\nThe cache is invalidated at the granularity of the computed's dependencies, not at the granularity of each row. A one-character query change still rebuilds the filtered array. Virtualization and per-row components are the next step when that array is large.",
+        "explanation": "Caching is dependency-based. It is not a virtual list."
+      },
+      {
+        "id": "vue-computed-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "A computed that mutates its source",
+        "question": "What is wrong with a computed whose getter pushes a row into `errors` whenever the form is invalid?",
+        "answer": "The getter writes state. Vue may evaluate a computed more than once, or not at all if nothing reads it, so the push count is unpredictable and it can recurse if `errors` is also a dependency. Derive the messages as the computed result. If a side effect must run when validity changes, use `watch`.",
+        "explanation": "Derived data is a value. A write inside the getter couples that value to the scheduler.\n\n[Further reading](https://vuejs.org/guide/essentials/computed.html)",
+        "hints": [
+          "Is a computed getter allowed to have effects?"
+        ]
+      },
+      {
+        "id": "vue-computed-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "A product grid recomputes a \"match score\" for 5,000 items on every keystroke, and the input lags. The score function is already inside a computed. What do you change next?",
+        "answer": "Confirm the computed is the only caller and that the template is not also calling a method. Then stop scoring the full catalog on each character: debounce the query into a separate ref that the computed reads, or pre-index names. If the DOM is the cost, render only the visible window and keep the scored array out of the template's vnode children.\n\nSplit the computed if one giant getter mixes the debounced query, the filter, and row formatting. Smaller computeds make the invalidation obvious in a performance trace.",
+        "explanation": "A computed removes duplicate work. It does not make an O(n) filter free on every keystroke."
+      },
+      {
+        "id": "vue-computed-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Copying a prop into a local ref with a watcher \"so we can compute from it\".",
+        "whyItHappens": "It feels safer to own a local variable. The watcher update order then becomes a second source of truth.",
+        "correctApproach": "Read the prop directly inside the computed. Keep local state only for edits the user has made and the parent has not committed."
+      },
+      {
+        "id": "vue-computed-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Put derivations in computed and effects in watchers.",
+        "keyPoints": [
+          "Keep getters pure.",
+          "Use writable computed only as a transform over one source.",
+          "Do not read the clock or random data inside a computed.",
+          "When a computed returns a new array, expect child `v-for` work unless keys and row props are stable."
+        ]
+      },
+      {
+        "id": "vue-computed-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- Computed results are cached until a read dependency changes.\n- Getters stay pure. Effects go in `watch`.\n- A setter writes through to the real source.\n- Caching a filter does not virtualize the list.\n\nOfficial references\n\n- https://vuejs.org/guide/essentials/computed.html"
+      }
+    ]
+  },
+  {
+    "id": "vue-watchers",
+    "subjectId": "vue",
+    "categoryId": "vue-reactivity",
+    "title": "watch, watchEffect, and cleanup",
+    "description": "Lazy watches versus immediate effects, what gets tracked, and how Vue 3.5 cleans up in-flight work.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 45,
+    "tags": [
+      "watch",
+      "watchEffect",
+      "onWatcherCleanup",
+      "cancellation"
+    ],
+    "blocks": [
+      {
+        "id": "vue-watchers-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "watch is explicit, watchEffect tracks what it reads",
+        "content": "`watch` takes a source: a ref, a getter, a reactive object, or an array of those. It is lazy. The callback runs after the source changes, and it receives the new value, the old value, and a cleanup registrar. `{ immediate: true }` runs it once right away. `{ deep: true }` traverses a source when you need nested mutation of a ref's object. Watching a `reactive` object directly is already deep, and you do not get a useful old value because the proxy identity never changes.\n\n`watchEffect` has no source argument. It runs immediately, tracks every reactive read during that run, and reruns when any of them change. Use it when the effect and the dependencies are the same code, such as \"keep this chart in sync with whatever the setup read\". Use `watch` when the dependency should be obvious, when you need the previous value, or when a read inside the callback must not become a dependency.",
+        "keyPoints": [
+          "`watch` is lazy unless `immediate` is set. `watchEffect` runs once immediately.",
+          "Watching a reactive object is deep. Watch a getter if you only care about one field.",
+          "Cleanup runs before the next effect and when the watcher stops.",
+          "Vue 3.5 `onWatcherCleanup()` registers that cleanup from inside the callback without using the third argument."
+        ]
+      },
+      {
+        "id": "vue-watchers-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "Async work needs a generation or an abort signal",
+        "content": "A watcher does not wait for an async callback to finish before the next change. Two searches can resolve out of order and the slower response overwrites the newer query. Capture an `AbortController` and abort it in the cleanup, or ignore results whose query id is no longer current.\n\n`onWatcherCleanup` must be called synchronously during the watcher callback, before the first await. After an await, the effect that owns the cleanup has finished recording. The same rule applies to `onCleanup` inside `watchEffect`.",
+        "keyPoints": [
+          "Out-of-order responses are a logic bug, not a Vue bug.",
+          "Register cleanup synchronously, then await.",
+          "`flush: 'post'` runs after the DOM update. `flush: 'sync'` runs before the component flushes and can see intermediate state.",
+          "Prefer `pre` (the default) or `post`. `sync` watchers re-enter easily."
+        ]
+      },
+      {
+        "id": "vue-watchers-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Abort the previous search when the query changes",
+        "language": "typescript",
+        "code": "import { ref, watch } from 'vue'\n\nconst query = ref('')\nconst results = ref<string[]>([])\n\nwatch(query, async (value, _prev, onCleanup) => {\n  const controller = new AbortController()\n  onCleanup(() => controller.abort())\n  const response = await fetch(`/api/search?q=${encodeURIComponent(value)}`, {\n    signal: controller.signal,\n  })\n  if (controller.signal.aborted) return\n  results.value = await response.json()\n})",
+        "explanation": "Each query change aborts the previous request before the new one starts. The aborted response is ignored even if `fetch` rejects a moment later. `onWatcherCleanup` can replace the `onCleanup` argument inside this callback."
+      },
+      {
+        "id": "vue-watchers-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "When would you refuse `watchEffect` and write `watch` instead?",
+        "answer": "When the dependency list is part of the contract. A data loader should rerun when `route.params.id` changes, not when some unrelated ref that the loader happened to read changes. `watch` makes that source obvious and can hand you the previous id.\n\n`watchEffect` is a better fit for bridging to an imperative library: read the current options, apply them to the chart, and let Vue rerun if any of those reads change. Even then I keep the effect small so a logging call does not become an accidental dependency.",
+        "explanation": "Explicit sources are easier to review than a bag of whatever the callback touched."
+      },
+      {
+        "id": "vue-watchers-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "Cleanup registered after await",
+        "question": "Why does this still apply stale responses?\n\n```\nwatch(query, async (value) => {\n  const result = await search(value)\n  onWatcherCleanup(() => { /* too late */ })\n  results.value = result\n})\n```",
+        "answer": "`onWatcherCleanup` must run synchronously in the watcher invocation that owns the effect. After `await`, that recording window is over, so the cleanup is not attached to this run. Register the abort or the generation token before the await, then assign `results` only if this run is still current.",
+        "explanation": "The helper is not a listener you can attach later. It belongs to the active effect.\n\n[Further reading](https://vuejs.org/guide/essentials/watchers.html)",
+        "hints": [
+          "When is the watcher allowed to record cleanup?"
+        ]
+      },
+      {
+        "id": "vue-watchers-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "Search results flicker between the old list and an empty array, and a slow response for \"a\" overwrites the results for \"apple\". How do you redesign the watcher?",
+        "answer": "Keep the previous results on screen until the new request succeeds. Do not clear the list at the start of the watch unless product explicitly wants a skeleton. Abort the in-flight request in watcher cleanup, and ignore `AbortError`. Key the request by the normalized query and drop the response if `query.value` has moved on.\n\nDebounce the source with a separate ref if the API cannot take a request per keystroke. The debounce writes `debouncedQuery`; the watcher depends only on that ref, so cleanup still has one request to cancel.",
+        "explanation": "Cancellation, identity of the latest query, and whether you clear the list are three separate decisions."
+      },
+      {
+        "id": "vue-watchers-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Watching a whole reactive form with a deep watch that saves to the server on every nested keystroke.",
+        "whyItHappens": "A deep watch on the form object fires for every field, and the callback often reads more state and retriggers itself.",
+        "correctApproach": "Save on an explicit action, or watch a serialized snapshot you control. Ignore intermediate invalid states, and cancel the previous save if a newer one is allowed to supersede it."
+      },
+      {
+        "id": "vue-watchers-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Write the source, the cleanup, and the \"am I still current?\" check before the happy path.",
+        "keyPoints": [
+          "Use `watch` for explicit sources and previous values.",
+          "Use `watchEffect` for small imperative bridges.",
+          "Register abort or invalidation synchronously.",
+          "Avoid `flush: 'sync'` unless you can explain the re-entrancy."
+        ]
+      },
+      {
+        "id": "vue-watchers-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- `watch` is lazy and explicit. `watchEffect` is immediate and tracks reads.\n- Direct watches of reactive objects are deep.\n- Cleanup is synchronous and runs before the next effect.\n- Async watchers must abort or ignore stale results.\n\nOfficial references\n\n- https://vuejs.org/guide/essentials/watchers.html"
+      }
+    ]
+  },
+  {
+    "id": "vue-reactivity-pitfalls",
+    "subjectId": "vue",
+    "categoryId": "vue-reactivity",
+    "title": "Reactivity pitfalls",
+    "description": "Cases where a mutation is real in JavaScript and invisible to Vue effects.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 40,
+    "tags": [
+      "proxy",
+      "toRaw",
+      "external-mutation",
+      "pitfalls"
+    ],
+    "blocks": [
+      {
+        "id": "vue-reactivity-pitfalls-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Vue tracks proxy operations, not raw object identity",
+        "content": "A reactive object is a `Proxy`. Effects subscribe when they read a property through that proxy, and they rerun when the same property is set through the proxy. Mutating a raw object that you held before `reactive()`, or a copy from `toRaw()`, bypasses the proxy. The data changes. The effect does not run.\n\nExternal libraries do this often. A map or chart mutates the object you passed in, or a WebSocket handler updates a plain array that you later dropped into state without going through the ref. The fix is either to mutate through the proxy, or to replace the ref's value so the assignment itself is the tracked write.",
+        "keyPoints": [
+          "Reads and writes must go through the proxy that the effect read.",
+          "`toRaw` is for passing a snapshot to a library, not for ongoing mutation.",
+          "Replacing `list.value` with a new array is a tracked write even when the array is not deep-reactive.",
+          "Classes with private fields and some built-ins do not behave like plain data under a proxy. Keep those instances `markRaw`."
+        ]
+      },
+      {
+        "id": "vue-reactivity-pitfalls-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "Not every new property path is what you think",
+        "content": "Vue 3 proxies can observe new properties added with a normal assignment, unlike Vue 2's `Object.defineProperty` limits. That does not mean every collection update is observed if you edit a raw copy. `Map` and `Set` are reactive only through their proxy methods (`set`, `add`, `delete`). Mutating a value inside a `Map` without a tracked read of that value will not notify a computed that never read it.\n\nDestructuring in a `watch` callback is another trap: the callback argument for a reactive object is the proxy, but pulling fields out and watching those locals later is just plain data.",
+        "keyPoints": [
+          "Adding a field with `state.newKey = 1` on a reactive object is tracked in Vue 3.",
+          "Vue 2 required `Vue.set`. Do not carry that pattern forward as if Vue 3 needed it for plain objects.",
+          "Reactive `Map`/`Set` must be updated through the collection API.",
+          "A computed that reads `state.items[0]` does not automatically depend on `items[1]`."
+        ]
+      },
+      {
+        "id": "vue-reactivity-pitfalls-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Hand the library a raw snapshot and publish updates through the ref",
+        "language": "typescript",
+        "code": "import { markRaw, shallowRef, toRaw } from 'vue'\n\nconst rows = shallowRef<Row[]>([])\nconst chart = markRaw(createChart(host))\n\nfunction onSocketBatch(batch: Row[]) {\n  const next = toRaw(rows.value).slice()\n  for (const row of batch) next.push(row)\n  rows.value = next\n  chart.setData(next)\n}",
+        "explanation": "`shallowRef` tracks the replacement of the array, not every nested field. `toRaw(...).slice()` copies the current list without sharing the proxy with the chart. `markRaw` keeps the chart instance out of the reactivity system."
+      },
+      {
+        "id": "vue-reactivity-pitfalls-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "A computed sometimes stays stale after a library mutates an options object. How do you explain it?",
+        "answer": "The computed read the proxy, but the library wrote to a raw object, or the other way around. Proxy traps did not see the write, so no dependency was invalidated. I would find the owner of the object: either the library receives `toRaw` data and calls back into Vue with a new value, or Vue retains the proxy and the library is given a clone.\n\nI would not \"fix\" it by reading the computed inside a `setInterval`. That hides a broken tracking path.",
+        "explanation": "Stale UI with mutated data is almost always a proxy bypass or a replaced identity that nobody is tracking."
+      },
+      {
+        "id": "vue-reactivity-pitfalls-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "The external mutation",
+        "question": "You pass `state.user` into `legacyForm.bind(obj)`, and the library sets `obj.name = 'Ada'` on the raw object it stored earlier. The template still shows the old name. Why?",
+        "answer": "The library held the object from before it was passed through the proxy, or it unwrapped it and wrote to the target. That assignment does not trigger the reactive setter the template subscribed to. Copy values out of the library on its change event and assign them on the proxy, or replace a `ref` with the new user object.",
+        "explanation": "JavaScript mutation and Vue notification are the same event only when the write hits the proxy.\n\n[Further reading](https://vuejs.org/guide/extras/reactivity-in-depth.html)",
+        "hints": [
+          "Which object identity did the effect subscribe to?"
+        ]
+      },
+      {
+        "id": "vue-reactivity-pitfalls-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "A table accepts in-place edits from a spreadsheet widget that mutates row objects. After a sort, some cells show fresh values and some do not. How do you make updates reliable?",
+        "answer": "Stop sharing row objects with the widget. Give the widget a plain snapshot, and on each edit callback replace that row in a new array assigned to a `shallowRef`, or update through the reactive proxy by id. Sorting should replace the array order through Vue as well, so the `v-for` keys move with the data.\n\nAdd a test that mutates the widget's copy and proves the Vue table does not change until the callback assigns state. That locks the boundary.",
+        "explanation": "Two owners of one mutable row will always drift. One owner publishes the next value."
+      },
+      {
+        "id": "vue-reactivity-pitfalls-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Calling `toRaw` in a computed to \"simplify\" the value, then mutating the result in an event handler.",
+        "whyItHappens": "`toRaw` looks like a way to avoid proxy quirks. The handler then writes the untracked target.",
+        "correctApproach": "Use `toRaw` only at the edge, for a library call or a structured clone. Write application state through refs and proxies."
+      },
+      {
+        "id": "vue-reactivity-pitfalls-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Draw the proxy boundary around third-party mutation.",
+        "keyPoints": [
+          "If a library mutates inputs, give it a copy.",
+          "Publish results by assigning a ref or writing the proxy.",
+          "Remember Vue 3 observes new keys on reactive objects. Vue 2 did not.",
+          "Use `markRaw` for class instances that must not be proxied."
+        ]
+      },
+      {
+        "id": "vue-reactivity-pitfalls-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- Effects see proxy reads and writes.\n- `toRaw` and external holders can mutate data silently.\n- Vue 3 tracks new properties on reactive objects.\n- `Map` and `Set` track their own methods.\n\nOfficial references\n\n- https://vuejs.org/guide/extras/reactivity-in-depth.html"
+      }
+    ]
+  },
+  {
+    "id": "vue-shallow-and-raw",
+    "subjectId": "vue",
+    "categoryId": "vue-reactivity",
+    "title": "shallowRef, markRaw, and large state",
+    "description": "How to store big or foreign objects without deep-proxying every field.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 35,
+    "tags": [
+      "shallowRef",
+      "markRaw",
+      "performance",
+      "state"
+    ],
+    "blocks": [
+      {
+        "id": "vue-shallow-and-raw-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Deep reactivity is a cost you opt out of on purpose",
+        "content": "`reactive` and `ref` walk plain objects and convert nested plain objects into proxies. That is convenient for forms and small documents. It is expensive and often useless for a 20,000-row payload, a chart instance, or a class from a mapping library. `shallowRef` tracks replacement of `.value` only. Nested field changes do not notify anyone unless you replace the value or call `triggerRef`.\n\n`shallowReactive` proxies only the first level. `markRaw` marks an object so Vue will not proxy it even if it is later placed inside a reactive object. Use `markRaw` for SDK instances, DOM nodes, and objects with private fields or internal slots that break under a proxy.",
+        "keyPoints": [
+          "`shallowRef` invalidates dependents when `.value` is replaced.",
+          "Mutating `shallowRef.value[0].name = 'x'` does not rerun effects.",
+          "`triggerRef(shallow)` forces notification after an intentional in-place edit.",
+          "`markRaw` is permanent for that object. Do not mark plain application state just to silence updates."
+        ]
+      },
+      {
+        "id": "vue-shallow-and-raw-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "Immutable updates pair naturally with shallowRef",
+        "content": "If each socket batch produces the next array and assigns `rows.value = next`, every consumer that read `rows.value` updates, and Vue did not have to proxy every cell. Consumers that need one row should take a computed that finds the row by id, knowing that any replacement of the array invalidates that computed. When that cost shows up in a profile, split the data: a shallow map of id to row ref, so one row replacement does not rebuild every card's dependencies.\n\nDo not deep-clone the entire collection on every keystroke in a filter input. The filter can be a computed over the shallow array. The array identity stays put until the data changes.",
+        "keyPoints": [
+          "Assign a new top-level value to publish shallow changes.",
+          "A computed that reads the shallow ref reruns on replacement, then walks the plain data.",
+          "Per-entity refs are the next split when one array replacement is too coarse.",
+          "Foreign instances stay `markRaw` and are updated by their own APIs."
+        ]
+      },
+      {
+        "id": "vue-shallow-and-raw-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Replace a large list and keep the chart raw",
+        "language": "typescript",
+        "code": "import { markRaw, shallowRef } from 'vue'\n\ninterface Row { id: string; label: string }\n\nconst rows = shallowRef<Row[]>([])\nconst chart = markRaw(new ChartLibrary())\n\nfunction replaceRows(next: Row[]) {\n  rows.value = next\n  chart.setData(next)\n}",
+        "explanation": "Readers of `rows` update because the ref was set. The chart instance is never converted to a proxy, so its methods and private fields keep working."
+      },
+      {
+        "id": "vue-shallow-and-raw-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "A page puts an API payload of 15,000 nested records into `reactive` and the main thread locks for hundreds of milliseconds. What do you change first?",
+        "answer": "Stop deep-proxying data the UI does not mutate field by field. Store it in a `shallowRef` and treat updates as replacements, or store only the slice the screen needs. Then check the template: rendering 15,000 rows will dominate even after the proxy cost is gone, so window the list.\n\nI would profile conversion time and render time separately. `shallowRef` fixes the conversion. It does not remove DOM cost.",
+        "explanation": "Deep reactivity on large immutable payloads pays for tracking you never use."
+      },
+      {
+        "id": "vue-shallow-and-raw-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "In-place edit of a shallowRef",
+        "question": "Will this rerender the list?\n\n```\nconst rows = shallowRef([{ id: '1', label: 'A' }])\nrows.value[0].label = 'B'\n```",
+        "answer": "No. `shallowRef` does not track nested properties. The object did change, so a later render caused by something else may show `B`, which makes the bug look random. Replace the array or the row, or call `triggerRef(rows)` after a deliberate in-place batch.",
+        "explanation": "The data and the notification diverged. The next unrelated update can reveal the mutated label and hide the bug.\n\n[Further reading](https://vuejs.org/guide/extras/reactivity-in-depth.html)",
+        "hints": [
+          "Which write does a shallow ref subscribe to?"
+        ]
+      },
+      {
+        "id": "vue-shallow-and-raw-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "You need a chart, a WebGL map, and a 10 MB GeoJSON document in one view. How do you place each in Vue state?",
+        "answer": "The chart and map instances are `markRaw`. Their options can be plain objects applied in a watcher. The GeoJSON lives in a `shallowRef` and is replaced when the user loads another region. Vue components read summary fields you compute from it, not the raw document in the template.\n\nIf a side panel edits one feature's name, do not deep-convert the document to make that edit reactive. Update the feature in an immutable copy or in a small reactive overlay of edits keyed by feature id, and pass the merged result to the map API.",
+        "explanation": "Instances, large documents, and small editable overlays have different reactivity needs."
+      },
+      {
+        "id": "vue-shallow-and-raw-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Calling `triggerRef` after every nested setter to simulate deep reactivity.",
+        "whyItHappens": "It forces updates, but every subscriber reruns, including ones that did not touch the edited field, and the calls are easy to forget.",
+        "correctApproach": "Use deep reactivity for small editable models. Use shallow replacement or per-id refs for large collections. Reserve `triggerRef` for a batch that intentionally mutated in place."
+      },
+      {
+        "id": "vue-shallow-and-raw-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Match proxy depth to the write pattern you actually use.",
+        "keyPoints": [
+          "`shallowRef` plus assignment for large immutable payloads.",
+          "`markRaw` for foreign instances.",
+          "Deep `reactive` for small forms.",
+          "Do not render the entire large payload as DOM."
+        ]
+      },
+      {
+        "id": "vue-shallow-and-raw-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- `shallowRef` tracks `.value` replacement only.\n- Nested in-place edits need a new assignment or `triggerRef`.\n- `markRaw` opts an object out of proxying permanently.\n- Proxy cost and DOM cost are separate problems.\n\nOfficial references\n\n- https://vuejs.org/guide/extras/reactivity-in-depth.html\n- https://vuejs.org/guide/best-practices/performance.html"
+      }
+    ]
+  },
+  {
+    "id": "vue-props-emits",
+    "subjectId": "vue",
+    "categoryId": "vue-components",
+    "title": "Props and emits",
+    "description": "One-way data flow, typed contracts, and why mutating props breaks the parent.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 40,
+    "tags": [
+      "props",
+      "emits",
+      "one-way-data-flow"
+    ],
+    "blocks": [
+      {
+        "id": "vue-props-emits-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Props go down, events go up",
+        "content": "A prop is an input owned by the parent. The child may read it and should not assign to it. When the child needs to ask for a change, it emits an event and the parent decides whether state changes. That split is what keeps a component tree predictable: you can search for the owner of a value by following who passed the prop.\n\n`defineProps` declares the contract. In `<script setup>` the returned object is readonly. Renaming a prop in the child does not rename the attribute the parent binds. Vue maps `userId` to the `user-id` attribute in templates. Declared emits are excluded from fallthrough attributes, so a listener such as `@saved` is not dumped onto a root DOM node.",
+        "keyPoints": [
+          "Props are readonly inputs. Emit when the parent should update its state.",
+          "In Vue 3.5, destructuring `defineProps()` stays reactive inside `<script setup>`.",
+          "Declared prop names and declared emits are not fallthrough attrs.",
+          "A prop change does not remount the child. Local state survives unless the child is keyed or destroyed by `v-if`."
+        ]
+      },
+      {
+        "id": "vue-props-emits-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "Validate at the boundary, not with prop mutation",
+        "content": "Runtime prop validators and TypeScript types answer different questions. Types disappear at build time. A validator can reject a bad enum during development, but it is not a security boundary. Data from a parent component is still in-process data. Data from the network needs a parser before it becomes props.\n\nDefault values belong in the prop declaration. Filling a missing prop by writing `if (!props.label) props.label = \"Untitled\"` mutates the parent binding and warns. Use a computed `const label = computed(() => props.label ?? \"Untitled\")` or a destructure default.",
+        "keyPoints": [
+          "TypeScript props are not runtime validation.",
+          "Defaults live in `withDefaults` or the Vue 3.5 destructure default.",
+          "Do not copy props into local state just to read them.",
+          "A local draft is justified when the user edits a copy that is committed later with an event."
+        ]
+      },
+      {
+        "id": "vue-props-emits-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Typed props and a payload emit",
+        "language": "html",
+        "code": "<script setup lang=\"ts\">\nconst props = defineProps<{\n  seats: number\n  disabled?: boolean\n}>()\n\nconst emit = defineEmits<{\n  change: [seats: number]\n}>()\n\nfunction increment() {\n  if (props.disabled) return\n  emit('change', props.seats + 1)\n}\n</script>\n\n<template>\n  <button type=\"button\" :disabled=\"disabled\" @click=\"increment\">\n    {{ seats }} seats\n  </button>\n</template>",
+        "explanation": "The child never assigns `props.seats`. The parent owns the number and updates it when it handles `@change`."
+      },
+      {
+        "id": "vue-props-emits-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "Why is mutating a prop a bug even when the UI appears to update?",
+        "answer": "The object inside a prop may be shared with the parent. Mutating a nested field changes the parent's state through the same reference, with no event and no obvious owner. Mutating a primitive prop does not update the parent and the next parent render overwrites the child. Both cases make the data flow impossible to trace.\n\nThe exception that is still one-way is `v-model`: the child emits `update:modelValue`, and the parent's binding writes the new value back as a prop. `defineModel` hides that emit. It does not give the child ownership of the parent's ref.",
+        "explanation": "Shared mutable objects fake a successful update by skipping the event."
+      },
+      {
+        "id": "vue-props-emits-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "The nested object that let you cheat",
+        "question": "The parent passes `:user=\"user\"` where `user` is reactive. The child runs `props.user.name = \"Ada\"` and the parent heading updates. Is that a supported prop update?",
+        "answer": "No. The child mutated a shared object. Vue noticed the reactive write because it is the same proxy, so the parent rerendered, but the contract was still broken. The parent cannot intercept, validate, or replace that update. Emit the new name, or give the child a copy.",
+        "explanation": "A rerender is not proof that data flow is one-way. It only proves some reactive dependency changed.\n\n[Further reading](https://vuejs.org/guide/components/props.html)",
+        "hints": [
+          "Did the child emit, or did it write the parent's proxy?"
+        ]
+      },
+      {
+        "id": "vue-props-emits-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "A form library mutates the object you pass as a prop, and a redesign to immutable updates would touch 30 screens. How do you contain it?",
+        "answer": "Isolate the mutable draft in one adapter component. The rest of the app passes an immutable value in and listens for a commit event. The adapter clones into the shape the library needs, lets the library mutate the clone, and emits the next value on change or on submit.\n\nDo not spread the library's mutation convention into domain components. Add a test that the parent state does not change until the adapter emits.",
+        "explanation": "A boundary adapter is cheaper than pretending shared mutation is the framework's data model."
+      },
+      {
+        "id": "vue-props-emits-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Watching a prop and copying it into a local ref on every change, then also editing the ref.",
+        "whyItHappens": "It seems to create a draft, but the watch overwrites the user's in-progress edit whenever the parent rerenders with the same value.",
+        "correctApproach": "Read props directly when you are not editing. For a draft, copy once when the editor opens and emit on save. If the parent can change underneath, define an explicit reset policy."
+      },
+      {
+        "id": "vue-props-emits-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Props and emits are the public API of a component. Keep them smaller than the internal state.",
+        "keyPoints": [
+          "Declare props and emits next to the top of `<script setup>`.",
+          "Emit data, not \"please mutate this for me\", unless you are wrapping a controlled input with `defineModel`.",
+          "Validate untrusted payloads before they become props.",
+          "Use a key on a child only when you intend to reset its local state."
+        ]
+      },
+      {
+        "id": "vue-props-emits-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- Props are parent-owned inputs. Events ask the parent to change them.\n- Mutating a nested prop object updates shared state without a contract.\n- Vue 3.5 prop destructure stays reactive inside the SFC.\n- A local copy is a draft with a commit point, not a mirror of every prop.\n\nOfficial references\n\n- https://vuejs.org/guide/components/props.html\n- https://vuejs.org/guide/components/events.html"
+      }
+    ]
+  },
+  {
+    "id": "vue-define-model",
+    "subjectId": "vue",
+    "categoryId": "vue-components",
+    "title": "v-model and defineModel",
+    "description": "The update:modelValue contract, named models, and modifiers.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 35,
+    "tags": [
+      "v-model",
+      "defineModel",
+      "modifiers"
+    ],
+    "blocks": [
+      {
+        "id": "vue-define-model-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "v-model is a prop plus an update event",
+        "content": "On a native input, `v-model` expands to a value binding and an input listener. On a component, the default pair is the `modelValue` prop and the `update:modelValue` event. `v-model:title=\"title\"` uses `title` and `update:title` instead. Vue 3.4+ `defineModel()` declares that pair and returns a ref you can read and write. Writing `.value` emits the update. The parent still owns the source.\n\n`useModel()` is the same helper for a hand-written `setup()` where macros are not available. You declare the prop and emit yourself, then call `useModel(props, \"count\")`.",
+        "keyPoints": [
+          "Default component v-model is `modelValue` / `update:modelValue`.",
+          "Named models use `v-model:name` and `defineModel(\"name\")`.",
+          "Assigning the model ref emits. It does not mutate the parent's object in place.",
+          "Modifiers (`trim`, `number`, `lazy`, and custom names) arrive as a companion object on the model ref."
+        ]
+      },
+      {
+        "id": "vue-define-model-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "Modifiers change the event, not the ownership",
+        "content": "`.lazy` listens to `change` instead of `input` on native controls. `.number` casts with `Number(...)`, which becomes `NaN` for an empty or partial field, so a form that uses it needs a display strategy for empty input. `.trim` trims strings. Custom modifiers are available to the child so a component can implement `.uppercase` itself.\n\nDo not add a watcher that copies `modelValue` into a second ref and emits on every local keystroke unless you need a transformation. That second ref drifts when the parent rejects an update. Prefer to write the model ref and let the parent be the source.",
+        "keyPoints": [
+          "If the parent ignores the emit, the model snaps back on the next render.",
+          "Empty numeric input and `NaN` need an explicit UI decision.",
+          "A component can implement custom modifiers. It should document them next to the prop.",
+          "`defineModel({ required: true })` and defaults are part of the contract, like props."
+        ]
+      },
+      {
+        "id": "vue-define-model-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "A named model for a search box",
+        "language": "html",
+        "code": "<script setup lang=\"ts\">\nconst query = defineModel<string>('query', { default: '' })\n</script>\n\n<template>\n  <input\n    :value=\"query\"\n    type=\"search\"\n    @input=\"query = ($event.target as HTMLInputElement).value\"\n  />\n</template>",
+        "explanation": "The parent writes `<SearchBox v-model:query=\"term\" />`. Assigning `query` emits `update:query`. Using `:value` plus the assignment avoids binding `v-model` to the same ref in a way that hides the native input contract."
+      },
+      {
+        "id": "vue-define-model-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "How is `defineModel` different from a local ref that you initialize from a prop?",
+        "answer": "`defineModel` is a controlled value. The parent prop remains the source, and every assignment emits `update:*`. A local ref initialized from a prop is uncontrolled after mount unless you keep copying the prop back. Uncontrolled state is appropriate for a dialog draft that commits on Save. A search box or a design-system input should be controlled so two parents cannot disagree about the current text.\n\nI would also mention modifiers and the rejection case: if the parent does not write the emitted value back, the input must show the prop, not a private copy.",
+        "explanation": "Controlled versus draft is the design choice. `defineModel` implements the controlled side."
+      },
+      {
+        "id": "vue-define-model-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "The parent that drops the update",
+        "question": "A child uses `defineModel` and sets `model.value = next` on every input event. The parent listens with `@update:model-value` and ignores values longer than 5 characters. What does the input show after the sixth character?",
+        "answer": "The prop is still the previous accepted value, so the rendered input snaps back to those 5 characters on the next render. `defineModel` does not keep a private successful value. If the product wants to allow typing and validate on submit, use a local draft instead of a controlled model.",
+        "explanation": "Ignoring an update is a valid parent decision. The child UI has to follow the prop it receives back.\n\n[Further reading](https://vuejs.org/guide/components/v-model.html)",
+        "hints": [
+          "Who owns the value that the template renders?"
+        ]
+      },
+      {
+        "id": "vue-define-model-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "A design-system text field must support `v-model`, a `trim` modifier, and an internal character counter that the parent does not care about. How do you structure state?",
+        "answer": "Expose one `defineModel<string>()` for the committed text. Apply `trim` when the modifier is set, on the `change` event or on blur, and document that so the parent is not surprised mid-composition. Keep the counter as a computed of the model. Do not emit a second \"internal\" value.\n\nIME composition matters: avoid trimming on every `input` while a composition session is open, or you will corrupt CJK input. Trim on blur or on the `change` event.",
+        "explanation": "The public model stays small. Composition and modifiers are part of the input contract, not an afterthought."
+      },
+      {
+        "id": "vue-define-model-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Putting `v-model` on a custom component that neither declares `modelValue` nor emits `update:modelValue`.",
+        "whyItHappens": "The parent binding compiles, and the child silently keeps its own state. The parent ref never changes.",
+        "correctApproach": "Declare `defineModel` or the explicit prop and emit. Add a component test that sets the prop and asserts the emit payload."
+      },
+      {
+        "id": "vue-define-model-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Use `v-model` for values the parent owns live. Use a draft plus a submit event for everything else.",
+        "keyPoints": [
+          "Name a model when a component has more than one controlled value.",
+          "Document modifiers, including when they run.",
+          "Respect IME composition before transforming text.",
+          "Test that an ignored emit does not leave a private value on screen if the control is meant to be controlled."
+        ]
+      },
+      {
+        "id": "vue-define-model-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- Component `v-model` is `modelValue` plus `update:modelValue`.\n- `defineModel` returns a ref whose writes emit.\n- The parent can reject an update. The child then renders the prop.\n- Modifiers are part of the contract. Trim carefully around IME.\n\nOfficial references\n\n- https://vuejs.org/guide/components/v-model.html\n- https://vuejs.org/guide/essentials/forms.html"
+      }
+    ]
+  },
+  {
+    "id": "vue-slots",
+    "subjectId": "vue",
+    "categoryId": "vue-components",
+    "title": "Slots and scoped slots",
+    "description": "Default slots, named slots, and how scoped data flows from child to parent template.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 35,
+    "tags": [
+      "slots",
+      "scoped-slots",
+      "defineSlots"
+    ],
+    "blocks": [
+      {
+        "id": "vue-slots-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Slots are parent-rendered content in a child-chosen place",
+        "content": "The parent writes the slot content. The child decides where it appears by placing `<slot>` in its template. A named slot (`#header` or `v-slot:header`) targets `<slot name=\"header\">`. Fallback markup inside `<slot>` renders only when the parent does not provide that slot.\n\nSlot content is compiled in the parent's scope. The parent template sees the parent's bindings, not the child's data, unless the child passes a slot prop. That rule surprises people who expect the slot to behave like a child template.",
+        "keyPoints": [
+          "Default content inside `<slot>` is the fallback, not a second copy that always renders.",
+          "Parent scope wins for slot expressions. Child data must be passed as slot props.",
+          "`defineSlots` types those props in TypeScript SFCs.",
+          "A slot function from `useSlots()` returns vnodes. Prefer the template when you can."
+        ]
+      },
+      {
+        "id": "vue-slots-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "Scoped slots invert data without inverting ownership",
+        "content": "A table child owns the rows. The parent owns how a row looks. The child writes `<slot name=\"row\" :item=\"item\" :index=\"index\" />`, and the parent receives those props in `#row=\"{ item }\"`. The parent still must not mutate `item` if the child owns the array.\n\nScoped slots are the Vue equivalent of a render prop. They are a better fit than a pile of boolean props (`showAvatar`, `showMeta`, `dense`) when the layout variation is open-ended. They are a worse fit when the variation is one of two known layouts. In that case, a prop or a child component is easier to test.",
+        "keyPoints": [
+          "Pass the smallest slot props the parent needs.",
+          "Do not use the slot to leak the child's entire internal state.",
+          "List rows rendered through a scoped slot still need a stable key on the real element.",
+          "Empty slots are detectable with `$slots` or `useSlots` when layout must change if the parent passed nothing."
+        ]
+      },
+      {
+        "id": "vue-slots-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "A list that lets the parent render each row",
+        "language": "html",
+        "code": "<!-- ResultList.vue -->\n<script setup lang=\"ts\">\ndefineProps<{ items: { id: string; label: string }[] }>()\ndefineSlots<{\n  row(props: { item: { id: string; label: string } }): unknown\n}>()\n</script>\n\n<template>\n  <ul>\n    <li v-for=\"item in items\" :key=\"item.id\">\n      <slot name=\"row\" :item=\"item\">{{ item.label }}</slot>\n    </li>\n  </ul>\n</template>",
+        "explanation": "The fallback prints `item.label`. A parent can override `#row` and still receives the typed `item`. The key stays on the `<li>` the child owns."
+      },
+      {
+        "id": "vue-slots-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "When would you choose a scoped slot over another prop?",
+        "answer": "When the parent must supply structure, not just data: a custom row, a custom empty state, or actions that differ by screen. Props should stay scalar or simple objects. A prop that is a function returning vnodes is a scoped slot with worse template syntax.\n\nI would avoid slots for data that the child can render itself. A `title` string does not need a slot. A slot that only wraps `{{ title }}` adds indirection without a variation point.",
+        "explanation": "Slots are a layout extension point. They are not the default way to pass strings."
+      },
+      {
+        "id": "vue-slots-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "The slot that cannot see child state",
+        "question": "A child has `const query = ref(\"\")` and this template:\n\n`<slot>{{ query }} results</slot>`\n\nThe parent provides `<span>{{ query }}</span>` as the slot body. Why is the parent `query` blank or a different value?",
+        "answer": "The parent's slot template is compiled in the parent scope. Its `query` is the parent's binding, not the child's. The fallback `{{ query }}` inside `<slot>` would see the child, but it does not render once the parent supplies the slot. Pass the value out with `<slot :query=\"query\">` and read it as `#default=\"{ query }\"`.",
+        "explanation": "Fallback content and provided content do not share a scope. Only slot props cross the boundary.\n\n[Further reading](https://vuejs.org/guide/components/slots.html)",
+        "hints": [
+          "Which component compiled the expressions inside the slot body?"
+        ]
+      },
+      {
+        "id": "vue-slots-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "Three product teams want different table cells: links, badges, and inline edits. The table component has grown 25 boolean props. What do you replace them with?",
+        "answer": "Keep sorting, selection, and keyboard behavior inside the table. Replace the boolean layout props with scoped slots for cell and empty state, and pass the row plus the column id. Document which slot props are readonly.\n\nLeave a default cell renderer so simple tables do not have to use the slot. Publish the slot contract in the design-system docs and add a visual test per slot, not per boolean combination.",
+        "explanation": "Slots scale with open-ended layout. Booleans scale with the product teams you already know about."
+      },
+      {
+        "id": "vue-slots-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Using a slot prop as a two-way model by mutating `item` inside the parent slot.",
+        "whyItHappens": "The object is reactive, so the table updates, and nobody emits an event the table can validate.",
+        "correctApproach": "Emit from the parent's own components, or have the table emit `update:row`. Keep slot props read-only in the contract."
+      },
+      {
+        "id": "vue-slots-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Type the slot, key the list in the owner, and keep slot props small.",
+        "keyPoints": [
+          "Use `defineSlots` when more than one slot exists or the props are easy to mix up.",
+          "Provide fallback content for the default rendering.",
+          "Check `useSlots()` only when the layout truly depends on whether a slot was passed.",
+          "Do not reach into child instance state from slot content."
+        ]
+      },
+      {
+        "id": "vue-slots-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- The parent compiles slot content in the parent scope.\n- Child data reaches that content only as slot props.\n- Fallback markup renders when the parent omits the slot.\n- Scoped slots replace boolean prop explosions when layout is open-ended.\n\nOfficial references\n\n- https://vuejs.org/guide/components/slots.html"
+      }
+    ]
+  },
+  {
+    "id": "vue-provide-inject",
+    "subjectId": "vue",
+    "categoryId": "vue-components",
+    "title": "provide and inject",
+    "description": "Ancestor-to-descendant dependencies, app-level providers, and the reactivity rules.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 35,
+    "tags": [
+      "provide",
+      "inject",
+      "injection-key"
+    ],
+    "blocks": [
+      {
+        "id": "vue-provide-inject-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Provide is an explicit implicit dependency",
+        "content": "`provide` makes a value available to descendants without threading it through every prop. `inject` reads the nearest provider. It is the right tool for a theme, a form root, or a tree-scoped store that many distant nodes need. It is the wrong tool for a value only the direct child needs. That value should stay a prop so the dependency is visible in the template.\n\nUse a `InjectionKey<T>` symbol, not a string, when TypeScript should know the injected type. Strings collide across libraries. Provide the key from a composable such as `provideForm(form)` so callers do not sprinkle raw `provide` calls with slightly different shapes.",
+        "keyPoints": [
+          "The nearest ancestor provider wins. An intermediate component can override.",
+          "`app.provide` covers every component in that app instance.",
+          "The default argument to `inject` is used when nobody provided the key.",
+          "Plugins and libraries should provide symbols, not mutate `globalProperties`, for new code."
+        ]
+      },
+      {
+        "id": "vue-provide-inject-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "Provide the reactive source, not a snapshot",
+        "content": "If you `provide` a plain number, descendants keep that number. If you provide a `ref` or a `reactive` object, descendants that use it stay connected, because they hold the same container. Destructuring a provided reactive object in the descendant copies values and drops tracking, just like any other reactive object.\n\nDo not provide a computed's unwrapped result from a non-reactive snapshot taken once in setup. Provide the computed ref itself. And do not use provide/inject to sneak a mutation past a parent. The provider still owns the state and should expose functions for the changes descendants are allowed to make.",
+        "keyPoints": [
+          "Provide refs or reactive objects when updates must flow.",
+          "Providing `count.value` provides a number, once.",
+          "Descendants should call functions the provider supplied (`setPage`, `registerField`) instead of mutating internal fields.",
+          "Injection makes unit tests responsible for supplying a provider or a default."
+        ]
+      },
+      {
+        "id": "vue-provide-inject-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "A typed form context",
+        "language": "typescript",
+        "code": "import { inject, provide, reactive, type InjectionKey } from 'vue'\n\ninterface FormContext {\n  disabled: boolean\n  register(id: string): void\n}\n\nconst formKey: InjectionKey<FormContext> = Symbol('form')\n\nexport function provideForm() {\n  const form = reactive<FormContext>({\n    disabled: false,\n    register(id) { /* track fields */ void id },\n  })\n  provide(formKey, form)\n  return form\n}\n\nexport function useFormContext() {\n  const form = inject(formKey)\n  if (!form) throw new Error('useFormContext() requires provideForm()')\n  return form\n}",
+        "explanation": "Descendants call `useFormContext()` and receive the same reactive object. The symbol key prevents a string clash with another library's `form` provider."
+      },
+      {
+        "id": "vue-provide-inject-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "How do you choose between props, provide/inject, and a Pinia store?",
+        "answer": "Props are the default for a parent and child. Provide/inject fits a subtree that shares context, such as a form, a tabs root, or a theme, where drilling would cross components that do not care. Pinia fits state that many unrelated routes share, that must outlive one component tree, or that you want to inspect in devtools as an application store.\n\nI would not put a page's temporary hover state in Pinia, and I would not provide the entire store from the root when only one subtree needs a scoped override. Provide/inject can override per subtree. A singleton store cannot, unless you design ids into it.",
+        "explanation": "The lifetime and the audience of the state decide the channel."
+      },
+      {
+        "id": "vue-provide-inject-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "A provided number never updates",
+        "question": "A parent does `const count = ref(0)` and `provide(\"count\", count.value)`. The child injects `count` and displays it. After the parent increments the ref, the child stays at 0. Why?",
+        "answer": "The parent provided the current number, not the ref. Injection received a plain value with no connection to later assignments. Provide the ref itself (`provide(key, count)`) and read `count.value` in the child, or provide a computed ref.",
+        "explanation": "Provide does not make an arbitrary value reactive. It passes the value you handed it.\n\n[Further reading](https://vuejs.org/guide/components/provide-inject.html)",
+        "hints": [
+          "What JavaScript value was passed into `provide`?"
+        ]
+      },
+      {
+        "id": "vue-provide-inject-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "A design system has nested menus. Inner items need to close the root menu, and a second menu on the page must not close the first. How do you model that?",
+        "answer": "The root menu provides a context object with `close()` and a generated id. Items inject the nearest context, so an inner menu that provides its own context handles its own children. The page does not use a global store for \"the open menu\", because two menus would fight.\n\nKeyboard handling and focus restoration live on the root that provided the context. Items call `close()` rather than reaching into the root's refs.",
+        "explanation": "Nearest-provider injection matches nested widgets better than a singleton."
+      },
+      {
+        "id": "vue-provide-inject-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Using string keys such as `provide(\"theme\", theme)` inside a shared component library.",
+        "whyItHappens": "Strings are easy to type. Another package provides the same string and one tree silently receives the wrong object.",
+        "correctApproach": "Export an `InjectionKey` symbol from the library and a `useTheme()` that throws or returns a documented default when the provider is missing."
+      },
+      {
+        "id": "vue-provide-inject-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Provide the smallest context object, with functions for the allowed writes.",
+        "keyPoints": [
+          "Prefer props when the consumer is a direct child.",
+          "Provide refs, not `.value` snapshots, when the UI must update.",
+          "Type the key with `InjectionKey`.",
+          "In tests, mount with a provider or cover the missing-provider path."
+        ]
+      },
+      {
+        "id": "vue-provide-inject-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- `inject` reads the nearest `provide` or an app-level provider.\n- Providing `.value` snapshots a plain JavaScript value.\n- Symbol keys beat string keys in libraries.\n- Use provide for subtree context, props for local input, Pinia for app lifetime.\n\nOfficial references\n\n- https://vuejs.org/guide/components/provide-inject.html"
+      }
+    ]
+  },
+  {
+    "id": "vue-fallthrough-attrs",
+    "subjectId": "vue",
+    "categoryId": "vue-components",
+    "title": "Fallthrough attributes",
+    "description": "How undeclared attributes land on the root node, and how to retarget them.",
+    "difficulty": "advanced",
+    "interviewPriority": "high",
+    "estimatedMinutes": 30,
+    "tags": [
+      "attrs",
+      "inheritAttrs",
+      "useAttrs"
+    ],
+    "blocks": [
+      {
+        "id": "vue-fallthrough-attrs-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Attrs are everything you did not declare",
+        "content": "If a parent passes `class`, `style`, `id`, `data-*`, or a native listener that the child did not declare as a prop or emit, Vue treats it as a fallthrough attribute. A single-root component applies those attributes to its root element automatically. Declared props and declared emits are removed from that set, which is why `@saved` does not become a DOM `saved` listener after you declare it.\n\n`class` and `style` are special: they merge with the child root's own class and style instead of replacing them. Other attributes overwrite when the child also sets the same name on the root.",
+        "keyPoints": [
+          "Fallthrough applies to a single root. Multi-root components do not auto-apply attrs, and Vue warns.",
+          "`inheritAttrs: false` turns off automatic application. You then place them yourself.",
+          "`useAttrs()` reads the fallthrough object in `<script setup>`.",
+          "Listeners in attrs are not component emits. Declare emits you consider part of the API."
+        ]
+      },
+      {
+        "id": "vue-fallthrough-attrs-concept-2",
+        "type": "concept",
+        "order": 2,
+        "title": "Wrappers must choose which inner node receives the attrs",
+        "content": "A text-field component whose root is a `<label>` should not dump `placeholder` and `@focus` onto the label. Set `defineOptions({ inheritAttrs: false })` and put `v-bind=\"attrs\"` on the `<input>`. Merge `class` deliberately if both the wrapper and the input need classes.\n\nAttrs are not a second props system. Anything the component wants to document, default, or validate should be a prop. Leaving `disabled` as an accidental fallthrough attr hides it from TypeScript and from the emits/props contract.",
+        "keyPoints": [
+          "Retarget attrs in wrapper components.",
+          "Do not forward attrs to multiple nodes unless you split them on purpose.",
+          "Declare real API as props and emits so they leave the attrs object.",
+          "In a multi-root component, forwarding is mandatory if the parent is allowed to pass attributes."
+        ]
+      },
+      {
+        "id": "vue-fallthrough-attrs-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Forward attrs to the inner input",
+        "language": "html",
+        "code": "<script setup lang=\"ts\">\nimport { useAttrs } from 'vue'\n\ndefineOptions({ inheritAttrs: false })\ndefineProps<{ label: string }>()\nconst attrs = useAttrs()\n</script>\n\n<template>\n  <label class=\"field\">\n    {{ label }}\n    <input v-bind=\"attrs\" />\n  </label>\n</template>",
+        "explanation": "`label` is a prop, so it is not forwarded. `placeholder`, `class`, and native listeners from the parent land on the input because that is the node with `v-bind=\"attrs\"`."
+      },
+      {
+        "id": "vue-fallthrough-attrs-interview-1",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "A parent sets `disabled` on your component and nothing happens. Where do you look?",
+        "answer": "I check whether `disabled` was declared as a prop. If it was not, it fallthroughs to the root node. If the root is a `<div>` and the real control is inside, the attribute never reaches the control. The fix is either to declare `disabled` as a prop and bind it to the control, or to set `inheritAttrs: false` and forward attrs to the control.\n\nI also check for a fragment root. Automatic fallthrough does not pick a node for you in that case.",
+        "explanation": "Fallthrough goes to the root element only. Wrapper components have to aim it."
+      },
+      {
+        "id": "vue-fallthrough-attrs-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "The listener that became a DOM listener",
+        "question": "A parent writes `@select=\"onSelect\"` on a card component, and a native `select` event fires from an inner control at the wrong time. The child never declared `select` in `defineEmits`. What happened?",
+        "answer": "Undeclared listeners fall through toward the root element as native listeners. `select` can be a DOM event, so the parent listener is attached to the DOM rather than treated as a component emit. Declare `select` in `defineEmits` if it is a component event. If it was meant for the inner control, forward attrs onto that control on purpose.",
+        "explanation": "Declaring the emit removes it from fallthrough attrs and makes it part of the component contract.\n\n[Further reading](https://vuejs.org/guide/components/attrs.html)",
+        "hints": [
+          "What does Vue do with a listener that is not a declared emit?"
+        ]
+      },
+      {
+        "id": "vue-fallthrough-attrs-scenario-1",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Senior scenario",
+        "question": "You are building a design-system button that renders either `<button>` or `<a>` based on an `href` prop. Parents must be able to pass `class`, `aria-*`, and click handlers once. How do you forward them?",
+        "answer": "Declare the props you interpret (`href`, `variant`, `disabled`). Turn off automatic inheritance and bind the remaining attrs onto the actual `<button>` or `<a>`, not onto a wrapper span. Map `disabled` yourself because an anchor does not support it the same way: use `aria-disabled` and ignore the click when the link variant is disabled.\n\nAdd tests for both roots. Class merge is easy to get wrong when the component also sets a variant class.",
+        "explanation": "The attribute target is the node the user activates, and it changes with the variant."
+      },
+      {
+        "id": "vue-fallthrough-attrs-mistake-1",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Binding `v-bind=\"$attrs\"` and also leaving `inheritAttrs` at its default `true`.",
+        "whyItHappens": "Attributes are applied twice: once by fallthrough on the root and once by the explicit bind, so listeners fire twice.",
+        "correctApproach": "Set `inheritAttrs: false` before you place attrs yourself."
+      },
+      {
+        "id": "vue-fallthrough-attrs-practice-1",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Production guidance",
+        "content": "Document the attribute target of every wrapper component.",
+        "keyPoints": [
+          "Declare props and emits that are part of the API.",
+          "Forward the rest to one inner node in wrappers.",
+          "Disable automatic inheritance when you forward manually.",
+          "Treat multi-root components as manual-forwarding components."
+        ]
+      },
+      {
+        "id": "vue-fallthrough-attrs-summary-1",
+        "type": "summary",
+        "order": 9,
+        "title": "Quick revision and official references",
+        "content": "Quick revision\n\n- Undeclared attributes fall through to a single root.\n- Class and style merge. Other names can overwrite.\n- Wrappers set `inheritAttrs: false` and bind attrs to the inner control.\n- Declared emits stop being native fallthrough listeners.\n\nOfficial references\n\n- https://vuejs.org/guide/components/attrs.html"
+      }
+    ]
+  }
+]

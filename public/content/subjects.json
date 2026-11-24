@@ -6554,5 +6554,680 @@
         ]
       }
     ]
+  },
+  {
+    "id": "vue",
+    "title": "Vue",
+    "description": "Vue 3.5 interview prep: script setup, reactivity, composables, Pinia, Vue Router, forms, rendering performance, SSR hydration, and the Vue 3.6 Vapor Mode release candidate.",
+    "icon": "vue",
+    "order": 8,
+    "categories": [
+      {
+        "id": "vue-fundamentals",
+        "subjectId": "vue",
+        "title": "Vue Fundamentals",
+        "description": "Single-file components, script setup, templates, lifecycle, and template refs in Vue 3.5.",
+        "order": 1,
+        "topics": [
+          {
+            "id": "vue-sfc-script-setup",
+            "categoryId": "vue-fundamentals",
+            "title": "Single-File Components and script setup",
+            "description": "How <script setup> compiles, which macros are compile-time only, and what is actually exposed to the template.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "sfc",
+              "script-setup",
+              "vue-3.5",
+              "macros"
+            ]
+          },
+          {
+            "id": "vue-template-syntax",
+            "categoryId": "vue-fundamentals",
+            "title": "Template syntax",
+            "description": "Interpolation, directives, v-if versus v-show, and the Vue 3 priority rule when v-if and v-for meet.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "template",
+              "v-if",
+              "v-for",
+              "directives"
+            ]
+          },
+          {
+            "id": "vue-lifecycle",
+            "categoryId": "vue-fundamentals",
+            "title": "Lifecycle and cleanup",
+            "description": "When setup, mount, update, and unmount run, and how composable effects are stopped.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "lifecycle",
+              "onMounted",
+              "onUnmounted",
+              "cleanup"
+            ]
+          },
+          {
+            "id": "vue-template-refs",
+            "categoryId": "vue-fundamentals",
+            "title": "Template refs, useTemplateRef, and useId",
+            "description": "How Vue 3.5 binds refs to elements, why script-setup children stay closed, and how useId stays stable in SSR.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "useTemplateRef",
+              "useId",
+              "vue-3.5",
+              "refs"
+            ]
+          },
+          {
+            "id": "vue-next-tick",
+            "categoryId": "vue-fundamentals",
+            "title": "Rendering and nextTick",
+            "description": "Why state changes do not update the DOM immediately, and when nextTick is the wrong fix.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 30,
+            "tags": [
+              "nextTick",
+              "render",
+              "async-update"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-reactivity",
+        "subjectId": "vue",
+        "title": "Reactivity",
+        "description": "ref, reactive, computed, watchers, and the proxy limits that show up in interviews.",
+        "order": 2,
+        "topics": [
+          {
+            "id": "vue-ref-reactive",
+            "categoryId": "vue-reactivity",
+            "title": "ref and reactive",
+            "description": "When to wrap a value in ref, when a reactive object is enough, and how unwrapping really works.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "ref",
+              "reactive",
+              "proxy",
+              "unwrapping"
+            ]
+          },
+          {
+            "id": "vue-computed",
+            "categoryId": "vue-reactivity",
+            "title": "Computed state",
+            "description": "Lazy cached derivation, writable computed values, and the side effects that do not belong there.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "computed",
+              "derived-state",
+              "cache"
+            ]
+          },
+          {
+            "id": "vue-watchers",
+            "categoryId": "vue-reactivity",
+            "title": "watch, watchEffect, and cleanup",
+            "description": "Lazy watches versus immediate effects, what gets tracked, and how Vue 3.5 cleans up in-flight work.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "watch",
+              "watchEffect",
+              "onWatcherCleanup",
+              "cancellation"
+            ]
+          },
+          {
+            "id": "vue-reactivity-pitfalls",
+            "categoryId": "vue-reactivity",
+            "title": "Reactivity pitfalls",
+            "description": "Cases where a mutation is real in JavaScript and invisible to Vue effects.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "proxy",
+              "toRaw",
+              "external-mutation",
+              "pitfalls"
+            ]
+          },
+          {
+            "id": "vue-shallow-and-raw",
+            "categoryId": "vue-reactivity",
+            "title": "shallowRef, markRaw, and large state",
+            "description": "How to store big or foreign objects without deep-proxying every field.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "shallowRef",
+              "markRaw",
+              "performance",
+              "state"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-components",
+        "subjectId": "vue",
+        "title": "Component Composition",
+        "description": "Props, emits, v-model, slots, provide/inject, and fallthrough attributes.",
+        "order": 3,
+        "topics": [
+          {
+            "id": "vue-props-emits",
+            "categoryId": "vue-components",
+            "title": "Props and emits",
+            "description": "One-way data flow, typed contracts, and why mutating props breaks the parent.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "props",
+              "emits",
+              "one-way-data-flow"
+            ]
+          },
+          {
+            "id": "vue-define-model",
+            "categoryId": "vue-components",
+            "title": "v-model and defineModel",
+            "description": "The update:modelValue contract, named models, and modifiers.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "v-model",
+              "defineModel",
+              "modifiers"
+            ]
+          },
+          {
+            "id": "vue-slots",
+            "categoryId": "vue-components",
+            "title": "Slots and scoped slots",
+            "description": "Default slots, named slots, and how scoped data flows from child to parent template.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "slots",
+              "scoped-slots",
+              "defineSlots"
+            ]
+          },
+          {
+            "id": "vue-provide-inject",
+            "categoryId": "vue-components",
+            "title": "provide and inject",
+            "description": "Ancestor-to-descendant dependencies, app-level providers, and the reactivity rules.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "provide",
+              "inject",
+              "injection-key"
+            ]
+          },
+          {
+            "id": "vue-fallthrough-attrs",
+            "categoryId": "vue-components",
+            "title": "Fallthrough attributes",
+            "description": "How undeclared attributes land on the root node, and how to retarget them.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 30,
+            "tags": [
+              "attrs",
+              "inheritAttrs",
+              "useAttrs"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-state",
+        "subjectId": "vue",
+        "title": "Composables & State",
+        "description": "Composable design, Pinia, async cancellation, and when a store is the wrong tool.",
+        "order": 4,
+        "topics": [
+          {
+            "id": "vue-composables",
+            "categoryId": "vue-state",
+            "title": "Composable design",
+            "description": "How to extract stateful logic so it stays tied to the component that called it.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "composables",
+              "effect-scope",
+              "reuse"
+            ]
+          },
+          {
+            "id": "vue-pinia",
+            "categoryId": "vue-state",
+            "title": "Pinia stores",
+            "description": "Setup stores, storeToRefs, and when a store outlives a component.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "pinia",
+              "storeToRefs",
+              "state"
+            ]
+          },
+          {
+            "id": "vue-async-state",
+            "categoryId": "vue-state",
+            "title": "Async state and cancellation",
+            "description": "Loading, error, and data flags, plus ignoring stale responses when the user moves on.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "async",
+              "abort-controller",
+              "loading-state"
+            ]
+          },
+          {
+            "id": "vue-selecting-state",
+            "categoryId": "vue-state",
+            "title": "Selecting state management",
+            "description": "A senior decision framework for local state, provide/inject, Pinia, and the URL.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "architecture",
+              "pinia",
+              "state",
+              "router"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-routing-forms",
+        "subjectId": "vue",
+        "title": "Routing & Forms",
+        "description": "Vue Router lazy routes, navigation guards, and form ownership.",
+        "order": 5,
+        "topics": [
+          {
+            "id": "vue-router-basics",
+            "categoryId": "vue-routing-forms",
+            "title": "Vue Router and lazy routes",
+            "description": "History modes, route records, params, and what actually creates a lazy chunk.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "vue-router",
+              "lazy-loading",
+              "code-splitting"
+            ]
+          },
+          {
+            "id": "vue-navigation-guards",
+            "categoryId": "vue-routing-forms",
+            "title": "Navigation guards",
+            "description": "Global and in-component guards, return values, and why a client guard is not authorization.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "navigation-guards",
+              "auth",
+              "vue-router"
+            ]
+          },
+          {
+            "id": "vue-forms",
+            "categoryId": "vue-routing-forms",
+            "title": "Form architecture",
+            "description": "Controlled fields, drafts, validation timing, and native form submit.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "forms",
+              "v-model",
+              "validation"
+            ]
+          },
+          {
+            "id": "vue-dynamic-forms",
+            "categoryId": "vue-routing-forms",
+            "title": "Metadata-driven forms",
+            "description": "Rendering fields from a schema without losing accessibility or type safety.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "dynamic-forms",
+              "schema",
+              "accessibility"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-performance",
+        "subjectId": "vue",
+        "title": "Performance & Rendering",
+        "description": "List identity, render cost, async components, large dashboards, and Vapor Mode.",
+        "order": 6,
+        "topics": [
+          {
+            "id": "vue-list-rendering",
+            "categoryId": "vue-performance",
+            "title": "List identity and keys",
+            "description": "How Vue reuses DOM nodes, why index keys corrupt state, and what a key does not do.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "v-for",
+              "key",
+              "reconciliation"
+            ]
+          },
+          {
+            "id": "vue-rendering-cost",
+            "categoryId": "vue-performance",
+            "title": "Render cost",
+            "description": "What makes a Vue component re-render, and which optimizations are worth it.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "rendering",
+              "v-memo",
+              "props",
+              "performance"
+            ]
+          },
+          {
+            "id": "vue-async-components",
+            "categoryId": "vue-performance",
+            "title": "Async components",
+            "description": "defineAsyncComponent, loading and error states, and how this differs from a lazy route.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 30,
+            "tags": [
+              "defineAsyncComponent",
+              "code-splitting",
+              "loading"
+            ]
+          },
+          {
+            "id": "vue-large-dashboard",
+            "categoryId": "vue-performance",
+            "title": "Large dashboard updates",
+            "description": "How to apply a fast stream of updates without rerendering every widget.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "dashboard",
+              "shallowRef",
+              "batching",
+              "charts"
+            ]
+          },
+          {
+            "id": "vue-vapor-mode",
+            "categoryId": "vue-performance",
+            "title": "Vapor Mode",
+            "description": "What the Vue 3.6 release candidate changes, and what it deliberately does not run.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "vapor",
+              "vue-3.6",
+              "performance"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-ssr-security",
+        "subjectId": "vue",
+        "title": "SSR, Tooling & Security",
+        "description": "Vite boundaries, hydration, XSS, auth, KeepAlive, and Teleport.",
+        "order": 7,
+        "topics": [
+          {
+            "id": "vue-vite-bundles",
+            "categoryId": "vue-ssr-security",
+            "title": "Vite and bundle boundaries",
+            "description": "How the Vue plugin, env variables, and dynamic imports decide what ships to the browser.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "vite",
+              "env",
+              "bundles"
+            ]
+          },
+          {
+            "id": "vue-ssr-hydration",
+            "categoryId": "vue-ssr-security",
+            "title": "SSR and hydration",
+            "description": "Why server HTML and the client vnode must match, and where window access belongs.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "ssr",
+              "hydration",
+              "nuxt"
+            ]
+          },
+          {
+            "id": "vue-security",
+            "categoryId": "vue-ssr-security",
+            "title": "XSS and template safety",
+            "description": "What Vue escapes, where v-html and URLs bypass that protection, and what the server must still do.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "xss",
+              "v-html",
+              "security"
+            ]
+          },
+          {
+            "id": "vue-auth-boundaries",
+            "categoryId": "vue-ssr-security",
+            "title": "Auth tokens and session boundaries",
+            "description": "Where a Vue SPA should keep a session, and what logout must erase.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "auth",
+              "tokens",
+              "session"
+            ]
+          },
+          {
+            "id": "vue-keepalive-teleport",
+            "categoryId": "vue-ssr-security",
+            "title": "KeepAlive and Teleport",
+            "description": "Cached instances versus destroyed ones, and how teleported DOM relates to the component tree.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "keepalive",
+              "teleport",
+              "lifecycle"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-testing",
+        "subjectId": "vue",
+        "title": "Testing & Quality",
+        "description": "Component tests, composable tests, and contracts with backend teams.",
+        "order": 8,
+        "topics": [
+          {
+            "id": "vue-component-testing",
+            "categoryId": "vue-testing",
+            "title": "Component testing",
+            "description": "What to mount, what to assert, and how Vue Test Utils interacts with reactivity.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "testing",
+              "vue-test-utils",
+              "vitest"
+            ]
+          },
+          {
+            "id": "vue-testing-composables",
+            "categoryId": "vue-testing",
+            "title": "Testing composables",
+            "description": "How to run a composable with an active effect scope and prove cleanup.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 30,
+            "tags": [
+              "composables",
+              "testing",
+              "effect-scope"
+            ]
+          },
+          {
+            "id": "vue-contract-testing",
+            "categoryId": "vue-testing",
+            "title": "Contract testing with backend teams",
+            "description": "How a Vue client and an API stay compatible without sharing a database in unit tests.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 30,
+            "tags": [
+              "contract-testing",
+              "openapi",
+              "api"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-architecture",
+        "subjectId": "vue",
+        "title": "Architecture & Leadership",
+        "description": "Component APIs, accessibility, third-party widgets, plugins, and Options API migration.",
+        "order": 9,
+        "topics": [
+          {
+            "id": "vue-component-api-design",
+            "categoryId": "vue-architecture",
+            "title": "Component API design",
+            "description": "How to keep a shared Vue component small enough to reuse.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "api-design",
+              "components",
+              "slots"
+            ]
+          },
+          {
+            "id": "vue-accessibility",
+            "categoryId": "vue-architecture",
+            "title": "Accessibility in Vue components",
+            "description": "Labels, focus, keyboard behavior, and the extra care teleported dialogs need.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "accessibility",
+              "focus",
+              "aria"
+            ]
+          },
+          {
+            "id": "vue-third-party-widgets",
+            "categoryId": "vue-architecture",
+            "title": "Third-party widget integration",
+            "description": "How to host a chart, map, or editor that mutates the DOM itself.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "interop",
+              "markRaw",
+              "widgets"
+            ]
+          },
+          {
+            "id": "vue-plugin-architecture",
+            "categoryId": "vue-architecture",
+            "title": "Plugins and dynamic components",
+            "description": "app.use, global registration, and how to load optional UI without a grab bag of globals.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "plugins",
+              "app.use",
+              "dynamic-components"
+            ]
+          },
+          {
+            "id": "vue-migration-options-api",
+            "categoryId": "vue-architecture",
+            "title": "Options API migration",
+            "description": "How to move a living Vue codebase toward script setup without a freeze.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "options-api",
+              "migration",
+              "mixins"
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]

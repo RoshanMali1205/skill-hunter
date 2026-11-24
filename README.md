@@ -1,6 +1,6 @@
 # Skill Hunter
 
-An interview preparation hub for **Angular, JavaScript, TypeScript, UI Engineering** (HTML5, CSS, SCSS, Responsive Design), **Frontend System Design**, **Design Patterns**, and **AI Concepts**. Built with Angular 22 (standalone components, Signals). The app is still frontend-first — all content ships as static JSON, all progress lives in the browser (scoped per account, no database) — with two optional add-ons that go beyond a static content site: a real, sandboxed **JavaScript Playground**, and an **AI Mentor** chat backed by a single serverless function.
+An interview preparation hub for **Angular, JavaScript, TypeScript, UI Engineering** (HTML5, CSS, SCSS, Responsive Design), **Frontend System Design**, **Design Patterns**, **AI Concepts**, and **Vue**. Built with Angular 22 (standalone components, Signals). The app is still frontend-first — all content ships as static JSON, all progress lives in the browser (scoped per account, no database) — with two optional add-ons that go beyond a static content site: a real, sandboxed **JavaScript Playground**, and an **AI Mentor** chat backed by a single serverless function.
 
 **Author:** Roshan Mali
 
@@ -12,7 +12,7 @@ For a deeper technical dive — architecture, data model, service catalog, and a
 - **Dashboard** — personalized “Welcome back” greeting, **Hunter Card** (photo or initials inside a completion ring, streak, badge count), recent achievements, overall progress donut, topics-by-difficulty breakdown, per-subject progress, study streak, continue learning, must-revise, recent bookmarks, practice summary, strong areas, most-revised and recently-studied topics.
 - **Profile** — editable display name and profile photo (compressed and stored locally) under Settings; photo powers the Hunter Card and header avatar.
 - **Achievements** — badge milestones unlocked from real study signals (completed topics, streaks, practice volume/accuracy, notes, bookmarks, profile photo). Browse locked/unlocked badges on `/achievements`.
-- **Subjects** — Angular, JavaScript, TypeScript, UI Engineering, Frontend System Design, Design Patterns, and AI Concepts, each with categories and topics (difficulty, interview priority, search/filter). Categories render as collapsible rows — collapsed by default so the whole subject's outline fits on one screen, expanding to a compact single-column topic list on click (any active search/filter auto-expands the categories that match). A Back button on the subject page returns to the Subjects list.
+- **Subjects** — Angular, JavaScript, TypeScript, UI Engineering, Frontend System Design, Design Patterns, AI Concepts, and Vue, each with categories and topics (difficulty, interview priority, search/filter). Categories render as collapsible rows — collapsed by default so the whole subject's outline fits on one screen, expanding to a compact single-column topic list on click (any active search/filter auto-expands the categories that match). A Back button on the subject page returns to the Subjects list.
 - **Topic pages** — concept explanations, code examples with copy-to-clipboard, tricky/interview/scenario/output questions with hide-and-reveal answers, common mistakes, best practices, summaries, confidence rating, mark-complete, **Listen** (text-to-speech), notes, save/bookmark, add-to-revision, a Back button to the parent subject, and an "Ask AI" shortcut into the AI Mentor with the current topic pre-loaded as a ready-to-send question.
 - **Practice mode** — filter by subject/category/difficulty/question type/bookmarked/weak topics, with a live "N questions match your filters" count before you commit, then self-assess (correct / incorrect / needs revision).
 - **Mock Interview** — a timed practice interview for one subject: pick a subject and a length (5, 10 or 15 mixed questions, 2 minutes each), answer against a live countdown, rate yourself after seeing each answer, and get a scorecard with a grade, per-question review, "study these next" topics (auto-added to Revision) and a one-click retry of the ones you missed. Results and personal bests are saved per account.
@@ -24,7 +24,7 @@ For a deeper technical dive — architecture, data model, service catalog, and a
 - **Revision** — auto-surfaced weak topics (low confidence, incorrect attempts, bookmarks, manual adds) plus mark-revised tracking.
 - **Settings** — profile (name + photo), light/dark theme, default difficulty, auto-reveal answers, export/import progress (including notes, profile, and achievements) as JSON, reset progress.
 
-Content ships with **397 topics** across **seven subjects**: **Angular** (52 across 9 categories — including Angular 22 signal inputs/outputs, `linkedSignal`, `httpResource`, and signal-forms guidance), **JavaScript** (68 across 8 categories, including a dedicated **Coding Practice** category with predict-the-output / write-the-code drills covering hoisting, closures, references, array methods, `this`, and the event loop), **TypeScript** (50 across 3 categories — including const type parameters, `NoInfer`, and `using` resource management), **UI Engineering** (62 across 6 categories), **Frontend System Design** (51 across 6 categories — including in-product LLM/BFF feature architecture), **Design Patterns** (50 across 7 categories), and **AI Concepts** (64 across 12 categories — reasoning models, multimodal, prompt/context caching, and MCP for product engineers). Beyond beginner/intermediate foundations, several subjects also carry senior/architect scenario sets with architect-level framing, runnable examples, weak-answer callouts, and follow-up prompts. See [Adding content](#adding-content) to extend it further.
+Content ships with **438 topics** across **eight subjects**: **Angular** (52 across 9 categories — including Angular 22 signal inputs/outputs, `linkedSignal`, `httpResource`, and signal-forms guidance), **JavaScript** (68 across 8 categories, including a dedicated **Coding Practice** category with predict-the-output / write-the-code drills covering hoisting, closures, references, array methods, `this`, and the event loop), **TypeScript** (50 across 3 categories — including const type parameters, `NoInfer`, and `using` resource management), **UI Engineering** (62 across 6 categories), **Frontend System Design** (51 across 6 categories — including in-product LLM/BFF feature architecture), **Design Patterns** (50 across 7 categories), **AI Concepts** (64 across 12 categories — reasoning models, multimodal, prompt/context caching, and MCP for product engineers), and **Vue** (41 across 9 categories — Vue 3.5 script setup, reactivity, Pinia, Vue Router, and the Vue 3.6 Vapor Mode release candidate). Beyond beginner/intermediate foundations, several subjects also carry senior/architect scenario sets with architect-level framing, runnable examples, weak-answer callouts, and follow-up prompts. See [Adding content](#adding-content) to extend it further.
 
 ## Tech stack
 
@@ -116,7 +116,7 @@ src/app/
     calendar/  bookmarks/  notes/  revision/  achievements/  settings/
 
 public/content/
-  subjects.json         Subject + category + topic-summary metadata (all 7 subjects)
+  subjects.json         Subject + category + topic-summary metadata (all 8 subjects)
   angular/topics.json, angular/topics-extended.json
   javascript/topics.json, javascript/coding-practice.json, javascript/topics-extended.json
   typescript/topics.json, typescript/topics-extended.json
@@ -124,6 +124,7 @@ public/content/
   system-design/topics.json
   design-patterns/topics.json
   ai-concepts/topics.json
+  vue/topics.json, vue/topics-extended.json
 
 netlify/functions/
   ai-chat.mjs    Serverless proxy that holds the AI provider's API key server-side
@@ -370,7 +371,7 @@ Static hosts other than Netlify (Vercel, GitHub Pages, S3 + CloudFront, etc.) wo
 
 - No cloud sync or database — progress is local to one browser, scoped per account. The server-side exceptions are the AI Mentor proxy (forwards chat text to the AI provider, stores nothing) and the read-only Skill Hunter MCP endpoint at `/mcp`.
 - Accounts are a real client-side implementation (hashed passwords, per-account data) but not a real security boundary — see [Accounts & data](#accounts--data).
-- The content set (**397 topics** across seven subjects) continues to track current interview trends and framework versions — Angular 22 / TypeScript 5–6 APIs, modern AI product patterns, plus Design Patterns and AI Concepts as first-class subjects — see [Adding content](#adding-content).
+- The content set (**438 topics** across eight subjects) continues to track current interview trends and framework versions — Angular 22 / TypeScript 5–6 APIs, Vue 3.5 (with the Vue 3.6 Vapor Mode release candidate called out separately), modern AI product patterns, plus Design Patterns and AI Concepts as first-class subjects — see [Adding content](#adding-content).
 - AI Mentor responses are not streamed (a full reply arrives at once, not token-by-token) — see Roadmap.
 
 ## Roadmap
