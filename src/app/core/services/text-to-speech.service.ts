@@ -46,7 +46,10 @@ export class TextToSpeechService {
   constructor() {
     if (!this.supported) return;
     this.refreshVoices();
-    window.speechSynthesis.onvoiceschanged = () => this.refreshVoices();
+    const refresh = () => this.refreshVoices();
+    // Firefox often misses the property and only fires the event listener.
+    window.speechSynthesis.addEventListener?.('voiceschanged', refresh);
+    window.speechSynthesis.onvoiceschanged = refresh;
   }
 
   speak(id: string, text: string): void {
@@ -57,21 +60,21 @@ export class TextToSpeechService {
     this.generation += 1;
     const generation = this.generation;
     window.speechSynthesis.cancel();
-    // Chrome loads the voice list asynchronously; re-read it at speak time.
-    this.refreshVoices();
-
-    const voice = pickSpeechVoice(
-      this._voices(),
-      this.savedVoiceId(),
-      typeof navigator !== 'undefined' ? navigator.language : undefined,
-    );
     const rate = normalizeSpeechRate(this.settings.settings().speechRate);
     this._paused.set(false);
     this._speakingId.set(id);
 
     // Chrome drops an utterance that is queued in the same turn as cancel().
+    // The voice is chosen inside that turn so a list that arrives late is used,
+    // instead of leaving Edge on its child default.
     window.setTimeout(() => {
       if (generation !== this.generation) return;
+      this.refreshVoices();
+      const voice = pickSpeechVoice(
+        this._voices(),
+        this.savedVoiceId(),
+        typeof navigator !== 'undefined' ? navigator.language : undefined,
+      );
       chunks.forEach((chunk, index) => {
         const utterance = new SpeechSynthesisUtterance(chunk);
         if (voice) {

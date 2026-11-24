@@ -116,6 +116,7 @@ describe('TopicDetailComponent', () => {
             supported: true,
             speakingId: signal(null),
             paused: signal(false),
+            voices: signal([]),
             stop: ttsStop,
             toggle: ttsToggle,
           },

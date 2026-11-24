@@ -5,7 +5,12 @@ import { RouterLink } from '@angular/router';
 import { buildCustomPalette, normalizeHex } from '../../core/theme/custom-theme';
 import { SettingsService } from '../../core/services/settings.service';
 import { SPEECH_PREVIEW_ID, TextToSpeechService } from '../../core/services/text-to-speech.service';
-import { pickSpeechVoice, voiceChoiceId, voiceLabel } from '../../core/services/speech-text';
+import {
+  pickSpeechVoice,
+  speechVoiceNote,
+  speechVoiceOptions,
+  voiceChoiceId,
+} from '../../core/services/speech-text';
 import { DataManagementService } from '../../core/services/data-management.service';
 import { ProfileService } from '../../core/services/profile.service';
 import { PwaService } from '../../core/services/pwa.service';
@@ -70,20 +75,11 @@ export class SettingsComponent {
       .join(''),
   );
 
-  readonly voiceOptions = computed<SelectOption[]>(() => {
-    const options: SelectOption[] = [{ value: '', label: 'Automatic (best available)' }];
-    for (const voice of this.tts.voices()) {
-      options.push({ value: voiceChoiceId(voice), label: voiceLabel(voice) });
-    }
-    const selected = this.settings().speechVoiceUri;
-    if (selected && !options.some((option) => option.value === selected)) {
-      options.push({
-        value: selected,
-        label: this.tts.voices().length > 0 ? 'Saved voice (not on this browser)' : 'Saved voice',
-      });
-    }
-    return options;
-  });
+  readonly voiceOptions = computed(() =>
+    speechVoiceOptions(this.tts.voices(), this.settings().speechVoiceUri),
+  );
+
+  readonly voiceNote = computed(() => speechVoiceNote(this.tts.voices()));
 
   readonly automaticVoiceLabel = computed(
     () => pickSpeechVoice(this.tts.voices(), null, navigator.language)?.name ?? '',

@@ -60,6 +60,23 @@
       </div>
     </header>
 
+    @if (ttsSupported) {
+      <div class="topic-detail__voice">
+        <label>
+          <span>Voice</span>
+          <app-select
+            [value]="settings().speechVoiceUri ?? ''"
+            [options]="voiceOptions()"
+            ariaLabel="Read aloud voice"
+            (valueChange)="setReadAloudVoice($event)"
+          />
+        </label>
+        @if (voiceNote(); as note) {
+          <p class="topic-detail__voice-note">{{ note }}</p>
+        }
+      </div>
+    }
+
     @if (exportMessage(); as exportMsg) {
       <p
         class="topic-detail__export-msg"
