@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ContentService } from '../../core/services/content.service';
 import { MetricsService } from '../../core/services/metrics.service';
 import { SubjectCardComponent } from '../../shared/components/subject-card/subject-card';
+import { groupSubjectsByTrack } from './subject-tracks';
 
 @Component({
   selector: 'app-subject-list',
@@ -19,4 +20,6 @@ export class SubjectListComponent {
   readonly subjectMetrics = computed(() =>
     this.subjects().map((s) => this.metricsService.computeSubjectMetrics(s)),
   );
+
+  readonly tracks = computed(() => groupSubjectsByTrack(this.subjectMetrics()));
 }
