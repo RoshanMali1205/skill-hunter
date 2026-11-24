@@ -6556,11 +6556,1187 @@
     ]
   },
   {
+    "id": "vue",
+    "title": "Vue",
+    "description": "Vue 3.5 interview prep: script setup, reactivity, composables, Pinia, Vue Router, forms, rendering performance, SSR hydration, and the Vue 3.6 Vapor Mode release candidate.",
+    "icon": "vue",
+    "order": 8,
+    "categories": [
+      {
+        "id": "vue-fundamentals",
+        "subjectId": "vue",
+        "title": "Vue Fundamentals",
+        "description": "Single-file components, script setup, templates, lifecycle, and template refs in Vue 3.5.",
+        "order": 1,
+        "topics": [
+          {
+            "id": "vue-sfc-script-setup",
+            "categoryId": "vue-fundamentals",
+            "title": "Single-File Components and script setup",
+            "description": "How <script setup> compiles, which macros are compile-time only, and what is actually exposed to the template.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "sfc",
+              "script-setup",
+              "vue-3.5",
+              "macros"
+            ]
+          },
+          {
+            "id": "vue-template-syntax",
+            "categoryId": "vue-fundamentals",
+            "title": "Template syntax",
+            "description": "Interpolation, directives, v-if versus v-show, and the Vue 3 priority rule when v-if and v-for meet.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "template",
+              "v-if",
+              "v-for",
+              "directives"
+            ]
+          },
+          {
+            "id": "vue-lifecycle",
+            "categoryId": "vue-fundamentals",
+            "title": "Lifecycle and cleanup",
+            "description": "When setup, mount, update, and unmount run, and how composable effects are stopped.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "lifecycle",
+              "onMounted",
+              "onUnmounted",
+              "cleanup"
+            ]
+          },
+          {
+            "id": "vue-template-refs",
+            "categoryId": "vue-fundamentals",
+            "title": "Template refs, useTemplateRef, and useId",
+            "description": "How Vue 3.5 binds refs to elements, why script-setup children stay closed, and how useId stays stable in SSR.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "useTemplateRef",
+              "useId",
+              "vue-3.5",
+              "refs"
+            ]
+          },
+          {
+            "id": "vue-next-tick",
+            "categoryId": "vue-fundamentals",
+            "title": "Rendering and nextTick",
+            "description": "Why state changes do not update the DOM immediately, and when nextTick is the wrong fix.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 30,
+            "tags": [
+              "nextTick",
+              "render",
+              "async-update"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-reactivity",
+        "subjectId": "vue",
+        "title": "Reactivity",
+        "description": "ref, reactive, computed, watchers, and the proxy limits that show up in interviews.",
+        "order": 2,
+        "topics": [
+          {
+            "id": "vue-ref-reactive",
+            "categoryId": "vue-reactivity",
+            "title": "ref and reactive",
+            "description": "When to wrap a value in ref, when a reactive object is enough, and how unwrapping really works.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "ref",
+              "reactive",
+              "proxy",
+              "unwrapping"
+            ]
+          },
+          {
+            "id": "vue-computed",
+            "categoryId": "vue-reactivity",
+            "title": "Computed state",
+            "description": "Lazy cached derivation, writable computed values, and the side effects that do not belong there.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "computed",
+              "derived-state",
+              "cache"
+            ]
+          },
+          {
+            "id": "vue-watchers",
+            "categoryId": "vue-reactivity",
+            "title": "watch, watchEffect, and cleanup",
+            "description": "Lazy watches versus immediate effects, what gets tracked, and how Vue 3.5 cleans up in-flight work.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "watch",
+              "watchEffect",
+              "onWatcherCleanup",
+              "cancellation"
+            ]
+          },
+          {
+            "id": "vue-reactivity-pitfalls",
+            "categoryId": "vue-reactivity",
+            "title": "Reactivity pitfalls",
+            "description": "Cases where a mutation is real in JavaScript and invisible to Vue effects.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "proxy",
+              "toRaw",
+              "external-mutation",
+              "pitfalls"
+            ]
+          },
+          {
+            "id": "vue-shallow-and-raw",
+            "categoryId": "vue-reactivity",
+            "title": "shallowRef, markRaw, and large state",
+            "description": "How to store big or foreign objects without deep-proxying every field.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "shallowRef",
+              "markRaw",
+              "performance",
+              "state"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-components",
+        "subjectId": "vue",
+        "title": "Component Composition",
+        "description": "Props, emits, v-model, slots, provide/inject, and fallthrough attributes.",
+        "order": 3,
+        "topics": [
+          {
+            "id": "vue-props-emits",
+            "categoryId": "vue-components",
+            "title": "Props and emits",
+            "description": "One-way data flow, typed contracts, and why mutating props breaks the parent.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "props",
+              "emits",
+              "one-way-data-flow"
+            ]
+          },
+          {
+            "id": "vue-define-model",
+            "categoryId": "vue-components",
+            "title": "v-model and defineModel",
+            "description": "The update:modelValue contract, named models, and modifiers.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "v-model",
+              "defineModel",
+              "modifiers"
+            ]
+          },
+          {
+            "id": "vue-slots",
+            "categoryId": "vue-components",
+            "title": "Slots and scoped slots",
+            "description": "Default slots, named slots, and how scoped data flows from child to parent template.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "slots",
+              "scoped-slots",
+              "defineSlots"
+            ]
+          },
+          {
+            "id": "vue-provide-inject",
+            "categoryId": "vue-components",
+            "title": "provide and inject",
+            "description": "Ancestor-to-descendant dependencies, app-level providers, and the reactivity rules.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "provide",
+              "inject",
+              "injection-key"
+            ]
+          },
+          {
+            "id": "vue-fallthrough-attrs",
+            "categoryId": "vue-components",
+            "title": "Fallthrough attributes",
+            "description": "How undeclared attributes land on the root node, and how to retarget them.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 30,
+            "tags": [
+              "attrs",
+              "inheritAttrs",
+              "useAttrs"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-state",
+        "subjectId": "vue",
+        "title": "Composables & State",
+        "description": "Composable design, Pinia, async cancellation, and when a store is the wrong tool.",
+        "order": 4,
+        "topics": [
+          {
+            "id": "vue-composables",
+            "categoryId": "vue-state",
+            "title": "Composable design",
+            "description": "How to extract stateful logic so it stays tied to the component that called it.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "composables",
+              "effect-scope",
+              "reuse"
+            ]
+          },
+          {
+            "id": "vue-pinia",
+            "categoryId": "vue-state",
+            "title": "Pinia stores",
+            "description": "Setup stores, storeToRefs, and when a store outlives a component.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "pinia",
+              "storeToRefs",
+              "state"
+            ]
+          },
+          {
+            "id": "vue-async-state",
+            "categoryId": "vue-state",
+            "title": "Async state and cancellation",
+            "description": "Loading, error, and data flags, plus ignoring stale responses when the user moves on.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "async",
+              "abort-controller",
+              "loading-state"
+            ]
+          },
+          {
+            "id": "vue-selecting-state",
+            "categoryId": "vue-state",
+            "title": "Selecting state management",
+            "description": "A senior decision framework for local state, provide/inject, Pinia, and the URL.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "architecture",
+              "pinia",
+              "state",
+              "router"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-routing-forms",
+        "subjectId": "vue",
+        "title": "Routing & Forms",
+        "description": "Vue Router lazy routes, navigation guards, and form ownership.",
+        "order": 5,
+        "topics": [
+          {
+            "id": "vue-router-basics",
+            "categoryId": "vue-routing-forms",
+            "title": "Vue Router and lazy routes",
+            "description": "History modes, route records, params, and what actually creates a lazy chunk.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "vue-router",
+              "lazy-loading",
+              "code-splitting"
+            ]
+          },
+          {
+            "id": "vue-navigation-guards",
+            "categoryId": "vue-routing-forms",
+            "title": "Navigation guards",
+            "description": "Global and in-component guards, return values, and why a client guard is not authorization.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "navigation-guards",
+              "auth",
+              "vue-router"
+            ]
+          },
+          {
+            "id": "vue-forms",
+            "categoryId": "vue-routing-forms",
+            "title": "Form architecture",
+            "description": "Controlled fields, drafts, validation timing, and native form submit.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "forms",
+              "v-model",
+              "validation"
+            ]
+          },
+          {
+            "id": "vue-dynamic-forms",
+            "categoryId": "vue-routing-forms",
+            "title": "Metadata-driven forms",
+            "description": "Rendering fields from a schema without losing accessibility or type safety.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "dynamic-forms",
+              "schema",
+              "accessibility"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-performance",
+        "subjectId": "vue",
+        "title": "Performance & Rendering",
+        "description": "List identity, render cost, async components, large dashboards, and Vapor Mode.",
+        "order": 6,
+        "topics": [
+          {
+            "id": "vue-list-rendering",
+            "categoryId": "vue-performance",
+            "title": "List identity and keys",
+            "description": "How Vue reuses DOM nodes, why index keys corrupt state, and what a key does not do.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "v-for",
+              "key",
+              "reconciliation"
+            ]
+          },
+          {
+            "id": "vue-rendering-cost",
+            "categoryId": "vue-performance",
+            "title": "Render cost",
+            "description": "What makes a Vue component re-render, and which optimizations are worth it.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "rendering",
+              "v-memo",
+              "props",
+              "performance"
+            ]
+          },
+          {
+            "id": "vue-async-components",
+            "categoryId": "vue-performance",
+            "title": "Async components",
+            "description": "defineAsyncComponent, loading and error states, and how this differs from a lazy route.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 30,
+            "tags": [
+              "defineAsyncComponent",
+              "code-splitting",
+              "loading"
+            ]
+          },
+          {
+            "id": "vue-large-dashboard",
+            "categoryId": "vue-performance",
+            "title": "Large dashboard updates",
+            "description": "How to apply a fast stream of updates without rerendering every widget.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "dashboard",
+              "shallowRef",
+              "batching",
+              "charts"
+            ]
+          },
+          {
+            "id": "vue-vapor-mode",
+            "categoryId": "vue-performance",
+            "title": "Vapor Mode",
+            "description": "What the Vue 3.6 release candidate changes, and what it deliberately does not run.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "vapor",
+              "vue-3.6",
+              "performance"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-ssr-security",
+        "subjectId": "vue",
+        "title": "SSR, Tooling & Security",
+        "description": "Vite boundaries, hydration, XSS, auth, KeepAlive, and Teleport.",
+        "order": 7,
+        "topics": [
+          {
+            "id": "vue-vite-bundles",
+            "categoryId": "vue-ssr-security",
+            "title": "Vite and bundle boundaries",
+            "description": "How the Vue plugin, env variables, and dynamic imports decide what ships to the browser.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "vite",
+              "env",
+              "bundles"
+            ]
+          },
+          {
+            "id": "vue-ssr-hydration",
+            "categoryId": "vue-ssr-security",
+            "title": "SSR and hydration",
+            "description": "Why server HTML and the client vnode must match, and where window access belongs.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "ssr",
+              "hydration",
+              "nuxt"
+            ]
+          },
+          {
+            "id": "vue-security",
+            "categoryId": "vue-ssr-security",
+            "title": "XSS and template safety",
+            "description": "What Vue escapes, where v-html and URLs bypass that protection, and what the server must still do.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "xss",
+              "v-html",
+              "security"
+            ]
+          },
+          {
+            "id": "vue-auth-boundaries",
+            "categoryId": "vue-ssr-security",
+            "title": "Auth tokens and session boundaries",
+            "description": "Where a Vue SPA should keep a session, and what logout must erase.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "auth",
+              "tokens",
+              "session"
+            ]
+          },
+          {
+            "id": "vue-keepalive-teleport",
+            "categoryId": "vue-ssr-security",
+            "title": "KeepAlive and Teleport",
+            "description": "Cached instances versus destroyed ones, and how teleported DOM relates to the component tree.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "keepalive",
+              "teleport",
+              "lifecycle"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-testing",
+        "subjectId": "vue",
+        "title": "Testing & Quality",
+        "description": "Component tests, composable tests, and contracts with backend teams.",
+        "order": 8,
+        "topics": [
+          {
+            "id": "vue-component-testing",
+            "categoryId": "vue-testing",
+            "title": "Component testing",
+            "description": "What to mount, what to assert, and how Vue Test Utils interacts with reactivity.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "testing",
+              "vue-test-utils",
+              "vitest"
+            ]
+          },
+          {
+            "id": "vue-testing-composables",
+            "categoryId": "vue-testing",
+            "title": "Testing composables",
+            "description": "How to run a composable with an active effect scope and prove cleanup.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 30,
+            "tags": [
+              "composables",
+              "testing",
+              "effect-scope"
+            ]
+          },
+          {
+            "id": "vue-contract-testing",
+            "categoryId": "vue-testing",
+            "title": "Contract testing with backend teams",
+            "description": "How a Vue client and an API stay compatible without sharing a database in unit tests.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 30,
+            "tags": [
+              "contract-testing",
+              "openapi",
+              "api"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vue-architecture",
+        "subjectId": "vue",
+        "title": "Architecture & Leadership",
+        "description": "Component APIs, accessibility, third-party widgets, plugins, and Options API migration.",
+        "order": 9,
+        "topics": [
+          {
+            "id": "vue-component-api-design",
+            "categoryId": "vue-architecture",
+            "title": "Component API design",
+            "description": "How to keep a shared Vue component small enough to reuse.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "api-design",
+              "components",
+              "slots"
+            ]
+          },
+          {
+            "id": "vue-accessibility",
+            "categoryId": "vue-architecture",
+            "title": "Accessibility in Vue components",
+            "description": "Labels, focus, keyboard behavior, and the extra care teleported dialogs need.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "accessibility",
+              "focus",
+              "aria"
+            ]
+          },
+          {
+            "id": "vue-third-party-widgets",
+            "categoryId": "vue-architecture",
+            "title": "Third-party widget integration",
+            "description": "How to host a chart, map, or editor that mutates the DOM itself.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "interop",
+              "markRaw",
+              "widgets"
+            ]
+          },
+          {
+            "id": "vue-plugin-architecture",
+            "categoryId": "vue-architecture",
+            "title": "Plugins and dynamic components",
+            "description": "app.use, global registration, and how to load optional UI without a grab bag of globals.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 35,
+            "tags": [
+              "plugins",
+              "app.use",
+              "dynamic-components"
+            ]
+          },
+          {
+            "id": "vue-migration-options-api",
+            "categoryId": "vue-architecture",
+            "title": "Options API migration",
+            "description": "How to move a living Vue codebase toward script setup without a freeze.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "options-api",
+              "migration",
+              "mixins"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nodejs",
+    "title": "Node.js",
+    "description": "Node.js interview prep from runtime fundamentals through production services, including async I/O, streams, Express, TypeScript, Angular-facing APIs, PostgreSQL transactions, worker threads, and observability.",
+    "icon": "code",
+    "order": 9,
+    "categories": [
+      {
+        "id": "nodejs-runtime",
+        "subjectId": "nodejs",
+        "title": "Runtime and Tooling",
+        "description": "Execution model, scheduling, modules, and dependency installation.",
+        "order": 1,
+        "topics": [
+          {
+            "id": "nodejs-runtime-model",
+            "categoryId": "nodejs-runtime",
+            "title": "How the Node.js Runtime Works",
+            "description": "Explain what V8, libuv, the operating system, and the JavaScript thread each do.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 24,
+            "tags": [
+              "runtime",
+              "v8",
+              "libuv",
+              "non-blocking-io"
+            ]
+          },
+          {
+            "id": "nodejs-event-loop",
+            "categoryId": "nodejs-runtime",
+            "title": "Event Loop, Microtasks, and Timers",
+            "description": "Predict execution order within a known context and explain timer delays and starvation.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 38,
+            "tags": [
+              "event-loop",
+              "microtasks",
+              "timers",
+              "nexttick"
+            ]
+          },
+          {
+            "id": "nodejs-modules",
+            "categoryId": "nodejs-runtime",
+            "title": "ES Modules, CommonJS, and Package Exports",
+            "description": "Choose a module format explicitly and design a stable package entry point.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "esm",
+              "commonjs",
+              "package-json",
+              "exports"
+            ]
+          },
+          {
+            "id": "nodejs-dependencies",
+            "categoryId": "nodejs-runtime",
+            "title": "npm Lockfiles and Reproducible Installs",
+            "description": "Explain dependency ranges, lockfiles, and predictable CI installs.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 26,
+            "tags": [
+              "npm",
+              "lockfile",
+              "semver",
+              "ci"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-async",
+        "subjectId": "nodejs",
+        "title": "Asynchronous Programming",
+        "description": "Promises, events, cancellation, and concurrency limits.",
+        "order": 2,
+        "topics": [
+          {
+            "id": "nodejs-async-errors",
+            "categoryId": "nodejs-async",
+            "title": "Promises, Async Errors, and Concurrency Limits",
+            "description": "Handle rejected promises, distinguish batch failure policies, and bound fan-out.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 34,
+            "tags": [
+              "promises",
+              "concurrency",
+              "errors",
+              "async-await"
+            ]
+          },
+          {
+            "id": "nodejs-event-emitter",
+            "categoryId": "nodejs-async",
+            "title": "EventEmitter and Listener Lifecycle",
+            "description": "Use synchronous event dispatch and manage listener ownership.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 26,
+            "tags": [
+              "events",
+              "event-emitter",
+              "listeners",
+              "cleanup"
+            ]
+          },
+          {
+            "id": "nodejs-cancellation",
+            "categoryId": "nodejs-async",
+            "title": "AbortSignal, Deadlines, and Cancellation",
+            "description": "Propagate request deadlines into asynchronous dependencies.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 32,
+            "tags": [
+              "abortsignal",
+              "fetch",
+              "timeouts",
+              "deadlines"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-io",
+        "subjectId": "nodejs",
+        "title": "Files, Buffers, and Streams",
+        "description": "Filesystem access, binary data, and bounded streaming.",
+        "order": 3,
+        "topics": [
+          {
+            "id": "nodejs-fs",
+            "categoryId": "nodejs-io",
+            "title": "File I/O, Paths, and Resource Ownership",
+            "description": "Read files reliably from modules and close handles on every path.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "filesystem",
+              "paths",
+              "filehandle",
+              "esm"
+            ]
+          },
+          {
+            "id": "nodejs-buffers",
+            "categoryId": "nodejs-io",
+            "title": "Buffers, Encodings, and Shared Memory",
+            "description": "Distinguish byte length from string length and copy from view.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 29,
+            "tags": [
+              "buffer",
+              "utf-8",
+              "bytes",
+              "encoding"
+            ]
+          },
+          {
+            "id": "nodejs-streams",
+            "categoryId": "nodejs-io",
+            "title": "Streams, Pipeline, and Backpressure",
+            "description": "Compose readable, transform, and writable streams with bounded buffering.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "streams",
+              "backpressure",
+              "pipeline",
+              "transform"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-http",
+        "subjectId": "nodejs",
+        "title": "HTTP Services and Frameworks",
+        "description": "HTTP lifecycle, Express middleware, runtime validation, and Angular-facing aggregation.",
+        "order": 4,
+        "topics": [
+          {
+            "id": "nodejs-http-server",
+            "categoryId": "nodejs-http",
+            "title": "HTTP Request Lifecycle and JSON Responses",
+            "description": "Build a small HTTP handler and reason about headers, body, and completion.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 32,
+            "tags": [
+              "http",
+              "request",
+              "response",
+              "status-codes"
+            ]
+          },
+          {
+            "id": "nodejs-validation",
+            "categoryId": "nodejs-http",
+            "title": "Runtime Validation and API Error Contracts",
+            "description": "Validate unknown input and return a predictable error contract to Angular clients.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 38,
+            "tags": [
+              "runtime-validation",
+              "http",
+              "problem-details",
+              "typescript"
+            ]
+          },
+          {
+            "id": "nodejs-bff",
+            "categoryId": "nodejs-http",
+            "title": "Angular Backend for Frontend and Partial Failure",
+            "description": "Design an Angular-facing aggregation endpoint with explicit dependency budgets.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "bff",
+              "angular",
+              "fetch",
+              "aggregation"
+            ]
+          },
+          {
+            "id": "nodejs-express-middleware",
+            "categoryId": "nodejs-http",
+            "title": "Express Middleware and Error Handling",
+            "description": "Compose middleware in request order and handle errors consistently in Express 5.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 38,
+            "tags": [
+              "express",
+              "middleware",
+              "routing",
+              "error-handling"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-data",
+        "subjectId": "nodejs",
+        "title": "Data and Background Work",
+        "description": "Transactions, idempotency, queues, and cache design.",
+        "order": 5,
+        "topics": [
+          {
+            "id": "nodejs-transactions",
+            "categoryId": "nodejs-data",
+            "title": "Database Pools and Transaction Boundaries",
+            "description": "Tie related writes to one transaction and size database concurrency deliberately.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 43,
+            "tags": [
+              "postgresql",
+              "transactions",
+              "pooling",
+              "sql"
+            ]
+          },
+          {
+            "id": "nodejs-idempotency",
+            "categoryId": "nodejs-data",
+            "title": "Idempotent Writes and Safe Retries",
+            "description": "Design writes that tolerate an ambiguous response or a repeated request.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 42,
+            "tags": [
+              "idempotency",
+              "retries",
+              "unique-constraints",
+              "api-design"
+            ]
+          },
+          {
+            "id": "nodejs-queues",
+            "categoryId": "nodejs-data",
+            "title": "Background Jobs, Queues, and the Transactional Outbox",
+            "description": "Move long-running work out of requests and reason about duplicate delivery.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "queues",
+              "outbox",
+              "background-jobs",
+              "retries"
+            ]
+          },
+          {
+            "id": "nodejs-caching",
+            "categoryId": "nodejs-data",
+            "title": "Caching, Cache Keys, and Concurrent Misses",
+            "description": "Design cache policy around identity, expiry, and load bursts.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 39,
+            "tags": [
+              "cache",
+              "ttl",
+              "single-flight",
+              "stale-data"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-concurrency",
+        "subjectId": "nodejs",
+        "title": "Parallelism and Process Boundaries",
+        "description": "Worker threads, child processes, and libuv pool contention.",
+        "order": 6,
+        "topics": [
+          {
+            "id": "nodejs-workers",
+            "categoryId": "nodejs-concurrency",
+            "title": "Worker Threads and Transferable Data",
+            "description": "Offload independent CPU-heavy work and choose a data-transfer strategy.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 46,
+            "tags": [
+              "workers",
+              "cpu",
+              "structured-clone",
+              "transferable"
+            ]
+          },
+          {
+            "id": "nodejs-processes",
+            "categoryId": "nodejs-concurrency",
+            "title": "Child Processes, IPC, and Isolation",
+            "description": "Choose an execution boundary and handle child process completion reliably.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "child-process",
+              "spawn",
+              "ipc",
+              "process-isolation"
+            ]
+          },
+          {
+            "id": "nodejs-libuv-pool",
+            "categoryId": "nodejs-concurrency",
+            "title": "libuv Thread Pool Contention",
+            "description": "Identify pool-backed work and separate thread-pool delay from a blocked event loop.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 42,
+            "tags": [
+              "libuv",
+              "thread-pool",
+              "crypto",
+              "profiling"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-quality",
+        "subjectId": "nodejs",
+        "title": "Testing, TypeScript, and Observability",
+        "description": "HTTP integration tests, type checking, request tracing, and performance diagnostics.",
+        "order": 7,
+        "topics": [
+          {
+            "id": "nodejs-testing",
+            "categoryId": "nodejs-quality",
+            "title": "Node Test Runner, HTTP Tests, and Isolation",
+            "description": "Write deterministic unit and HTTP tests with clear resource ownership.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 37,
+            "tags": [
+              "node-test",
+              "assert",
+              "test-isolation",
+              "http-tests"
+            ]
+          },
+          {
+            "id": "nodejs-request-context",
+            "categoryId": "nodejs-quality",
+            "title": "Request Context with AsyncLocalStorage",
+            "description": "Correlate asynchronous work without a mutable global request ID.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "asynclocalstorage",
+              "tracing",
+              "logging",
+              "request-id"
+            ]
+          },
+          {
+            "id": "nodejs-performance",
+            "categoryId": "nodejs-quality",
+            "title": "Event-Loop Metrics, CPU Profiles, and Memory",
+            "description": "Choose measurements that distinguish CPU stalls, leaks, and dependency latency.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 44,
+            "tags": [
+              "perf-hooks",
+              "event-loop-delay",
+              "profiling",
+              "memory"
+            ]
+          },
+          {
+            "id": "nodejs-typescript",
+            "categoryId": "nodejs-quality",
+            "title": "Running TypeScript and Checking Types",
+            "description": "Distinguish executing TypeScript files from checking their types.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 33,
+            "tags": [
+              "typescript",
+              "type-stripping",
+              "tsc",
+              "esm"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-production",
+        "subjectId": "nodejs",
+        "title": "Production Engineering",
+        "description": "Graceful shutdown, environment configuration, and tenant authorization.",
+        "order": 8,
+        "topics": [
+          {
+            "id": "nodejs-shutdown",
+            "categoryId": "nodejs-production",
+            "title": "Graceful Shutdown, Readiness, and Live Traffic",
+            "description": "Drain ongoing requests and close dependencies within a bounded shutdown window.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 42,
+            "tags": [
+              "sigterm",
+              "shutdown",
+              "readiness",
+              "lifecycle"
+            ]
+          },
+          {
+            "id": "nodejs-configuration",
+            "categoryId": "nodejs-production",
+            "title": "Environment Configuration and Secret Handling",
+            "description": "Validate configuration at startup and make environment differences explicit.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "configuration",
+              "env",
+              "process-env",
+              "secrets"
+            ]
+          },
+          {
+            "id": "nodejs-authorization",
+            "categoryId": "nodejs-production",
+            "title": "Server-Side Authorization for Multi-Tenant APIs",
+            "description": "Enforce identity and tenant-level permissions in the Node API.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 43,
+            "tags": [
+              "authorization",
+              "multi-tenant",
+              "angular",
+              "access-control"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "react",
     "title": "React",
     "description": "React 19.3 interview prep: rendering model, hooks in depth, React Compiler, concurrent rendering, Actions and useOptimistic, use(), Activity and ViewTransition, state management, Server Components, testing, and senior architecture scenarios.",
     "icon": "react",
-    "order": 8,
+    "order": 10,
     "categories": [
       {
         "id": "react-fundamentals",

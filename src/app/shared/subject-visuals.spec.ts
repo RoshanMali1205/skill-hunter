@@ -10,6 +10,8 @@ describe('subjectVisual', () => {
     expect(subjectVisual('system-design').emoji).toBe('🏗️');
     expect(subjectVisual('design-patterns').emoji).toBe('🧩');
     expect(subjectVisual('ai-concepts').emoji).toBe('🤖');
+    expect(subjectVisual('vue')).toEqual({ emoji: '💚', color: '#42b883' });
+    expect(subjectVisual('nodejs')).toEqual({ emoji: '🟩', color: '#339933' });
     expect(subjectVisual('react')).toEqual({ emoji: '⚛️', color: '#149ECA' });
   });
 
