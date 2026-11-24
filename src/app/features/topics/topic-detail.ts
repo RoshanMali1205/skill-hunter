@@ -11,7 +11,7 @@ import { SettingsService } from '../../core/services/settings.service';
 import { NoteService } from '../../core/services/note.service';
 import { TextToSpeechService } from '../../core/services/text-to-speech.service';
 import { ConfidenceLevel, DEFAULT_TOPIC_EXPORT_OPTIONS } from '../../core/models';
-import { markdownToPlainText } from '../../shared/markdown';
+import { buildTopicNarration } from './topic-narration';
 import { hasInAppHistory } from '../../shared/navigation';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb';
 import { IconComponent } from '../../shared/components/icon/icon';
@@ -86,8 +86,8 @@ export class TopicDetailComponent {
     { initialValue: undefined },
   );
 
-  readonly sortedBlocks = computed(
-    () => [...(this.topic()?.blocks ?? [])].sort((a, b) => a.order - b.order),
+  readonly sortedBlocks = computed(() =>
+    [...(this.topic()?.blocks ?? [])].sort((a, b) => a.order - b.order),
   );
 
   readonly category = computed(() =>
@@ -108,27 +108,11 @@ export class TopicDetailComponent {
 
   readonly ttsSupported = this.ttsService.supported;
   readonly isSpeaking = computed(() => this.ttsService.speakingId() === this.topicId());
+  readonly isPaused = computed(() => this.isSpeaking() && this.ttsService.paused());
 
   readonly readableText = computed(() => {
     const topic = this.topic();
-    if (!topic) {
-      return '';
-    }
-    const parts = [topic.description];
-    for (const block of this.sortedBlocks()) {
-      if (block.type === 'concept') {
-        parts.push(block.title ?? '', block.content, ...(block.keyPoints ?? []));
-      } else if (block.type === 'code-example') {
-        parts.push(block.title ?? '', block.explanation);
-      } else if (block.type === 'common-mistake') {
-        parts.push('Common mistake', block.mistake, block.whyItHappens, block.correctApproach);
-      } else if (block.type === 'best-practice') {
-        parts.push(block.title ?? '', block.content, ...(block.keyPoints ?? []));
-      } else if (block.type === 'summary') {
-        parts.push(block.title ?? '', block.content);
-      }
-    }
-    return markdownToPlainText(parts.filter(Boolean).join('\n\n'));
+    return topic ? buildTopicNarration(topic) : '';
   });
 
   constructor() {
@@ -204,6 +188,10 @@ export class TopicDetailComponent {
 
   toggleReadAloud(): void {
     this.ttsService.toggle(this.topicId(), this.readableText());
+  }
+
+  stopReadAloud(): void {
+    this.ttsService.stop();
   }
 
   toggleNoteEditor(): void {

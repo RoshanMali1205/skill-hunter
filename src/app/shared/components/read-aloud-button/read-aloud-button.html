@@ -1,14 +1,37 @@
-<button
-  type="button"
-  class="read-aloud-button"
-  [class.read-aloud-button--active]="speaking()"
-  [disabled]="disabled()"
-  [attr.aria-pressed]="speaking()"
-  [attr.aria-label]="speaking() ? 'Stop listening' : 'Listen to this topic'"
-  [appTooltip]="speaking() ? 'Stop narration' : 'Listen to this topic'"
-  tooltipPos="bottom"
-  (click)="toggled.emit()"
->
-  <app-icon [name]="speaking() ? 'square' : 'volume-2'" [filled]="speaking()" />
-  <span>{{ speaking() ? 'Stop' : 'Listen' }}</span>
-</button>
+<div class="read-aloud">
+  <button
+    type="button"
+    class="read-aloud-button"
+    [class.read-aloud-button--active]="speaking()"
+    [disabled]="disabled()"
+    [attr.aria-pressed]="speaking()"
+    [attr.aria-label]="
+      !speaking() ? 'Listen to this topic' : paused() ? 'Resume narration' : 'Pause narration'
+    "
+    [appTooltip]="
+      !speaking() ? 'Listen to this topic' : paused() ? 'Resume narration' : 'Pause narration'
+    "
+    tooltipPos="bottom"
+    (click)="toggled.emit()"
+  >
+    <app-icon
+      [name]="!speaking() ? 'volume-2' : paused() ? 'play' : 'pause'"
+      [filled]="speaking() && !paused()"
+    />
+    <span>{{ !speaking() ? 'Listen' : paused() ? 'Resume' : 'Pause' }}</span>
+  </button>
+  @if (speaking()) {
+    <button
+      type="button"
+      class="read-aloud-button read-aloud-button--stop"
+      [disabled]="disabled()"
+      aria-label="Stop narration"
+      appTooltip="Stop narration"
+      tooltipPos="bottom"
+      (click)="stopped.emit()"
+    >
+      <app-icon name="square" [filled]="true" />
+      <span class="visually-hidden">Stop</span>
+    </button>
+  }
+</div>

@@ -39,4 +39,20 @@ describe('markdownToPlainText', () => {
   it('keeps link labels for spoken text', () => {
     expect(markdownToPlainText('[MDN Guide](https://developer.mozilla.org/)')).toBe('MDN Guide');
   });
+
+  it('drops fenced code and keeps the surrounding explanation', () => {
+    const spoken = markdownToPlainText('Call it.\n\n```ts\nconst x = 1;\n```\n\nThen continue.');
+    expect(spoken).toBe('Call it. Then continue.');
+    expect(spoken).not.toContain('const');
+  });
+
+  it('keeps short inline names and does not read code expressions aloud', () => {
+    expect(markdownToPlainText('Use `useState` and `standalone: false` here.')).toBe(
+      'Use useState and standalone, false here.',
+    );
+    const spoken = markdownToPlainText("Then `dispatch({ type: 'itemAdded' })` runs.");
+    expect(spoken).toBe('Then dispatch type runs.');
+    expect(spoken).not.toContain('itemAdded');
+    expect(spoken).not.toContain('{');
+  });
 });

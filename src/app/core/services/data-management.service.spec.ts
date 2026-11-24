@@ -238,6 +238,37 @@ describe('DataManagementService', () => {
       expect(bad.success && bad.data.settings.customAccent).toBeNull();
     });
 
+    it('keeps a saved read-aloud voice and rejects a non-text one', () => {
+      const saved = service.previewImport({
+        ...base,
+        settings: { ...DEFAULT_SETTINGS, speechVoiceUri: 'Google US English' },
+      });
+      expect(saved.success && saved.data.settings.speechVoiceUri).toBe('Google US English');
+
+      const legacySettings: Record<string, unknown> = { ...DEFAULT_SETTINGS };
+      delete legacySettings['speechVoiceUri'];
+      const legacy = service.previewImport({ ...base, settings: legacySettings });
+      expect(legacy.success && legacy.data.settings.speechVoiceUri).toBeNull();
+
+      const hostile = service.previewImport({
+        ...base,
+        settings: { ...DEFAULT_SETTINGS, speechVoiceUri: { uri: 'evil' } },
+      });
+      expect(hostile.success).toBe(false);
+
+      const faster = service.previewImport({
+        ...base,
+        settings: { ...DEFAULT_SETTINGS, speechRate: 1.15 },
+      });
+      expect(faster.success && faster.data.settings.speechRate).toBe(1.15);
+
+      const nonsense = service.previewImport({
+        ...base,
+        settings: { ...DEFAULT_SETTINGS, speechRate: 4 },
+      });
+      expect(nonsense.success && nonsense.data.settings.speechRate).toBe(1);
+    });
+
     it('rejects an unknown style', () => {
       const result = service.previewImport({
         ...base,

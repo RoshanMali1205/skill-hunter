@@ -10,6 +10,9 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
 })
 export class ReadAloudButtonComponent {
   speaking = input.required<boolean>();
+  /** True while this topic's narration is paused and can be resumed. */
+  paused = input(false);
   disabled = input(false);
   toggled = output<void>();
+  stopped = output<void>();
 }

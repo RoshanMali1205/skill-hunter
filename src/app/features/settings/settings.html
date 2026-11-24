@@ -317,6 +317,65 @@
   </section>
 
   <section class="settings__card">
+    <h2>Read aloud</h2>
+    <p class="settings__muted">
+      Listen reads the topic, including interview answers, and skips code samples. Automatic picks
+      the most natural English voice for this browser — Microsoft Natural on Edge, Google English on
+      Chrome, or Enhanced voices on Safari — instead of the robotic system voice. Voice and speed
+      are saved with your other settings.
+    </p>
+
+    @if (tts.supported) {
+      <label class="settings__field settings__voice">
+        <span>Voice</span>
+        <app-select
+          [value]="settings().speechVoiceUri ?? ''"
+          [options]="voiceOptions()"
+          ariaLabel="Read aloud voice"
+          (valueChange)="setSpeechVoice($event)"
+        />
+      </label>
+      @if (!settings().speechVoiceUri && automaticVoiceLabel(); as name) {
+        <p class="settings__muted">Automatic is using {{ name }} on this browser.</p>
+      }
+      @if (savedVoiceMissing()) {
+        <p class="settings__muted">
+          That saved voice is not installed in this browser, so Listen uses the automatic voice.
+        </p>
+      }
+      @if (tts.voices().length === 0) {
+        <p class="settings__muted">
+          This browser has not offered a choice of voices yet. Open this page in Chrome, Edge, or
+          Safari to pick a more natural English voice.
+        </p>
+      }
+      <label class="settings__field settings__voice">
+        <span>Speed</span>
+        <app-select
+          [value]="speechRateValue()"
+          [options]="speechRateOptions"
+          ariaLabel="Read aloud speed"
+          (valueChange)="setSpeechRate($event)"
+        />
+      </label>
+      <p class="settings__muted">Speed applies the next time Listen starts.</p>
+      <div class="cluster">
+        <button type="button" class="btn" (click)="previewVoice()">
+          {{
+            tts.speakingId() !== speechPreviewId
+              ? 'Preview voice'
+              : tts.paused()
+                ? 'Resume preview'
+                : 'Pause preview'
+          }}
+        </button>
+      </div>
+    } @else {
+      <p class="settings__muted">This browser does not support read aloud.</p>
+    }
+  </section>
+
+  <section class="settings__card">
     <h2>Install App</h2>
     <p class="settings__muted">
       Install Skill Hunter as a Progressive Web App for a full-screen experience and faster repeat
