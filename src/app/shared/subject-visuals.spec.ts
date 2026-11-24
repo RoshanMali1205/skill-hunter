@@ -12,6 +12,7 @@ describe('subjectVisual', () => {
     expect(subjectVisual('ai-concepts').emoji).toBe('🤖');
     expect(subjectVisual('vue')).toEqual({ emoji: '💚', color: '#42b883' });
     expect(subjectVisual('nodejs')).toEqual({ emoji: '🟩', color: '#339933' });
+    expect(subjectVisual('react')).toEqual({ emoji: '⚛️', color: '#149ECA' });
   });
 
   it('falls back for an unknown subject', () => {

@@ -1,0 +1,802 @@
+[
+  {
+    "id": "senior-react-01-rendering-100k-rows",
+    "subjectId": "react",
+    "categoryId": "react-system-design-leadership",
+    "title": "Rendering 100,000 rows in a React grid",
+    "description": "Senior/lead scenario: Operations needs a React grid showing up to 100,000 shipment records with sorting, filtering, inline edits, and live status updates. How do you design it?",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 30,
+    "tags": [
+      "react",
+      "senior",
+      "scenario-based",
+      "architect",
+      "rendering-100k-rows"
+    ],
+    "blocks": [
+      {
+        "id": "senior-react-01-rendering-100k-rows-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Architect-level framing",
+        "content": "The real constraint isn't React — it's the DOM, memory, and network. No amount of memoisation makes 100,000 rows of DOM fast. The design has to decide what lives on the server (sorting, filtering, aggregation), what lives in client memory, and what actually becomes DOM.\n\nA senior answer separates data volume from rendering volume, defines update frequency, and plans for accessibility and export requirements that virtualisation complicates.",
+        "keyPoints": [
+          "Push sorting, filtering, and pagination to the server when datasets exceed what the client can hold comfortably.",
+          "Virtualise rows and columns so DOM size stays constant.",
+          "Normalise data by id; rows subscribe to their own record for live updates.",
+          "Batch live updates per animation frame.",
+          "Keep edits optimistic with per-row pending/error state.",
+          "Plan accessibility (grid roles, keyboard navigation) and export as server jobs."
+        ]
+      },
+      {
+        "id": "senior-react-01-rendering-100k-rows-scenario-1",
+        "type": "scenario-question",
+        "order": 2,
+        "title": "Senior scenario",
+        "question": "Operations needs a React grid showing up to 100,000 shipment records with sorting, filtering, inline edits, and live status updates. How do you design it?",
+        "answer": "I'd start by asking whether users really need 100,000 rows in the browser. Usually they need to find and act on a subset, so server-side filtering, sorting, and cursor pagination (or infinite loading with a windowed cache) come first. If the data must be client-side (offline analysis), I'd load it into a Web Worker or an in-memory index and query from there.\n\nFor rendering I'd virtualise rows and, if wide, columns (TanStack Table + TanStack Virtual or AG Grid). DOM size stays at a few dozen rows regardless of total size.\n\nLive status updates arrive via WebSocket into a normalised store keyed by shipment id. Each visible row subscribes to its own record with a selector, so one update re-renders one row. Updates are batched per animation frame.\n\nInline edits use mutations with optimistic per-row state and conflict detection using versions.\n\nAccessibility: `role=\"grid\"` semantics, `aria-rowcount`/`aria-rowindex`, and keyboard navigation. Export is a server-side job, not a client loop over 100k rows.\n\nI'd validate with production-like data volume on a low-end laptop, measuring INP during scroll and edits, memory after an hour, and WebSocket throughput.",
+        "explanation": "Weak version to avoid: Saying 'use React.memo and useMemo everywhere' or 'load everything once and filter in the browser' without considering DOM size, memory, live updates, or accessibility.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ]
+      },
+      {
+        "id": "senior-react-01-rendering-100k-rows-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Practical code / design example",
+        "language": "typescript",
+        "code": "function ShipmentRow({ id, style }: { id: string; style: CSSProperties }) {\n  const shipment = useShipmentStore(s => s.byId[id]); // re-renders only for this id\n  return (\n    <div role=\"row\" aria-rowindex={shipment.index + 2} style={style}>\n      <div role=\"gridcell\">{shipment.code}</div>\n      <div role=\"gridcell\"><StatusBadge status={shipment.status} /></div>\n    </div>\n  );\n}\n\n// WebSocket updates batched per frame\nlet pending: Shipment[] = [];\nsocket.on('shipment', s => {\n  if (pending.push(s) === 1) requestAnimationFrame(() => {\n    useShipmentStore.getState().upsertMany(pending);\n    pending = [];\n  });\n});",
+        "explanation": "Rows subscribe by id and live updates are batched, so a burst of 500 updates costs one store write per frame and re-renders only visible affected rows."
+      },
+      {
+        "id": "senior-react-01-rendering-100k-rows-concept-2",
+        "type": "concept",
+        "order": 4,
+        "title": "Common weak answer",
+        "content": "Saying 'use React.memo and useMemo everywhere' or 'load everything once and filter in the browser' without considering DOM size, memory, live updates, or accessibility."
+      },
+      {
+        "id": "senior-react-01-rendering-100k-rows-concept-3",
+        "type": "concept",
+        "order": 5,
+        "title": "Trade-offs and production validation",
+        "content": "Server-side querying reduces client memory but adds latency per interaction; a client-side index gives instant filtering but costs memory and initial load. Virtualisation fixes DOM cost but breaks browser find-in-page and complicates screen-reader navigation. Validate with realistic data volume, low-end hardware profiles, INP during scrolling and editing, memory over long sessions, and user testing with keyboard and screen-reader users."
+      },
+      {
+        "id": "senior-react-01-rendering-100k-rows-question-1",
+        "type": "interview-question",
+        "order": 6,
+        "title": "Follow-up question",
+        "question": "How would you handle 'select all' and bulk edit across 100,000 rows that aren't loaded?",
+        "answer": "Represent selection as a query plus exclusions (`{ filter, excludedIds }`) instead of a list of 100k ids. Bulk operations are sent to the server as a job with the same filter, processed asynchronously with progress reporting, and the client invalidates affected queries when the job completes. The UI clearly shows how many records will be affected and requires confirmation for destructive actions.",
+        "explanation": "Interviewers use this follow-up to test depth beyond the first answer."
+      }
+    ]
+  },
+  {
+    "id": "senior-react-02-choosing-state-architecture",
+    "subjectId": "react",
+    "categoryId": "react-system-design-leadership",
+    "title": "Choosing a state architecture for a large React app",
+    "description": "Senior/lead scenario: A new 40-developer React platform for fleet management is starting. Teams debate Redux Toolkit, Zustand, and 'just Context'. How do you decide?",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 30,
+    "tags": [
+      "react",
+      "senior",
+      "scenario-based",
+      "architect",
+      "choosing-state-architecture"
+    ],
+    "blocks": [
+      {
+        "id": "senior-react-02-choosing-state-architecture-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Architect-level framing",
+        "content": "State-management debates usually mix several different problems. The decision should be driven by classifying state and by organisational needs (conventions, debugging, onboarding), not by library popularity.\n\nMost of the 'global state' in typical apps is actually server state, which belongs in a server-state cache.",
+        "keyPoints": [
+          "Classify: server, URL, form, local UI, shared client state.",
+          "Server state → TanStack Query/RTK Query or framework loaders.",
+          "Shared client state is usually small; choose a store with selectors.",
+          "Decide based on team scale, devtools, middleware, and conventions.",
+          "Expose state through domain hooks so the library can change later.",
+          "Document the decision in an ADR."
+        ]
+      },
+      {
+        "id": "senior-react-02-choosing-state-architecture-scenario-1",
+        "type": "scenario-question",
+        "order": 2,
+        "title": "Senior scenario",
+        "question": "A new 40-developer React platform for fleet management is starting. Teams debate Redux Toolkit, Zustand, and 'just Context'. How do you decide?",
+        "answer": "I'd first classify the state with the teams. In a fleet platform: vehicles, trips, alerts, and drivers are server state — they go into TanStack Query (or RTK Query if we pick Redux) with WebSocket-driven invalidation. Map viewport, filters, and selected vehicle belong in the URL. Forms use React Hook Form with Zod. Remaining shared client state is small: user preferences, map layer toggles, maybe an editor's undo stack.\n\nFor that remaining state, with 40 developers, I'd lean towards Redux Toolkit if we need strict conventions, middleware (audit logging, undo), and time-travel debugging; or Zustand if the client state is modest and we value simplicity. Context alone is fine for low-frequency values like theme and auth session but lacks selectors, so it causes broad re-renders for frequently changing data.\n\nWhatever we choose, components access state through domain hooks (`useSelectedVehicle`, `useMapLayers`), never the store directly, so we can change the implementation.\n\nI'd prototype one representative feature with the top two options, measure render behaviour and developer experience, and record the decision in an ADR with revisit criteria.",
+        "explanation": "Weak version to avoid: Picking Redux 'because it scales' or Context 'because it's built-in' without separating server state from client state, or putting every API response into a global store.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ]
+      },
+      {
+        "id": "senior-react-02-choosing-state-architecture-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Practical code / design example",
+        "language": "typescript",
+        "code": "// Domain hooks hide the implementation choice\nexport const useSelectedVehicleId = () => useSearchParams()[0].get('vehicle');\nexport const useVehicle = (id: string) =>\n  useQuery({ queryKey: vehicleKeys.detail(id), queryFn: () => api.vehicle(id) });\nexport const useMapLayers = () => useMapStore(s => s.layers);\nexport const useToggleLayer = () => useMapStore(s => s.toggleLayer);",
+        "explanation": "Components depend on domain hooks; whether data comes from the URL, the query cache, or a store is an internal detail."
+      },
+      {
+        "id": "senior-react-02-choosing-state-architecture-concept-2",
+        "type": "concept",
+        "order": 4,
+        "title": "Common weak answer",
+        "content": "Picking Redux 'because it scales' or Context 'because it's built-in' without separating server state from client state, or putting every API response into a global store."
+      },
+      {
+        "id": "senior-react-02-choosing-state-architecture-concept-3",
+        "type": "concept",
+        "order": 5,
+        "title": "Trade-offs and production validation",
+        "content": "Redux Toolkit gives strong conventions and tooling at the cost of more ceremony; Zustand is lighter but needs agreed patterns to stay consistent across 40 developers. Splitting server state into a query cache massively reduces store size but introduces two mental models. Validate with a vertical-slice prototype, re-render profiling under live updates, onboarding feedback, and a revisit date in the ADR."
+      },
+      {
+        "id": "senior-react-02-choosing-state-architecture-question-1",
+        "type": "interview-question",
+        "order": 6,
+        "title": "Follow-up question",
+        "question": "How do you keep WebSocket updates and the query cache consistent?",
+        "answer": "Route socket events through a single module that maps event types to cache operations: `setQueryData` for authoritative payloads (vehicle position), `invalidateQueries` for events that only signal change. Include versions/timestamps to drop out-of-order events, and on reconnect invalidate active queries to resync. Batch high-frequency events before touching the cache.",
+        "explanation": "Interviewers use this follow-up to test depth beyond the first answer."
+      }
+    ]
+  },
+  {
+    "id": "senior-react-03-react-micro-frontends",
+    "subjectId": "react",
+    "categoryId": "react-system-design-leadership",
+    "title": "Micro-frontends with React",
+    "description": "Senior/lead scenario: Four business units want independent deployments of their React apps inside one customer portal. Would you choose micro-frontends, and how would you build them?",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 30,
+    "tags": [
+      "react",
+      "senior",
+      "scenario-based",
+      "architect",
+      "react-micro-frontends"
+    ],
+    "blocks": [
+      {
+        "id": "senior-react-03-react-micro-frontends-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Architect-level framing",
+        "content": "Micro-frontends solve organisational problems — independent ownership and release cadence — at the cost of runtime complexity. The first question is whether teams truly need runtime independence or just better module boundaries in a monorepo.",
+        "keyPoints": [
+          "Start from autonomy needs, not technology.",
+          "Shell owns auth, navigation, layout, telemetry, and design tokens.",
+          "Small versioned contracts: routes, custom events, typed platform APIs.",
+          "Decide React singleton sharing vs isolation (Module Federation).",
+          "Isolate failures with error boundaries per remote.",
+          "Compare with a modular monolith (Nx/Turborepo) first."
+        ]
+      },
+      {
+        "id": "senior-react-03-react-micro-frontends-scenario-1",
+        "type": "scenario-question",
+        "order": 2,
+        "title": "Senior scenario",
+        "question": "Four business units want independent deployments of their React apps inside one customer portal. Would you choose micro-frontends, and how would you build them?",
+        "answer": "If the units truly need independent releases and own clearly bounded areas (billing, claims, documents, support), micro-frontends can be justified. If not, a monorepo with enforced boundaries and per-team pipelines gives most benefits without runtime composition.\n\nIf we go ahead, I'd use Module Federation (or native import maps) with a thin shell. The shell handles authentication, top-level routing, layout, global error handling, and telemetry. Each remote owns its routes under a prefix and is loaded lazily with `React.lazy` inside an error boundary, so a failing remote shows a fallback instead of breaking the portal.\n\nReact and the design system are shared as singletons with a compatible major version policy; upgrades are coordinated through the platform team. Cross-app communication uses URLs and a small typed event contract — no shared mutable stores.\n\nI'd require consistent accessibility, design tokens, observability with correlated trace ids, contract tests for the shell API, and a local dev setup where teams can run their remote against the deployed shell.",
+        "explanation": "Weak version to avoid: Choosing micro-frontends because 'they scale better', or sharing Redux stores and React contexts across independently deployed apps, which recreates tight coupling with runtime failures.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ]
+      },
+      {
+        "id": "senior-react-03-react-micro-frontends-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Practical code / design example",
+        "language": "typescript",
+        "code": "const ClaimsApp = lazy(() => loadRemote<{ default: ComponentType }>('claims/App'));\n\nexport function RemoteRoute({ name, children }: { name: string; children: ReactNode }) {\n  return (\n    <ErrorBoundary fallback={<RemoteUnavailable name={name} />} onError={e => telemetry.remoteFailed(name, e)}>\n      <Suspense fallback={<PageSkeleton />}>{children}</Suspense>\n    </ErrorBoundary>\n  );\n}\n\n// <Route path=\"/claims/*\" element={<RemoteRoute name=\"claims\"><ClaimsApp /></RemoteRoute>} />",
+        "explanation": "Each remote is lazy-loaded behind its own error boundary and telemetry, so outages are contained and observable."
+      },
+      {
+        "id": "senior-react-03-react-micro-frontends-concept-2",
+        "type": "concept",
+        "order": 4,
+        "title": "Common weak answer",
+        "content": "Choosing micro-frontends because 'they scale better', or sharing Redux stores and React contexts across independently deployed apps, which recreates tight coupling with runtime failures."
+      },
+      {
+        "id": "senior-react-03-react-micro-frontends-concept-3",
+        "type": "concept",
+        "order": 5,
+        "title": "Trade-offs and production validation",
+        "content": "Independence costs bundle duplication or version coupling, harder local development, and distributed debugging. Sharing React as a singleton saves bytes but forces coordinated upgrades. Validate with remote-outage drills, independent deploy tests, performance budgets per remote, and cross-team accessibility audits."
+      },
+      {
+        "id": "senior-react-03-react-micro-frontends-question-1",
+        "type": "interview-question",
+        "order": 6,
+        "title": "Follow-up question",
+        "question": "How would you upgrade React across all remotes without a big-bang release?",
+        "answer": "Publish a compatibility policy (e.g. one supported major at a time with an overlap window). The shell can temporarily allow remotes to bundle their own React when versions diverge (isolation via separate roots), at a performance cost. Upgrade the shell and design system first, provide codemods, track remote versions in a registry, and set a deadline after which the old version is no longer shared.",
+        "explanation": "Interviewers use this follow-up to test depth beyond the first answer."
+      }
+    ]
+  },
+  {
+    "id": "senior-react-04-design-system-architecture",
+    "subjectId": "react",
+    "categoryId": "react-system-design-leadership",
+    "title": "Designing a React design system",
+    "description": "Senior/lead scenario: You're asked to build a design system used by 25 React teams across web apps. How do you architect it?",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 30,
+    "tags": [
+      "react",
+      "senior",
+      "scenario-based",
+      "architect",
+      "design-system-architecture"
+    ],
+    "blocks": [
+      {
+        "id": "senior-react-04-design-system-architecture-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Architect-level framing",
+        "content": "A design system is a product with users (developers and designers), not a component folder. Its architecture must balance consistency, flexibility, accessibility, and upgrade cost.",
+        "keyPoints": [
+          "Tokens (color, spacing, typography) as the foundation, exported to CSS variables.",
+          "Headless/accessible primitives (e.g. React Aria, Radix) + styled components.",
+          "Composable APIs (compound components, slots) over prop explosions.",
+          "Theming via CSS variables, not runtime CSS-in-JS for performance and RSC compatibility.",
+          "Documentation, visual regression, and a11y testing in CI.",
+          "Semantic versioning, codemods, and adoption metrics."
+        ]
+      },
+      {
+        "id": "senior-react-04-design-system-architecture-scenario-1",
+        "type": "scenario-question",
+        "order": 2,
+        "title": "Senior scenario",
+        "question": "You're asked to build a design system used by 25 React teams across web apps. How do you architect it?",
+        "answer": "I'd start with design tokens agreed with design, generated into CSS custom properties and TypeScript constants. Components build on accessible primitives (React Aria or Radix) so focus management and ARIA are correct by default.\n\nAPIs favour composition: compound components (`Dialog`, `Dialog.Title`, `Dialog.Content`), variant unions instead of booleans, forwarded native props and `ref`. Styling uses CSS Modules or a zero-runtime solution with CSS variables for theming — runtime CSS-in-JS conflicts with Server Components and costs render time.\n\nThe package ships ESM with `sideEffects` configured for tree shaking, marks client components with `'use client'` where they use state, and keeps server-safe components free of hooks.\n\nQuality gates: Storybook docs with usage guidance, interaction tests, visual regression (Chromatic/Playwright), axe checks, and bundle-size tracking per component.\n\nGovernance: a contribution model, RFCs for new components, semver with changesets, codemods for breaking changes, and adoption telemetry to see which versions and components teams use.",
+        "explanation": "Weak version to avoid: Building a component library by copying the current app's components, with dozens of boolean props, runtime styling, no accessibility testing, and breaking changes released without migration support.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ]
+      },
+      {
+        "id": "senior-react-04-design-system-architecture-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Practical code / design example",
+        "language": "typescript",
+        "code": "// tokens.css (generated)\n:root { --color-action: #087ea4; --space-2: 8px; --radius-md: 6px; }\n[data-theme='dark'] { --color-action: #58c4dc; }\n\n// Button.tsx\ntype ButtonProps = ComponentPropsWithoutRef<'button'> & {\n  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';\n  size?: 'sm' | 'md' | 'lg';\n  ref?: Ref<HTMLButtonElement>;\n};\nexport function Button({ variant = 'primary', size = 'md', className, ...rest }: ButtonProps) {\n  return <button className={cx(styles.button, styles[variant], styles[size], className)} {...rest} />;\n}",
+        "explanation": "Tokens drive theming through CSS variables, and the component exposes a small typed API while forwarding native props and ref."
+      },
+      {
+        "id": "senior-react-04-design-system-architecture-concept-2",
+        "type": "concept",
+        "order": 4,
+        "title": "Common weak answer",
+        "content": "Building a component library by copying the current app's components, with dozens of boolean props, runtime styling, no accessibility testing, and breaking changes released without migration support."
+      },
+      {
+        "id": "senior-react-04-design-system-architecture-concept-3",
+        "type": "concept",
+        "order": 5,
+        "title": "Trade-offs and production validation",
+        "content": "Wrapping headless libraries speeds up accessibility but adds a dependency you must track. Strict APIs improve consistency but frustrate edge cases — provide escape hatches like `className` and slots. Validate with adoption metrics, visual regression, accessibility audits, and team satisfaction surveys."
+      },
+      {
+        "id": "senior-react-04-design-system-architecture-question-1",
+        "type": "interview-question",
+        "order": 6,
+        "title": "Follow-up question",
+        "question": "How do you prevent teams from forking components when the design system doesn't meet their needs?",
+        "answer": "Make contribution easy (clear RFC process, fast reviews), provide composition escape hatches (slots, `asChild`, `className`), and publish lower-level primitives so teams can build variants without forking. Track forks via lint rules or import analysis, and treat repeated forks as product feedback for the roadmap.",
+        "explanation": "Interviewers use this follow-up to test depth beyond the first answer."
+      }
+    ]
+  },
+  {
+    "id": "senior-react-05-incremental-migration-to-react",
+    "subjectId": "react",
+    "categoryId": "react-system-design-leadership",
+    "title": "Incrementally migrating a legacy frontend to React",
+    "description": "Senior/lead scenario: A business-critical AngularJS (or jQuery) application must move to React without stopping feature delivery. How do you plan the migration?",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 30,
+    "tags": [
+      "react",
+      "senior",
+      "scenario-based",
+      "architect",
+      "incremental-migration-to-react"
+    ],
+    "blocks": [
+      {
+        "id": "senior-react-05-incremental-migration-to-react-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Architect-level framing",
+        "content": "Big-bang rewrites rarely succeed for critical systems. The migration must deliver value continuously, keep both stacks running side by side, and have clear exit criteria.",
+        "keyPoints": [
+          "Strangler-fig approach: new features in React, migrate route by route.",
+          "Mount React islands inside the legacy app (createRoot per container).",
+          "Share auth, routing, and data through stable adapters.",
+          "Migrate shared UI via the design system first.",
+          "Track progress with metrics and remove legacy code continuously.",
+          "Plan rollback per slice."
+        ]
+      },
+      {
+        "id": "senior-react-05-incremental-migration-to-react-scenario-1",
+        "type": "scenario-question",
+        "order": 2,
+        "title": "Senior scenario",
+        "question": "A business-critical AngularJS (or jQuery) application must move to React without stopping feature delivery. How do you plan the migration?",
+        "answer": "I'd use a strangler-fig strategy. First, set up the React build (Vite), design system, and testing alongside the legacy build. New features are built in React from day one.\n\nIntegration starts with React islands: a small adapter mounts React components into legacy containers with `createRoot`, passes props from the legacy scope, and unmounts on scope destroy. Later, top-level routing switches so whole routes are React, with the legacy app embedded for remaining routes.\n\nCross-cutting concerns get adapters: one auth/session source, an HTTP client shared by both, and an event bus or URL-based communication for state that crosses the boundary.\n\nI'd prioritise routes by business value and change frequency, migrate one at a time with feature flags, run E2E tests on both versions, and delete legacy code as soon as a route is migrated. Progress is tracked as percentage of routes/traffic on React and bundle size of legacy code.",
+        "explanation": "Weak version to avoid: Proposing a full rewrite with a feature freeze, or mixing both frameworks without adapters so state and lifecycles leak between them.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ]
+      },
+      {
+        "id": "senior-react-05-incremental-migration-to-react-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Practical code / design example",
+        "language": "typescript",
+        "code": "// Mount a React island inside a legacy AngularJS directive\nangular.module('legacy').directive('reactOrderSummary', () => ({\n  scope: { orderId: '<' },\n  link(scope, element) {\n    const root = createRoot(element[0]);\n    const render = () => root.render(<OrderSummary orderId={scope.orderId} />);\n    scope.$watch('orderId', render);\n    scope.$on('$destroy', () => root.unmount());\n  },\n}));",
+        "explanation": "The adapter owns the React root lifecycle and re-renders when legacy inputs change, unmounting cleanly when the legacy scope is destroyed."
+      },
+      {
+        "id": "senior-react-05-incremental-migration-to-react-concept-2",
+        "type": "concept",
+        "order": 4,
+        "title": "Common weak answer",
+        "content": "Proposing a full rewrite with a feature freeze, or mixing both frameworks without adapters so state and lifecycles leak between them."
+      },
+      {
+        "id": "senior-react-05-incremental-migration-to-react-concept-3",
+        "type": "concept",
+        "order": 5,
+        "title": "Trade-offs and production validation",
+        "content": "Running two frameworks increases bundle size and cognitive load temporarily; adapters add indirection. Migrating by route is safer but slower than by component; by component risks long-lived hybrid screens. Validate with E2E parity tests, performance budgets tracking combined bundle size, error-rate dashboards per migrated route, and a clear deadline for removing the legacy runtime."
+      },
+      {
+        "id": "senior-react-05-incremental-migration-to-react-question-1",
+        "type": "interview-question",
+        "order": 6,
+        "title": "Follow-up question",
+        "question": "How do you handle shared state between legacy and React parts during migration?",
+        "answer": "Pick one owner for each piece of state. Prefer the URL and the server as shared sources of truth. For in-memory state, expose a framework-agnostic store (plain observable or Zustand vanilla store) that React reads with `useSyncExternalStore` and the legacy app subscribes to directly. Avoid two-way syncing between separate stores.",
+        "explanation": "Interviewers use this follow-up to test depth beyond the first answer."
+      }
+    ]
+  },
+  {
+    "id": "senior-react-06-real-time-dashboard",
+    "subjectId": "react",
+    "categoryId": "react-system-design-leadership",
+    "title": "Real-time telematics dashboard architecture",
+    "description": "Senior/lead scenario: Design a React dashboard showing live positions and alerts for 20,000 connected vehicles, used all day by dispatchers.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 30,
+    "tags": [
+      "react",
+      "senior",
+      "scenario-based",
+      "architect",
+      "real-time-dashboard"
+    ],
+    "blocks": [
+      {
+        "id": "senior-react-06-real-time-dashboard-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Architect-level framing",
+        "content": "Long-running, real-time dashboards fail through memory growth, render storms, and stale data after reconnects. The architecture must control update frequency, ownership of subscriptions, and recovery.",
+        "keyPoints": [
+          "One connection layer outside React; components subscribe by key.",
+          "Throttle/batch updates; render positions on a canvas/WebGL map layer.",
+          "Server-side aggregation for counts and clustering.",
+          "Resync strategy on reconnect (snapshot + deltas with sequence numbers).",
+          "Memory hygiene for all-day sessions.",
+          "Alerts prioritised and accessible."
+        ]
+      },
+      {
+        "id": "senior-react-06-real-time-dashboard-scenario-1",
+        "type": "scenario-question",
+        "order": 2,
+        "title": "Senior scenario",
+        "question": "Design a React dashboard showing live positions and alerts for 20,000 connected vehicles, used all day by dispatchers.",
+        "answer": "A single WebSocket (or SSE) connection is managed by a service module outside React, with reconnect, backoff, and sequence numbers. On connect it loads a snapshot, then applies deltas; gaps trigger a resync.\n\nVehicle data lives in a normalised external store. The map doesn't render 20,000 React components — vehicle markers are drawn by a WebGL/canvas layer (MapLibre/deck.gl) fed directly from the store; React renders only panels, lists (virtualised), and the selected vehicle detail, each subscribing by key with `useSyncExternalStore`-based selectors.\n\nUpdates are coalesced per animation frame, and non-critical panels use `useDeferredValue`. Aggregates (counts by status) come from the server or a Web Worker.\n\nAlerts go through a priority queue with deduplication, are announced via an ARIA live region for critical items, and are acknowledged with optimistic updates.\n\nFor all-day use: bounded histories, cleanup of subscriptions in effects, periodic memory checks in monitoring, and a visible connection-status indicator.",
+        "explanation": "Weak version to avoid: Storing all vehicles in React state at the top level and updating it per message, rendering one DOM marker component per vehicle, and ignoring reconnect gaps.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ]
+      },
+      {
+        "id": "senior-react-06-real-time-dashboard-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Practical code / design example",
+        "language": "typescript",
+        "code": "class FleetFeed {\n  private seq = 0;\n  constructor(private store: FleetStore, private socket: ReconnectingSocket) {\n    socket.onOpen(async () => {\n      const snapshot = await api.fleetSnapshot();\n      store.replaceAll(snapshot.vehicles);\n      this.seq = snapshot.seq;\n    });\n    socket.onMessage(msg => {\n      if (msg.seq !== this.seq + 1) return socket.reconnect(); // gap → resync\n      this.seq = msg.seq;\n      store.queueUpdate(msg.vehicle); // batched per animation frame\n    });\n  }\n}",
+        "explanation": "Snapshot + ordered deltas guarantee consistency after reconnects, and the store batches updates before notifying subscribers."
+      },
+      {
+        "id": "senior-react-06-real-time-dashboard-concept-2",
+        "type": "concept",
+        "order": 4,
+        "title": "Common weak answer",
+        "content": "Storing all vehicles in React state at the top level and updating it per message, rendering one DOM marker component per vehicle, and ignoring reconnect gaps."
+      },
+      {
+        "id": "senior-react-06-real-time-dashboard-concept-3",
+        "type": "concept",
+        "order": 5,
+        "title": "Trade-offs and production validation",
+        "content": "Canvas/WebGL rendering scales but reduces built-in accessibility, so provide an accessible list view. Server aggregation reduces client CPU but adds backend load. Validate with load tests replaying real traffic, 8-hour soak tests tracking memory, INP measurements during peak updates, and reconnect chaos testing."
+      },
+      {
+        "id": "senior-react-06-real-time-dashboard-question-1",
+        "type": "interview-question",
+        "order": 6,
+        "title": "Follow-up question",
+        "question": "How would you test that the dashboard stays correct after network interruptions?",
+        "answer": "Replay recorded event streams in tests with simulated disconnects, dropped and duplicated messages, and out-of-order delivery; assert the store converges to the server snapshot. Add Playwright tests using network throttling/offline mode, and production metrics for resync frequency and sequence gaps.",
+        "explanation": "Interviewers use this follow-up to test depth beyond the first answer."
+      }
+    ]
+  },
+  {
+    "id": "senior-react-07-csr-to-nextjs-rsc",
+    "subjectId": "react",
+    "categoryId": "react-system-design-leadership",
+    "title": "Moving a CSR React app to Server Components",
+    "description": "Senior/lead scenario: Your CSR React app has a 900 KB JS bundle and poor LCP. Leadership asks whether to migrate to Next.js with Server Components. How do you evaluate and execute?",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 30,
+    "tags": [
+      "react",
+      "senior",
+      "scenario-based",
+      "architect",
+      "csr-to-nextjs-rsc"
+    ],
+    "blocks": [
+      {
+        "id": "senior-react-07-csr-to-nextjs-rsc-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Architect-level framing",
+        "content": "Server Components can dramatically cut client JavaScript, but migration changes hosting, data access, caching, and team skills. The decision needs evidence and a staged plan.",
+        "keyPoints": [
+          "Identify which routes benefit (public, content-heavy, data-heavy).",
+          "Measure where bytes and time go today.",
+          "Consider cheaper wins first: code splitting, dependency cleanup.",
+          "Plan hosting, caching, and observability for a server runtime.",
+          "Migrate incrementally with routing rewrites/proxy.",
+          "Train the team on boundaries and Server Function security."
+        ]
+      },
+      {
+        "id": "senior-react-07-csr-to-nextjs-rsc-scenario-1",
+        "type": "scenario-question",
+        "order": 2,
+        "title": "Senior scenario",
+        "question": "Your CSR React app has a 900 KB JS bundle and poor LCP. Leadership asks whether to migrate to Next.js with Server Components. How do you evaluate and execute?",
+        "answer": "First I'd analyse the bundle and field metrics. If most bytes are rendering/display code and data-fetching libraries for content-heavy routes, RSC helps a lot. If they're an editor or charts that must be interactive, the gain is smaller; code splitting may be enough.\n\nBefore migrating I'd capture quick wins: route-level splitting, removing heavy dependencies (moment, lodash full), preloading the LCP image.\n\nIf we proceed, I'd stand up Next.js alongside the existing app and route traffic by path through a proxy/rewrites, migrating high-value public routes first. Existing components move in as Client Components initially (`'use client'`), then data fetching and static UI are lifted into Server Components and the client boundary is pushed down.\n\nWe'd need server hosting, caching strategy (tags, revalidation), server observability, and security reviews for Server Functions. Success criteria: client JS per route, LCP, INP, TTFB, and conversion, compared per migrated route.",
+        "explanation": "Weak version to avoid: Rewriting everything in Next.js at once, or marking every component `'use client'` and expecting smaller bundles.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ]
+      },
+      {
+        "id": "senior-react-07-csr-to-nextjs-rsc-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Practical code / design example",
+        "language": "typescript",
+        "code": "// next.config.ts — strangler migration via rewrites\nexport default {\n  async rewrites() {\n    return {\n      fallback: [{ source: '/:path*', destination: 'https://legacy-app.internal/:path*' }],\n    };\n  },\n};\n// Routes implemented in app/ are served by Next.js; everything else falls back to the CSR app.",
+        "explanation": "Next.js serves migrated routes and transparently proxies the rest to the legacy app, enabling route-by-route migration."
+      },
+      {
+        "id": "senior-react-07-csr-to-nextjs-rsc-concept-2",
+        "type": "concept",
+        "order": 4,
+        "title": "Common weak answer",
+        "content": "Rewriting everything in Next.js at once, or marking every component `'use client'` and expecting smaller bundles."
+      },
+      {
+        "id": "senior-react-07-csr-to-nextjs-rsc-concept-3",
+        "type": "concept",
+        "order": 5,
+        "title": "Trade-offs and production validation",
+        "content": "RSC reduces client JS and improves LCP but adds server cost, operational complexity, and new failure modes (server errors, cache staleness). Teams need to learn boundary rules. Validate per route with A/B or phased rollout, field Web Vitals, server latency/error dashboards, and cost tracking."
+      },
+      {
+        "id": "senior-react-07-csr-to-nextjs-rsc-question-1",
+        "type": "interview-question",
+        "order": 6,
+        "title": "Follow-up question",
+        "question": "Which parts of the app would you keep as Client Components, and why?",
+        "answer": "Anything with rich interactivity or browser APIs: editors, drag-and-drop, maps, charts with hover interactions, forms with complex client validation, and real-time widgets. They stay client-side but receive server-fetched data as props, and are lazy-loaded where not needed initially.",
+        "explanation": "Interviewers use this follow-up to test depth beyond the first answer."
+      }
+    ]
+  },
+  {
+    "id": "senior-react-08-frontend-auth-security",
+    "subjectId": "react",
+    "categoryId": "react-system-design-leadership",
+    "title": "Authentication and security in a React SPA",
+    "description": "Senior/lead scenario: Design authentication and token handling for a React SPA that talks to several APIs, and explain how you defend against XSS and CSRF.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 30,
+    "tags": [
+      "react",
+      "senior",
+      "scenario-based",
+      "architect",
+      "frontend-auth-security"
+    ],
+    "blocks": [
+      {
+        "id": "senior-react-08-frontend-auth-security-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Architect-level framing",
+        "content": "Frontend security is about limiting what an attacker can do if something goes wrong. Token storage, rendering safety, and server enforcement must be designed together.",
+        "keyPoints": [
+          "Prefer a Backend-for-Frontend with HttpOnly, Secure, SameSite cookies.",
+          "Avoid long-lived tokens in localStorage.",
+          "React escapes text by default; audit every `dangerouslySetInnerHTML` and URL sink.",
+          "Strict Content Security Policy and Trusted Types (supported in React 19.3).",
+          "CSRF protection for cookie-based auth.",
+          "Authorisation enforced on the server; client checks are UX."
+        ]
+      },
+      {
+        "id": "senior-react-08-frontend-auth-security-scenario-1",
+        "type": "scenario-question",
+        "order": 2,
+        "title": "Senior scenario",
+        "question": "Design authentication and token handling for a React SPA that talks to several APIs, and explain how you defend against XSS and CSRF.",
+        "answer": "I'd use OIDC with Authorization Code + PKCE handled by a Backend-for-Frontend. The BFF stores tokens server-side and gives the browser an HttpOnly, Secure, SameSite session cookie. The SPA never sees access tokens, so XSS can't exfiltrate them (though it can still act within the session, which is why XSS prevention still matters).\n\nFor CSRF, SameSite=Lax/Strict cookies plus a CSRF token or custom header check on state-changing requests.\n\nXSS defence: React escapes rendered text, so the risky sinks are `dangerouslySetInnerHTML`, `href`/`src` with `javascript:` URLs, and third-party scripts. Sanitize HTML with DOMPurify, validate URLs, enforce a strict CSP with nonces, and enable Trusted Types (React 19.3 passes Trusted Types objects through without string coercion).\n\nClient-side route guards and role-based UI improve UX, but every API enforces authorisation. Sessions have idle and absolute timeouts, and logout revokes server-side sessions.",
+        "explanation": "Weak version to avoid: Storing JWTs in localStorage 'because it's easy', relying on hidden buttons for authorisation, and rendering CMS HTML with `dangerouslySetInnerHTML` without sanitisation.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ]
+      },
+      {
+        "id": "senior-react-08-frontend-auth-security-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Practical code / design example",
+        "language": "typescript",
+        "code": "import DOMPurify from 'dompurify';\n\nfunction SafeRichText({ html }: { html: string }) {\n  const clean = useMemo(() => DOMPurify.sanitize(html, { USE_PROFILES: { html: true } }), [html]);\n  return <div dangerouslySetInnerHTML={{ __html: clean }} />;\n}\n\nconst SAFE_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);\nfunction SafeLink({ href, children }: { href: string; children: ReactNode }) {\n  const ok = (() => { try { return SAFE_PROTOCOLS.has(new URL(href, location.origin).protocol); } catch { return false; } })();\n  return ok ? <a href={href} rel=\"noopener noreferrer\">{children}</a> : <span>{children}</span>;\n}",
+        "explanation": "User-controlled HTML is sanitised before rendering, and links reject `javascript:` and other unsafe protocols."
+      },
+      {
+        "id": "senior-react-08-frontend-auth-security-concept-2",
+        "type": "concept",
+        "order": 4,
+        "title": "Common weak answer",
+        "content": "Storing JWTs in localStorage 'because it's easy', relying on hidden buttons for authorisation, and rendering CMS HTML with `dangerouslySetInnerHTML` without sanitisation."
+      },
+      {
+        "id": "senior-react-08-frontend-auth-security-concept-3",
+        "type": "concept",
+        "order": 5,
+        "title": "Trade-offs and production validation",
+        "content": "A BFF adds infrastructure and latency but removes token exposure; pure SPA token flows are simpler but riskier. Strict CSP can break third-party scripts and needs a rollout in report-only mode first. Validate with security testing (DAST, pen tests), CSP violation reports, dependency audits, and automated tests for sanitisation and authorisation."
+      },
+      {
+        "id": "senior-react-08-frontend-auth-security-question-1",
+        "type": "interview-question",
+        "order": 6,
+        "title": "Follow-up question",
+        "question": "If an XSS vulnerability is found in production, what do you do?",
+        "answer": "Contain first: deploy a fix or disable the affected feature, tighten CSP if possible, and invalidate sessions if session abuse is plausible. Assess impact from logs, notify security/legal per policy, add regression tests, scan for similar sinks across the codebase, and run a blameless postmortem with preventive actions (lint rules against `dangerouslySetInnerHTML`, Trusted Types enforcement).",
+        "explanation": "Interviewers use this follow-up to test depth beyond the first answer."
+      }
+    ]
+  },
+  {
+    "id": "senior-react-09-memory-leak-incident",
+    "subjectId": "react",
+    "categoryId": "react-system-design-leadership",
+    "title": "Leading a production memory-leak incident",
+    "description": "Senior/lead scenario: Support reports that your React app becomes unusable after a few hours and browser tabs crash. You're the incident lead. What do you do?",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 30,
+    "tags": [
+      "react",
+      "senior",
+      "scenario-based",
+      "architect",
+      "memory-leak-incident"
+    ],
+    "blocks": [
+      {
+        "id": "senior-react-09-memory-leak-incident-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Architect-level framing",
+        "content": "Incident leadership is about restoring service first, then finding root cause with evidence, and finally preventing recurrence. Memory leaks in React apps usually come from subscriptions, caches, and detached DOM retained by closures.",
+        "keyPoints": [
+          "Stabilise: mitigation and communication before deep debugging.",
+          "Reproduce with heap snapshots and allocation timelines.",
+          "Common culprits: missing effect cleanup, unbounded caches, global listeners, third-party widgets.",
+          "Use production telemetry (`performance.memory` where available, session length, crash reports).",
+          "Fix, verify with soak tests, and add guardrails.",
+          "Blameless postmortem."
+        ]
+      },
+      {
+        "id": "senior-react-09-memory-leak-incident-scenario-1",
+        "type": "scenario-question",
+        "order": 2,
+        "title": "Senior scenario",
+        "question": "Support reports that your React app becomes unusable after a few hours and browser tabs crash. You're the incident lead. What do you do?",
+        "answer": "I'd open an incident channel, assign roles (comms, investigation), and communicate a workaround (refresh) to support. If a recent release correlates, roll back or disable the suspect feature flag.\n\nInvestigation: reproduce with a long session script (Playwright looping key flows), take heap snapshots at intervals in a production build, and compare retained objects. I'd look for detached DOM trees, growing arrays/maps, and closures retaining old props.\n\nTypical causes I'd check: effects without cleanup (intervals, sockets, `ResizeObserver`), event listeners on `window`, unbounded client caches (query `gcTime: Infinity`, custom Maps), logging libraries buffering everything, and third-party widgets not destroyed on unmount.\n\nAfter the fix, verify with a multi-hour soak test showing flat memory, ship, and monitor session crash rates. Postmortem actions: StrictMode enforced, lint rules, a soak test in CI nightly, and memory telemetry dashboards.",
+        "explanation": "Weak version to avoid: Guessing at causes and shipping speculative fixes without heap evidence, or skipping communication and rollback considerations.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ]
+      },
+      {
+        "id": "senior-react-09-memory-leak-incident-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Practical code / design example",
+        "language": "typescript",
+        "code": "// Soak test (Playwright) to detect growth\ntest('memory stays bounded over repeated navigation', async ({ page }) => {\n  await page.goto('/dashboard');\n  const measure = () => page.evaluate(() => (performance as any).memory?.usedJSHeapSize ?? 0);\n  const before = await measure();\n  for (let i = 0; i < 200; i++) {\n    await page.getByRole('link', { name: 'Reports' }).click();\n    await page.getByRole('link', { name: 'Dashboard' }).click();\n  }\n  await page.evaluate(() => (window as any).gc?.()); // run Chromium with --js-flags=--expose-gc\n  expect(await measure()).toBeLessThan(before * 1.5);\n});",
+        "explanation": "An automated soak test turns a hard-to-reproduce leak into a regression test that runs nightly."
+      },
+      {
+        "id": "senior-react-09-memory-leak-incident-concept-2",
+        "type": "concept",
+        "order": 4,
+        "title": "Common weak answer",
+        "content": "Guessing at causes and shipping speculative fixes without heap evidence, or skipping communication and rollback considerations."
+      },
+      {
+        "id": "senior-react-09-memory-leak-incident-concept-3",
+        "type": "concept",
+        "order": 5,
+        "title": "Trade-offs and production validation",
+        "content": "Rollback restores service quickly but may remove needed features; hotfixing under pressure risks new bugs. Memory telemetry is browser-specific and approximate. Validate fixes with soak tests, heap snapshot comparisons, and production crash/session-length metrics after release."
+      },
+      {
+        "id": "senior-react-09-memory-leak-incident-question-1",
+        "type": "interview-question",
+        "order": 6,
+        "title": "Follow-up question",
+        "question": "How do you keep incidents like this from recurring?",
+        "answer": "Encode lessons as guardrails: lint rules (exhaustive deps, no global listeners without cleanup helpers), StrictMode in dev, a shared `useSubscription`/`useEventListener` utility with guaranteed cleanup, cache limits by default, nightly soak tests, and alerts on rising crash rates or session memory. Review postmortem actions until closed.",
+        "explanation": "Interviewers use this follow-up to test depth beyond the first answer."
+      }
+    ]
+  },
+  {
+    "id": "senior-react-10-react-19-upgrade-at-scale",
+    "subjectId": "react",
+    "categoryId": "react-system-design-leadership",
+    "title": "Upgrading a large codebase to React 19",
+    "description": "Senior/lead scenario: You own a 600k-line React 18 monorepo with 30 teams. Plan the upgrade to React 19.3 and adoption of the React Compiler.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 30,
+    "tags": [
+      "react",
+      "senior",
+      "scenario-based",
+      "architect",
+      "react-19-upgrade-at-scale"
+    ],
+    "blocks": [
+      {
+        "id": "senior-react-10-react-19-upgrade-at-scale-concept-1",
+        "type": "concept",
+        "order": 1,
+        "title": "Architect-level framing",
+        "content": "Major upgrades at scale are risk-management exercises: inventory breaking changes, automate migrations, sequence dependencies, and roll out with measurement. React 19 removed several long-deprecated APIs, which is where most breakage comes from.",
+        "keyPoints": [
+          "Inventory deprecated APIs and third-party compatibility first.",
+          "Upgrade to the latest 18.x and fix warnings before 19.",
+          "Run official codemods (e.g. `react-codemod`, types codemods).",
+          "Upgrade libraries (router, testing, UI kits) in a planned order.",
+          "Separate the React upgrade from Compiler adoption.",
+          "Roll out per app with monitoring and rollback."
+        ]
+      },
+      {
+        "id": "senior-react-10-react-19-upgrade-at-scale-scenario-1",
+        "type": "scenario-question",
+        "order": 2,
+        "title": "Senior scenario",
+        "question": "You own a 600k-line React 18 monorepo with 30 teams. Plan the upgrade to React 19.3 and adoption of the React Compiler.",
+        "answer": "Step one is inventory: search for removed APIs (`ReactDOM.render`, `hydrate`, `findDOMNode`, string refs, legacy context, `propTypes`/`defaultProps` on function components) and check every third-party React dependency for 19 support.\n\nUpgrade to the latest React 18.3 first — it adds warnings for things removed in 19 — and fix them. Then run the React 19 codemods and the TypeScript types codemod (`ref` callback returns, `useRef` requiring an argument, removed global JSX namespace).\n\nUpgrade in dependency order: testing tools, router, UI libraries, then React itself in one shared version across the monorepo. CI runs the full test suite plus visual regression and E2E.\n\nShip per application behind canary releases and monitor error rates, hydration errors, and Web Vitals.\n\nOnly after React 19 is stable do we adopt the React Compiler: enable the compiler ESLint rules, fix violations, then roll it out per package as a separate project. Finally, teams adopt new APIs (Actions, `use`, Activity, ViewTransition) through design-system primitives and guidelines rather than ad hoc.",
+        "explanation": "Weak version to avoid: Bumping the version in package.json, fixing compile errors until it builds, and shipping everything at once together with the compiler.",
+        "hints": [
+          "Clarify scale, user journey and constraints.",
+          "Explain the implementation and why alternatives were rejected.",
+          "Cover security, performance, accessibility, testing and production validation."
+        ]
+      },
+      {
+        "id": "senior-react-10-react-19-upgrade-at-scale-code-1",
+        "type": "code-example",
+        "order": 3,
+        "title": "Practical code / design example",
+        "language": "typescript",
+        "code": "# Inventory and automate\nnpx types-react-codemod@latest preset-19 ./src\nnpx codemod@latest react/19/migration-recipe\nrg \"ReactDOM\\.render|findDOMNode|contextTypes|string ref\" --type tsx --type ts\n\n# Monorepo: single version enforced\n# package.json (root)\n# \"overrides\": { \"react\": \"19.3.x\", \"react-dom\": \"19.3.x\" }",
+        "explanation": "Codemods handle mechanical changes, search finds removed APIs, and a single pinned version prevents duplicate React copies in the monorepo."
+      },
+      {
+        "id": "senior-react-10-react-19-upgrade-at-scale-concept-2",
+        "type": "concept",
+        "order": 4,
+        "title": "Common weak answer",
+        "content": "Bumping the version in package.json, fixing compile errors until it builds, and shipping everything at once together with the compiler."
+      },
+      {
+        "id": "senior-react-10-react-19-upgrade-at-scale-concept-3",
+        "type": "concept",
+        "order": 5,
+        "title": "Trade-offs and production validation",
+        "content": "A single coordinated upgrade avoids multiple React copies but needs every team ready; per-app upgrades are flexible but risk version skew in shared packages. Separating Compiler adoption lowers risk but delays benefits. Validate with CI on all packages, canary deployments, error/hydration dashboards, and performance comparisons before and after."
+      },
+      {
+        "id": "senior-react-10-react-19-upgrade-at-scale-question-1",
+        "type": "interview-question",
+        "order": 6,
+        "title": "Follow-up question",
+        "question": "What would you do with a critical third-party library that doesn't support React 19 yet?",
+        "answer": "Check for forks or maintained alternatives, contribute a patch upstream, or temporarily apply `patch-package` with tests covering our usage. If it relies on removed APIs (e.g. `findDOMNode`), wrap or replace the specific component. In the worst case, isolate it behind an adapter so the rest of the app can upgrade, and set a deadline to replace it.",
+        "explanation": "Interviewers use this follow-up to test depth beyond the first answer."
+      }
+    ]
+  }
+]

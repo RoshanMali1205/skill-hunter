@@ -13,6 +13,7 @@ const SUBJECT_VISUALS: Record<string, SubjectVisual> = {
   'ai-concepts': { emoji: '🤖', color: '#059669' },
   vue: { emoji: '💚', color: '#42b883' },
   nodejs: { emoji: '🟩', color: '#339933' },
+  react: { emoji: '⚛️', color: '#149ECA' },
 };
 
 const FALLBACK_VISUAL: SubjectVisual = { emoji: '📘', color: '#6b7280' };
