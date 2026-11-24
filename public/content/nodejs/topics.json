@@ -1,0 +1,2778 @@
+[
+  {
+    "id": "nodejs-runtime-model",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-runtime",
+    "title": "How the Node.js Runtime Works",
+    "description": "Explain what V8, libuv, the operating system, and the JavaScript thread each do.",
+    "difficulty": "beginner",
+    "interviewPriority": "high",
+    "estimatedMinutes": 24,
+    "tags": [
+      "runtime",
+      "v8",
+      "libuv",
+      "non-blocking-io"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-runtime-model-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "How the Node.js Runtime Works",
+        "content": "V8 executes JavaScript. Node.js exposes host APIs for files, networking, processes, and timers. libuv coordinates the event loop and a pool used by selected operations such as many file-system calls. Network readiness is commonly handled through operating-system facilities. When work completes, Node schedules the JavaScript callback on its event loop.\n\nA service can handle many requests while waiting for I/O, but CPU work on the main thread delays every callback in that process. The example starts a file read and logs before awaiting it. The read runs through an asynchronous API, and the result is delivered when the event loop can resume JavaScript.",
+        "keyPoints": [
+          "Measure time spent running JavaScript separately from time awaiting dependencies.",
+          "The main event-loop thread runs application callbacks. Worker threads and the libuv pool have different owners and solve different problems."
+        ]
+      },
+      {
+        "id": "nodejs-runtime-model-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as runtime.mjs",
+        "language": "javascript",
+        "code": "import { readFile } from 'node:fs/promises';\n\nconst pending = readFile(new URL(import.meta.url), 'utf8');\nconsole.log('read scheduled');\nconst source = await pending;\nconsole.log('file has bytes:', source.length > 0);",
+        "explanation": "The main event-loop thread runs application callbacks. Worker threads and the libuv pool have different owners and solve different problems."
+      },
+      {
+        "id": "nodejs-runtime-model-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "Why can one Node process handle multiple HTTP requests concurrently?",
+        "answer": "Each request can yield while waiting for I/O, so the event loop can run callbacks for other requests. JavaScript callbacks on the same event-loop thread execute one at a time.",
+        "explanation": "The main event-loop thread runs application callbacks. Worker threads and the libuv pool have different owners and solve different problems."
+      },
+      {
+        "id": "nodejs-runtime-model-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Does adding async to a large CPU-bound function move its work off the event loop?",
+        "answer": "No. Its synchronous body still executes on the current thread. An await yields only after reaching an awaited operation, and the continuation also runs on that thread.",
+        "hints": [
+          "Locate where the computation runs."
+        ],
+        "explanation": "The main event-loop thread runs application callbacks. Worker threads and the libuv pool have different owners and solve different problems.\n\n[Further reading](https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop)"
+      },
+      {
+        "id": "nodejs-runtime-model-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "Requests become slow only when a report is generated. How do you confirm and fix the cause?",
+        "answer": "Compare main-thread CPU and event-loop delay for runs with and without the report. Profile the report path. Move independent CPU work to a bounded worker pool or a background service and measure p95 latency under concurrent traffic.",
+        "explanation": "Measure time spent running JavaScript separately from time awaiting dependencies."
+      },
+      {
+        "id": "nodejs-runtime-model-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Equating async APIs with CPU parallelism.",
+        "whyItHappens": "The keyword changes how the function returns results, so it is easy to mistake the promise interface for a change in executor.",
+        "correctApproach": "Measure time spent running JavaScript separately from time awaiting dependencies."
+      },
+      {
+        "id": "nodejs-runtime-model-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Measure time spent running JavaScript separately from time awaiting dependencies.\n\nThe main event-loop thread runs application callbacks. Worker threads and the libuv pool have different owners and solve different problems."
+      },
+      {
+        "id": "nodejs-runtime-model-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Explain what V8, libuv, the operating system, and the JavaScript thread each do. Each request can yield while waiting for I/O, so the event loop can run callbacks for other requests. JavaScript callbacks on the same event-loop thread execute one at a time.\n\n[Further reading](https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-event-loop",
+      "nodejs-workers",
+      "nodejs-libuv-pool"
+    ]
+  },
+  {
+    "id": "nodejs-event-loop",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-runtime",
+    "title": "Event Loop, Microtasks, and Timers",
+    "description": "Predict execution order within a known context and explain timer delays and starvation.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 38,
+    "tags": [
+      "event-loop",
+      "microtasks",
+      "timers",
+      "nexttick"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-event-loop-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Event Loop, Microtasks, and Timers",
+        "content": "Timers specify a minimum delay. The event loop can run their callbacks later due to other work. I/O callbacks generally run through the poll phase, and setImmediate callbacks run in the check phase. Inside an I/O callback, an immediate normally runs before a zero-delay timer scheduled there. Ordering between those two at top level is context dependent.\n\nPromise reactions and queueMicrotask work share the microtask queue. Node maintains a separate next-tick queue. In CommonJS top-level execution it drains before microtasks, while top-level ES module evaluation itself runs in a microtask and can produce a different order. Recursive next-tick or microtask scheduling can starve I/O.",
+        "keyPoints": [
+          "Calculate expiry from a timestamp and use scheduling only to trigger another check.",
+          "For ordering questions, state the module format and callback context before predicting an output."
+        ]
+      },
+      {
+        "id": "nodejs-event-loop-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as ordering.cjs",
+        "language": "javascript",
+        "code": "console.log('start');\nprocess.nextTick(() => console.log('next tick'));\nPromise.resolve().then(() => console.log('promise'));\nqueueMicrotask(() => console.log('microtask'));\nconsole.log('end');",
+        "explanation": "For ordering questions, state the module format and callback context before predicting an output."
+      },
+      {
+        "id": "nodejs-event-loop-output-question",
+        "type": "output-question",
+        "order": 3,
+        "title": "Predict the output",
+        "question": "What lines print when running ordering.cjs?",
+        "language": "javascript",
+        "code": "console.log('start');\nprocess.nextTick(() => console.log('next tick'));\nPromise.resolve().then(() => console.log('promise'));\nqueueMicrotask(() => console.log('microtask'));\nconsole.log('end');",
+        "answer": "start\nend\nnext tick\npromise\nmicrotask",
+        "explanation": "Synchronous code runs first. At this CommonJS top-level boundary the next-tick queue drains before V8's shared microtask queue."
+      },
+      {
+        "id": "nodejs-event-loop-interview-question",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "How are timers different from promise callbacks?",
+        "answer": "Timer callbacks become eligible after their delay and execute in an event-loop phase. Promise reactions run through the microtask queue after the current synchronous work completes.",
+        "explanation": "For ordering questions, state the module format and callback context before predicting an output."
+      },
+      {
+        "id": "nodejs-event-loop-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "Tricky question",
+        "question": "Is the observed top-level CommonJS order guaranteed if you rename ordering.cjs to ordering.mjs?",
+        "answer": "No. The ES module is evaluated through the microtask machinery. For this exact example, start and end still come first, then promise, microtask, and next tick.",
+        "hints": [
+          "Think about how the module itself begins execution."
+        ],
+        "explanation": "For ordering questions, state the module format and callback context before predicting an output.\n\n[Further reading](https://nodejs.org/learn/asynchronous-work/event-loop-timers-and-nexttick)"
+      },
+      {
+        "id": "nodejs-event-loop-scenario-question",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Production scenario",
+        "question": "A timer set for 100 ms regularly fires after 700 ms. What do you measure?",
+        "answer": "Measure event-loop delay and CPU alongside request latency. Profile synchronous callbacks and check container CPU throttling and GC pauses before changing the timer interval.",
+        "explanation": "Calculate expiry from a timestamp and use scheduling only to trigger another check."
+      },
+      {
+        "id": "nodejs-event-loop-common-mistake",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Using setTimeout as a precise clock.",
+        "whyItHappens": "The specified delay controls eligibility. Existing work can delay the event loop's opportunity to run the callback.",
+        "correctApproach": "Calculate expiry from a timestamp and use scheduling only to trigger another check."
+      },
+      {
+        "id": "nodejs-event-loop-best-practice",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Best practice",
+        "content": "Calculate expiry from a timestamp and use scheduling only to trigger another check.\n\nFor ordering questions, state the module format and callback context before predicting an output."
+      },
+      {
+        "id": "nodejs-event-loop-summary",
+        "type": "summary",
+        "order": 9,
+        "title": "Summary",
+        "content": "Predict execution order within a known context and explain timer delays and starvation. Timer callbacks become eligible after their delay and execute in an event-loop phase. Promise reactions run through the microtask queue after the current synchronous work completes.\n\n[Further reading](https://nodejs.org/learn/asynchronous-work/event-loop-timers-and-nexttick)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-runtime-model",
+      "nodejs-async-errors",
+      "nodejs-performance"
+    ]
+  },
+  {
+    "id": "nodejs-modules",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-runtime",
+    "title": "ES Modules, CommonJS, and Package Exports",
+    "description": "Choose a module format explicitly and design a stable package entry point.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 35,
+    "tags": [
+      "esm",
+      "commonjs",
+      "package-json",
+      "exports"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-modules-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "ES Modules, CommonJS, and Package Exports",
+        "content": "Use .mjs or .cjs for an explicit file-level format, or set the package type for .js files. In ES modules, relative imports normally include extensions. CommonJS uses require and module.exports. Dynamic import is asynchronous and can load from either module system.\n\nThe exports field defines supported package entry points and can select conditional entries. Type declarations and JavaScript entry points must agree. Publishing separate CommonJS and ESM implementations can introduce separate singleton instances when both are loaded in a process.",
+        "keyPoints": [
+          "Install the packed artifact in clean ESM and CommonJS fixtures when you support both.",
+          "Combining import and require conditions needs integration tests because the public resolution paths can diverge."
+        ]
+      },
+      {
+        "id": "nodejs-modules-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Example package.json",
+        "language": "json",
+        "code": "{\n  \"name\": \"@example/formatters\",\n  \"version\": \"1.0.0\",\n  \"type\": \"module\",\n  \"exports\": {\n    \".\": \"./dist/index.js\",\n    \"./dates\": \"./dist/dates.js\"\n  }\n}",
+        "explanation": "Combining import and require conditions needs integration tests because the public resolution paths can diverge."
+      },
+      {
+        "id": "nodejs-modules-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "What does exports protect in package.json?",
+        "answer": "It defines the package subpaths accessible through normal package resolution. This creates a public API boundary. It is not a sandbox that restricts local filesystem access.",
+        "explanation": "Combining import and require conditions needs integration tests because the public resolution paths can diverge."
+      },
+      {
+        "id": "nodejs-modules-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Can a CommonJS consumer always require an ES module that works with import?",
+        "answer": "No. Modern Node versions can require compatible synchronous ESM, but a graph that uses top-level await requires asynchronous loading via import(). Older Node versions have different support.",
+        "hints": [
+          "Check whether the entire module graph can evaluate synchronously."
+        ],
+        "explanation": "Combining import and require conditions needs integration tests because the public resolution paths can diverge.\n\n[Further reading](https://nodejs.org/api/packages.html)"
+      },
+      {
+        "id": "nodejs-modules-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "A library adds exports and existing clients fail on deep imports. How do you roll out the change?",
+        "answer": "Inventory imported subpaths. Expose supported compatibility paths, migrate consumers to public exports, and test installed tarballs in supported Node versions. Treat removal of an existing public entry as a breaking change.",
+        "explanation": "Install the packed artifact in clean ESM and CommonJS fixtures when you support both."
+      },
+      {
+        "id": "nodejs-modules-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Testing resolution only inside the monorepo.",
+        "whyItHappens": "Workspace tooling can make files visible through links or aliases that consumers do not have after installing the published package.",
+        "correctApproach": "Install the packed artifact in clean ESM and CommonJS fixtures when you support both."
+      },
+      {
+        "id": "nodejs-modules-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Install the packed artifact in clean ESM and CommonJS fixtures when you support both.\n\nCombining import and require conditions needs integration tests because the public resolution paths can diverge."
+      },
+      {
+        "id": "nodejs-modules-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Choose a module format explicitly and design a stable package entry point. It defines the package subpaths accessible through normal package resolution. This creates a public API boundary. It is not a sandbox that restricts local filesystem access.\n\n[Further reading](https://nodejs.org/api/packages.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-dependencies",
+      "nodejs-typescript",
+      "nodejs-fs"
+    ]
+  },
+  {
+    "id": "nodejs-dependencies",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-runtime",
+    "title": "npm Lockfiles and Reproducible Installs",
+    "description": "Explain dependency ranges, lockfiles, and predictable CI installs.",
+    "difficulty": "beginner",
+    "interviewPriority": "high",
+    "estimatedMinutes": 26,
+    "tags": [
+      "npm",
+      "lockfile",
+      "semver",
+      "ci"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-dependencies-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "npm Lockfiles and Reproducible Installs",
+        "content": "The package manifest declares acceptable dependency versions and project scripts. The lockfile records the resolved tree so coworkers and build systems can install it consistently. npm ci expects the manifest and lockfile to agree and replaces the existing install tree.\n\nUse a consistent Node and npm version in CI. Lockfiles cannot guarantee identical outputs when native binaries, operating systems, scripts, or environment settings differ. Review intentional lockfile diffs and pin critical toolchain dependencies where appropriate.",
+        "keyPoints": [
+          "Keep toolchain versions explicit and validate the project using clean installs in CI.",
+          "Use the same lockfile and package-manager version when comparing clean installs across machines."
+        ]
+      },
+      {
+        "id": "nodejs-dependencies-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Example CI command sequence",
+        "language": "bash",
+        "code": "node --version\nnpm --version\nnpm ci\nnpm test",
+        "explanation": "Use the same lockfile and package-manager version when comparing clean installs across machines."
+      },
+      {
+        "id": "nodejs-dependencies-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "When should you use npm ci instead of npm install?",
+        "answer": "Use npm ci for a clean, lockfile-driven install in CI. Use npm install when intentionally changing dependencies or updating the lockfile.",
+        "explanation": "Use the same lockfile and package-manager version when comparing clean installs across machines."
+      },
+      {
+        "id": "nodejs-dependencies-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Will npm ci repair a lockfile that no longer agrees with package.json?",
+        "answer": "No. It exits with an error. Update the lockfile as part of the intended dependency change, review the result, and commit both files.",
+        "hints": [
+          "Decide whether the command is allowed to rewrite the lockfile."
+        ],
+        "explanation": "Use the same lockfile and package-manager version when comparing clean installs across machines.\n\n[Further reading](https://docs.npmjs.com/cli/v11/commands/npm-ci)"
+      },
+      {
+        "id": "nodejs-dependencies-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "The build works on a developer laptop but fails loading a native addon in CI. What do you compare?",
+        "answer": "Compare Node, npm, operating system and architecture, supported prebuilt binaries, and install logs. Reproduce using the same environment as CI before changing package versions.",
+        "explanation": "Keep toolchain versions explicit and validate the project using clean installs in CI."
+      },
+      {
+        "id": "nodejs-dependencies-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Deleting the lockfile to fix a single machine's stale installation.",
+        "whyItHappens": "A local dependency problem can persist in the generated install tree even when the committed resolution is correct.",
+        "correctApproach": "Keep toolchain versions explicit and validate the project using clean installs in CI."
+      },
+      {
+        "id": "nodejs-dependencies-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Keep toolchain versions explicit and validate the project using clean installs in CI.\n\nUse the same lockfile and package-manager version when comparing clean installs across machines."
+      },
+      {
+        "id": "nodejs-dependencies-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Explain dependency ranges, lockfiles, and predictable CI installs. Use npm ci for a clean, lockfile-driven install in CI. Use npm install when intentionally changing dependencies or updating the lockfile.\n\n[Further reading](https://docs.npmjs.com/cli/v11/commands/npm-ci)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-modules",
+      "nodejs-typescript",
+      "nodejs-configuration"
+    ]
+  },
+  {
+    "id": "nodejs-async-errors",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-async",
+    "title": "Promises, Async Errors, and Concurrency Limits",
+    "description": "Handle rejected promises, distinguish batch failure policies, and bound fan-out.",
+    "difficulty": "intermediate",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 34,
+    "tags": [
+      "promises",
+      "concurrency",
+      "errors",
+      "async-await"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-async-errors-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Promises, Async Errors, and Concurrency Limits",
+        "content": "Await turns rejection into a throw at the await point, where a try/catch can add context or translate it. An error thrown in a separate callback is outside an earlier synchronous catch. Return or await asynchronous work so its owner can observe failure.\n\nPromise.all rejects when one input rejects. Operations already started keep running unless their APIs support cancellation and the caller requests it. Promise.allSettled keeps every result. Batch or pool scheduling controls how many jobs start concurrently.",
+        "keyPoints": [
+          "Use a for-of loop for sequential execution or an explicit bounded scheduler for concurrent execution.",
+          "Pick the scheduling limit and the result policy independently. Batch boundaries in this example can leave capacity idle while the slowest task finishes."
+        ]
+      },
+      {
+        "id": "nodejs-async-errors-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as batches.mjs",
+        "language": "javascript",
+        "code": "const ids = [1, 2, 3, 4, 5];\nconst load = async (id) => {\n  if (id === 3) throw new Error('record unavailable');\n  return { id };\n};\nfor (let offset = 0; offset < ids.length; offset += 2) {\n  const batch = ids.slice(offset, offset + 2);\n  const results = await Promise.allSettled(batch.map(load));\n  console.log(results.map(({ status }) => status));\n}",
+        "explanation": "Pick the scheduling limit and the result policy independently. Batch boundaries in this example can leave capacity idle while the slowest task finishes."
+      },
+      {
+        "id": "nodejs-async-errors-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "When should you use Promise.allSettled?",
+        "answer": "Use it when each operation has value independently and you need to report individual outcomes. For dependent operations that require every result, a combined failure may be the correct response.",
+        "explanation": "Pick the scheduling limit and the result policy independently. Batch boundaries in this example can leave capacity idle while the slowest task finishes."
+      },
+      {
+        "id": "nodejs-async-errors-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Does Promise.all limit how many tasks start or cancel siblings after a rejection?",
+        "answer": "Neither. Calling functions during map starts their operations before Promise.all observes the resulting promises. Bound the launch rate, and use an AbortSignal only where the operations support it.",
+        "hints": [
+          "Separate launching work from observing promises."
+        ],
+        "explanation": "Pick the scheduling limit and the result policy independently. Batch boundaries in this example can leave capacity idle while the slowest task finishes.\n\n[Further reading](https://nodejs.org/en/learn/asynchronous-work/discover-promises-in-nodejs)"
+      },
+      {
+        "id": "nodejs-async-errors-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "A bulk task starts 10,000 database requests and exhausts the connection pool. What changes?",
+        "answer": "Introduce a bounded queue with a concurrency limit aligned to the pool and system load. Track waiting time, impose a deadline, and decide whether partial failures should be recorded or fail the job.",
+        "explanation": "Use a for-of loop for sequential execution or an explicit bounded scheduler for concurrent execution."
+      },
+      {
+        "id": "nodejs-async-errors-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Using forEach with async callbacks and assuming the enclosing function waits.",
+        "whyItHappens": "Array.forEach discards the callback's return value, including the promise returned by an async callback.",
+        "correctApproach": "Use a for-of loop for sequential execution or an explicit bounded scheduler for concurrent execution."
+      },
+      {
+        "id": "nodejs-async-errors-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Use a for-of loop for sequential execution or an explicit bounded scheduler for concurrent execution.\n\nPick the scheduling limit and the result policy independently. Batch boundaries in this example can leave capacity idle while the slowest task finishes."
+      },
+      {
+        "id": "nodejs-async-errors-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Handle rejected promises, distinguish batch failure policies, and bound fan-out. Use it when each operation has value independently and you need to report individual outcomes. For dependent operations that require every result, a combined failure may be the correct response.\n\n[Further reading](https://nodejs.org/en/learn/asynchronous-work/discover-promises-in-nodejs)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-cancellation",
+      "nodejs-event-emitter",
+      "nodejs-bff"
+    ]
+  },
+  {
+    "id": "nodejs-event-emitter",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-async",
+    "title": "EventEmitter and Listener Lifecycle",
+    "description": "Use synchronous event dispatch and manage listener ownership.",
+    "difficulty": "beginner",
+    "interviewPriority": "high",
+    "estimatedMinutes": 26,
+    "tags": [
+      "events",
+      "event-emitter",
+      "listeners",
+      "cleanup"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-event-emitter-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "EventEmitter and Listener Lifecycle",
+        "content": "EventEmitter calls listeners synchronously in registration order when emit is called. Returning a promise from a listener does not make ordinary emit await it. A special error event without a listener normally throws.\n\nUse once for a one-shot subscription and off for explicit ownership. Register event listeners before an event can fire. A long-lived emitter can retain objects through closures if cleanup never runs.",
+        "keyPoints": [
+          "Test that listener counts return to their baseline after cancellation and completion.",
+          "For async listeners, decide where rejected promises are handled and how the emitter owner learns about completion."
+        ]
+      },
+      {
+        "id": "nodejs-event-emitter-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as events.mjs",
+        "language": "javascript",
+        "code": "import { EventEmitter } from 'node:events';\n\nconst jobs = new EventEmitter();\nconst report = (error) => console.error(error.message);\njobs.on('error', report);\njobs.once('done', (id) => console.log('completed', id));\njobs.emit('done', 'A');\njobs.emit('done', 'B');\njobs.off('error', report);",
+        "explanation": "For async listeners, decide where rejected promises are handled and how the emitter owner learns about completion."
+      },
+      {
+        "id": "nodejs-event-emitter-output-question",
+        "type": "output-question",
+        "order": 3,
+        "title": "Predict the output",
+        "question": "Which lines print from the two done events?",
+        "language": "javascript",
+        "code": "import { EventEmitter } from 'node:events';\n\nconst jobs = new EventEmitter();\nconst report = (error) => console.error(error.message);\njobs.on('error', report);\njobs.once('done', (id) => console.log('completed', id));\njobs.emit('done', 'A');\njobs.emit('done', 'B');\njobs.off('error', report);",
+        "answer": "completed A",
+        "explanation": "The once listener is removed when the first emission runs. There is no done listener left for the second emission."
+      },
+      {
+        "id": "nodejs-event-emitter-interview-question",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "What is the difference between on and once?",
+        "answer": "on registers a listener until removed. once removes its listener when it fires, before invoking the original callback.",
+        "explanation": "For async listeners, decide where rejected promises are handled and how the emitter owner learns about completion."
+      },
+      {
+        "id": "nodejs-event-emitter-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "Tricky question",
+        "question": "Does emit await an async listener before invoking the next listener?",
+        "answer": "No. It invokes listeners synchronously in order. The async listener runs up to its first await and returns a promise immediately. Use an explicit awaitable API when completion must be known.",
+        "hints": [
+          "Look at what emit returns and who owns the promise."
+        ],
+        "explanation": "For async listeners, decide where rejected promises are handled and how the emitter owner learns about completion.\n\n[Further reading](https://nodejs.org/api/events.html)"
+      },
+      {
+        "id": "nodejs-event-emitter-scenario-question",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Production scenario",
+        "question": "A warning about too many listeners appears after each map refresh in a server-side service. What do you inspect?",
+        "answer": "Find which code attaches the listeners, verify count across repeated refreshes, and remove the same callback during lifecycle cleanup. Increase the listener limit only when the subscriber count is intentional and bounded.",
+        "explanation": "Test that listener counts return to their baseline after cancellation and completion."
+      },
+      {
+        "id": "nodejs-event-emitter-common-mistake",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Quieting a listener warning without identifying ownership.",
+        "whyItHappens": "The listener threshold is a warning signal. Changing it does not remove leaked callbacks or their closures.",
+        "correctApproach": "Test that listener counts return to their baseline after cancellation and completion."
+      },
+      {
+        "id": "nodejs-event-emitter-best-practice",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Best practice",
+        "content": "Test that listener counts return to their baseline after cancellation and completion.\n\nFor async listeners, decide where rejected promises are handled and how the emitter owner learns about completion."
+      },
+      {
+        "id": "nodejs-event-emitter-summary",
+        "type": "summary",
+        "order": 9,
+        "title": "Summary",
+        "content": "Use synchronous event dispatch and manage listener ownership. on registers a listener until removed. once removes its listener when it fires, before invoking the original callback.\n\n[Further reading](https://nodejs.org/api/events.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-async-errors",
+      "nodejs-streams",
+      "nodejs-request-context"
+    ]
+  },
+  {
+    "id": "nodejs-cancellation",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-async",
+    "title": "AbortSignal, Deadlines, and Cancellation",
+    "description": "Propagate request deadlines into asynchronous dependencies.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 32,
+    "tags": [
+      "abortsignal",
+      "fetch",
+      "timeouts",
+      "deadlines"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-cancellation-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "AbortSignal, Deadlines, and Cancellation",
+        "content": "A deadline caps the time available to an operation. AbortSignal communicates an abort request. APIs such as fetch and timers/promises support signals. Custom or third-party APIs must explicitly cooperate or the underlying work can continue.\n\nCombine caller cancellation with a timeout and keep the same signal through response-body consumption when needed. A timeout response does not imply a remote write was rolled back. Use idempotency for safe retries where the API supports it.",
+        "keyPoints": [
+          "Share a total budget across attempts, and include backoff time in the budget.",
+          "Use the same total budget through retry scheduling and response-body reads, and record the difference between a deadline and caller cancellation."
+        ]
+      },
+      {
+        "id": "nodejs-cancellation-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as deadline.mjs",
+        "language": "javascript",
+        "code": "import { setTimeout as wait } from 'node:timers/promises';\n\nconst caller = new AbortController();\nconst signal = AbortSignal.any([caller.signal, AbortSignal.timeout(25)]);\ntry {\n  await wait(100, undefined, { signal });\n} catch (error) {\n  if (!signal.aborted) throw error;\n  console.log('cancelled:', signal.reason.name);\n}",
+        "explanation": "Use the same total budget through retry scheduling and response-body reads, and record the difference between a deadline and caller cancellation."
+      },
+      {
+        "id": "nodejs-cancellation-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "What is the difference between a timeout implemented with Promise.race and a signal?",
+        "answer": "Promise.race can stop waiting for a result. A signal lets a supporting operation stop its work and clean up. A race alone does not notify the losing operation.",
+        "explanation": "Use the same total budget through retry scheduling and response-body reads, and record the difference between a deadline and caller cancellation."
+      },
+      {
+        "id": "nodejs-cancellation-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "If fetch resolves, is the complete response body already in memory?",
+        "answer": "No. Fetch can resolve after the response headers arrive. Consuming the body can still take time or fail, so keep the relevant abort policy active while reading it.",
+        "hints": [
+          "Distinguish headers from body consumption."
+        ],
+        "explanation": "Use the same total budget through retry scheduling and response-body reads, and record the difference between a deadline and caller cancellation.\n\n[Further reading](https://nodejs.org/api/globals.html#class-abortsignal)"
+      },
+      {
+        "id": "nodejs-cancellation-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "An Angular page is closed while its BFF request waits for two upstream calls. What should the BFF do?",
+        "answer": "Observe the downstream connection lifecycle, cancel supporting upstream calls when the result is no longer needed, and preserve a request deadline for calls that remain useful. Record cancellation separately from unexpected failures.",
+        "explanation": "Share a total budget across attempts, and include backoff time in the budget."
+      },
+      {
+        "id": "nodejs-cancellation-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Starting a fresh full timeout on every retry.",
+        "whyItHappens": "Each individual attempt may fit its own limit, while combined attempts and backoff exceed the caller's deadline.",
+        "correctApproach": "Share a total budget across attempts, and include backoff time in the budget."
+      },
+      {
+        "id": "nodejs-cancellation-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Share a total budget across attempts, and include backoff time in the budget.\n\nUse the same total budget through retry scheduling and response-body reads, and record the difference between a deadline and caller cancellation."
+      },
+      {
+        "id": "nodejs-cancellation-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Propagate request deadlines into asynchronous dependencies. Promise.race can stop waiting for a result. A signal lets a supporting operation stop its work and clean up. A race alone does not notify the losing operation.\n\n[Further reading](https://nodejs.org/api/globals.html#class-abortsignal)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-async-errors",
+      "nodejs-http-server",
+      "nodejs-shutdown"
+    ]
+  },
+  {
+    "id": "nodejs-fs",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-io",
+    "title": "File I/O, Paths, and Resource Ownership",
+    "description": "Read files reliably from modules and close handles on every path.",
+    "difficulty": "beginner",
+    "interviewPriority": "high",
+    "estimatedMinutes": 25,
+    "tags": [
+      "filesystem",
+      "paths",
+      "filehandle",
+      "esm"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-fs-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "File I/O, Paths, and Resource Ownership",
+        "content": "Relative paths passed as strings to filesystem APIs are interpreted from the process working directory. Use a file URL relative to import.meta.url for a packaged asset and a configured absolute path for deployment data.\n\nRead a bounded file with readFile or stream a large one. When you open a FileHandle yourself, give one scope responsibility for closing it. Close it in finally even if a read fails.",
+        "keyPoints": [
+          "Respect bytesRead and define who closes the file handle.",
+          "The example reads a partial file into a fixed buffer. Its finally block represents the general cleanup contract."
+        ]
+      },
+      {
+        "id": "nodejs-fs-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as read-self.mjs",
+        "language": "javascript",
+        "code": "import { open } from 'node:fs/promises';\n\nconst handle = await open(new URL(import.meta.url), 'r');\ntry {\n  const bytes = Buffer.alloc(6);\n  const { bytesRead } = await handle.read(bytes, 0, bytes.length, 0);\n  console.log(bytes.subarray(0, bytesRead).toString('utf8'));\n} finally {\n  await handle.close();\n}",
+        "explanation": "The example reads a partial file into a fixed buffer. Its finally block represents the general cleanup contract."
+      },
+      {
+        "id": "nodejs-fs-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "When is readFile a reasonable choice?",
+        "answer": "When the file is small enough for the configured memory budget and you need all its bytes before processing. Use a stream for bounded-memory processing of larger data.",
+        "explanation": "The example reads a partial file into a fixed buffer. Its finally block represents the general cleanup contract."
+      },
+      {
+        "id": "nodejs-fs-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Does changing the directory from which you launch node change a URL resolved from import.meta.url?",
+        "answer": "No. The base URL identifies the current module. In contrast, a relative filesystem path like ./config.json depends on the working directory.",
+        "hints": [
+          "Identify the base value for each path form."
+        ],
+        "explanation": "The example reads a partial file into a fixed buffer. Its finally block represents the general cleanup contract.\n\n[Further reading](https://nodejs.org/api/fs.html)"
+      },
+      {
+        "id": "nodejs-fs-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "Reading a bundled configuration works locally but fails under a service manager. How do you diagnose it?",
+        "answer": "Log the working directory and the resolved path without logging configuration contents. Decide whether the file is a packaged asset or an operator-provided config value, then resolve it from the appropriate fixed base.",
+        "explanation": "Respect bytesRead and define who closes the file handle."
+      },
+      {
+        "id": "nodejs-fs-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Assuming every read fills the requested buffer length.",
+        "whyItHappens": "A read may return fewer bytes than requested, for example near EOF. Bytes outside the returned slice do not represent newly read data.",
+        "correctApproach": "Respect bytesRead and define who closes the file handle."
+      },
+      {
+        "id": "nodejs-fs-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Respect bytesRead and define who closes the file handle.\n\nThe example reads a partial file into a fixed buffer. Its finally block represents the general cleanup contract."
+      },
+      {
+        "id": "nodejs-fs-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Read files reliably from modules and close handles on every path. When the file is small enough for the configured memory budget and you need all its bytes before processing. Use a stream for bounded-memory processing of larger data.\n\n[Further reading](https://nodejs.org/api/fs.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-buffers",
+      "nodejs-streams",
+      "nodejs-modules"
+    ]
+  },
+  {
+    "id": "nodejs-buffers",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-io",
+    "title": "Buffers, Encodings, and Shared Memory",
+    "description": "Distinguish byte length from string length and copy from view.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 29,
+    "tags": [
+      "buffer",
+      "utf-8",
+      "bytes",
+      "encoding"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-buffers-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Buffers, Encodings, and Shared Memory",
+        "content": "Buffers represent bytes. UTF-8 encodes some characters as more than one byte, and JavaScript string length counts UTF-16 code units. Use Buffer.byteLength for an encoded string and validate size in the unit the protocol expects.\n\nBuffer.subarray gives a view over shared storage. Buffer.from(existingBuffer) copies its bytes. Decode arbitrarily split UTF-8 chunks through StringDecoder or a streaming TextDecoder to preserve incomplete characters.",
+        "keyPoints": [
+          "Define byte limits explicitly and avoid retaining tiny views into large buffers for long periods.",
+          "Choose whether data ownership may be shared before handing a subarray to another component."
+        ]
+      },
+      {
+        "id": "nodejs-buffers-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as buffers.mjs",
+        "language": "javascript",
+        "code": "import { Buffer } from 'node:buffer';\nimport { StringDecoder } from 'node:string_decoder';\n\nconst bytes = Buffer.from('€', 'utf8');\nconst decoder = new StringDecoder('utf8');\nconst head = decoder.write(bytes.subarray(0, 1));\nconst tail = decoder.end(bytes.subarray(1));\nconsole.log(bytes.length, JSON.stringify(head + tail));",
+        "explanation": "Choose whether data ownership may be shared before handing a subarray to another component."
+      },
+      {
+        "id": "nodejs-buffers-output-question",
+        "type": "output-question",
+        "order": 3,
+        "title": "Predict the output",
+        "question": "What number and JSON-quoted string does buffers.mjs print?",
+        "language": "javascript",
+        "code": "import { Buffer } from 'node:buffer';\nimport { StringDecoder } from 'node:string_decoder';\n\nconst bytes = Buffer.from('€', 'utf8');\nconst decoder = new StringDecoder('utf8');\nconst head = decoder.write(bytes.subarray(0, 1));\nconst tail = decoder.end(bytes.subarray(1));\nconsole.log(bytes.length, JSON.stringify(head + tail));",
+        "answer": "3 \"€\"",
+        "explanation": "The euro sign takes three bytes in UTF-8. StringDecoder holds the incomplete leading byte until the remaining bytes arrive."
+      },
+      {
+        "id": "nodejs-buffers-interview-question",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "Why can decoding each chunk as UTF-8 independently corrupt text?",
+        "answer": "A chunk may end in the middle of a multi-byte character. The next chunk has the remaining bytes. A streaming decoder retains the incomplete sequence until it can decode it.",
+        "explanation": "Choose whether data ownership may be shared before handing a subarray to another component."
+      },
+      {
+        "id": "nodejs-buffers-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "Tricky question",
+        "question": "If you mutate a Buffer.subarray result, can it change the original Buffer?",
+        "answer": "Yes. Both values address the same underlying storage. Use Buffer.from(view) when the recipient needs an independent copy.",
+        "hints": [
+          "Determine whether Node created a view or allocated new bytes."
+        ],
+        "explanation": "Choose whether data ownership may be shared before handing a subarray to another component.\n\n[Further reading](https://nodejs.org/api/buffer.html)"
+      },
+      {
+        "id": "nodejs-buffers-scenario-question",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Production scenario",
+        "question": "An HTTP export shows corrupted accented names only for large datasets. What do you check?",
+        "answer": "Check that byte chunks are decoded incrementally before text parsing. Reproduce with a fixture that deliberately splits a multi-byte character across chunks and verify the export end to end.",
+        "explanation": "Define byte limits explicitly and avoid retaining tiny views into large buffers for long periods."
+      },
+      {
+        "id": "nodejs-buffers-common-mistake",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Using string.length for a UTF-8 byte quota.",
+        "whyItHappens": "JavaScript strings report UTF-16 code units, while protocol limits often measure encoded bytes.",
+        "correctApproach": "Define byte limits explicitly and avoid retaining tiny views into large buffers for long periods."
+      },
+      {
+        "id": "nodejs-buffers-best-practice",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Best practice",
+        "content": "Define byte limits explicitly and avoid retaining tiny views into large buffers for long periods.\n\nChoose whether data ownership may be shared before handing a subarray to another component."
+      },
+      {
+        "id": "nodejs-buffers-summary",
+        "type": "summary",
+        "order": 9,
+        "title": "Summary",
+        "content": "Distinguish byte length from string length and copy from view. A chunk may end in the middle of a multi-byte character. The next chunk has the remaining bytes. A streaming decoder retains the incomplete sequence until it can decode it.\n\n[Further reading](https://nodejs.org/api/buffer.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-streams",
+      "nodejs-fs",
+      "nodejs-workers"
+    ]
+  },
+  {
+    "id": "nodejs-streams",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-io",
+    "title": "Streams, Pipeline, and Backpressure",
+    "description": "Compose readable, transform, and writable streams with bounded buffering.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 45,
+    "tags": [
+      "streams",
+      "backpressure",
+      "pipeline",
+      "transform"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-streams-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Streams, Pipeline, and Backpressure",
+        "content": "A readable produces chunks, a transform converts them, and a writable consumes them. Backpressure tells a producer to slow down when a downstream stage cannot keep up. A manual call to write returns false once buffering crosses its threshold. Wait for drain before resuming production.\n\nThe promise-based pipeline coordinates backpressure, completion, and errors for connected streams. The highWaterMark is a buffering threshold. It cannot cap the memory in a pipeline that also accumulates data in application arrays or creates oversized chunks.",
+        "keyPoints": [
+          "Propagate cancellation and use incremental producers with bounded input sizes.",
+          "Test pipeline behavior against a slow writable, input failure, and early cancellation."
+        ]
+      },
+      {
+        "id": "nodejs-streams-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as streams.mjs",
+        "language": "javascript",
+        "code": "import { Readable, Transform, Writable } from 'node:stream';\nimport { pipeline } from 'node:stream/promises';\n\nconst source = Readable.from([Buffer.from('a'), Buffer.from('b')]);\nconst uppercase = new Transform({\n  transform(chunk, _encoding, done) {\n    done(null, chunk.toString().toUpperCase());\n  },\n});\nconst sink = new Writable({\n  write(chunk, _encoding, done) {\n    setTimeout(() => { console.log(chunk.toString()); done(); }, 10);\n  },\n});\nawait pipeline(source, uppercase, sink);",
+        "explanation": "Test pipeline behavior against a slow writable, input failure, and early cancellation."
+      },
+      {
+        "id": "nodejs-streams-output-question",
+        "type": "output-question",
+        "order": 3,
+        "title": "Predict the output",
+        "question": "Which two lines are written even though the sink is asynchronous?",
+        "language": "javascript",
+        "code": "import { Readable, Transform, Writable } from 'node:stream';\nimport { pipeline } from 'node:stream/promises';\n\nconst source = Readable.from([Buffer.from('a'), Buffer.from('b')]);\nconst uppercase = new Transform({\n  transform(chunk, _encoding, done) {\n    done(null, chunk.toString().toUpperCase());\n  },\n});\nconst sink = new Writable({\n  write(chunk, _encoding, done) {\n    setTimeout(() => { console.log(chunk.toString()); done(); }, 10);\n  },\n});\nawait pipeline(source, uppercase, sink);",
+        "answer": "A\nB",
+        "explanation": "The transform uppercases the input, and the writable handles each queued chunk in stream order."
+      },
+      {
+        "id": "nodejs-streams-interview-question",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "Why is pipeline useful even when pipe already connects streams?",
+        "answer": "Pipeline observes completion and propagates errors across the chain with cleanup. With manual piping, the caller has to coordinate error handling and completion for all stages.",
+        "explanation": "Test pipeline behavior against a slow writable, input failure, and early cancellation."
+      },
+      {
+        "id": "nodejs-streams-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "Tricky question",
+        "question": "Is highWaterMark a hard upper bound on memory for the whole pipeline?",
+        "answer": "No. It is a buffering threshold on an individual stream. Transforms can buffer separately, a chunk can exceed the threshold, and object mode counts objects rather than their bytes.",
+        "hints": [
+          "Account for every stage and its buffering unit."
+        ],
+        "explanation": "Test pipeline behavior against a slow writable, input failure, and early cancellation.\n\n[Further reading](https://nodejs.org/api/stream.html)"
+      },
+      {
+        "id": "nodejs-streams-scenario-question",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Production scenario",
+        "question": "A vehicle export climbs to gigabytes of RSS when several users download it. How do you redesign it?",
+        "answer": "Use a paged or cursor-backed producer, incremental formatting, an abort-aware pipeline, and a global concurrency limit. Test with slow clients and track RSS, export completion rate, and cancellation.",
+        "explanation": "Propagate cancellation and use incremental producers with bounded input sizes."
+      },
+      {
+        "id": "nodejs-streams-common-mistake",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Accumulating all export rows before starting the stream.",
+        "whyItHappens": "Returning a stream from the HTTP handler only reduces memory if upstream retrieval and transformations also avoid collecting all data.",
+        "correctApproach": "Propagate cancellation and use incremental producers with bounded input sizes."
+      },
+      {
+        "id": "nodejs-streams-best-practice",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Best practice",
+        "content": "Propagate cancellation and use incremental producers with bounded input sizes.\n\nTest pipeline behavior against a slow writable, input failure, and early cancellation."
+      },
+      {
+        "id": "nodejs-streams-summary",
+        "type": "summary",
+        "order": 9,
+        "title": "Summary",
+        "content": "Compose readable, transform, and writable streams with bounded buffering. Pipeline observes completion and propagates errors across the chain with cleanup. With manual piping, the caller has to coordinate error handling and completion for all stages.\n\n[Further reading](https://nodejs.org/api/stream.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-buffers",
+      "nodejs-http-server",
+      "nodejs-performance"
+    ]
+  },
+  {
+    "id": "nodejs-http-server",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-http",
+    "title": "HTTP Request Lifecycle and JSON Responses",
+    "description": "Build a small HTTP handler and reason about headers, body, and completion.",
+    "difficulty": "beginner",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 32,
+    "tags": [
+      "http",
+      "request",
+      "response",
+      "status-codes"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-http-server-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "HTTP Request Lifecycle and JSON Responses",
+        "content": "In Node's low-level HTTP API, IncomingMessage is a readable stream and ServerResponse writes headers and body to the connection. The handler runs once per request, which can share a TCP connection with other sequential requests.\n\nSend headers before committing response content, and call end to finish the response. Apply limits and timeouts before parsing user-supplied request bodies. Handle incorrect methods and paths with appropriate HTTP status codes.",
+        "keyPoints": [
+          "Apply body limits before parsing and define consistent JSON responses for expected failures.",
+          "For a production endpoint, align proxy and application timeouts and use an explicit body-size policy."
+        ]
+      },
+      {
+        "id": "nodejs-http-server-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as http-demo.mjs and request http://127.0.0.1:3000/health",
+        "language": "javascript",
+        "code": "import { createServer } from 'node:http';\n\nconst server = createServer((req, res) => {\n  const path = new URL(req.url, 'http://localhost').pathname;\n  if (req.method === 'GET' && path === '/health') {\n    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });\n    res.end(JSON.stringify({ status: 'ok' }));\n    return;\n  }\n  res.writeHead(404).end();\n});\nserver.listen(3000, '127.0.0.1');",
+        "explanation": "For a production endpoint, align proxy and application timeouts and use an explicit body-size policy."
+      },
+      {
+        "id": "nodejs-http-server-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "Which parts of an HTTP request do you have when the handler starts?",
+        "answer": "The parsed request line and headers are available. The body is read from a stream and may continue to arrive over time.",
+        "explanation": "For a production endpoint, align proxy and application timeouts and use an explicit body-size policy."
+      },
+      {
+        "id": "nodejs-http-server-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Can an error handler always replace a response with a new JSON error?",
+        "answer": "Once headers have been sent, it is too late to change the status or content type. Use the stream error policy and signal a partially delivered response when the chosen protocol permits it.",
+        "hints": [
+          "Ask whether response headers have already been committed."
+        ],
+        "explanation": "For a production endpoint, align proxy and application timeouts and use an explicit body-size policy.\n\n[Further reading](https://nodejs.org/api/http.html)"
+      },
+      {
+        "id": "nodejs-http-server-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "A slow upload ties up a connection for minutes. Which controls belong at the server boundary?",
+        "answer": "Set header and request timeouts, bound request-body size, and preserve proxy-level limits. Record which timeout expired and test a slow but legitimate upload so the new limits fit product behavior.",
+        "explanation": "Apply body limits before parsing and define consistent JSON responses for expected failures."
+      },
+      {
+        "id": "nodejs-http-server-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Buffering an unlimited request body to call JSON.parse.",
+        "whyItHappens": "IncomingMessage provides chunks as they arrive. Concatenating unbounded chunks allows memory use to grow with the body size.",
+        "correctApproach": "Apply body limits before parsing and define consistent JSON responses for expected failures."
+      },
+      {
+        "id": "nodejs-http-server-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Apply body limits before parsing and define consistent JSON responses for expected failures.\n\nFor a production endpoint, align proxy and application timeouts and use an explicit body-size policy."
+      },
+      {
+        "id": "nodejs-http-server-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Build a small HTTP handler and reason about headers, body, and completion. The parsed request line and headers are available. The body is read from a stream and may continue to arrive over time.\n\n[Further reading](https://nodejs.org/api/http.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-express-middleware",
+      "nodejs-validation",
+      "nodejs-shutdown"
+    ]
+  },
+  {
+    "id": "nodejs-validation",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-http",
+    "title": "Runtime Validation and API Error Contracts",
+    "description": "Validate unknown input and return a predictable error contract to Angular clients.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 38,
+    "tags": [
+      "runtime-validation",
+      "http",
+      "problem-details",
+      "typescript"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-validation-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Runtime Validation and API Error Contracts",
+        "content": "TypeScript types disappear at runtime. Inputs arriving from HTTP are unknown until parsed and validated. Validate structure at transport boundaries, and enforce business invariants after converting input into domain values.\n\nAn error contract gives consumers a stable machine-readable code, an appropriate status, and optional safe details for presentation. RFC 9457 defines a standard problem-details representation for HTTP APIs. Report internal diagnostics through correlated logs.",
+        "keyPoints": [
+          "Return stable safe codes, validate boundary data, and avoid exposing stack traces in responses.",
+          "Treat a schema failure and a business-rule failure as different cases when a client needs to respond differently."
+        ]
+      },
+      {
+        "id": "nodejs-validation-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as validation.mjs",
+        "language": "javascript",
+        "code": "function parsePageSize(raw) {\n  if (raw === null) return 20;\n  if (typeof raw !== 'string' || !/^\\d{1,3}$/.test(raw)) {\n    throw new RangeError('pageSize must be an integer from 1 to 100');\n  }\n  const value = Number(raw);\n  if (value < 1 || value > 100) throw new RangeError('pageSize out of range');\n  return value;\n}\nconsole.log(parsePageSize('050'));",
+        "explanation": "Treat a schema failure and a business-rule failure as different cases when a client needs to respond differently."
+      },
+      {
+        "id": "nodejs-validation-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "How do you divide 400-level validation failures from 500-level errors?",
+        "answer": "Classify expected input or domain failures deliberately with stable client-visible codes. Unexpected invariant failures or dependencies that the caller cannot fix need a server error and correlated internal diagnostics.",
+        "explanation": "Treat a schema failure and a business-rule failure as different cases when a client needs to respond differently."
+      },
+      {
+        "id": "nodejs-validation-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Will casting req.body as CreateVehicleRequest validate the payload?",
+        "answer": "No. Type assertions only affect compile-time checking. Parse using a runtime schema or explicit validation and use the parsed value downstream.",
+        "hints": [
+          "Consider which checks execute after compilation."
+        ],
+        "explanation": "Treat a schema failure and a business-rule failure as different cases when a client needs to respond differently.\n\n[Further reading](https://www.rfc-editor.org/rfc/rfc9457.html)"
+      },
+      {
+        "id": "nodejs-validation-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "A new backend field causes every Angular form to show a generic error. How would you improve the contract?",
+        "answer": "Agree on field identifiers and error codes, keep presentation text localizable in the frontend, and add contract tests for old and new clients. Track unexpected codes rather than falling back silently.",
+        "explanation": "Return stable safe codes, validate boundary data, and avoid exposing stack traces in responses."
+      },
+      {
+        "id": "nodejs-validation-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Using raw exception text as the only error contract.",
+        "whyItHappens": "Technical errors change over time and may contain internal details that are unsuitable for clients.",
+        "correctApproach": "Return stable safe codes, validate boundary data, and avoid exposing stack traces in responses."
+      },
+      {
+        "id": "nodejs-validation-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Return stable safe codes, validate boundary data, and avoid exposing stack traces in responses.\n\nTreat a schema failure and a business-rule failure as different cases when a client needs to respond differently."
+      },
+      {
+        "id": "nodejs-validation-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Validate unknown input and return a predictable error contract to Angular clients. Classify expected input or domain failures deliberately with stable client-visible codes. Unexpected invariant failures or dependencies that the caller cannot fix need a server error and correlated internal diagnostics.\n\n[Further reading](https://www.rfc-editor.org/rfc/rfc9457.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-express-middleware",
+      "nodejs-typescript",
+      "nodejs-authorization"
+    ]
+  },
+  {
+    "id": "nodejs-bff",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-http",
+    "title": "Angular Backend for Frontend and Partial Failure",
+    "description": "Design an Angular-facing aggregation endpoint with explicit dependency budgets.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 45,
+    "tags": [
+      "bff",
+      "angular",
+      "fetch",
+      "aggregation"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-bff-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Angular Backend for Frontend and Partial Failure",
+        "content": "A backend for frontend adapts data and conventions for a particular interface. It can aggregate fleet telemetry, account state, and user preferences into a page model while keeping upstream request orchestration off the browser.\n\nClassify each dependency as essential or optional. Run independent reads concurrently, apply individual deadlines under a total budget, and expose degradation explicitly. Share upstream results only when identity and entitlement rules allow it.",
+        "keyPoints": [
+          "Define partial-failure semantics and draw a clear ownership boundary for domain rules.",
+          "An optional dependency's degraded response should be simple enough for the frontend to render consistently."
+        ]
+      },
+      {
+        "id": "nodejs-bff-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as dashboard-aggregation.mjs",
+        "language": "javascript",
+        "code": "const fleet = async () => [{ id: 'V-101' }];\nconst preferences = async () => { throw new Error('unavailable'); };\nconst [vehicles, prefs] = await Promise.all([\n  fleet(),\n  preferences().then(\n    (value) => ({ value, status: 'available' }),\n    () => ({ value: null, status: 'unavailable' }),\n  ),\n]);\nconsole.log({ vehicles, preferences: prefs });",
+        "explanation": "An optional dependency's degraded response should be simple enough for the frontend to render consistently."
+      },
+      {
+        "id": "nodejs-bff-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "When is a BFF worth introducing?",
+        "answer": "When the client calls multiple services with topology, auth, mapping, or rollout differences that benefit from a dedicated contract. It adds an operational dependency, so simple direct APIs can remain appropriate.",
+        "explanation": "An optional dependency's degraded response should be simple enough for the frontend to render consistently."
+      },
+      {
+        "id": "nodejs-bff-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Should optional data timeout result in an empty list indistinguishable from an actual empty result?",
+        "answer": "No. An empty business result and an unavailable dependency carry different meanings. An explicit status lets Angular render a retry or a stale state instead of showing misleading data.",
+        "hints": [
+          "Consider what the UI can truthfully tell the user."
+        ],
+        "explanation": "An optional dependency's degraded response should be simple enough for the frontend to render consistently.\n\n[Further reading](https://learn.microsoft.com/en-us/azure/architecture/patterns/backends-for-frontends)"
+      },
+      {
+        "id": "nodejs-bff-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "Fleet warnings must load quickly even if preferences are slow. What would you ship?",
+        "answer": "Treat fleet warnings and the user's authorization as essential. Give preferences a shorter independent budget and return a safe degraded preference state if needed. Measure dependency latency and enforce the total request deadline.",
+        "explanation": "Define partial-failure semantics and draw a clear ownership boundary for domain rules."
+      },
+      {
+        "id": "nodejs-bff-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Letting an optional request fail the whole dashboard response.",
+        "whyItHappens": "A single Promise.all rejection can fail aggregation even when the remaining values are enough to render the primary workflow.",
+        "correctApproach": "Define partial-failure semantics and draw a clear ownership boundary for domain rules."
+      },
+      {
+        "id": "nodejs-bff-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Define partial-failure semantics and draw a clear ownership boundary for domain rules.\n\nAn optional dependency's degraded response should be simple enough for the frontend to render consistently."
+      },
+      {
+        "id": "nodejs-bff-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Design an Angular-facing aggregation endpoint with explicit dependency budgets. When the client calls multiple services with topology, auth, mapping, or rollout differences that benefit from a dedicated contract. It adds an operational dependency, so simple direct APIs can remain appropriate.\n\n[Further reading](https://learn.microsoft.com/en-us/azure/architecture/patterns/backends-for-frontends)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-cancellation",
+      "nodejs-caching",
+      "nodejs-authorization"
+    ]
+  },
+  {
+    "id": "nodejs-express-middleware",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-http",
+    "title": "Express Middleware and Error Handling",
+    "description": "Compose middleware in request order and handle errors consistently in Express 5.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 38,
+    "tags": [
+      "express",
+      "middleware",
+      "routing",
+      "error-handling"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-express-middleware-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Express Middleware and Error Handling",
+        "content": "Express runs matching middleware in registration order. A handler responds, calls next to continue, or forwards an error. Put parsing and authentication before routes that require them, and place the error-handling middleware after routes.\n\nExpress 5 forwards rejections from promises returned by handlers. Work launched separately, such as a timer callback or a promise that was never returned, must report errors through its own lifecycle. Error middleware uses four arguments and delegates when headers have already been sent.",
+        "keyPoints": [
+          "Give each path one response owner and test both expected errors and unexpected rejections.",
+          "Preserve the distinction between a synchronous throw, a returned promise rejection, and an independently scheduled callback."
+        ]
+      },
+      {
+        "id": "nodejs-express-middleware-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Save as express-demo.mjs in a project with Express 5 installed",
+        "language": "javascript",
+        "code": "import express from 'express';\n\nconst app = express();\nconst records = new Map([['42', { id: '42', status: 'ready' }]]);\napp.get('/exports/:id', async (req, res) => {\n  const result = await Promise.resolve(records.get(req.params.id));\n  if (!result) return res.status(404).json({ code: 'EXPORT_NOT_FOUND' });\n  res.json(result);\n});\napp.use((error, _req, res, next) => {\n  if (res.headersSent) return next(error);\n  res.status(500).json({ code: 'INTERNAL_ERROR' });\n});\napp.listen(3000, '127.0.0.1');",
+        "explanation": "Preserve the distinction between a synchronous throw, a returned promise rejection, and an independently scheduled callback."
+      },
+      {
+        "id": "nodejs-express-middleware-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "Why does error middleware accept four arguments even if it doesn't use all of them?",
+        "answer": "Express identifies error-handling middleware by its four-argument signature. Keeping next also supports handing off errors after headers have been sent.",
+        "explanation": "Preserve the distinction between a synchronous throw, a returned promise rejection, and an independently scheduled callback."
+      },
+      {
+        "id": "nodejs-express-middleware-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Does Express 5 automatically catch rejections from every promise started inside a handler?",
+        "answer": "No. The framework can observe a returned or awaited promise through the handler's returned result. An independent promise chain needs its own supervision or explicit error forwarding.",
+        "hints": [
+          "Ask which promise the framework can actually observe."
+        ],
+        "explanation": "Preserve the distinction between a synchronous throw, a returned promise rejection, and an independently scheduled callback.\n\n[Further reading](https://expressjs.com/en/guide/error-handling.html)"
+      },
+      {
+        "id": "nodejs-express-middleware-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "A new global parser makes upload requests fail before reaching their handlers. What do you inspect?",
+        "answer": "Inspect middleware order, matching paths, request content type, body limits, and the actual upload format. Apply the parser only where needed and test JSON and upload routes separately.",
+        "explanation": "Give each path one response owner and test both expected errors and unexpected rejections."
+      },
+      {
+        "id": "nodejs-express-middleware-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Calling next after sending a response and letting a second handler write headers.",
+        "whyItHappens": "Sending a response does not stop arbitrary later code. Calling next explicitly advances the middleware chain.",
+        "correctApproach": "Give each path one response owner and test both expected errors and unexpected rejections."
+      },
+      {
+        "id": "nodejs-express-middleware-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Give each path one response owner and test both expected errors and unexpected rejections.\n\nPreserve the distinction between a synchronous throw, a returned promise rejection, and an independently scheduled callback."
+      },
+      {
+        "id": "nodejs-express-middleware-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Compose middleware in request order and handle errors consistently in Express 5. Express identifies error-handling middleware by its four-argument signature. Keeping next also supports handing off errors after headers have been sent.\n\n[Further reading](https://expressjs.com/en/guide/error-handling.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-http-server",
+      "nodejs-validation",
+      "nodejs-testing"
+    ]
+  },
+  {
+    "id": "nodejs-transactions",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-data",
+    "title": "Database Pools and Transaction Boundaries",
+    "description": "Tie related writes to one transaction and size database concurrency deliberately.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 43,
+    "tags": [
+      "postgresql",
+      "transactions",
+      "pooling",
+      "sql"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-transactions-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Database Pools and Transaction Boundaries",
+        "content": "A connection pool reuses database sessions. A transaction runs on one acquired connection from BEGIN through COMMIT or ROLLBACK. Separate pool.query calls may use different sessions. Use parameterized SQL and let database constraints guard shared invariants.\n\nPool size times the number of replicas determines the application's maximum allocated sessions. Keep transactions short and avoid slow remote calls inside them. For a transient serialization failure, rerun the complete transaction within a bounded retry policy when the operation allows it.",
+        "keyPoints": [
+          "Release leased connections on every outcome and monitor pool queue time alongside query latency.",
+          "The example uses a test double. Confirm isolation and ambiguous commit outcomes against the actual database and driver."
+        ]
+      },
+      {
+        "id": "nodejs-transactions-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "async function inTransaction(pool, work) {\n  const client = await pool.connect();\n  let discard = false;\n  try {\n    await client.query('BEGIN');\n    const value = await work(client);\n    await client.query('COMMIT');\n    return value;\n  } catch (error) {\n    try { await client.query('ROLLBACK'); }\n    catch { discard = true; }\n    throw error;\n  } finally {\n    client.release(discard);\n  }\n}\nconst statements = [];\nconst client = { query: async (sql) => statements.push(sql), release: () => statements.push('released') };\nawait inTransaction({ connect: async () => client }, (session) =>\n  session.query('UPDATE orders SET status = $1 WHERE id = $2', ['ready', 42]),\n);\nconsole.log(statements);",
+        "language": "javascript",
+        "code": "async function inTransaction(pool, work) {\n  const client = await pool.connect();\n  try {\n    await client.query('BEGIN');\n    const value = await work(client);\n    await client.query('COMMIT');\n    return value;\n  } catch (error) {\n    try { await client.query('ROLLBACK'); }\n    catch { client.release(true); throw error; }\n    client.release();\n    throw error;\n  }\n}\nconst statements = [];\nconst client = { query: async (sql) => statements.push(sql), release: () => statements.push('released') };\nawait inTransaction({ connect: async () => client }, async (session) => {\n  try { await session.query('UPDATE orders SET status = $1 WHERE id = $2', ['ready', 42]); }\n  finally { /* transaction owns the connection */ }\n});\nclient.release();\nconsole.log(statements);",
+        "explanation": "The example uses a test double. Confirm isolation and ambiguous commit outcomes against the actual database and driver."
+      },
+      {
+        "id": "nodejs-transactions-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "Why does each query in a transaction need the same connection?",
+        "answer": "Transaction state is session-local. Acquiring a client once keeps each statement under that session's transaction and isolation context.",
+        "explanation": "The example uses a test double. Confirm isolation and ambiguous commit outcomes against the actual database and driver."
+      },
+      {
+        "id": "nodejs-transactions-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Can pool.query('BEGIN') followed by several pool.query calls safely define a transaction?",
+        "answer": "No. The pool is free to choose a different session for each query. Lease one client and release it after commit or rollback.",
+        "hints": [
+          "Identify where database transaction state lives."
+        ],
+        "explanation": "The example uses a test double. Confirm isolation and ambiguous commit outcomes against the actual database and driver.\n\n[Further reading](https://node-postgres.com/features/transactions)"
+      },
+      {
+        "id": "nodejs-transactions-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "Two workers decrement the same inventory item concurrently. How do you maintain the invariant?",
+        "answer": "Enforce the invariant atomically, for example with a conditional update plus a database constraint as appropriate. Check the affected row count and keep related writes inside the same transaction. Test concurrent attempts with the actual database.",
+        "explanation": "Release leased connections on every outcome and monitor pool queue time alongside query latency."
+      },
+      {
+        "id": "nodejs-transactions-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Holding open a transaction while waiting on an unrelated remote service.",
+        "whyItHappens": "The database session remains leased and may hold locks during downstream latency or timeouts.",
+        "correctApproach": "Release leased connections on every outcome and monitor pool queue time alongside query latency."
+      },
+      {
+        "id": "nodejs-transactions-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Release leased connections on every outcome and monitor pool queue time alongside query latency.\n\nThe example uses a test double. Confirm isolation and ambiguous commit outcomes against the actual database and driver."
+      },
+      {
+        "id": "nodejs-transactions-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Tie related writes to one transaction and size database concurrency deliberately. Transaction state is session-local. Acquiring a client once keeps each statement under that session's transaction and isolation context.\n\n[Further reading](https://node-postgres.com/features/transactions)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-idempotency",
+      "nodejs-queues",
+      "nodejs-testing"
+    ]
+  },
+  {
+    "id": "nodejs-idempotency",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-data",
+    "title": "Idempotent Writes and Safe Retries",
+    "description": "Design writes that tolerate an ambiguous response or a repeated request.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 42,
+    "tags": [
+      "idempotency",
+      "retries",
+      "unique-constraints",
+      "api-design"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-idempotency-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Idempotent Writes and Safe Retries",
+        "content": "An idempotency key identifies one logical request from a client. Scope it by principal and operation, store a fingerprint of the normalized request, and use an atomic uniqueness constraint to arbitrate competing attempts.\n\nModel in-flight, completed, and expired records. Replay the completed outcome for the same fingerprint and define a conflict response for a mismatched payload. When effects cross storage systems, coordinate them with an outbox or the downstream provider's deduplication primitive.",
+        "keyPoints": [
+          "Test duplicate arrivals, a timeout after commit, mismatched payloads, and expiry.",
+          "Keep the durable record long enough to cover the real retry window and scope keys by the correct principal."
+        ]
+      },
+      {
+        "id": "nodejs-idempotency-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as key-scope.mjs. This in-memory example only demonstrates composite key encoding.",
+        "language": "javascript",
+        "code": "const keyFor = ({ account, operation, key }) => JSON.stringify([account, operation, key]);\nconst responses = new Map();\nconst scope = keyFor({ account: 'fleet-a', operation: 'create-export', key: 'request-42' });\nresponses.set(scope, { fingerprint: 'csv:today', exportId: 'exp-100' });\nconsole.log(responses.get(scope));",
+        "explanation": "Keep the durable record long enough to cover the real retry window and scope keys by the correct principal."
+      },
+      {
+        "id": "nodejs-idempotency-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "Which failures make idempotency especially valuable?",
+        "answer": "A client timeout or disconnect can leave the caller unsure whether a write committed. Retrying with the same key lets the server discover the original outcome.",
+        "explanation": "Keep the durable record long enough to cover the real retry window and scope keys by the correct principal."
+      },
+      {
+        "id": "nodejs-idempotency-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Does a random key make a POST safe to retry if the client generates a new key on each attempt?",
+        "answer": "No. A new key identifies a different logical request. The same key and equivalent payload must survive all retries for that operation.",
+        "hints": [
+          "Count logical operations rather than network attempts."
+        ],
+        "explanation": "Keep the durable record long enough to cover the real retry window and scope keys by the correct principal.\n\n[Further reading](https://docs.stripe.com/api/idempotent_requests)"
+      },
+      {
+        "id": "nodejs-idempotency-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "Two pods receive the same create-export request at the same time. What guarantees one outcome?",
+        "answer": "Acquire the key in a shared store with a unique constraint. Atomically bind the operation and stored result when possible. Return a documented response while processing is in flight and replay the recorded result when complete.",
+        "explanation": "Test duplicate arrivals, a timeout after commit, mismatched payloads, and expiry."
+      },
+      {
+        "id": "nodejs-idempotency-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Protecting against duplicates with an in-process Map across several replicas.",
+        "whyItHappens": "Each process owns a different Map, and all entries are lost when the process restarts.",
+        "correctApproach": "Test duplicate arrivals, a timeout after commit, mismatched payloads, and expiry."
+      },
+      {
+        "id": "nodejs-idempotency-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Test duplicate arrivals, a timeout after commit, mismatched payloads, and expiry.\n\nKeep the durable record long enough to cover the real retry window and scope keys by the correct principal."
+      },
+      {
+        "id": "nodejs-idempotency-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Design writes that tolerate an ambiguous response or a repeated request. A client timeout or disconnect can leave the caller unsure whether a write committed. Retrying with the same key lets the server discover the original outcome.\n\n[Further reading](https://docs.stripe.com/api/idempotent_requests)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-transactions",
+      "nodejs-queues",
+      "nodejs-bff"
+    ]
+  },
+  {
+    "id": "nodejs-queues",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-data",
+    "title": "Background Jobs, Queues, and the Transactional Outbox",
+    "description": "Move long-running work out of requests and reason about duplicate delivery.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 45,
+    "tags": [
+      "queues",
+      "outbox",
+      "background-jobs",
+      "retries"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-queues-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Background Jobs, Queues, and the Transactional Outbox",
+        "content": "A long-running export can return 202 with a job ID and a status endpoint. Persist job ownership and progress so polling is safe. A queue separates admission from execution and lets workers retry eligible failures independently of the HTTP request.\n\nStore an outbox row with a business update in the same database transaction when publication must follow commit. A relay can publish duplicate messages if it crashes after send and before recording success. Consumers must tolerate repeat deliveries.",
+        "keyPoints": [
+          "Make retries observable with job IDs, attempt counts, queue age, and stable failure codes.",
+          "If work may be delivered more than once, ensure the durable side effect and its deduplication marker use a consistent commit boundary."
+        ]
+      },
+      {
+        "id": "nodejs-queues-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as outbox-demo.mjs. Arrays stand in for durable storage and a broker.",
+        "language": "javascript",
+        "code": "const outbox = [{ id: 'export-42', published: false }];\nconst delivered = [];\nfunction publishPending() {\n  for (const item of outbox) {\n    if (item.published) continue;\n    delivered.push(item.id);\n    item.published = true;\n  }\n}\npublishPending();\npublishPending();\nconsole.log(delivered);",
+        "explanation": "If work may be delivered more than once, ensure the durable side effect and its deduplication marker use a consistent commit boundary."
+      },
+      {
+        "id": "nodejs-queues-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "What should a client receive after submitting a long-running job?",
+        "answer": "A stable job identifier and a way to read status. Document terminal states, authorization, retention, retry behavior, and any progress values the system can reliably report.",
+        "explanation": "If work may be delivered more than once, ensure the durable side effect and its deduplication marker use a consistent commit boundary."
+      },
+      {
+        "id": "nodejs-queues-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Does a transactional outbox guarantee that a consumer receives a message exactly once?",
+        "answer": "No. It closes the gap between the database transaction and the durable intent to publish. The relay may publish more than once. Deduplicate consumer effects using a durable operation ID.",
+        "hints": [
+          "Follow the crash window between publish and acknowledgement."
+        ],
+        "explanation": "If work may be delivered more than once, ensure the durable side effect and its deduplication marker use a consistent commit boundary.\n\n[Further reading](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)"
+      },
+      {
+        "id": "nodejs-queues-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "An Excel export repeatedly fails and head-of-line retries delay every other export. How do you recover?",
+        "answer": "Use bounded attempts with backoff and jitter for transient errors, record terminal failure separately, and isolate jobs that cannot succeed. Limit per-tenant and global concurrency, and monitor queue age and repeat failure causes.",
+        "explanation": "Make retries observable with job IDs, attempt counts, queue age, and stable failure codes."
+      },
+      {
+        "id": "nodejs-queues-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Marking a message processed before its durable effect is committed.",
+        "whyItHappens": "A crash after marking but before committing can make the next delivery appear complete when the effect never happened.",
+        "correctApproach": "Make retries observable with job IDs, attempt counts, queue age, and stable failure codes."
+      },
+      {
+        "id": "nodejs-queues-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Make retries observable with job IDs, attempt counts, queue age, and stable failure codes.\n\nIf work may be delivered more than once, ensure the durable side effect and its deduplication marker use a consistent commit boundary."
+      },
+      {
+        "id": "nodejs-queues-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Move long-running work out of requests and reason about duplicate delivery. A stable job identifier and a way to read status. Document terminal states, authorization, retention, retry behavior, and any progress values the system can reliably report.\n\n[Further reading](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-transactions",
+      "nodejs-idempotency",
+      "nodejs-processes"
+    ]
+  },
+  {
+    "id": "nodejs-caching",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-data",
+    "title": "Caching, Cache Keys, and Concurrent Misses",
+    "description": "Design cache policy around identity, expiry, and load bursts.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 39,
+    "tags": [
+      "cache",
+      "ttl",
+      "single-flight",
+      "stale-data"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-caching-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Caching, Cache Keys, and Concurrent Misses",
+        "content": "Choose a cache key that includes every dimension that affects the result, such as tenant, resource, locale, or a permission-sensitive variant. Define maximum staleness and invalidate writes whose results need immediate visibility.\n\nA popular key can generate concurrent misses when it expires. Combine compatible in-flight reads inside a process and apply a separate policy for distributed coordination if needed. Avoid caching rejected in-flight promises indefinitely.",
+        "keyPoints": [
+          "Write down staleness and key-scope rules, and test cross-tenant reads alongside concurrent misses.",
+          "When refreshes are shared, verify the keys contain the entire scope that determines whether a result is reusable."
+        ]
+      },
+      {
+        "id": "nodejs-caching-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as single-flight.mjs. This coalesces overlapping fetches inside one process only.",
+        "language": "javascript",
+        "code": "const pending = new Map();\nfunction getOnce(key, load) {\n  if (!pending.has(key)) {\n    const result = Promise.resolve().then(load).finally(() => pending.delete(key));\n    pending.set(key, result);\n  }\n  return pending.get(key);\n}\nlet loads = 0;\nconst load = () => ++loads;\nconsole.log(await Promise.all([getOnce('fleet-a:summary', load), getOnce('fleet-a:summary', load)]));",
+        "explanation": "When refreshes are shared, verify the keys contain the entire scope that determines whether a result is reusable."
+      },
+      {
+        "id": "nodejs-caching-output-question",
+        "type": "output-question",
+        "order": 3,
+        "title": "Predict the output",
+        "question": "What array does single-flight.mjs print, and how many times is load called?",
+        "language": "javascript",
+        "code": "const pending = new Map();\nfunction getOnce(key, load) {\n  if (!pending.has(key)) {\n    const result = Promise.resolve().then(load).finally(() => pending.delete(key));\n    pending.set(key, result);\n  }\n  return pending.get(key);\n}\nlet loads = 0;\nconst load = () => ++loads;\nconsole.log(await Promise.all([getOnce('fleet-a:summary', load), getOnce('fleet-a:summary', load)]));",
+        "answer": "[1, 1], with a single invocation of load.",
+        "explanation": "Both requests overlap on the same key and receive the same pending promise. The finally callback removes the entry after the result settles."
+      },
+      {
+        "id": "nodejs-caching-interview-question",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "How does single-flight differ from result caching?",
+        "answer": "Single-flight shares work while a compatible request is already in progress. A result cache serves later requests from a completed value until invalidation or expiry.",
+        "explanation": "When refreshes are shared, verify the keys contain the entire scope that determines whether a result is reusable."
+      },
+      {
+        "id": "nodejs-caching-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "Tricky question",
+        "question": "Does an in-process promise map prevent a cache stampede across all service replicas?",
+        "answer": "No. Each process has its own map. Distributed coordination or a suitable shared cache policy is needed when the upstream cannot handle one load per replica.",
+        "hints": [
+          "Identify the scope of the Map."
+        ],
+        "explanation": "When refreshes are shared, verify the keys contain the entire scope that determines whether a result is reusable.\n\n[Further reading](https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside)"
+      },
+      {
+        "id": "nodejs-caching-scenario-question",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Production scenario",
+        "question": "A fleet summary cache causes a read surge every minute. How do you diagnose it?",
+        "answer": "Correlate upstream traffic with key expiry, then measure cache hit rate and per-key refresh concurrency. Consider coalescing, randomized expiry, or safe stale reads while refreshing. Verify freshness and tenant isolation under load.",
+        "explanation": "Write down staleness and key-scope rules, and test cross-tenant reads alongside concurrent misses."
+      },
+      {
+        "id": "nodejs-caching-common-mistake",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Sharing cached answers across accounts because the route is identical.",
+        "whyItHappens": "A common URL can produce different results for different requesters. A key that omits those differences makes an unsafe cache entry reusable.",
+        "correctApproach": "Write down staleness and key-scope rules, and test cross-tenant reads alongside concurrent misses."
+      },
+      {
+        "id": "nodejs-caching-best-practice",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Best practice",
+        "content": "Write down staleness and key-scope rules, and test cross-tenant reads alongside concurrent misses.\n\nWhen refreshes are shared, verify the keys contain the entire scope that determines whether a result is reusable."
+      },
+      {
+        "id": "nodejs-caching-summary",
+        "type": "summary",
+        "order": 9,
+        "title": "Summary",
+        "content": "Design cache policy around identity, expiry, and load bursts. Single-flight shares work while a compatible request is already in progress. A result cache serves later requests from a completed value until invalidation or expiry.\n\n[Further reading](https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-bff",
+      "nodejs-async-errors",
+      "nodejs-authorization"
+    ]
+  },
+  {
+    "id": "nodejs-workers",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-concurrency",
+    "title": "Worker Threads and Transferable Data",
+    "description": "Offload independent CPU-heavy work and choose a data-transfer strategy.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 46,
+    "tags": [
+      "workers",
+      "cpu",
+      "structured-clone",
+      "transferable"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-workers-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Worker Threads and Transferable Data",
+        "content": "Each worker thread executes JavaScript in its own V8 isolate. Workers are useful for CPU-intensive JavaScript. Node's regular asynchronous I/O APIs already offer a way to avoid blocking on I/O without assigning a worker to every request.\n\nMessages use structured clone by default. Transferring an owned ArrayBuffer moves its backing storage and detaches the sender's buffer. SharedArrayBuffer allows access from multiple threads and needs explicit synchronization for shared mutations. A bounded pool amortizes initialization and controls load.",
+        "keyPoints": [
+          "Set worker and queue bounds so oversubscription remains predictable under load.",
+          "An owned ArrayBuffer is suitable for transfer. Pooled Buffers can follow different cloning behavior."
+        ]
+      },
+      {
+        "id": "nodejs-workers-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as worker-demo.mjs",
+        "language": "javascript",
+        "code": "import { Worker, isMainThread, parentPort } from 'node:worker_threads';\nimport { once } from 'node:events';\n\nif (isMainThread) {\n  const worker = new Worker(new URL(import.meta.url));\n  const result = once(worker, 'message');\n  const input = Uint8Array.of(1, 2, 3);\n  worker.postMessage(input, [input.buffer]);\n  console.log('detached length:', input.byteLength);\n  console.log('sum:', (await result)[0]);\n} else {\n  parentPort.once('message', (values) => {\n    parentPort.postMessage(values.reduce((sum, value) => sum + value, 0));\n  });\n}",
+        "explanation": "An owned ArrayBuffer is suitable for transfer. Pooled Buffers can follow different cloning behavior."
+      },
+      {
+        "id": "nodejs-workers-output-question",
+        "type": "output-question",
+        "order": 3,
+        "title": "Predict the output",
+        "question": "What are the two lines printed by the main thread?",
+        "language": "javascript",
+        "code": "import { Worker, isMainThread, parentPort } from 'node:worker_threads';\nimport { once } from 'node:events';\n\nif (isMainThread) {\n  const worker = new Worker(new URL(import.meta.url));\n  const result = once(worker, 'message');\n  const input = Uint8Array.of(1, 2, 3);\n  worker.postMessage(input, [input.buffer]);\n  console.log('detached length:', input.byteLength);\n  console.log('sum:', (await result)[0]);\n} else {\n  parentPort.once('message', (values) => {\n    parentPort.postMessage(values.reduce((sum, value) => sum + value, 0));\n  });\n}",
+        "answer": "detached length: 0\nsum: 6",
+        "explanation": "The backing buffer is detached as soon as it is transferred. The worker sums the bytes in its own isolate and sends the result back later."
+      },
+      {
+        "id": "nodejs-workers-interview-question",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "When is a worker thread a good fit?",
+        "answer": "When CPU-heavy JavaScript can run independently and transfer plus scheduling costs are acceptable. Compare wall time, main-thread delay, and queue pressure under realistic load.",
+        "explanation": "An owned ArrayBuffer is suitable for transfer. Pooled Buffers can follow different cloning behavior."
+      },
+      {
+        "id": "nodejs-workers-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "Tricky question",
+        "question": "Can the sender continue reading a normal ArrayBuffer after transferring it?",
+        "answer": "No. Transferring detaches the backing store from the sender. A structured clone copies data, while a SharedArrayBuffer uses shared storage and different coordination rules.",
+        "hints": [
+          "Separate moving ownership from copying or sharing bytes."
+        ],
+        "explanation": "An owned ArrayBuffer is suitable for transfer. Pooled Buffers can follow different cloning behavior.\n\n[Further reading](https://nodejs.org/api/worker_threads.html)"
+      },
+      {
+        "id": "nodejs-workers-scenario-question",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Production scenario",
+        "question": "A JSON transformation takes 200 ms and blocks every request on a pod. What changes?",
+        "answer": "Benchmark smaller incremental transforms and a bounded worker pool. Test transfer costs, queue length, timeouts, and behavior on worker failure. If this work must survive restarts, persist it as a background job.",
+        "explanation": "Set worker and queue bounds so oversubscription remains predictable under load."
+      },
+      {
+        "id": "nodejs-workers-common-mistake",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Starting a new Worker for every small request.",
+        "whyItHappens": "Creating a worker requires initialization, memory, and coordination. The overhead can exceed the value of a small job.",
+        "correctApproach": "Set worker and queue bounds so oversubscription remains predictable under load."
+      },
+      {
+        "id": "nodejs-workers-best-practice",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Best practice",
+        "content": "Set worker and queue bounds so oversubscription remains predictable under load.\n\nAn owned ArrayBuffer is suitable for transfer. Pooled Buffers can follow different cloning behavior."
+      },
+      {
+        "id": "nodejs-workers-summary",
+        "type": "summary",
+        "order": 9,
+        "title": "Summary",
+        "content": "Offload independent CPU-heavy work and choose a data-transfer strategy. When CPU-heavy JavaScript can run independently and transfer plus scheduling costs are acceptable. Compare wall time, main-thread delay, and queue pressure under realistic load.\n\n[Further reading](https://nodejs.org/api/worker_threads.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-runtime-model",
+      "nodejs-processes",
+      "nodejs-libuv-pool"
+    ]
+  },
+  {
+    "id": "nodejs-processes",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-concurrency",
+    "title": "Child Processes, IPC, and Isolation",
+    "description": "Choose an execution boundary and handle child process completion reliably.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 35,
+    "tags": [
+      "child-process",
+      "spawn",
+      "ipc",
+      "process-isolation"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-processes-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Child Processes, IPC, and Isolation",
+        "content": "A child process has a separate process lifetime and address space. Use spawn with an argument array when running a known executable and streaming output. exec generally launches a shell and buffers output. fork is a Node-specific child process helper with an IPC channel.\n\nHandle spawn errors and wait for close if the output must be fully consumed. Keep executable choice and argument types controlled. Distinguish launch failure, nonzero exit, cancellation, and a timed-out operation in the parent.",
+        "keyPoints": [
+          "Pass controlled arguments directly, observe completion, and cap any collected output.",
+          "Local process separation supports isolation and lifecycle ownership, but it is insufficient by itself for executing untrusted programs."
+        ]
+      },
+      {
+        "id": "nodejs-processes-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as child-demo.mjs",
+        "language": "javascript",
+        "code": "import { spawn } from 'node:child_process';\nimport { once } from 'node:events';\n\nconst child = spawn(process.execPath, ['-p', '6 * 7'], { stdio: ['ignore', 'pipe', 'inherit'] });\nconst closed = once(child, 'close');\nchild.stdout.pipe(process.stdout, { end: false });\nconst [code, signal] = await closed;\nif (code !== 0) throw new Error(`Child exited with ${code ?? signal}`);",
+        "explanation": "Local process separation supports isolation and lifecycle ownership, but it is insufficient by itself for executing untrusted programs."
+      },
+      {
+        "id": "nodejs-processes-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "How do spawn and fork differ?",
+        "answer": "spawn starts an executable with configurable stdio. fork starts another Node process and includes an IPC channel for structured messages.",
+        "explanation": "Local process separation supports isolation and lifecycle ownership, but it is insufficient by itself for executing untrusted programs."
+      },
+      {
+        "id": "nodejs-processes-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Does a child's exit event mean the parent has consumed all piped output?",
+        "answer": "Not necessarily. Wait for close to know that the child's stdio streams have closed. Handle application-level output completion as well if data is being transformed or written elsewhere.",
+        "hints": [
+          "Track process lifetime and stream lifetime separately."
+        ],
+        "explanation": "Local process separation supports isolation and lifecycle ownership, but it is insufficient by itself for executing untrusted programs.\n\n[Further reading](https://nodejs.org/api/child_process.html)"
+      },
+      {
+        "id": "nodejs-processes-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "A CLI report tool sometimes never returns and workers pile up. How would you contain the impact?",
+        "answer": "Add a job deadline, bounded child concurrency, a kill policy, and output limits. Record exit code or signal, drain output on normal completion, and verify timeout handling through a test fixture.",
+        "explanation": "Pass controlled arguments directly, observe completion, and cap any collected output."
+      },
+      {
+        "id": "nodejs-processes-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Waiting only for a successful exit and ignoring process startup errors.",
+        "whyItHappens": "A child can fail to spawn before an exit code is available. The parent needs an error path for that event.",
+        "correctApproach": "Pass controlled arguments directly, observe completion, and cap any collected output."
+      },
+      {
+        "id": "nodejs-processes-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Pass controlled arguments directly, observe completion, and cap any collected output.\n\nLocal process separation supports isolation and lifecycle ownership, but it is insufficient by itself for executing untrusted programs."
+      },
+      {
+        "id": "nodejs-processes-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Choose an execution boundary and handle child process completion reliably. spawn starts an executable with configurable stdio. fork starts another Node process and includes an IPC channel for structured messages.\n\n[Further reading](https://nodejs.org/api/child_process.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-workers",
+      "nodejs-queues",
+      "nodejs-shutdown"
+    ]
+  },
+  {
+    "id": "nodejs-libuv-pool",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-concurrency",
+    "title": "libuv Thread Pool Contention",
+    "description": "Identify pool-backed work and separate thread-pool delay from a blocked event loop.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 42,
+    "tags": [
+      "libuv",
+      "thread-pool",
+      "crypto",
+      "profiling"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-libuv-pool-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "libuv Thread Pool Contention",
+        "content": "Selected filesystem, crypto, compression, and DNS operations use libuv's shared worker pool. Most socket readiness notifications use operating-system mechanisms. A process can have a responsive main thread while pool-backed file work queues behind expensive jobs.\n\nUV_THREADPOOL_SIZE is a startup configuration. Increasing it has CPU and memory costs and cannot fix arbitrary synchronous JavaScript. First measure latency in pool-backed operations and bound the rate of expensive tasks.",
+        "keyPoints": [
+          "Set and measure pool configuration at process startup and control expensive work at admission.",
+          "The demo illustrates possible queueing. Scheduling and timings vary with hardware, concurrency, and startup configuration."
+        ]
+      },
+      {
+        "id": "nodejs-libuv-pool-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as pool-demo.mjs. Change startup configuration in the shell to compare timing.",
+        "language": "javascript",
+        "code": "import { pbkdf2 } from 'node:crypto';\nimport { readFile } from 'node:fs/promises';\nimport { performance } from 'node:perf_hooks';\nimport { promisify } from 'node:util';\n\nconst derive = promisify(pbkdf2);\nconst jobs = Array.from({ length: 8 }, () => derive('demo', 'learning-only', 150_000, 16, 'sha256'));\nconst started = performance.now();\nawait readFile(new URL(import.meta.url));\nconsole.log('read ms:', Math.round(performance.now() - started));\nawait Promise.all(jobs);",
+        "explanation": "The demo illustrates possible queueing. Scheduling and timings vary with hardware, concurrency, and startup configuration."
+      },
+      {
+        "id": "nodejs-libuv-pool-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "What telemetry helps distinguish a busy event loop from pool contention?",
+        "answer": "Compare event-loop delay, process CPU, and latency of specific operations. Add queue and concurrency metrics around expensive application work, then profile if the source remains unclear.",
+        "explanation": "The demo illustrates possible queueing. Scheduling and timings vary with hardware, concurrency, and startup configuration."
+      },
+      {
+        "id": "nodejs-libuv-pool-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Will increasing UV_THREADPOOL_SIZE speed up synchronous JSON.parse on the main thread?",
+        "answer": "No. JSON.parse runs synchronously on the JavaScript thread. A pool size change only influences operations that use the libuv pool.",
+        "hints": [
+          "Identify the executor before tuning it."
+        ],
+        "explanation": "The demo illustrates possible queueing. Scheduling and timings vary with hardware, concurrency, and startup configuration.\n\n[Further reading](https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop)"
+      },
+      {
+        "id": "nodejs-libuv-pool-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "File reads slow down when many password hashes run. What is your first experiment?",
+        "answer": "Repeat the workload with capped hash concurrency and track file latency, hash throughput, CPU, and loop delay. Compare with isolating CPU-heavy jobs. Tune pool sizing only after the measurements distinguish queueing from resource limits.",
+        "explanation": "Set and measure pool configuration at process startup and control expensive work at admission."
+      },
+      {
+        "id": "nodejs-libuv-pool-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Using an environment-variable change inside application code as a portable pool-resize mechanism.",
+        "whyItHappens": "The pool may already exist when application code starts. The runtime does not resize it as a general reaction to changing process.env.",
+        "correctApproach": "Set and measure pool configuration at process startup and control expensive work at admission."
+      },
+      {
+        "id": "nodejs-libuv-pool-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Set and measure pool configuration at process startup and control expensive work at admission.\n\nThe demo illustrates possible queueing. Scheduling and timings vary with hardware, concurrency, and startup configuration."
+      },
+      {
+        "id": "nodejs-libuv-pool-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Identify pool-backed work and separate thread-pool delay from a blocked event loop. Compare event-loop delay, process CPU, and latency of specific operations. Add queue and concurrency metrics around expensive application work, then profile if the source remains unclear.\n\n[Further reading](https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-runtime-model",
+      "nodejs-workers",
+      "nodejs-performance"
+    ]
+  },
+  {
+    "id": "nodejs-testing",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-quality",
+    "title": "Node Test Runner, HTTP Tests, and Isolation",
+    "description": "Write deterministic unit and HTTP tests with clear resource ownership.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 37,
+    "tags": [
+      "node-test",
+      "assert",
+      "test-isolation",
+      "http-tests"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-testing-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Node Test Runner, HTTP Tests, and Isolation",
+        "content": "The node:test runner executes tests written with standard Node APIs. Use node:assert/strict for assertions and await asynchronous work. For an HTTP integration test, bind an ephemeral port and register server cleanup before exercising the request.\n\nInject external adapters so unit tests can replace them. Use real integration tests for boundaries where semantics matter, such as a transaction or a response contract. Avoid testing timing through arbitrary sleep intervals.",
+        "keyPoints": [
+          "Await readiness and cleanup explicitly, and exercise error paths alongside successful requests.",
+          "The endpoint test awaits both server readiness and client completion, then closes the listener."
+        ]
+      },
+      {
+        "id": "nodejs-testing-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Save as health.test.mjs and run node --test health.test.mjs",
+        "language": "javascript",
+        "code": "import assert from 'node:assert/strict';\nimport { once } from 'node:events';\nimport { createServer } from 'node:http';\nimport test from 'node:test';\n\ntest('health response', async (t) => {\n  const server = createServer((_req, res) => res.end('ok'));\n  server.listen(0, '127.0.0.1');\n  t.after(() => new Promise((resolve, reject) => {\n    server.close((error) => error ? reject(error) : resolve());\n  }));\n  await once(server, 'listening');\n  const { port } = server.address();\n  const response = await fetch(`http://127.0.0.1:${port}/health`);\n  assert.equal(response.status, 200);\n  assert.equal(await response.text(), 'ok');\n});",
+        "explanation": "The endpoint test awaits both server readiness and client completion, then closes the listener."
+      },
+      {
+        "id": "nodejs-testing-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "Why use port zero in integration tests?",
+        "answer": "The operating system chooses a free port. Parallel tests avoid collisions with a hard-coded port, and the test reads the assigned port after listening.",
+        "explanation": "The endpoint test awaits both server readiness and client completion, then closes the listener."
+      },
+      {
+        "id": "nodejs-testing-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Can a test callback return before an assertion inside a later promise and still reliably fail on that assertion?",
+        "answer": "No. The runner has no way to treat unawaited work as the test's normal result. Return or await the promise so assertion failures are attributed to the test.",
+        "hints": [
+          "Identify what the test runner actually awaits."
+        ],
+        "explanation": "The endpoint test awaits both server readiness and client completion, then closes the listener.\n\n[Further reading](https://nodejs.org/api/test.html)"
+      },
+      {
+        "id": "nodejs-testing-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "HTTP tests pass one at a time and fail under CI parallelism. Where do you look first?",
+        "answer": "Inspect shared ports, global state, environment variables, reused fixtures, and unclosed clients. Give each test control of its dependencies and use registered teardown to return shared resources.",
+        "explanation": "Await readiness and cleanup explicitly, and exercise error paths alongside successful requests."
+      },
+      {
+        "id": "nodejs-testing-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Sleeping for 500 ms rather than awaiting the server's readiness event.",
+        "whyItHappens": "A fixed sleep can be too short under load and wastes time in fast runs. A readiness event expresses the actual dependency.",
+        "correctApproach": "Await readiness and cleanup explicitly, and exercise error paths alongside successful requests."
+      },
+      {
+        "id": "nodejs-testing-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Await readiness and cleanup explicitly, and exercise error paths alongside successful requests.\n\nThe endpoint test awaits both server readiness and client completion, then closes the listener."
+      },
+      {
+        "id": "nodejs-testing-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Write deterministic unit and HTTP tests with clear resource ownership. The operating system chooses a free port. Parallel tests avoid collisions with a hard-coded port, and the test reads the assigned port after listening.\n\n[Further reading](https://nodejs.org/api/test.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-http-server",
+      "nodejs-express-middleware",
+      "nodejs-typescript"
+    ]
+  },
+  {
+    "id": "nodejs-request-context",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-quality",
+    "title": "Request Context with AsyncLocalStorage",
+    "description": "Correlate asynchronous work without a mutable global request ID.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 35,
+    "tags": [
+      "asynclocalstorage",
+      "tracing",
+      "logging",
+      "request-id"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-request-context-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Request Context with AsyncLocalStorage",
+        "content": "AsyncLocalStorage associates a store with work started inside run. Awaited tasks created there generally see the same store. Start a separate context for each request. Capture a small set of identifiers instead of retaining complete request objects.\n\nUse correlation IDs to connect internal logs. Distributed trace propagation is a separate concern spanning network boundaries. Shared mutable objects stored in a context can still be mutated by multiple operations within that same request.",
+        "keyPoints": [
+          "Use run at the request boundary and keep the stored correlation data small and free of secrets.",
+          "For a distributed trace, propagate the appropriate trace metadata to upstream calls separately from local context."
+        ]
+      },
+      {
+        "id": "nodejs-request-context-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as context-demo.mjs",
+        "language": "javascript",
+        "code": "import { AsyncLocalStorage } from 'node:async_hooks';\nimport { setTimeout as wait } from 'node:timers/promises';\n\nconst context = new AsyncLocalStorage();\nawait Promise.all(['fleet-a', 'fleet-b'].map((requestId) =>\n  context.run({ requestId }, async () => {\n    await wait(1);\n    console.log(context.getStore().requestId);\n  }),\n));\nconsole.log(context.getStore());",
+        "explanation": "For a distributed trace, propagate the appropriate trace metadata to upstream calls separately from local context."
+      },
+      {
+        "id": "nodejs-request-context-output-question",
+        "type": "output-question",
+        "order": 3,
+        "title": "Predict the output",
+        "question": "What IDs appear inside the two callbacks, and what does the final line print?",
+        "language": "javascript",
+        "code": "import { AsyncLocalStorage } from 'node:async_hooks';\nimport { setTimeout as wait } from 'node:timers/promises';\n\nconst context = new AsyncLocalStorage();\nawait Promise.all(['fleet-a', 'fleet-b'].map((requestId) =>\n  context.run({ requestId }, async () => {\n    await wait(1);\n    console.log(context.getStore().requestId);\n  }),\n));\nconsole.log(context.getStore());",
+        "answer": "Each callback logs its own ID, fleet-a or fleet-b. The final line is undefined.",
+        "explanation": "The callbacks execute in separate async contexts. The outer code has no active store."
+      },
+      {
+        "id": "nodejs-request-context-interview-question",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "Why shouldn't you use a module-level currentRequestId variable?",
+        "answer": "Concurrent requests interleave around awaits and overwrite shared state. Request context scopes identifiers to the async operations belonging to that request.",
+        "explanation": "For a distributed trace, propagate the appropriate trace metadata to upstream calls separately from local context."
+      },
+      {
+        "id": "nodejs-request-context-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "Tricky question",
+        "question": "Will getStore always return a store anywhere in the process after the first call to run?",
+        "answer": "No. It returns the context active for the current execution. Code outside those contexts sees undefined unless another context was installed.",
+        "hints": [
+          "Trace the async ancestry of the call site."
+        ],
+        "explanation": "For a distributed trace, propagate the appropriate trace metadata to upstream calls separately from local context.\n\n[Further reading](https://nodejs.org/api/async_context.html)"
+      },
+      {
+        "id": "nodejs-request-context-scenario-question",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Production scenario",
+        "question": "One request loses its ID when an adapter calls back. How do you debug it?",
+        "answer": "Reproduce the failing boundary in isolation and check the store before adapter registration and inside the callback. Verify context propagation and bind or bridge integrations that don't preserve it, then test simultaneous requests.",
+        "explanation": "Use run at the request boundary and keep the stored correlation data small and free of secrets."
+      },
+      {
+        "id": "nodejs-request-context-common-mistake",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Using request IDs as authorization evidence.",
+        "whyItHappens": "A request ID is metadata for correlation. It may come from an untrusted source and does not establish access.",
+        "correctApproach": "Use run at the request boundary and keep the stored correlation data small and free of secrets."
+      },
+      {
+        "id": "nodejs-request-context-best-practice",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Best practice",
+        "content": "Use run at the request boundary and keep the stored correlation data small and free of secrets.\n\nFor a distributed trace, propagate the appropriate trace metadata to upstream calls separately from local context."
+      },
+      {
+        "id": "nodejs-request-context-summary",
+        "type": "summary",
+        "order": 9,
+        "title": "Summary",
+        "content": "Correlate asynchronous work without a mutable global request ID. Concurrent requests interleave around awaits and overwrite shared state. Request context scopes identifiers to the async operations belonging to that request.\n\n[Further reading](https://nodejs.org/api/async_context.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-event-emitter",
+      "nodejs-bff",
+      "nodejs-performance"
+    ]
+  },
+  {
+    "id": "nodejs-performance",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-quality",
+    "title": "Event-Loop Metrics, CPU Profiles, and Memory",
+    "description": "Choose measurements that distinguish CPU stalls, leaks, and dependency latency.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 44,
+    "tags": [
+      "perf-hooks",
+      "event-loop-delay",
+      "profiling",
+      "memory"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-performance-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Event-Loop Metrics, CPU Profiles, and Memory",
+        "content": "Event-loop delay measures how late the loop can service scheduled work. Event-loop utilization measures active versus idle time over an interval. Neither identifies the blocking function by itself. Compare CPU profiles, GC activity, and upstream span timings under similar load.\n\nUse process.memoryUsage to compare heap, external allocations, and RSS. Buffers contribute to external memory and RSS, so a stable V8 heap does not rule out rising process memory. Capture snapshots only where their overhead and confidentiality can be managed.",
+        "keyPoints": [
+          "Measure p95 and p99 request latency, loop delay, and memory over the same interval.",
+          "Profile at the same load where the symptom appears. A single process-wide number cannot identify the function or dependency by itself."
+        ]
+      },
+      {
+        "id": "nodejs-performance-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as perf-demo.mjs. The controlled busy loop simulates blocking.",
+        "language": "javascript",
+        "code": "import { monitorEventLoopDelay, performance } from 'node:perf_hooks';\nimport { setTimeout as wait } from 'node:timers/promises';\n\nconst delay = monitorEventLoopDelay({ resolution: 10 });\ndelay.enable();\nawait wait(35);\nconst until = performance.now() + 50;\nwhile (performance.now() < until) { /* simulate CPU work */ }\nawait wait(35);\ndelay.disable();\nconsole.log('max delay ms:', Math.round(delay.max / 1e6));",
+        "explanation": "Profile at the same load where the symptom appears. A single process-wide number cannot identify the function or dependency by itself."
+      },
+      {
+        "id": "nodejs-performance-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "How do you tell an upstream dependency is slow when the event loop is healthy?",
+        "answer": "Compare request span duration to upstream phases and pool queue time. If expensive waiting is visible in upstream spans while event-loop delay and CPU are flat, investigate the dependency, connectivity, and resource pools.",
+        "explanation": "Profile at the same load where the symptom appears. A single process-wide number cannot identify the function or dependency by itself."
+      },
+      {
+        "id": "nodejs-performance-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Does a stable heapUsed value prove there is no growing memory footprint?",
+        "answer": "No. External allocations, retained Buffers, worker isolates, or allocator behavior can affect RSS without the same change to heapUsed.",
+        "hints": [
+          "Compare what heapUsed measures with what the process RSS includes."
+        ],
+        "explanation": "Profile at the same load where the symptom appears. A single process-wide number cannot identify the function or dependency by itself.\n\n[Further reading](https://nodejs.org/api/perf_hooks.html)"
+      },
+      {
+        "id": "nodejs-performance-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "After Excel exports, a pod's RSS rises but the heap appears stable. Where do you start?",
+        "answer": "Track RSS, external memory, arrayBuffers, concurrency, and export completion against a repeatable run. Check buffer retention and downstream backpressure. Use a memory or allocation profile appropriate to the suspected layer.",
+        "explanation": "Measure p95 and p99 request latency, loop delay, and memory over the same interval."
+      },
+      {
+        "id": "nodejs-performance-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Tuning flags before capturing metrics on a repeatable workload.",
+        "whyItHappens": "Changing runtime settings before measuring makes it hard to distinguish improvements from load variation.",
+        "correctApproach": "Measure p95 and p99 request latency, loop delay, and memory over the same interval."
+      },
+      {
+        "id": "nodejs-performance-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Measure p95 and p99 request latency, loop delay, and memory over the same interval.\n\nProfile at the same load where the symptom appears. A single process-wide number cannot identify the function or dependency by itself."
+      },
+      {
+        "id": "nodejs-performance-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Choose measurements that distinguish CPU stalls, leaks, and dependency latency. Compare request span duration to upstream phases and pool queue time. If expensive waiting is visible in upstream spans while event-loop delay and CPU are flat, investigate the dependency, connectivity, and resource pools.\n\n[Further reading](https://nodejs.org/api/perf_hooks.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-event-loop",
+      "nodejs-libuv-pool",
+      "nodejs-streams"
+    ]
+  },
+  {
+    "id": "nodejs-typescript",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-quality",
+    "title": "Running TypeScript and Checking Types",
+    "description": "Distinguish executing TypeScript files from checking their types.",
+    "difficulty": "intermediate",
+    "interviewPriority": "high",
+    "estimatedMinutes": 33,
+    "tags": [
+      "typescript",
+      "type-stripping",
+      "tsc",
+      "esm"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-typescript-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Running TypeScript and Checking Types",
+        "content": "Recent Node releases can execute TypeScript files using built-in type stripping for supported erasable syntax. That removes annotations before execution. It does not run the TypeScript checker or use tsconfig.json to transform syntax or resolve import aliases.\n\nUse a supported Node 24 environment for the example. Run tsc with noEmit in CI when relying on direct execution. Projects that need compiler transforms, bundling, declarations, or alias rewriting should explicitly choose a build or supported loader.",
+        "keyPoints": [
+          "Document one supported execution path and verify it together with the type check in CI.",
+          "Node infers the module format of TypeScript extensions using its runtime rules. Use .mts or .cts when explicitly required."
+        ]
+      },
+      {
+        "id": "nodejs-typescript-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Save as score.ts and run node score.ts on Node 24",
+        "language": "typescript",
+        "code": "type Score = { correct: number; total: number };\nconst percent = ({ correct, total }: Score): number =>\n  total > 0 ? Math.round((correct / total) * 100) : 0;\nconsole.log(percent({ correct: 7, total: 10 }));",
+        "explanation": "Node infers the module format of TypeScript extensions using its runtime rules. Use .mts or .cts when explicitly required."
+      },
+      {
+        "id": "nodejs-typescript-output-question",
+        "type": "output-question",
+        "order": 3,
+        "title": "Predict the output",
+        "question": "What value does score.ts print?",
+        "language": "typescript",
+        "code": "type Score = { correct: number; total: number };\nconst percent = ({ correct, total }: Score): number =>\n  total > 0 ? Math.round((correct / total) * 100) : 0;\nconsole.log(percent({ correct: 7, total: 10 }));",
+        "answer": "70",
+        "explanation": "The runtime erases the type annotations. The resulting JavaScript divides 7 by 10 and multiplies by 100."
+      },
+      {
+        "id": "nodejs-typescript-interview-question",
+        "type": "interview-question",
+        "order": 4,
+        "title": "Interview question",
+        "question": "When do you still need a TypeScript compiler or checker?",
+        "answer": "Use a checker to enforce type correctness. Use an appropriate build pipeline when you need emitted JavaScript, declarations, transform-dependent syntax, or bundle output.",
+        "explanation": "Node infers the module format of TypeScript extensions using its runtime rules. Use .mts or .cts when explicitly required."
+      },
+      {
+        "id": "nodejs-typescript-tricky-1",
+        "type": "tricky-question",
+        "order": 5,
+        "title": "Tricky question",
+        "question": "If node index.ts runs successfully, can CI assume the code type-checks?",
+        "answer": "No. Stripping annotations does not verify their correctness. Run tsc --noEmit or your project's type-checking command explicitly.",
+        "hints": [
+          "Separate runtime execution from static analysis."
+        ],
+        "explanation": "Node infers the module format of TypeScript extensions using its runtime rules. Use .mts or .cts when explicitly required.\n\n[Further reading](https://nodejs.org/api/typescript.html)"
+      },
+      {
+        "id": "nodejs-typescript-scenario-question",
+        "type": "scenario-question",
+        "order": 6,
+        "title": "Production scenario",
+        "question": "An Angular developer reuses a tsconfig path alias in a Node service and gets a module resolution error. What is the fix?",
+        "answer": "Choose a resolver that understands the project setup, use a Node-native package imports mapping where appropriate, or use explicit relative imports. Test the emitted or directly executable files in the same mode used in production.",
+        "explanation": "Document one supported execution path and verify it together with the type check in CI."
+      },
+      {
+        "id": "nodejs-typescript-common-mistake",
+        "type": "common-mistake",
+        "order": 7,
+        "title": "Common mistake",
+        "mistake": "Assuming Node's type stripping reads and applies every tsconfig option.",
+        "whyItHappens": "Type stripping is deliberately narrower than a TypeScript project build, so compile-time aliases or transformations may fail at runtime.",
+        "correctApproach": "Document one supported execution path and verify it together with the type check in CI."
+      },
+      {
+        "id": "nodejs-typescript-best-practice",
+        "type": "best-practice",
+        "order": 8,
+        "title": "Best practice",
+        "content": "Document one supported execution path and verify it together with the type check in CI.\n\nNode infers the module format of TypeScript extensions using its runtime rules. Use .mts or .cts when explicitly required."
+      },
+      {
+        "id": "nodejs-typescript-summary",
+        "type": "summary",
+        "order": 9,
+        "title": "Summary",
+        "content": "Distinguish executing TypeScript files from checking their types. Use a checker to enforce type correctness. Use an appropriate build pipeline when you need emitted JavaScript, declarations, transform-dependent syntax, or bundle output.\n\n[Further reading](https://nodejs.org/api/typescript.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-modules",
+      "nodejs-validation",
+      "nodejs-testing"
+    ]
+  },
+  {
+    "id": "nodejs-shutdown",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-production",
+    "title": "Graceful Shutdown, Readiness, and Live Traffic",
+    "description": "Drain ongoing requests and close dependencies within a bounded shutdown window.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 42,
+    "tags": [
+      "sigterm",
+      "shutdown",
+      "readiness",
+      "lifecycle"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-shutdown-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Graceful Shutdown, Readiness, and Live Traffic",
+        "content": "On SIGTERM, mark the replica unready, stop taking new work, and let ongoing operations finish within a grace period. An orchestrator may take time to route traffic away. Keep shutdown idempotent and coordinate this window with deployment settings.\n\nDrain HTTP requests before closing a database pool they still use. Track upgraded connections and background jobs separately when they have their own lifecycle. Keep a bounded force-close path so a stuck client cannot block deployment forever.",
+        "keyPoints": [
+          "Design shutdown in ownership order and test it under real traffic and stuck-client conditions.",
+          "The code handles the HTTP server only. In a deployed service, readiness, long-lived connections, jobs, and pools each need an explicit owner."
+        ]
+      },
+      {
+        "id": "nodejs-shutdown-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as shutdown.mjs and send SIGTERM to the process",
+        "language": "javascript",
+        "code": "import { createServer } from 'node:http';\n\nconst server = createServer((_req, res) => res.end('ok'));\nserver.listen(3000, '127.0.0.1');\nprocess.once('SIGTERM', () => {\n  const limit = setTimeout(() => server.closeAllConnections(), 5_000);\n  limit.unref();\n  server.close((error) => {\n    clearTimeout(limit);\n    if (error) process.exitCode = 1;\n  });\n});",
+        "explanation": "The code handles the HTTP server only. In a deployed service, readiness, long-lived connections, jobs, and pools each need an explicit owner."
+      },
+      {
+        "id": "nodejs-shutdown-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "What is the difference between readiness and liveness?",
+        "answer": "Readiness indicates whether traffic should be routed to the instance. Liveness indicates whether the process should be restarted. They can intentionally differ during startup or shutdown.",
+        "explanation": "The code handles the HTTP server only. In a deployed service, readiness, long-lived connections, jobs, and pools each need an explicit owner."
+      },
+      {
+        "id": "nodejs-shutdown-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Does adding a SIGTERM listener automatically stop acceptance or let requests drain?",
+        "answer": "No. The listener changes how the process responds to the signal. Application code must stop admission, await or bound outstanding work, and release owned resources.",
+        "hints": [
+          "A signal notifies the application. What code owns the server lifecycle?"
+        ],
+        "explanation": "The code handles the HTTP server only. In a deployed service, readiness, long-lived connections, jobs, and pools each need an explicit owner.\n\n[Further reading](https://nodejs.org/api/http.html#serverclosecallback)"
+      },
+      {
+        "id": "nodejs-shutdown-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "Deployments cut active downloads even with multiple replicas. What would you verify?",
+        "answer": "Verify readiness propagation and termination grace, test with an in-flight download during rollout, and measure how many responses complete. Align proxy and app limits, and consider resumable exports for actions longer than the grace window.",
+        "explanation": "Design shutdown in ownership order and test it under real traffic and stuck-client conditions."
+      },
+      {
+        "id": "nodejs-shutdown-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Calling process.exit immediately from the signal handler.",
+        "whyItHappens": "Immediate process termination prevents outstanding responses and cleanup from finishing.",
+        "correctApproach": "Design shutdown in ownership order and test it under real traffic and stuck-client conditions."
+      },
+      {
+        "id": "nodejs-shutdown-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Design shutdown in ownership order and test it under real traffic and stuck-client conditions.\n\nThe code handles the HTTP server only. In a deployed service, readiness, long-lived connections, jobs, and pools each need an explicit owner."
+      },
+      {
+        "id": "nodejs-shutdown-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Drain ongoing requests and close dependencies within a bounded shutdown window. Readiness indicates whether traffic should be routed to the instance. Liveness indicates whether the process should be restarted. They can intentionally differ during startup or shutdown.\n\n[Further reading](https://nodejs.org/api/http.html#serverclosecallback)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-http-server",
+      "nodejs-cancellation",
+      "nodejs-processes"
+    ]
+  },
+  {
+    "id": "nodejs-configuration",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-production",
+    "title": "Environment Configuration and Secret Handling",
+    "description": "Validate configuration at startup and make environment differences explicit.",
+    "difficulty": "beginner",
+    "interviewPriority": "high",
+    "estimatedMinutes": 25,
+    "tags": [
+      "configuration",
+      "env",
+      "process-env",
+      "secrets"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-configuration-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Environment Configuration and Secret Handling",
+        "content": "Environment variables are text values. Parse booleans explicitly, check numeric bounds, and report missing required configuration at startup. Keep environment access in one module so tests and consumers receive typed settings.\n\nNode can load an env file through supported CLI options. Production configuration is typically injected by the deployment environment. Store secrets securely and keep them out of logs, fixture snapshots, and source control. Define precedence and test it.",
+        "keyPoints": [
+          "Validate types and bounds once, and expose only nonsecret configuration when diagnosing startup.",
+          "An invalid supplied setting should fail startup. The default is for absent values only."
+        ]
+      },
+      {
+        "id": "nodejs-configuration-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as configuration.mjs",
+        "language": "javascript",
+        "code": "function loadConfig(env) {\n  const portText = env.PORT ?? '3000';\n  if (!/^\\d{1,5}$/.test(portText) || Number(portText) < 1 || Number(portText) > 65535) {\n    throw new Error('PORT must be an integer from 1 to 65535');\n  }\n  const featureText = env.FEATURE_REPORTS ?? 'false';\n  if (!['true', 'false'].includes(featureText)) throw new Error('FEATURE_REPORTS must be true or false');\n  return { port: Number(portText), reports: featureText === 'true' };\n}\nconsole.log(loadConfig({ PORT: '4001', FEATURE_REPORTS: 'false' }));",
+        "explanation": "An invalid supplied setting should fail startup. The default is for absent values only."
+      },
+      {
+        "id": "nodejs-configuration-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "Why validate configuration during startup?",
+        "answer": "A configuration error can be detected before becoming a production request failure. A startup failure with a safe message gives operators a concrete signal and keeps readiness accurate.",
+        "explanation": "An invalid supplied setting should fail startup. The default is for absent values only."
+      },
+      {
+        "id": "nodejs-configuration-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "Is Boolean(process.env.FEATURE_REPORTS) false when the configured value is the string false?",
+        "answer": "No. A nonempty string is truthy. Compare against documented allowed values, and decide how absent or invalid values are handled.",
+        "hints": [
+          "Apply JavaScript truthiness to the actual type returned by process.env."
+        ],
+        "explanation": "An invalid supplied setting should fail startup. The default is for absent values only.\n\n[Further reading](https://nodejs.org/api/environment_variables.html)"
+      },
+      {
+        "id": "nodejs-configuration-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "A flag enables reports in test and unexpectedly in production despite being set to false. What do you change?",
+        "answer": "Centralize typed parsing, test absent and malformed values, and log a safe startup inventory of feature states. Roll out the fix with an explicit regression test.",
+        "explanation": "Validate types and bounds once, and expose only nonsecret configuration when diagnosing startup."
+      },
+      {
+        "id": "nodejs-configuration-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Printing the entire environment while debugging deployment differences.",
+        "whyItHappens": "An environment dump can expose credentials or service tokens to people with log access.",
+        "correctApproach": "Validate types and bounds once, and expose only nonsecret configuration when diagnosing startup."
+      },
+      {
+        "id": "nodejs-configuration-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Validate types and bounds once, and expose only nonsecret configuration when diagnosing startup.\n\nAn invalid supplied setting should fail startup. The default is for absent values only."
+      },
+      {
+        "id": "nodejs-configuration-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Validate configuration at startup and make environment differences explicit. A configuration error can be detected before becoming a production request failure. A startup failure with a safe message gives operators a concrete signal and keeps readiness accurate.\n\n[Further reading](https://nodejs.org/api/environment_variables.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-dependencies",
+      "nodejs-shutdown",
+      "nodejs-authorization"
+    ]
+  },
+  {
+    "id": "nodejs-authorization",
+    "subjectId": "nodejs",
+    "categoryId": "nodejs-production",
+    "title": "Server-Side Authorization for Multi-Tenant APIs",
+    "description": "Enforce identity and tenant-level permissions in the Node API.",
+    "difficulty": "advanced",
+    "interviewPriority": "must-know",
+    "estimatedMinutes": 43,
+    "tags": [
+      "authorization",
+      "multi-tenant",
+      "angular",
+      "access-control"
+    ],
+    "blocks": [
+      {
+        "id": "nodejs-authorization-concept",
+        "type": "concept",
+        "order": 1,
+        "title": "Server-Side Authorization for Multi-Tenant APIs",
+        "content": "Authentication establishes a verified identity. Authorization decides whether that identity can act on a resource. Apply those decisions on the server, with membership and policy data trusted by the server. Angular route guards and menu visibility support the user experience.\n\nScope reads and writes to verified tenant or account context. Avoid building a shared cache keyed only by resource ID for tenant-scoped content. For work that runs later, define which authorization must be rechecked before execution or delivery.",
+        "keyPoints": [
+          "Keep authorization policy testable and cover cross-tenant, revoked-access, and stale-cache cases.",
+          "Make allow and deny behavior explicit for each resource action, including downloads and jobs that execute later."
+        ]
+      },
+      {
+        "id": "nodejs-authorization-code-example",
+        "type": "code-example",
+        "order": 2,
+        "title": "Run as tenant-policy.mjs. The principal represents claims already verified by authentication middleware.",
+        "language": "javascript",
+        "code": "const canReadExport = (principal, item) => (\n  principal.accountId === item.accountId && principal.permissions.includes('exports:read')\n);\nconst principal = { accountId: 'fleet-a', permissions: ['exports:read'] };\nconsole.log(canReadExport(principal, { accountId: 'fleet-a' }));\nconsole.log(canReadExport(principal, { accountId: 'fleet-b' }));",
+        "explanation": "Make allow and deny behavior explicit for each resource action, including downloads and jobs that execute later."
+      },
+      {
+        "id": "nodejs-authorization-interview-question",
+        "type": "interview-question",
+        "order": 3,
+        "title": "Interview question",
+        "question": "Where should resource ownership be enforced?",
+        "answer": "At the API's access boundary and, where possible, also in scoped data queries. Every transport or task entry point that can access the resource needs a consistent policy.",
+        "explanation": "Make allow and deny behavior explicit for each resource action, including downloads and jobs that execute later."
+      },
+      {
+        "id": "nodejs-authorization-tricky-1",
+        "type": "tricky-question",
+        "order": 4,
+        "title": "Tricky question",
+        "question": "If a request carries a valid identity token, is it authorized for every resource belonging to the user's organization?",
+        "answer": "No. Authentication and resource authorization are separate. Verify tenant scope, permissions, and resource-specific rules on the server for the operation in question.",
+        "hints": [
+          "Separate proof of identity from permission to act."
+        ],
+        "explanation": "Make allow and deny behavior explicit for each resource action, including downloads and jobs that execute later.\n\n[Further reading](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)"
+      },
+      {
+        "id": "nodejs-authorization-scenario-question",
+        "type": "scenario-question",
+        "order": 5,
+        "title": "Production scenario",
+        "question": "An authorized manager schedules a report and loses that access before download. What behavior would you design?",
+        "answer": "Record ownership and policy context for the job, then enforce the current download policy when serving the artifact. Decide deliberately whether long-running work should also be cancelled or rechecked if entitlement is withdrawn.",
+        "explanation": "Keep authorization policy testable and cover cross-tenant, revoked-access, and stale-cache cases."
+      },
+      {
+        "id": "nodejs-authorization-common-mistake",
+        "type": "common-mistake",
+        "order": 6,
+        "title": "Common mistake",
+        "mistake": "Trusting tenant identifiers supplied by the browser as proof of membership.",
+        "whyItHappens": "The client can supply any account identifier. Trusted authentication and server policy determine whether it can access that account.",
+        "correctApproach": "Keep authorization policy testable and cover cross-tenant, revoked-access, and stale-cache cases."
+      },
+      {
+        "id": "nodejs-authorization-best-practice",
+        "type": "best-practice",
+        "order": 7,
+        "title": "Best practice",
+        "content": "Keep authorization policy testable and cover cross-tenant, revoked-access, and stale-cache cases.\n\nMake allow and deny behavior explicit for each resource action, including downloads and jobs that execute later."
+      },
+      {
+        "id": "nodejs-authorization-summary",
+        "type": "summary",
+        "order": 8,
+        "title": "Summary",
+        "content": "Enforce identity and tenant-level permissions in the Node API. At the API's access boundary and, where possible, also in scoped data queries. Every transport or task entry point that can access the resource needs a consistent policy.\n\n[Further reading](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)"
+      }
+    ],
+    "relatedTopicIds": [
+      "nodejs-validation",
+      "nodejs-caching",
+      "nodejs-bff"
+    ]
+  }
+]

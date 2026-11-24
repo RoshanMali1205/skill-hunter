@@ -7229,5 +7229,506 @@
         ]
       }
     ]
+  },
+  {
+    "id": "nodejs",
+    "title": "Node.js",
+    "description": "Node.js interview prep from runtime fundamentals through production services, including async I/O, streams, Express, TypeScript, Angular-facing APIs, PostgreSQL transactions, worker threads, and observability.",
+    "icon": "code",
+    "order": 9,
+    "categories": [
+      {
+        "id": "nodejs-runtime",
+        "subjectId": "nodejs",
+        "title": "Runtime and Tooling",
+        "description": "Execution model, scheduling, modules, and dependency installation.",
+        "order": 1,
+        "topics": [
+          {
+            "id": "nodejs-runtime-model",
+            "categoryId": "nodejs-runtime",
+            "title": "How the Node.js Runtime Works",
+            "description": "Explain what V8, libuv, the operating system, and the JavaScript thread each do.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 24,
+            "tags": [
+              "runtime",
+              "v8",
+              "libuv",
+              "non-blocking-io"
+            ]
+          },
+          {
+            "id": "nodejs-event-loop",
+            "categoryId": "nodejs-runtime",
+            "title": "Event Loop, Microtasks, and Timers",
+            "description": "Predict execution order within a known context and explain timer delays and starvation.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 38,
+            "tags": [
+              "event-loop",
+              "microtasks",
+              "timers",
+              "nexttick"
+            ]
+          },
+          {
+            "id": "nodejs-modules",
+            "categoryId": "nodejs-runtime",
+            "title": "ES Modules, CommonJS, and Package Exports",
+            "description": "Choose a module format explicitly and design a stable package entry point.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "esm",
+              "commonjs",
+              "package-json",
+              "exports"
+            ]
+          },
+          {
+            "id": "nodejs-dependencies",
+            "categoryId": "nodejs-runtime",
+            "title": "npm Lockfiles and Reproducible Installs",
+            "description": "Explain dependency ranges, lockfiles, and predictable CI installs.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 26,
+            "tags": [
+              "npm",
+              "lockfile",
+              "semver",
+              "ci"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-async",
+        "subjectId": "nodejs",
+        "title": "Asynchronous Programming",
+        "description": "Promises, events, cancellation, and concurrency limits.",
+        "order": 2,
+        "topics": [
+          {
+            "id": "nodejs-async-errors",
+            "categoryId": "nodejs-async",
+            "title": "Promises, Async Errors, and Concurrency Limits",
+            "description": "Handle rejected promises, distinguish batch failure policies, and bound fan-out.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 34,
+            "tags": [
+              "promises",
+              "concurrency",
+              "errors",
+              "async-await"
+            ]
+          },
+          {
+            "id": "nodejs-event-emitter",
+            "categoryId": "nodejs-async",
+            "title": "EventEmitter and Listener Lifecycle",
+            "description": "Use synchronous event dispatch and manage listener ownership.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 26,
+            "tags": [
+              "events",
+              "event-emitter",
+              "listeners",
+              "cleanup"
+            ]
+          },
+          {
+            "id": "nodejs-cancellation",
+            "categoryId": "nodejs-async",
+            "title": "AbortSignal, Deadlines, and Cancellation",
+            "description": "Propagate request deadlines into asynchronous dependencies.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 32,
+            "tags": [
+              "abortsignal",
+              "fetch",
+              "timeouts",
+              "deadlines"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-io",
+        "subjectId": "nodejs",
+        "title": "Files, Buffers, and Streams",
+        "description": "Filesystem access, binary data, and bounded streaming.",
+        "order": 3,
+        "topics": [
+          {
+            "id": "nodejs-fs",
+            "categoryId": "nodejs-io",
+            "title": "File I/O, Paths, and Resource Ownership",
+            "description": "Read files reliably from modules and close handles on every path.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "filesystem",
+              "paths",
+              "filehandle",
+              "esm"
+            ]
+          },
+          {
+            "id": "nodejs-buffers",
+            "categoryId": "nodejs-io",
+            "title": "Buffers, Encodings, and Shared Memory",
+            "description": "Distinguish byte length from string length and copy from view.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 29,
+            "tags": [
+              "buffer",
+              "utf-8",
+              "bytes",
+              "encoding"
+            ]
+          },
+          {
+            "id": "nodejs-streams",
+            "categoryId": "nodejs-io",
+            "title": "Streams, Pipeline, and Backpressure",
+            "description": "Compose readable, transform, and writable streams with bounded buffering.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "streams",
+              "backpressure",
+              "pipeline",
+              "transform"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-http",
+        "subjectId": "nodejs",
+        "title": "HTTP Services and Frameworks",
+        "description": "HTTP lifecycle, Express middleware, runtime validation, and Angular-facing aggregation.",
+        "order": 4,
+        "topics": [
+          {
+            "id": "nodejs-http-server",
+            "categoryId": "nodejs-http",
+            "title": "HTTP Request Lifecycle and JSON Responses",
+            "description": "Build a small HTTP handler and reason about headers, body, and completion.",
+            "difficulty": "beginner",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 32,
+            "tags": [
+              "http",
+              "request",
+              "response",
+              "status-codes"
+            ]
+          },
+          {
+            "id": "nodejs-validation",
+            "categoryId": "nodejs-http",
+            "title": "Runtime Validation and API Error Contracts",
+            "description": "Validate unknown input and return a predictable error contract to Angular clients.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 38,
+            "tags": [
+              "runtime-validation",
+              "http",
+              "problem-details",
+              "typescript"
+            ]
+          },
+          {
+            "id": "nodejs-bff",
+            "categoryId": "nodejs-http",
+            "title": "Angular Backend for Frontend and Partial Failure",
+            "description": "Design an Angular-facing aggregation endpoint with explicit dependency budgets.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "bff",
+              "angular",
+              "fetch",
+              "aggregation"
+            ]
+          },
+          {
+            "id": "nodejs-express-middleware",
+            "categoryId": "nodejs-http",
+            "title": "Express Middleware and Error Handling",
+            "description": "Compose middleware in request order and handle errors consistently in Express 5.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 38,
+            "tags": [
+              "express",
+              "middleware",
+              "routing",
+              "error-handling"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-data",
+        "subjectId": "nodejs",
+        "title": "Data and Background Work",
+        "description": "Transactions, idempotency, queues, and cache design.",
+        "order": 5,
+        "topics": [
+          {
+            "id": "nodejs-transactions",
+            "categoryId": "nodejs-data",
+            "title": "Database Pools and Transaction Boundaries",
+            "description": "Tie related writes to one transaction and size database concurrency deliberately.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 43,
+            "tags": [
+              "postgresql",
+              "transactions",
+              "pooling",
+              "sql"
+            ]
+          },
+          {
+            "id": "nodejs-idempotency",
+            "categoryId": "nodejs-data",
+            "title": "Idempotent Writes and Safe Retries",
+            "description": "Design writes that tolerate an ambiguous response or a repeated request.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 42,
+            "tags": [
+              "idempotency",
+              "retries",
+              "unique-constraints",
+              "api-design"
+            ]
+          },
+          {
+            "id": "nodejs-queues",
+            "categoryId": "nodejs-data",
+            "title": "Background Jobs, Queues, and the Transactional Outbox",
+            "description": "Move long-running work out of requests and reason about duplicate delivery.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "queues",
+              "outbox",
+              "background-jobs",
+              "retries"
+            ]
+          },
+          {
+            "id": "nodejs-caching",
+            "categoryId": "nodejs-data",
+            "title": "Caching, Cache Keys, and Concurrent Misses",
+            "description": "Design cache policy around identity, expiry, and load bursts.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 39,
+            "tags": [
+              "cache",
+              "ttl",
+              "single-flight",
+              "stale-data"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-concurrency",
+        "subjectId": "nodejs",
+        "title": "Parallelism and Process Boundaries",
+        "description": "Worker threads, child processes, and libuv pool contention.",
+        "order": 6,
+        "topics": [
+          {
+            "id": "nodejs-workers",
+            "categoryId": "nodejs-concurrency",
+            "title": "Worker Threads and Transferable Data",
+            "description": "Offload independent CPU-heavy work and choose a data-transfer strategy.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 46,
+            "tags": [
+              "workers",
+              "cpu",
+              "structured-clone",
+              "transferable"
+            ]
+          },
+          {
+            "id": "nodejs-processes",
+            "categoryId": "nodejs-concurrency",
+            "title": "Child Processes, IPC, and Isolation",
+            "description": "Choose an execution boundary and handle child process completion reliably.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "child-process",
+              "spawn",
+              "ipc",
+              "process-isolation"
+            ]
+          },
+          {
+            "id": "nodejs-libuv-pool",
+            "categoryId": "nodejs-concurrency",
+            "title": "libuv Thread Pool Contention",
+            "description": "Identify pool-backed work and separate thread-pool delay from a blocked event loop.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 42,
+            "tags": [
+              "libuv",
+              "thread-pool",
+              "crypto",
+              "profiling"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-quality",
+        "subjectId": "nodejs",
+        "title": "Testing, TypeScript, and Observability",
+        "description": "HTTP integration tests, type checking, request tracing, and performance diagnostics.",
+        "order": 7,
+        "topics": [
+          {
+            "id": "nodejs-testing",
+            "categoryId": "nodejs-quality",
+            "title": "Node Test Runner, HTTP Tests, and Isolation",
+            "description": "Write deterministic unit and HTTP tests with clear resource ownership.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 37,
+            "tags": [
+              "node-test",
+              "assert",
+              "test-isolation",
+              "http-tests"
+            ]
+          },
+          {
+            "id": "nodejs-request-context",
+            "categoryId": "nodejs-quality",
+            "title": "Request Context with AsyncLocalStorage",
+            "description": "Correlate asynchronous work without a mutable global request ID.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 35,
+            "tags": [
+              "asynclocalstorage",
+              "tracing",
+              "logging",
+              "request-id"
+            ]
+          },
+          {
+            "id": "nodejs-performance",
+            "categoryId": "nodejs-quality",
+            "title": "Event-Loop Metrics, CPU Profiles, and Memory",
+            "description": "Choose measurements that distinguish CPU stalls, leaks, and dependency latency.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 44,
+            "tags": [
+              "perf-hooks",
+              "event-loop-delay",
+              "profiling",
+              "memory"
+            ]
+          },
+          {
+            "id": "nodejs-typescript",
+            "categoryId": "nodejs-quality",
+            "title": "Running TypeScript and Checking Types",
+            "description": "Distinguish executing TypeScript files from checking their types.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 33,
+            "tags": [
+              "typescript",
+              "type-stripping",
+              "tsc",
+              "esm"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nodejs-production",
+        "subjectId": "nodejs",
+        "title": "Production Engineering",
+        "description": "Graceful shutdown, environment configuration, and tenant authorization.",
+        "order": 8,
+        "topics": [
+          {
+            "id": "nodejs-shutdown",
+            "categoryId": "nodejs-production",
+            "title": "Graceful Shutdown, Readiness, and Live Traffic",
+            "description": "Drain ongoing requests and close dependencies within a bounded shutdown window.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 42,
+            "tags": [
+              "sigterm",
+              "shutdown",
+              "readiness",
+              "lifecycle"
+            ]
+          },
+          {
+            "id": "nodejs-configuration",
+            "categoryId": "nodejs-production",
+            "title": "Environment Configuration and Secret Handling",
+            "description": "Validate configuration at startup and make environment differences explicit.",
+            "difficulty": "beginner",
+            "interviewPriority": "high",
+            "estimatedMinutes": 25,
+            "tags": [
+              "configuration",
+              "env",
+              "process-env",
+              "secrets"
+            ]
+          },
+          {
+            "id": "nodejs-authorization",
+            "categoryId": "nodejs-production",
+            "title": "Server-Side Authorization for Multi-Tenant APIs",
+            "description": "Enforce identity and tenant-level permissions in the Node API.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 43,
+            "tags": [
+              "authorization",
+              "multi-tenant",
+              "angular",
+              "access-control"
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]
