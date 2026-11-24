@@ -6554,5 +6554,844 @@
         ]
       }
     ]
+  },
+  {
+    "id": "react",
+    "title": "React",
+    "description": "React 19.3 interview prep: rendering model, hooks in depth, React Compiler, concurrent rendering, Actions and useOptimistic, use(), Activity and ViewTransition, state management, Server Components, testing, and senior architecture scenarios.",
+    "icon": "react",
+    "order": 8,
+    "categories": [
+      {
+        "id": "react-fundamentals",
+        "subjectId": "react",
+        "title": "React Fundamentals",
+        "description": "JSX, components and props, state, rendering lists with keys, events, forms, and composition.",
+        "order": 1,
+        "topics": [
+          {
+            "id": "react-jsx-rendering-model",
+            "categoryId": "react-fundamentals",
+            "title": "JSX and the Rendering Model",
+            "description": "What JSX compiles to, render vs commit phases, purity, StrictMode double rendering, and why React re-renders.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "jsx",
+              "render-phase",
+              "commit-phase",
+              "purity",
+              "strict-mode"
+            ]
+          },
+          {
+            "id": "react-components-props",
+            "categoryId": "react-fundamentals",
+            "title": "Components, Props, and Composition",
+            "description": "Props as read-only inputs, children and slot patterns, prop drilling, compound components, and ref as a prop in React 19.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "components",
+              "props",
+              "children",
+              "composition",
+              "compound-components",
+              "ref-as-prop"
+            ]
+          },
+          {
+            "id": "react-state-usestate",
+            "categoryId": "react-fundamentals",
+            "title": "State and useState",
+            "description": "State as a snapshot, batching, functional updates, immutable updates, lazy initialisers, and structuring state.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 50,
+            "tags": [
+              "usestate",
+              "state",
+              "batching",
+              "immutability",
+              "snapshot"
+            ]
+          },
+          {
+            "id": "react-lists-keys-reconciliation",
+            "categoryId": "react-fundamentals",
+            "title": "Lists, Keys, and Reconciliation",
+            "description": "How keys drive identity, why index keys break state, preserving vs resetting state, and the reconciliation heuristics.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "keys",
+              "lists",
+              "reconciliation",
+              "identity",
+              "diffing"
+            ]
+          },
+          {
+            "id": "react-events-forms",
+            "categoryId": "react-fundamentals",
+            "title": "Events and Forms",
+            "description": "Synthetic events, delegation at the root, controlled vs uncontrolled inputs, and form libraries with schema validation.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 45,
+            "tags": [
+              "events",
+              "forms",
+              "controlled",
+              "uncontrolled",
+              "react-hook-form",
+              "validation"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "react-hooks",
+        "subjectId": "react",
+        "title": "Hooks in Depth",
+        "description": "useEffect and useEffectEvent, refs, memoisation hooks, useReducer, context, custom hooks, and the rules of hooks.",
+        "order": 2,
+        "topics": [
+          {
+            "id": "react-useeffect",
+            "categoryId": "react-hooks",
+            "title": "useEffect and Synchronisation",
+            "description": "Effects as synchronisation with external systems, dependencies, cleanup, race conditions, useEffectEvent, and when you do not need an effect.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 60,
+            "tags": [
+              "useeffect",
+              "cleanup",
+              "dependencies",
+              "race-conditions",
+              "useeffectevent"
+            ]
+          },
+          {
+            "id": "react-useref-refs",
+            "categoryId": "react-hooks",
+            "title": "useRef, Refs, and the DOM",
+            "description": "Refs as mutable boxes, DOM access, ref callbacks with cleanup, ref as a prop, useImperativeHandle, and fragment refs.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 40,
+            "tags": [
+              "useref",
+              "refs",
+              "dom",
+              "useimperativehandle",
+              "ref-callback"
+            ]
+          },
+          {
+            "id": "react-usememo-usecallback",
+            "categoryId": "react-hooks",
+            "title": "useMemo and useCallback",
+            "description": "Memoising values and functions, referential stability, when memoisation helps or hurts, and how the React Compiler changes the picture.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "usememo",
+              "usecallback",
+              "memoization",
+              "referential-equality",
+              "performance"
+            ]
+          },
+          {
+            "id": "react-usereducer",
+            "categoryId": "react-hooks",
+            "title": "useReducer and State Machines",
+            "description": "Reducers for complex state transitions, action design, discriminated unions, testing reducers, and reducer + context.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 40,
+            "tags": [
+              "usereducer",
+              "reducer",
+              "state-machine",
+              "actions",
+              "discriminated-unions"
+            ]
+          },
+          {
+            "id": "react-context",
+            "categoryId": "react-hooks",
+            "title": "Context and Dependency Sharing",
+            "description": "createContext, providers, use(), re-render behaviour, splitting contexts, and when context is the wrong tool.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "context",
+              "use",
+              "provider",
+              "prop-drilling",
+              "re-renders"
+            ]
+          },
+          {
+            "id": "react-custom-hooks-rules",
+            "categoryId": "react-hooks",
+            "title": "Custom Hooks and the Rules of Hooks",
+            "description": "Extracting reusable logic, naming, the Rules of Hooks and why they exist, and designing hook APIs.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 40,
+            "tags": [
+              "custom-hooks",
+              "rules-of-hooks",
+              "reuse",
+              "hook-design"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "react-rendering-performance",
+        "subjectId": "react",
+        "title": "Rendering and Performance",
+        "description": "React.memo, the React Compiler, concurrent rendering with transitions, Suspense and code splitting, profiling, and virtualisation.",
+        "order": 3,
+        "topics": [
+          {
+            "id": "react-memo-rerenders",
+            "categoryId": "react-rendering-performance",
+            "title": "React.memo and Avoiding Wasted Renders",
+            "description": "How memo works, shallow comparison, custom comparators, state colocation, and structural fixes that beat memoisation.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "memo",
+              "re-renders",
+              "colocation",
+              "shallow-compare",
+              "performance"
+            ]
+          },
+          {
+            "id": "react-compiler",
+            "categoryId": "react-rendering-performance",
+            "title": "React Compiler",
+            "description": "What the React Compiler does, Rules of React requirements, incremental adoption, opting out, and debugging compiled output.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 40,
+            "tags": [
+              "react-compiler",
+              "auto-memoization",
+              "rules-of-react",
+              "babel",
+              "adoption"
+            ]
+          },
+          {
+            "id": "react-concurrent-transitions",
+            "categoryId": "react-rendering-performance",
+            "title": "Concurrent Rendering: useTransition and useDeferredValue",
+            "description": "Urgent vs non-urgent updates, startTransition, isPending, useDeferredValue, and interruptible rendering.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 50,
+            "tags": [
+              "concurrent",
+              "usetransition",
+              "usedeferredvalue",
+              "starttransition",
+              "inp"
+            ]
+          },
+          {
+            "id": "react-suspense-lazy",
+            "categoryId": "react-rendering-performance",
+            "title": "Suspense, lazy, and Code Splitting",
+            "description": "Suspense boundaries, React.lazy, fallback placement, nested boundaries, preloading, and error handling.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "suspense",
+              "lazy",
+              "code-splitting",
+              "fallback",
+              "preloading"
+            ]
+          },
+          {
+            "id": "react-profiling-virtualization",
+            "categoryId": "react-rendering-performance",
+            "title": "Profiling, Virtualisation, and Web Vitals",
+            "description": "React DevTools Profiler, Performance Tracks, INP, long lists with virtualisation, and bundle analysis.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 45,
+            "tags": [
+              "profiler",
+              "virtualization",
+              "web-vitals",
+              "inp",
+              "bundle-size"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "react-19-modern-apis",
+        "subjectId": "react",
+        "title": "React 19 Modern APIs",
+        "description": "Actions, useActionState, useFormStatus, useOptimistic, use(), Activity, ViewTransition, fragment refs, and document metadata.",
+        "order": 4,
+        "topics": [
+          {
+            "id": "react-actions-useactionstate",
+            "categoryId": "react-19-modern-apis",
+            "title": "Actions, useActionState, and useFormStatus",
+            "description": "Async transitions as Actions, form actions, useActionState for results and pending state, and useFormStatus for design-system buttons.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 50,
+            "tags": [
+              "actions",
+              "useactionstate",
+              "useformstatus",
+              "forms",
+              "react-19"
+            ]
+          },
+          {
+            "id": "react-useoptimistic",
+            "categoryId": "react-19-modern-apis",
+            "title": "useOptimistic and Optimistic UI",
+            "description": "Showing the expected result immediately, reconciling with the server, rollback on failure, and when optimism is unsafe.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 40,
+            "tags": [
+              "useoptimistic",
+              "optimistic-ui",
+              "actions",
+              "rollback"
+            ]
+          },
+          {
+            "id": "react-use-api",
+            "categoryId": "react-19-modern-apis",
+            "title": "The use() API",
+            "description": "Reading promises and context with use, conditional usage, caching promises, Suspense integration, and pitfalls.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 40,
+            "tags": [
+              "use",
+              "promises",
+              "suspense",
+              "context",
+              "react-19"
+            ]
+          },
+          {
+            "id": "react-activity",
+            "categoryId": "react-19-modern-apis",
+            "title": "Activity: Hiding Without Unmounting",
+            "description": "The Activity component (React 19.2), visible vs hidden modes, preserving state, pre-rendering, and effect behaviour.",
+            "difficulty": "advanced",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 35,
+            "tags": [
+              "activity",
+              "react-19-2",
+              "pre-rendering",
+              "state-preservation"
+            ]
+          },
+          {
+            "id": "react-view-transitions",
+            "categoryId": "react-19-modern-apis",
+            "title": "ViewTransition and Fragment Refs (React 19.3)",
+            "description": "Animating UI changes with <ViewTransition>, addTransitionType, shared element transitions, and FragmentInstance APIs.",
+            "difficulty": "advanced",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 35,
+            "tags": [
+              "viewtransition",
+              "animations",
+              "fragment-refs",
+              "react-19-3",
+              "addtransitiontype"
+            ]
+          },
+          {
+            "id": "react-metadata-resources",
+            "categoryId": "react-19-modern-apis",
+            "title": "Document Metadata, Stylesheets, and Resource Preloading",
+            "description": "Native <title>/<meta> support, stylesheet precedence, async scripts, preload/preinit APIs, and SEO implications.",
+            "difficulty": "intermediate",
+            "interviewPriority": "medium",
+            "estimatedMinutes": 30,
+            "tags": [
+              "metadata",
+              "seo",
+              "preload",
+              "stylesheets",
+              "react-19"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "react-state-management",
+        "subjectId": "react",
+        "title": "State Management",
+        "description": "Client state stores (Redux Toolkit, Zustand, Jotai), useSyncExternalStore, server state with TanStack Query, and URL state.",
+        "order": 5,
+        "topics": [
+          {
+            "id": "react-client-state-libraries",
+            "categoryId": "react-state-management",
+            "title": "Client State: Redux Toolkit, Zustand, and Jotai",
+            "description": "Choosing a client state approach, store design, selectors, middleware, and avoiding the 'everything global' trap.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 55,
+            "tags": [
+              "redux-toolkit",
+              "zustand",
+              "jotai",
+              "selectors",
+              "state-architecture"
+            ]
+          },
+          {
+            "id": "react-usesyncexternalstore",
+            "categoryId": "react-state-management",
+            "title": "useSyncExternalStore and External Stores",
+            "description": "Subscribing to external mutable sources safely under concurrent rendering, tearing, snapshots, and SSR snapshots.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 40,
+            "tags": [
+              "usesyncexternalstore",
+              "tearing",
+              "external-store",
+              "subscriptions"
+            ]
+          },
+          {
+            "id": "react-server-state-tanstack-query",
+            "categoryId": "react-state-management",
+            "title": "Server State with TanStack Query",
+            "description": "Query keys, caching and staleness, invalidation, mutations, optimistic updates, Suspense mode, and prefetching.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 55,
+            "tags": [
+              "tanstack-query",
+              "server-state",
+              "caching",
+              "invalidation",
+              "mutations"
+            ]
+          },
+          {
+            "id": "react-url-state",
+            "categoryId": "react-state-management",
+            "title": "URL as State",
+            "description": "Search params for filters and pagination, typed parsing, history behaviour, and syncing URL with UI.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 30,
+            "tags": [
+              "url-state",
+              "search-params",
+              "routing",
+              "shareable-state"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "react-routing-data",
+        "subjectId": "react",
+        "title": "Routing, Data Loading, and Errors",
+        "description": "React Router data APIs, data-fetching patterns and waterfalls, race conditions, and Error Boundaries.",
+        "order": 6,
+        "topics": [
+          {
+            "id": "react-router-data",
+            "categoryId": "react-routing-data",
+            "title": "React Router: Nested Routes, Loaders, and Actions",
+            "description": "Nested layouts, data routers, loaders and actions, pending UI, lazy routes, and protecting routes.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 50,
+            "tags": [
+              "react-router",
+              "routing",
+              "loaders",
+              "actions",
+              "nested-routes"
+            ]
+          },
+          {
+            "id": "react-data-fetching",
+            "categoryId": "react-routing-data",
+            "title": "Data-Fetching Patterns, Waterfalls, and Race Conditions",
+            "description": "Fetch-on-render vs render-as-you-fetch, parallel requests, aborting, deduplication, and where fetching should live.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "data-fetching",
+              "waterfalls",
+              "race-conditions",
+              "abortcontroller",
+              "render-as-you-fetch"
+            ]
+          },
+          {
+            "id": "react-error-boundaries",
+            "categoryId": "react-routing-data",
+            "title": "Error Boundaries and Resilience",
+            "description": "What error boundaries catch, placement strategy, reset patterns, React 19 root error callbacks, and reporting.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 40,
+            "tags": [
+              "error-boundaries",
+              "resilience",
+              "error-handling",
+              "onCaughtError",
+              "monitoring"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "react-server-rendering",
+        "subjectId": "react",
+        "title": "Server Rendering and Server Components",
+        "description": "SSR, streaming, and hydration; React Server Components; Server Functions; and Next.js App Router architecture.",
+        "order": 7,
+        "topics": [
+          {
+            "id": "react-ssr-hydration",
+            "categoryId": "react-server-rendering",
+            "title": "SSR, Streaming, and Hydration",
+            "description": "Rendering strategies (CSR, SSR, SSG, ISR), streaming with Suspense, selective hydration, and hydration mismatches.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 50,
+            "tags": [
+              "ssr",
+              "hydration",
+              "streaming",
+              "hydration-mismatch",
+              "rendering-strategies"
+            ]
+          },
+          {
+            "id": "react-server-components",
+            "categoryId": "react-server-rendering",
+            "title": "React Server Components",
+            "description": "Server vs Client Components, the 'use client' boundary, serialisable props, composition patterns, and bundle impact.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 55,
+            "tags": [
+              "rsc",
+              "server-components",
+              "use-client",
+              "bundle-size",
+              "serialization"
+            ]
+          },
+          {
+            "id": "react-server-functions",
+            "categoryId": "react-server-rendering",
+            "title": "Server Functions ('use server')",
+            "description": "Defining Server Functions, calling them from forms and Client Components, security, validation, and revalidation.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 45,
+            "tags": [
+              "server-functions",
+              "use-server",
+              "server-actions",
+              "security",
+              "progressive-enhancement"
+            ]
+          },
+          {
+            "id": "react-nextjs-app-router",
+            "categoryId": "react-server-rendering",
+            "title": "Next.js App Router Architecture",
+            "description": "Layouts, loading and error files, caching and revalidation, route handlers, middleware/proxy, and deployment considerations.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 50,
+            "tags": [
+              "nextjs",
+              "app-router",
+              "caching",
+              "layouts",
+              "revalidation"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "react-testing-quality",
+        "subjectId": "react",
+        "title": "Testing, TypeScript, and Quality",
+        "description": "React Testing Library, async and network testing with MSW, TypeScript patterns for React, and accessibility.",
+        "order": 8,
+        "topics": [
+          {
+            "id": "react-testing-library",
+            "categoryId": "react-testing-quality",
+            "title": "Testing Components with React Testing Library",
+            "description": "Testing behaviour not implementation, query priorities, user-event, testing hooks, and the testing pyramid for React.",
+            "difficulty": "intermediate",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 45,
+            "tags": [
+              "testing",
+              "react-testing-library",
+              "user-event",
+              "vitest",
+              "renderhook"
+            ]
+          },
+          {
+            "id": "react-testing-async-msw",
+            "categoryId": "react-testing-quality",
+            "title": "Testing Async UI and APIs with MSW",
+            "description": "Mock Service Worker for network mocking, testing loading/error states, act warnings, fake timers, and flaky tests.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 40,
+            "tags": [
+              "msw",
+              "async-testing",
+              "act",
+              "fake-timers",
+              "flaky-tests"
+            ]
+          },
+          {
+            "id": "react-typescript-patterns",
+            "categoryId": "react-testing-quality",
+            "title": "TypeScript Patterns for React",
+            "description": "Typing props and children, events, refs, generic components, discriminated unions, polymorphic components, and ComponentProps.",
+            "difficulty": "advanced",
+            "interviewPriority": "high",
+            "estimatedMinutes": 45,
+            "tags": [
+              "typescript",
+              "props",
+              "generics",
+              "discriminated-unions",
+              "polymorphic"
+            ]
+          },
+          {
+            "id": "react-accessibility",
+            "categoryId": "react-testing-quality",
+            "title": "Accessibility in React Apps",
+            "description": "Semantic HTML, ARIA, focus management on route changes and dialogs, useId, live regions, and automated a11y testing.",
+            "difficulty": "intermediate",
+            "interviewPriority": "high",
+            "estimatedMinutes": 40,
+            "tags": [
+              "accessibility",
+              "a11y",
+              "aria",
+              "focus-management",
+              "useid"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "react-system-design-leadership",
+        "subjectId": "react",
+        "title": "Senior Architecture and Leadership Scenarios",
+        "description": "Senior/lead React scenarios: large data, state architecture, micro-frontends, design systems, migrations, real-time UIs, security, and incidents.",
+        "order": 9,
+        "topics": [
+          {
+            "id": "senior-react-01-rendering-100k-rows",
+            "categoryId": "react-system-design-leadership",
+            "title": "Rendering 100,000 rows in a React grid",
+            "description": "Senior/lead scenario: Operations needs a React grid showing up to 100,000 shipment records with sorting, filtering, inline edits, and live status updates. How do you design it?",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "react",
+              "senior",
+              "scenario-based",
+              "architect",
+              "rendering-100k-rows"
+            ]
+          },
+          {
+            "id": "senior-react-02-choosing-state-architecture",
+            "categoryId": "react-system-design-leadership",
+            "title": "Choosing a state architecture for a large React app",
+            "description": "Senior/lead scenario: A new 40-developer React platform for fleet management is starting. Teams debate Redux Toolkit, Zustand, and 'just Context'. How do you decide?",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "react",
+              "senior",
+              "scenario-based",
+              "architect",
+              "choosing-state-architecture"
+            ]
+          },
+          {
+            "id": "senior-react-03-react-micro-frontends",
+            "categoryId": "react-system-design-leadership",
+            "title": "Micro-frontends with React",
+            "description": "Senior/lead scenario: Four business units want independent deployments of their React apps inside one customer portal. Would you choose micro-frontends, and how would you build them?",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "react",
+              "senior",
+              "scenario-based",
+              "architect",
+              "react-micro-frontends"
+            ]
+          },
+          {
+            "id": "senior-react-04-design-system-architecture",
+            "categoryId": "react-system-design-leadership",
+            "title": "Designing a React design system",
+            "description": "Senior/lead scenario: You're asked to build a design system used by 25 React teams across web apps. How do you architect it?",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "react",
+              "senior",
+              "scenario-based",
+              "architect",
+              "design-system-architecture"
+            ]
+          },
+          {
+            "id": "senior-react-05-incremental-migration-to-react",
+            "categoryId": "react-system-design-leadership",
+            "title": "Incrementally migrating a legacy frontend to React",
+            "description": "Senior/lead scenario: A business-critical AngularJS (or jQuery) application must move to React without stopping feature delivery. How do you plan the migration?",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "react",
+              "senior",
+              "scenario-based",
+              "architect",
+              "incremental-migration-to-react"
+            ]
+          },
+          {
+            "id": "senior-react-06-real-time-dashboard",
+            "categoryId": "react-system-design-leadership",
+            "title": "Real-time telematics dashboard architecture",
+            "description": "Senior/lead scenario: Design a React dashboard showing live positions and alerts for 20,000 connected vehicles, used all day by dispatchers.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "react",
+              "senior",
+              "scenario-based",
+              "architect",
+              "real-time-dashboard"
+            ]
+          },
+          {
+            "id": "senior-react-07-csr-to-nextjs-rsc",
+            "categoryId": "react-system-design-leadership",
+            "title": "Moving a CSR React app to Server Components",
+            "description": "Senior/lead scenario: Your CSR React app has a 900 KB JS bundle and poor LCP. Leadership asks whether to migrate to Next.js with Server Components. How do you evaluate and execute?",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "react",
+              "senior",
+              "scenario-based",
+              "architect",
+              "csr-to-nextjs-rsc"
+            ]
+          },
+          {
+            "id": "senior-react-08-frontend-auth-security",
+            "categoryId": "react-system-design-leadership",
+            "title": "Authentication and security in a React SPA",
+            "description": "Senior/lead scenario: Design authentication and token handling for a React SPA that talks to several APIs, and explain how you defend against XSS and CSRF.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "react",
+              "senior",
+              "scenario-based",
+              "architect",
+              "frontend-auth-security"
+            ]
+          },
+          {
+            "id": "senior-react-09-memory-leak-incident",
+            "categoryId": "react-system-design-leadership",
+            "title": "Leading a production memory-leak incident",
+            "description": "Senior/lead scenario: Support reports that your React app becomes unusable after a few hours and browser tabs crash. You're the incident lead. What do you do?",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "react",
+              "senior",
+              "scenario-based",
+              "architect",
+              "memory-leak-incident"
+            ]
+          },
+          {
+            "id": "senior-react-10-react-19-upgrade-at-scale",
+            "categoryId": "react-system-design-leadership",
+            "title": "Upgrading a large codebase to React 19",
+            "description": "Senior/lead scenario: You own a 600k-line React 18 monorepo with 30 teams. Plan the upgrade to React 19.3 and adoption of the React Compiler.",
+            "difficulty": "advanced",
+            "interviewPriority": "must-know",
+            "estimatedMinutes": 30,
+            "tags": [
+              "react",
+              "senior",
+              "scenario-based",
+              "architect",
+              "react-19-upgrade-at-scale"
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]
