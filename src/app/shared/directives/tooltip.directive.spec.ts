@@ -53,4 +53,16 @@ describe('TooltipDirective', () => {
     fixture.nativeElement.querySelector('button').dispatchEvent(new MouseEvent('mouseenter'));
     expect(document.querySelector('.app-tooltip')).toBeNull();
   });
+
+  it('does not listen for hover on touch devices', () => {
+    (window.matchMedia as ReturnType<typeof vi.fn>).mockReturnValue({ matches: false });
+    const add = vi.spyOn(HTMLElement.prototype, 'addEventListener');
+    const fixture = TestBed.configureTestingModule({
+      imports: [TooltipHostComponent],
+    }).createComponent(TooltipHostComponent);
+    fixture.detectChanges();
+    const mouseEnters = add.mock.calls.filter(([type]) => type === 'mouseenter');
+    expect(mouseEnters).toHaveLength(0);
+    add.mockRestore();
+  });
 });

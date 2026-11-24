@@ -1,4 +1,12 @@
-import { Component, computed, HostListener, inject, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  HostListener,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle';
 import { IconComponent } from '../../../shared/components/icon/icon';
@@ -32,6 +40,7 @@ export class HeaderComponent {
 
   readonly menuOpen = signal(false);
   readonly mobileSearchOpen = signal(false);
+  private closeMenuTimer = 0;
 
   readonly initials = computed(() =>
     this.displayName()
@@ -47,12 +56,27 @@ export class HeaderComponent {
     return `${streak} day${streak === 1 ? '' : 's'}`;
   });
 
+  constructor() {
+    inject(DestroyRef).onDestroy(() => window.clearTimeout(this.closeMenuTimer));
+  }
+
   toggleMenu(): void {
+    window.clearTimeout(this.closeMenuTimer);
     this.menuOpen.update((open) => !open);
   }
 
   closeMenu(): void {
+    window.clearTimeout(this.closeMenuTimer);
     this.menuOpen.set(false);
+  }
+
+  /**
+   * Menu rows unmount when the menu closes. Removing the anchor during the
+   * tap makes iOS drop the navigation, so Settings never opens.
+   */
+  closeMenuAfterNavigation(): void {
+    window.clearTimeout(this.closeMenuTimer);
+    this.closeMenuTimer = window.setTimeout(() => this.closeMenu());
   }
 
   openMobileSearch(): void {

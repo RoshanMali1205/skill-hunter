@@ -23,7 +23,9 @@ body {
 body {
   background: var(--gradient-page), var(--color-bg);
   background-attachment: fixed;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 // Prevent iOS Safari from zooming focused form controls (< 16px).
@@ -39,8 +41,12 @@ a {
   color: var(--color-primary);
   text-decoration: none;
 
-  &:hover {
-    text-decoration: underline;
+  // A hover rule on a link makes iOS use the first tap to apply :hover and
+  // only follow the link on the second tap. Phones never hover.
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 

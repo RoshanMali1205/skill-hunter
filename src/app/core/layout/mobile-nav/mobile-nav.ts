@@ -76,13 +76,17 @@ export class MobileNavComponent {
 
   private readonly sheet = viewChild<ElementRef<HTMLElement>>('sheet');
   private readonly moreButton = viewChild<ElementRef<HTMLButtonElement>>('moreButton');
+  private closeTimer = 0;
 
   constructor() {
     // The sheet is modal, so the page behind it must not scroll.
     effect(() => {
-      document.body.style.overflow = this.moreOpen() ? 'hidden' : '';
+      this.setPageScrollLocked(this.moreOpen());
     });
-    inject(DestroyRef).onDestroy(() => (document.body.style.overflow = ''));
+    inject(DestroyRef).onDestroy(() => {
+      window.clearTimeout(this.closeTimer);
+      this.setPageScrollLocked(false);
+    });
   }
 
   toggleMore(): void {
@@ -90,14 +94,26 @@ export class MobileNavComponent {
       this.closeMore(true);
       return;
     }
+    window.clearTimeout(this.closeTimer);
     this.moreOpen.set(true);
     // Move focus into the sheet once it has rendered.
     setTimeout(() => this.focusables()[0]?.focus());
   }
 
   closeMore(restoreFocus = false): void {
+    window.clearTimeout(this.closeTimer);
     this.moreOpen.set(false);
     if (restoreFocus) this.moreButton()?.nativeElement.focus();
+  }
+
+  /**
+   * Sheet rows unmount with the dialog. Removing the anchor during the tap
+   * makes iOS standalone dispatch the click onto the backdrop instead, so
+   * the menu closes and RouterLink never runs. Close on the next turn.
+   */
+  closeAfterNavigation(): void {
+    window.clearTimeout(this.closeTimer);
+    this.closeTimer = window.setTimeout(() => this.closeMore());
   }
 
   /** Escape closes the sheet; Tab stays inside it while it is open. */
@@ -123,6 +139,16 @@ export class MobileNavComponent {
       event.preventDefault();
       first.focus();
     }
+  }
+
+  /**
+   * Lock the document scroller, not `body`. On an installed iPhone PWA,
+   * `overflow: hidden` on `body` shifts hit testing for `position: fixed`
+   * layers, so taps on this sheet miss the links.
+   */
+  private setPageScrollLocked(locked: boolean): void {
+    document.documentElement.style.overflow = locked ? 'hidden' : '';
+    document.body.style.overflow = '';
   }
 
   private focusables(): HTMLElement[] {
