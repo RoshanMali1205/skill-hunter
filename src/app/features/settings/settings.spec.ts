@@ -24,12 +24,15 @@ describe('SettingsComponent', () => {
   const ttsToggle = vi.fn();
   const ttsStop = vi.fn();
   const speakingId = signal<string | null>(null);
+  const paused = signal(false);
   const voices = signal<SpeechSynthesisVoice[]>([]);
+  const setSpeechRate = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
     voices.set([]);
     speakingId.set(null);
+    paused.set(false);
     TestBed.configureTestingModule({
       imports: [SettingsComponent],
       providers: [
@@ -43,6 +46,7 @@ describe('SettingsComponent', () => {
             setDefaultDifficulty: vi.fn(),
             setShowAnswersAutomatically: vi.fn(),
             setSpeechVoice,
+            setSpeechRate,
           },
         },
         {
@@ -50,6 +54,7 @@ describe('SettingsComponent', () => {
           useValue: {
             supported: true,
             speakingId,
+            paused,
             voices,
             stop: ttsStop,
             toggle: ttsToggle,
@@ -177,6 +182,8 @@ describe('SettingsComponent', () => {
 
     component.setSpeechVoice('sam');
     expect(setSpeechVoice).toHaveBeenCalledWith('sam');
+    component.setSpeechRate('1.15');
+    expect(setSpeechRate).toHaveBeenCalledWith(1.15);
     speakingId.set(SPEECH_PREVIEW_ID);
     component.setSpeechVoice('');
     expect(setSpeechVoice).toHaveBeenLastCalledWith(null);

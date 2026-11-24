@@ -319,10 +319,10 @@
   <section class="settings__card">
     <h2>Read aloud</h2>
     <p class="settings__muted">
-      Listen uses a voice already installed in this browser. Automatic picks the most natural
-      English voice available — Microsoft Natural on Edge, Google English on Chrome, or Enhanced
-      voices on Safari — instead of the robotic system voice. The choice is saved with your other
-      settings in this browser.
+      Listen reads the topic, including interview answers, and skips code samples. Automatic picks
+      the most natural English voice for this browser — Microsoft Natural on Edge, Google English on
+      Chrome, or Enhanced voices on Safari — instead of the robotic system voice. Voice and speed
+      are saved with your other settings.
     </p>
 
     @if (tts.supported) {
@@ -349,9 +349,25 @@
           Safari to pick a more natural English voice.
         </p>
       }
+      <label class="settings__field settings__voice">
+        <span>Speed</span>
+        <app-select
+          [value]="speechRateValue()"
+          [options]="speechRateOptions"
+          ariaLabel="Read aloud speed"
+          (valueChange)="setSpeechRate($event)"
+        />
+      </label>
+      <p class="settings__muted">Speed applies the next time Listen starts.</p>
       <div class="cluster">
         <button type="button" class="btn" (click)="previewVoice()">
-          {{ tts.speakingId() === speechPreviewId ? 'Stop preview' : 'Preview voice' }}
+          {{
+            tts.speakingId() !== speechPreviewId
+              ? 'Preview voice'
+              : tts.paused()
+                ? 'Resume preview'
+                : 'Pause preview'
+          }}
         </button>
       </div>
     } @else {

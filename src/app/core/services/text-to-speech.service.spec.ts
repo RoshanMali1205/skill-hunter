@@ -5,7 +5,7 @@ import { TextToSpeechService } from './text-to-speech.service';
 
 class UtteranceDouble {
   onend: (() => void) | null = null;
-  onerror: (() => void) | null = null;
+  onerror: ((event?: { error?: string }) => void) | null = null;
   voice: SpeechSynthesisVoice | null = null;
   lang = '';
   rate = 1;
@@ -20,41 +20,53 @@ function voice(name: string, lang = 'en-US', voiceURI = name): SpeechSynthesisVo
 describe('TextToSpeechService', () => {
   const cancel = vi.fn();
   const speak = vi.fn();
+  const pause = vi.fn();
+  const resume = vi.fn();
   const getVoices = vi.fn<() => SpeechSynthesisVoice[]>(() => []);
   let speechDescriptor: PropertyDescriptor | undefined;
   let speechVoiceUri: string | null = null;
+  let speechRate = 1;
+  let service: TextToSpeechService | undefined;
 
   beforeEach(() => {
     speechVoiceUri = null;
+    speechRate = 1;
     speechDescriptor = Object.getOwnPropertyDescriptor(window, 'speechSynthesis');
     Object.defineProperty(window, 'speechSynthesis', {
       configurable: true,
-      value: { cancel, speak, getVoices },
+      value: { cancel, speak, getVoices, pause, resume, speaking: false, paused: false },
     });
     vi.stubGlobal('SpeechSynthesisUtterance', UtteranceDouble);
     cancel.mockReset();
     speak.mockReset();
     getVoices.mockReset();
     getVoices.mockReturnValue([]);
+    pause.mockReset();
+    resume.mockReset();
   });
 
   afterEach(() => {
+    service?.stop();
+    service = undefined;
     vi.unstubAllGlobals();
     if (speechDescriptor) Object.defineProperty(window, 'speechSynthesis', speechDescriptor);
     else delete (window as unknown as { speechSynthesis?: unknown }).speechSynthesis;
   });
 
   function create(): TextToSpeechService {
+    service?.stop();
+    TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         TextToSpeechService,
         {
           provide: SettingsService,
-          useValue: { settings: () => ({ speechVoiceUri }) },
+          useValue: { settings: () => ({ speechVoiceUri, speechRate }) },
         },
       ],
     });
-    return TestBed.inject(TextToSpeechService);
+    service = TestBed.inject(TextToSpeechService);
+    return service;
   }
 
   /** speak() queues utterances on the next turn so Chrome can finish cancel(). */
@@ -98,17 +110,34 @@ describe('TextToSpeechService', () => {
     expect(service.speakingId()).toBeNull();
   });
 
-  it('toggles the same item off and ignores blank text', async () => {
-    const service = create();
-    service.speak('one', '   ');
+  it('pauses and resumes the same item, and ignores blank text', async () => {
+    const active = create();
+    active.speak('one', '   ');
     await flushSpeech();
     expect(speak).not.toHaveBeenCalled();
-    service.toggle('one', 'Read me');
-    service.toggle('one', 'Read me');
-    expect(service.speakingId()).toBeNull();
-    expect(cancel).toHaveBeenCalledTimes(2);
+    active.toggle('one', 'Read me');
     await flushSpeech();
-    expect(speak).not.toHaveBeenCalled();
+    expect(active.speakingId()).toBe('one');
+    active.toggle('one', 'Read me');
+    expect(active.paused()).toBe(true);
+    expect(active.speakingId()).toBe('one');
+    expect(pause).toHaveBeenCalledOnce();
+    active.toggle('one', 'Read me');
+    expect(active.paused()).toBe(false);
+    expect(resume).toHaveBeenCalledOnce();
+  });
+
+  it('keeps going when Chrome reports an interrupted chunk, and uses the saved speed', async () => {
+    speechRate = 1.15;
+    const active = create();
+    active.speak('topic', 'One. Two.');
+    await flushSpeech();
+    const first = speak.mock.calls[0]![0] as UtteranceDouble;
+    expect(first.rate).toBe(1.15);
+    first.onerror?.({ error: 'interrupted' });
+    expect(active.speakingId()).toBe('topic');
+    first.onerror?.({ error: 'synthesis-failed' });
+    expect(active.speakingId()).toBeNull();
   });
 
   it('chooses a natural English voice and applies a saved voice when present', async () => {
@@ -128,7 +157,6 @@ describe('TextToSpeechService', () => {
     expect(chosen.pitch).toBe(1);
     expect(automatic.voices().some((item) => item.lang === 'fr-FR')).toBe(false);
 
-    TestBed.resetTestingModule();
     speechVoiceUri = 'google';
     const saved = create();
     saved.speak('topic', 'Hello again');

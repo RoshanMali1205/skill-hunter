@@ -1,5 +1,11 @@
 @use 'mixins' as *;
 
+.read-aloud {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .read-aloud-button {
   @include action-button;
 
@@ -16,5 +22,12 @@
       color: var(--color-primary-contrast);
       box-shadow: var(--shadow-primary);
     }
+  }
+
+  &--stop {
+    width: 40px;
+    padding: 0;
+    justify-content: center;
+    color: var(--color-text-muted);
   }
 }

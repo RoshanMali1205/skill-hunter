@@ -54,6 +54,7 @@ describe('TopicDetailComponent', () => {
   const saveNote = vi.fn();
   const deleteNote = vi.fn();
   const ttsToggle = vi.fn();
+  const ttsStop = vi.fn();
   let navigate: ReturnType<typeof vi.spyOn>;
   const exportTopics = vi.fn();
 
@@ -111,7 +112,13 @@ describe('TopicDetailComponent', () => {
         },
         {
           provide: TextToSpeechService,
-          useValue: { supported: true, speakingId: signal(null), stop: vi.fn(), toggle: ttsToggle },
+          useValue: {
+            supported: true,
+            speakingId: signal(null),
+            paused: signal(false),
+            stop: ttsStop,
+            toggle: ttsToggle,
+          },
         },
         { provide: TopicExportService, useValue: { exportTopics } },
         { provide: Location, useValue: { back: vi.fn() } },
@@ -150,6 +157,9 @@ describe('TopicDetailComponent', () => {
     expect(toggleQuestionBookmark).toHaveBeenCalledWith('q1', 'signals', 'angular');
     expect(toggleRevision).toHaveBeenCalledWith('signals');
     expect(ttsToggle).toHaveBeenCalledWith('signals', expect.stringContaining('signal stores'));
+    ttsStop.mockClear();
+    component.stopReadAloud();
+    expect(ttsStop).toHaveBeenCalledOnce();
   });
 
   it('saves and deletes notes while closing the editor', () => {

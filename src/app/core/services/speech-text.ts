@@ -1,10 +1,16 @@
-/** Browser voices, best first. Edge Natural, then Chrome Google, then macOS enhanced. */
+/** Browser voices, best first. Edge/macOS neural, then Chrome Google, then enhanced. */
 const VOICE_PREFERENCES: readonly RegExp[] = [
-  /Natural/i,
+  /Natural|Neural/i,
   /Google (US|UK) English/i,
   /Premium|Enhanced/i,
-  /Samantha/i,
+  /Samantha|Daniel|Karen|Moira|Veena|Rishi/i,
 ];
+
+/** Novelty and legacy synthesizers that sound worse than the plain system voice. */
+const ROBOTIC_VOICES = /espeak|android|compact|zarvox|whisper|bells|boing|trinoids|bad news|bahh/i;
+
+export const SPEECH_RATES = [0.85, 1, 1.15, 1.3] as const;
+export type SpeechRate = (typeof SPEECH_RATES)[number];
 
 /** Chrome drops a single utterance after about 15 seconds, so chunks stay short. */
 const MAX_CHUNK_LENGTH = 240;
@@ -15,6 +21,8 @@ export interface SpeechVoiceInfo {
   name: string;
   lang: string;
   voiceURI: string;
+  /** Remote neural voices (localService false) usually sound better than the on-device copy. */
+  localService?: boolean;
 }
 
 export function voiceChoiceId(voice: SpeechVoiceInfo): string {
@@ -28,12 +36,17 @@ export function voiceLabel(voice: SpeechVoiceInfo): string {
 
 /** Lower is a better match for the built-in preference list. */
 export function voiceRank(voice: SpeechVoiceInfo): number {
+  if (ROBOTIC_VOICES.test(voice.name)) return VOICE_PREFERENCES.length + 1;
   const index = VOICE_PREFERENCES.findIndex((pattern) => pattern.test(voice.name));
   return index === -1 ? VOICE_PREFERENCES.length : index;
 }
 
 export function compareVoices(a: SpeechVoiceInfo, b: SpeechVoiceInfo): number {
-  return voiceRank(a) - voiceRank(b) || a.name.localeCompare(b.name);
+  return (
+    voiceRank(a) - voiceRank(b) ||
+    Number(Boolean(a.localService)) - Number(Boolean(b.localService)) ||
+    a.name.localeCompare(b.name)
+  );
 }
 
 /** English voices when the browser has any; otherwise every voice, so speech still works. */
@@ -50,6 +63,7 @@ export function voicesForSpeech<T extends SpeechVoiceInfo>(voices: readonly T[])
 export function pickSpeechVoice<T extends SpeechVoiceInfo>(
   voices: readonly T[],
   preferredId: string | null,
+  preferredLang?: string,
 ): T | undefined {
   if (preferredId) {
     const chosen = voices.find(
@@ -60,7 +74,36 @@ export function pickSpeechVoice<T extends SpeechVoiceInfo>(
     );
     if (chosen) return chosen;
   }
-  return voicesForSpeech(voices)[0];
+  const pool = voicesForSpeech(voices);
+  if (pool.length === 0) return undefined;
+  const bestRank = voiceRank(pool[0]!);
+  const top = pool.filter((voice) => voiceRank(voice) === bestRank);
+  top.sort((a, b) => languageScore(b.lang, preferredLang) - languageScore(a.lang, preferredLang));
+  return top[0];
+}
+
+/** 2 = same region (en-IN), 1 = same language (en), 0 = different language. */
+function languageScore(voiceLang: string, preferredLang: string | undefined): number {
+  if (!preferredLang) return 0;
+  const voice = voiceLang.toLowerCase().replace('_', '-');
+  const preferred = preferredLang.toLowerCase().replace('_', '-');
+  if (voice === preferred) return 2;
+  return voice.slice(0, 2) === preferred.slice(0, 2) ? 1 : 0;
+}
+
+/** Snap to a supported speed. Anything else means Normal. */
+export function normalizeSpeechRate(value: unknown): SpeechRate {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 1;
+  let closest: SpeechRate = 1;
+  let distance = Infinity;
+  for (const rate of SPEECH_RATES) {
+    const gap = Math.abs(rate - value);
+    if (gap < distance) {
+      distance = gap;
+      closest = rate;
+    }
+  }
+  return distance <= 0.05 ? closest : 1;
 }
 
 /** Empty, oversized, or non-text values mean "Automatic". */

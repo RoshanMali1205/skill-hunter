@@ -255,6 +255,18 @@ describe('DataManagementService', () => {
         settings: { ...DEFAULT_SETTINGS, speechVoiceUri: { uri: 'evil' } },
       });
       expect(hostile.success).toBe(false);
+
+      const faster = service.previewImport({
+        ...base,
+        settings: { ...DEFAULT_SETTINGS, speechRate: 1.15 },
+      });
+      expect(faster.success && faster.data.settings.speechRate).toBe(1.15);
+
+      const nonsense = service.previewImport({
+        ...base,
+        settings: { ...DEFAULT_SETTINGS, speechRate: 4 },
+      });
+      expect(nonsense.success && nonsense.data.settings.speechRate).toBe(1);
     });
 
     it('rejects an unknown style', () => {

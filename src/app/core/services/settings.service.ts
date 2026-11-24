@@ -2,7 +2,7 @@ import { Injectable, effect, inject, signal } from '@angular/core';
 import { StorageService } from '../storage/storage.service';
 import { STORAGE_KEYS } from '../storage/storage-keys';
 import { AppSettings, ColorTheme, DEFAULT_SETTINGS, UiStyle } from '../models';
-import { normalizeSpeechVoiceUri } from './speech-text';
+import { normalizeSpeechRate, normalizeSpeechVoiceUri } from './speech-text';
 import { CssVars, buildCustomPalette, customThemeVars } from '../theme/custom-theme';
 
 const THEME_COLORS: Record<ColorTheme, { light: string; dark: string }> = {
@@ -107,6 +107,10 @@ export class SettingsService {
   /** `null` selects the best built-in English voice for this browser. */
   setSpeechVoice(speechVoiceUri: string | null): void {
     this.update({ speechVoiceUri: normalizeSpeechVoiceUri(speechVoiceUri) });
+  }
+
+  setSpeechRate(speechRate: number): void {
+    this.update({ speechRate: normalizeSpeechRate(speechRate) });
   }
 
   replaceAll(settings: AppSettings): void {

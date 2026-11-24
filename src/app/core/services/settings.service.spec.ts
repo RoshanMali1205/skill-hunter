@@ -47,6 +47,7 @@ describe('SettingsService', () => {
     service.setShowAnswersAutomatically(true);
     service.setDailyGoalMinutes(45);
     service.setSpeechVoice('  Google US English  ');
+    service.setSpeechRate(1.15);
     expect(service.settings()).toMatchObject({
       theme: 'light',
       colorTheme: 'forest',
@@ -54,7 +55,10 @@ describe('SettingsService', () => {
       showAnswersAutomatically: true,
       dailyGoalMinutes: 45,
       speechVoiceUri: 'Google US English',
+      speechRate: 1.15,
     });
+    service.setSpeechRate(9);
+    expect(service.settings().speechRate).toBe(1);
     service.setSpeechVoice('   ');
     expect(service.settings().speechVoiceUri).toBeNull();
     expect(set).toHaveBeenLastCalledWith(STORAGE_KEYS.settings, service.settings());

@@ -27,7 +27,12 @@
       </div>
       <div class="topic-detail__actions">
         @if (ttsSupported) {
-          <app-read-aloud-button [speaking]="isSpeaking()" (toggled)="toggleReadAloud()" />
+          <app-read-aloud-button
+            [speaking]="isSpeaking()"
+            [paused]="isPaused()"
+            (toggled)="toggleReadAloud()"
+            (stopped)="stopReadAloud()"
+          />
         }
         <app-note-button [hasNote]="hasNote()" (clicked)="toggleNoteEditor()" />
         <app-bookmark-button [bookmarked]="isBookmarked()" (toggled)="toggleBookmark()" />
@@ -106,7 +111,10 @@
                 <h2>{{ block.title || 'Code Example' }}</h2>
               </header>
               <app-code-block [code]="block.code" [language]="block.language" />
-              <p class="topic-detail__explanation" [innerHTML]="block.explanation | markdownInline"></p>
+              <p
+                class="topic-detail__explanation"
+                [innerHTML]="block.explanation | markdownInline"
+              ></p>
             </section>
           }
           @case ('common-mistake') {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   chunkSpeechText,
+  normalizeSpeechRate,
   normalizeSpeechVoiceUri,
   pickSpeechVoice,
   voicesForSpeech,
@@ -39,6 +40,28 @@ describe('pickSpeechVoice', () => {
     );
   });
 
+  it('prefers the listener’s region when several natural voices exist', () => {
+    const voices = [
+      voice('Microsoft Aria Online (Natural)', 'en-US', 'aria'),
+      voice('Microsoft Neerja Online (Natural)', 'en-IN', 'neerja'),
+    ];
+    expect(pickSpeechVoice(voices, null, 'en-IN')?.voiceURI).toBe('neerja');
+    expect(pickSpeechVoice(voices, null, 'en-US')?.voiceURI).toBe('aria');
+  });
+
+  it('puts remote natural voices ahead of a local copy and a robotic voice last', () => {
+    const voices = [
+      { ...voice('eSpeak English', 'en-US', 'espeak'), localService: true },
+      { ...voice('Microsoft Aria Online (Natural)', 'en-US', 'local'), localService: true },
+      { ...voice('Microsoft Aria Online (Natural)', 'en-US', 'remote'), localService: false },
+    ];
+    expect(voicesForSpeech(voices).map((item) => item.voiceURI)).toEqual([
+      'remote',
+      'local',
+      'espeak',
+    ]);
+  });
+
   it('keeps non-English voices only when no English voice exists', () => {
     const french = [voice('Hélène', 'fr-FR')];
     expect(voicesForSpeech([...french, voice('Samantha')]).map((item) => item.name)).toEqual([
@@ -56,6 +79,16 @@ describe('normalizeSpeechVoiceUri', () => {
     expect(normalizeSpeechVoiceUri('x'.repeat(201))).toBeNull();
     expect(normalizeSpeechVoiceUri('bad\nid')).toBeNull();
     expect(normalizeSpeechVoiceUri(12)).toBeNull();
+  });
+});
+
+describe('normalizeSpeechRate', () => {
+  it('snaps to a supported speed and rejects anything else', () => {
+    expect(normalizeSpeechRate(1.15)).toBe(1.15);
+    expect(normalizeSpeechRate(1.14)).toBe(1.15);
+    expect(normalizeSpeechRate(0.85)).toBe(0.85);
+    expect(normalizeSpeechRate(4)).toBe(1);
+    expect(normalizeSpeechRate('fast')).toBe(1);
   });
 });
 

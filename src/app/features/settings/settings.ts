@@ -86,8 +86,17 @@ export class SettingsComponent {
   });
 
   readonly automaticVoiceLabel = computed(
-    () => pickSpeechVoice(this.tts.voices(), null)?.name ?? '',
+    () => pickSpeechVoice(this.tts.voices(), null, navigator.language)?.name ?? '',
   );
+
+  readonly speechRateOptions: SelectOption[] = [
+    { value: '0.85', label: 'Slower' },
+    { value: '1', label: 'Normal' },
+    { value: '1.15', label: 'A bit faster' },
+    { value: '1.3', label: 'Faster' },
+  ];
+
+  readonly speechRateValue = computed(() => String(this.settings().speechRate));
 
   /** A backup from another browser can name a voice this one does not have. */
   readonly savedVoiceMissing = computed(() => {
@@ -464,6 +473,16 @@ export class SettingsComponent {
 
   setSpeechVoice(value: string): void {
     this.settingsService.setSpeechVoice(value.trim() ? value : null);
+    this.stopPreview();
+  }
+
+  setSpeechRate(value: string): void {
+    const rate = Number(value);
+    this.settingsService.setSpeechRate(Number.isFinite(rate) ? rate : 1);
+    this.stopPreview();
+  }
+
+  private stopPreview(): void {
     if (this.tts.speakingId() === SPEECH_PREVIEW_ID) {
       this.tts.stop();
     }

@@ -99,6 +99,8 @@ export interface AppSettings {
    * when a URI is missing). Null lets Listen pick the best English voice.
    */
   speechVoiceUri: string | null;
+  /** Listen playback speed. One of 0.85, 1, 1.15, 1.3. */
+  speechRate: number;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -112,6 +114,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showAnswersAutomatically: false,
   dailyGoalMinutes: 20,
   speechVoiceUri: null,
+  speechRate: 1,
 };
 
 /** Seconds of active study time, keyed by local date ("YYYY-MM-DD"). */
