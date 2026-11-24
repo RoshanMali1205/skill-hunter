@@ -17,12 +17,17 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100%;
+}
+
+// Clip sideways overflow on the document, not on body. overflow on body makes
+// an installed iPhone miss taps on position:fixed layers such as the bottom nav.
+html {
   overflow-x: clip;
 }
 
 body {
+  max-width: 100%;
   background: var(--gradient-page), var(--color-bg);
-  background-attachment: fixed;
   transition:
     background-color 0.2s ease,
     color 0.2s ease;

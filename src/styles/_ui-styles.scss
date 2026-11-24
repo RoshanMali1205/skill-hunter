@@ -381,9 +381,14 @@
 :root[data-ui-style='glass'],
 :root[data-ui-style='spatial'],
 :root[data-ui-style='aurora'] {
-  :is(.sidebar, .header, .mobile-nav, .select__menu, .search__results, .mobile-nav__sheet) {
+  :is(.sidebar, .header, .select__menu, .search__results, .mobile-nav__sheet) {
     -webkit-backdrop-filter: var(--surface-blur);
     backdrop-filter: var(--surface-blur);
+  }
+
+  // Keep the blur off the bottom bar itself; its ::before paints the frost.
+  .mobile-nav {
+    --mobile-nav-blur: var(--surface-blur);
   }
 
   .sidebar,
