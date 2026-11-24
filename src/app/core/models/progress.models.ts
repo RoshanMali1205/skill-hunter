@@ -94,6 +94,11 @@ export interface AppSettings {
   defaultDifficulty: 'all' | 'beginner' | 'intermediate' | 'advanced';
   showAnswersAutomatically: boolean;
   dailyGoalMinutes: number;
+  /**
+   * Browser speech voice (`SpeechSynthesisVoice.voiceURI`, or the voice name
+   * when a URI is missing). Null lets Listen pick the best English voice.
+   */
+  speechVoiceUri: string | null;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -106,6 +111,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   defaultDifficulty: 'all',
   showAnswersAutomatically: false,
   dailyGoalMinutes: 20,
+  speechVoiceUri: null,
 };
 
 /** Seconds of active study time, keyed by local date ("YYYY-MM-DD"). */

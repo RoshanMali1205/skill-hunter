@@ -65,7 +65,10 @@ function linkify(text: string): string {
     return `${externalAnchor(url, url)}${trailing}`;
   });
 
-  return withPlaceholders.replace(/\0PROT(\d+)\0/g, (_match, index: string) => protectedSpans[Number(index)]!);
+  return withPlaceholders.replace(
+    /\0PROT(\d+)\0/g,
+    (_match, index: string) => protectedSpans[Number(index)]!,
+  );
 }
 
 function inline(text: string): string {
@@ -106,12 +109,15 @@ export function renderMarkdown(raw: string): string {
   let text = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
   const codeBlocks: string[] = [];
-  text = text.replace(/```(\w+)?\n?([\s\S]*?)```/g, (_match, lang: string | undefined, code: string) => {
-    const index = codeBlocks.length;
-    const langClass = lang ? ` class="language-${lang}"` : '';
-    codeBlocks.push(`<pre class="md-code"><code${langClass}>${code.trim()}</code></pre>`);
-    return `\nCODEBLOCK${index}\n`;
-  });
+  text = text.replace(
+    /```(\w+)?\n?([\s\S]*?)```/g,
+    (_match, lang: string | undefined, code: string) => {
+      const index = codeBlocks.length;
+      const langClass = lang ? ` class="language-${lang}"` : '';
+      codeBlocks.push(`<pre class="md-code"><code${langClass}>${code.trim()}</code></pre>`);
+      return `\nCODEBLOCK${index}\n`;
+    },
+  );
 
   const lines = text.split('\n');
   const htmlLines: string[] = [];
@@ -176,20 +182,46 @@ export function renderMarkdown(raw: string): string {
  * friendly text (no `#`, `**`, backticks, list bullets, fenced code, or
  * HTML). Intended for feeding topic content to the Speech Synthesis API,
  * which cannot make use of markup.
+ *
+ * Fenced code is omitted. Short inline names (`useState`, `ngOnInit`) are
+ * kept so the terms are still heard. Expressions are reduced to their words
+ * so the voice does not read braces and punctuation aloud.
  */
 export function markdownToPlainText(raw: string): string {
   return raw
-    .replace(/```(\w+)?\n?([\s\S]*?)```/g, '$2')
+    .replace(/```[\w-]*\n?[\s\S]*?```/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
     .replace(/^#{1,6}\s+/gm, '')
     .replace(/^[-*]\s+/gm, '')
     .replace(/^\d+\.\s+/gm, '')
     .replace(/^-{3,}$/gm, '')
     .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '$1')
-    .replace(/`([^`]+)`/g, '$1')
+    .replace(/`([^`]+)`/g, (_match, code: string) => spokenInlineCode(code))
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '$1')
     .replace(/[ \t]+/g, ' ')
     .replace(/\n{2,}/g, '. ')
     .replace(/\n/g, ' ')
+    .replace(/\s+([.!?])/g, '$1')
+    .replace(/([.!?])(?:\s*[.!?])+/g, '$1')
+    .replace(/[ \t]{2,}/g, ' ')
     .trim();
+}
+
+function spokenInlineCode(code: string): string {
+  const trimmed = code.trim();
+  if (!trimmed) return '';
+  // Identifiers and short phrases are the vocabulary of the topic.
+  // A colon is spoken as a pause ("standalone, false") instead of "colon".
+  if (!/[(){}[\]<>=;]/.test(trimmed) && !trimmed.includes('=>')) {
+    return trimmed.replace(/\s*:\s*/g, ', ');
+  }
+  const words = trimmed
+    .replace(/['"`][^'"`]*['"`]/g, ' ')
+    .replace(/[^A-Za-z0-9_$]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 1 && !/^\d+$/.test(word));
+  if (words.length === 0 || words.length > 6) return '';
+  return words.join(' ');
 }

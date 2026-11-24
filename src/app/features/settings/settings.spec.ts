@@ -7,6 +7,7 @@ import { DataManagementService } from '../../core/services/data-management.servi
 import { ProfileService } from '../../core/services/profile.service';
 import { PwaService } from '../../core/services/pwa.service';
 import { SettingsService } from '../../core/services/settings.service';
+import { SPEECH_PREVIEW_ID, TextToSpeechService } from '../../core/services/text-to-speech.service';
 import { SettingsComponent } from './settings';
 
 describe('SettingsComponent', () => {
@@ -19,9 +20,16 @@ describe('SettingsComponent', () => {
   const previewImport = vi.fn();
   const applyImport = vi.fn();
   const downloadExport = vi.fn();
+  const setSpeechVoice = vi.fn();
+  const ttsToggle = vi.fn();
+  const ttsStop = vi.fn();
+  const speakingId = signal<string | null>(null);
+  const voices = signal<SpeechSynthesisVoice[]>([]);
 
   beforeEach(() => {
     vi.clearAllMocks();
+    voices.set([]);
+    speakingId.set(null);
     TestBed.configureTestingModule({
       imports: [SettingsComponent],
       providers: [
@@ -34,6 +42,17 @@ describe('SettingsComponent', () => {
             setColorTheme: vi.fn(),
             setDefaultDifficulty: vi.fn(),
             setShowAnswersAutomatically: vi.fn(),
+            setSpeechVoice,
+          },
+        },
+        {
+          provide: TextToSpeechService,
+          useValue: {
+            supported: true,
+            speakingId,
+            voices,
+            stop: ttsStop,
+            toggle: ttsToggle,
           },
         },
         {
@@ -142,6 +161,32 @@ describe('SettingsComponent', () => {
       text: 'This file is not valid JSON.',
       success: false,
     });
+  });
+
+  it('lists browser voices, saves a choice, and previews it', () => {
+    voices.set([{ name: 'Samantha', lang: 'en-US', voiceURI: 'sam' } as SpeechSynthesisVoice]);
+    const component = create();
+    expect(component.voiceOptions().map((option) => option.label)).toEqual([
+      'Automatic (best available)',
+      'Samantha (en-US)',
+    ]);
+    expect(component.automaticVoiceLabel()).toBe('Samantha');
+    settings.set({ ...DEFAULT_SETTINGS, speechVoiceUri: 'missing' });
+    expect(component.savedVoiceMissing()).toBe(true);
+    settings.set(DEFAULT_SETTINGS);
+
+    component.setSpeechVoice('sam');
+    expect(setSpeechVoice).toHaveBeenCalledWith('sam');
+    speakingId.set(SPEECH_PREVIEW_ID);
+    component.setSpeechVoice('');
+    expect(setSpeechVoice).toHaveBeenLastCalledWith(null);
+    expect(ttsStop).toHaveBeenCalledOnce();
+
+    component.previewVoice();
+    expect(ttsToggle).toHaveBeenCalledWith(
+      SPEECH_PREVIEW_ID,
+      expect.stringContaining('Skill Hunter'),
+    );
   });
 
   it('requires RESET before clearing progress and delegates export', () => {

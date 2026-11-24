@@ -1,9 +1,11 @@
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { buildCustomPalette, normalizeHex } from '../../core/theme/custom-theme';
 import { SettingsService } from '../../core/services/settings.service';
+import { SPEECH_PREVIEW_ID, TextToSpeechService } from '../../core/services/text-to-speech.service';
+import { pickSpeechVoice, voiceChoiceId, voiceLabel } from '../../core/services/speech-text';
 import { DataManagementService } from '../../core/services/data-management.service';
 import { ProfileService } from '../../core/services/profile.service';
 import { PwaService } from '../../core/services/pwa.service';
@@ -28,7 +30,17 @@ export class SettingsComponent {
   private readonly settingsService = inject(SettingsService);
   private readonly dataManagementService = inject(DataManagementService);
   private readonly profileService = inject(ProfileService);
+  readonly tts = inject(TextToSpeechService);
   readonly pwa = inject(PwaService);
+  readonly speechPreviewId = SPEECH_PREVIEW_ID;
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      if (this.tts.speakingId() === SPEECH_PREVIEW_ID) {
+        this.tts.stop();
+      }
+    });
+  }
 
   readonly settings = this.settingsService.settings;
   readonly displayName = this.profileService.displayName;
@@ -57,6 +69,32 @@ export class SettingsComponent {
       .map((part) => part[0]!.toUpperCase())
       .join(''),
   );
+
+  readonly voiceOptions = computed<SelectOption[]>(() => {
+    const options: SelectOption[] = [{ value: '', label: 'Automatic (best available)' }];
+    for (const voice of this.tts.voices()) {
+      options.push({ value: voiceChoiceId(voice), label: voiceLabel(voice) });
+    }
+    const selected = this.settings().speechVoiceUri;
+    if (selected && !options.some((option) => option.value === selected)) {
+      options.push({
+        value: selected,
+        label: this.tts.voices().length > 0 ? 'Saved voice (not on this browser)' : 'Saved voice',
+      });
+    }
+    return options;
+  });
+
+  readonly automaticVoiceLabel = computed(
+    () => pickSpeechVoice(this.tts.voices(), null)?.name ?? '',
+  );
+
+  /** A backup from another browser can name a voice this one does not have. */
+  readonly savedVoiceMissing = computed(() => {
+    const selected = this.settings().speechVoiceUri;
+    if (!selected || this.tts.voices().length === 0) return false;
+    return !this.tts.voices().some((voice) => voiceChoiceId(voice) === selected);
+  });
 
   readonly difficultyOptions: SelectOption[] = [
     { value: 'all', label: 'All' },
@@ -422,6 +460,20 @@ export class SettingsComponent {
 
   setShowAnswersAutomatically(value: boolean): void {
     this.settingsService.setShowAnswersAutomatically(value);
+  }
+
+  setSpeechVoice(value: string): void {
+    this.settingsService.setSpeechVoice(value.trim() ? value : null);
+    if (this.tts.speakingId() === SPEECH_PREVIEW_ID) {
+      this.tts.stop();
+    }
+  }
+
+  previewVoice(): void {
+    this.tts.toggle(
+      SPEECH_PREVIEW_ID,
+      'This is how Skill Hunter will read a topic aloud. Short sentences stay easy to follow.',
+    );
   }
 
   async installApp(): Promise<void> {

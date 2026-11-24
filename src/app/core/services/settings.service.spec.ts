@@ -46,13 +46,17 @@ describe('SettingsService', () => {
     service.setDefaultDifficulty('advanced');
     service.setShowAnswersAutomatically(true);
     service.setDailyGoalMinutes(45);
+    service.setSpeechVoice('  Google US English  ');
     expect(service.settings()).toMatchObject({
       theme: 'light',
       colorTheme: 'forest',
       defaultDifficulty: 'advanced',
       showAnswersAutomatically: true,
       dailyGoalMinutes: 45,
+      speechVoiceUri: 'Google US English',
     });
+    service.setSpeechVoice('   ');
+    expect(service.settings().speechVoiceUri).toBeNull();
     expect(set).toHaveBeenLastCalledWith(STORAGE_KEYS.settings, service.settings());
   });
 

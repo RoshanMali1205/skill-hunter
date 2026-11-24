@@ -31,6 +31,7 @@ import {
   UserProfile,
 } from '../models';
 import { ACHIEVEMENT_DEFINITIONS } from '../models/achievements.models';
+import { normalizeSpeechVoiceUri } from './speech-text';
 
 const TOPIC_STATUSES: TopicStatus[] = ['not-started', 'in-progress', 'completed'];
 const CONFIDENCE_LEVELS: ConfidenceLevel[] = ['not-rated', 'low', 'medium', 'high'];
@@ -444,6 +445,14 @@ export class DataManagementService {
     ) {
       return null;
     }
+    if (
+      value['speechVoiceUri'] !== undefined &&
+      value['speechVoiceUri'] !== null &&
+      typeof value['speechVoiceUri'] !== 'string'
+    ) {
+      return null;
+    }
+    const speechVoiceUri = normalizeSpeechVoiceUri(value['speechVoiceUri']);
 
     return {
       theme,
@@ -455,6 +464,7 @@ export class DataManagementService {
       defaultDifficulty,
       showAnswersAutomatically,
       dailyGoalMinutes,
+      speechVoiceUri,
     };
   }
 

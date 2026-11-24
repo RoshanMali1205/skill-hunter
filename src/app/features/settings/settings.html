@@ -317,6 +317,49 @@
   </section>
 
   <section class="settings__card">
+    <h2>Read aloud</h2>
+    <p class="settings__muted">
+      Listen uses a voice already installed in this browser. Automatic picks the most natural
+      English voice available — Microsoft Natural on Edge, Google English on Chrome, or Enhanced
+      voices on Safari — instead of the robotic system voice. The choice is saved with your other
+      settings in this browser.
+    </p>
+
+    @if (tts.supported) {
+      <label class="settings__field settings__voice">
+        <span>Voice</span>
+        <app-select
+          [value]="settings().speechVoiceUri ?? ''"
+          [options]="voiceOptions()"
+          ariaLabel="Read aloud voice"
+          (valueChange)="setSpeechVoice($event)"
+        />
+      </label>
+      @if (!settings().speechVoiceUri && automaticVoiceLabel(); as name) {
+        <p class="settings__muted">Automatic is using {{ name }} on this browser.</p>
+      }
+      @if (savedVoiceMissing()) {
+        <p class="settings__muted">
+          That saved voice is not installed in this browser, so Listen uses the automatic voice.
+        </p>
+      }
+      @if (tts.voices().length === 0) {
+        <p class="settings__muted">
+          This browser has not offered a choice of voices yet. Open this page in Chrome, Edge, or
+          Safari to pick a more natural English voice.
+        </p>
+      }
+      <div class="cluster">
+        <button type="button" class="btn" (click)="previewVoice()">
+          {{ tts.speakingId() === speechPreviewId ? 'Stop preview' : 'Preview voice' }}
+        </button>
+      </div>
+    } @else {
+      <p class="settings__muted">This browser does not support read aloud.</p>
+    }
+  </section>
+
+  <section class="settings__card">
     <h2>Install App</h2>
     <p class="settings__muted">
       Install Skill Hunter as a Progressive Web App for a full-screen experience and faster repeat
