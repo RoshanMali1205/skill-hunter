@@ -172,7 +172,7 @@ describe('SettingsComponent', () => {
     voices.set([{ name: 'Samantha', lang: 'en-US', voiceURI: 'sam' } as SpeechSynthesisVoice]);
     const component = create();
     expect(component.voiceOptions().map((option) => option.label)).toEqual([
-      'Automatic (best available)',
+      'Automatic (best adult voice)',
       'Samantha (en-US)',
     ]);
     expect(component.automaticVoiceLabel()).toBe('Samantha');

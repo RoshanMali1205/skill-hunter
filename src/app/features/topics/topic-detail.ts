@@ -10,6 +10,7 @@ import { RevisionService } from '../../core/services/revision.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { NoteService } from '../../core/services/note.service';
 import { TextToSpeechService } from '../../core/services/text-to-speech.service';
+import { speechVoiceNote, speechVoiceOptions } from '../../core/services/speech-text';
 import { ConfidenceLevel, DEFAULT_TOPIC_EXPORT_OPTIONS } from '../../core/models';
 import { buildTopicNarration } from './topic-narration';
 import { hasInAppHistory } from '../../shared/navigation';
@@ -22,6 +23,7 @@ import { QuestionCardComponent } from '../../shared/components/question-card/que
 import { BookmarkButtonComponent } from '../../shared/components/bookmark-button/bookmark-button';
 import { NoteButtonComponent } from '../../shared/components/note-button/note-button';
 import { ReadAloudButtonComponent } from '../../shared/components/read-aloud-button/read-aloud-button';
+import { SelectComponent } from '../../shared/components/select/select';
 import { NoteEditorComponent } from '../../shared/components/note-editor/note-editor';
 import { CompletionButtonComponent } from '../../shared/components/completion-button/completion-button';
 import { ConfidenceSelectorComponent } from '../../shared/components/confidence-selector/confidence-selector';
@@ -44,6 +46,7 @@ import { TopicExportService } from '../../core/services/topic-export.service';
     BookmarkButtonComponent,
     NoteButtonComponent,
     ReadAloudButtonComponent,
+    SelectComponent,
     NoteEditorComponent,
     CompletionButtonComponent,
     ConfidenceSelectorComponent,
@@ -109,6 +112,10 @@ export class TopicDetailComponent {
   readonly ttsSupported = this.ttsService.supported;
   readonly isSpeaking = computed(() => this.ttsService.speakingId() === this.topicId());
   readonly isPaused = computed(() => this.isSpeaking() && this.ttsService.paused());
+  readonly voiceOptions = computed(() =>
+    speechVoiceOptions(this.ttsService.voices(), this.settings().speechVoiceUri),
+  );
+  readonly voiceNote = computed(() => speechVoiceNote(this.ttsService.voices()));
 
   readonly readableText = computed(() => {
     const topic = this.topic();
@@ -192,6 +199,15 @@ export class TopicDetailComponent {
 
   stopReadAloud(): void {
     this.ttsService.stop();
+  }
+
+  setReadAloudVoice(value: string): void {
+    this.settingsService.setSpeechVoice(value.trim() ? value : null);
+    if (!this.isSpeaking()) return;
+    const text = this.readableText();
+    const id = this.topicId();
+    this.ttsService.stop();
+    window.setTimeout(() => this.ttsService.speak(id, text), 0);
   }
 
   toggleNoteEditor(): void {

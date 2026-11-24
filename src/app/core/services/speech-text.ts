@@ -1,13 +1,26 @@
-/** Browser voices, best first. Edge/macOS neural, then Chrome Google, then enhanced. */
+/**
+ * Adult voices, best first.
+ * Edge's default "Microsoft Ana" is a child voice, so she is never in this list.
+ * Named adult voices still rank well when the browser omits the word "Natural"
+ * (common on Firefox, which only exposes the operating system's voices).
+ */
 const VOICE_PREFERENCES: readonly RegExp[] = [
   /Natural|Neural/i,
   /Google (US|UK) English/i,
   /Premium|Enhanced/i,
-  /Samantha|Daniel|Karen|Moira|Veena|Rishi/i,
+  /\b(Aria|Jenny|Sonia|Libby|Neerja|Michelle|Ava|Nancy)\b/i,
+  /\b(Samantha|Daniel|Karen|Moira|Veena|Rishi)\b/i,
+  /\b(Guy|Ryan|Prabhat|Davis|Brian|Roger|Steffan|Christopher|Tony)\b/i,
+  /\b(Zira|Hazel|Heera)\b/i,
 ];
 
-/** Novelty and legacy synthesizers that sound worse than the plain system voice. */
+/** Edge's Ana and a few other synthesizers sound like a small child. */
+const CHILD_VOICES = /\b(ana|ivy)\b|junior|child|superstar/i;
+
+/** Novelty and legacy synthesizers that sound worse than a plain adult system voice. */
 const ROBOTIC_VOICES = /espeak|android|compact|zarvox|whisper|bells|boing|trinoids|bad news|bahh/i;
+
+const RICHER_VOICES = /Natural|Neural|Google (US|UK) English|Premium|Enhanced/i;
 
 export const SPEECH_RATES = [0.85, 1, 1.15, 1.3] as const;
 export type SpeechRate = (typeof SPEECH_RATES)[number];
@@ -31,11 +44,58 @@ export function voiceChoiceId(voice: SpeechVoiceInfo): string {
 }
 
 export function voiceLabel(voice: SpeechVoiceInfo): string {
-  return voice.lang ? `${voice.name} (${voice.lang})` : voice.name;
+  const name = voice.lang ? `${voice.name} (${voice.lang})` : voice.name;
+  return isChildVoice(voice) ? `${name} — child` : name;
+}
+
+export interface SpeechVoiceOption {
+  value: string;
+  label: string;
+}
+
+/** Dropdown entries: Automatic first, then every voice this browser actually has. */
+export function speechVoiceOptions(
+  voices: readonly SpeechVoiceInfo[],
+  selectedId: string | null,
+): SpeechVoiceOption[] {
+  const options: SpeechVoiceOption[] = [{ value: '', label: 'Automatic (best adult voice)' }];
+  for (const voice of voices) {
+    options.push({ value: voiceChoiceId(voice), label: voiceLabel(voice) });
+  }
+  if (selectedId && !options.some((option) => option.value === selectedId)) {
+    options.push({
+      value: selectedId,
+      label: voices.length > 0 ? 'Saved voice (not on this browser)' : 'Saved voice',
+    });
+  }
+  return options;
+}
+
+/**
+ * Explains a flat voice. Empty when this browser already has a neural or Google voice.
+ * Firefox usually has only the operating-system list, so the note tells the learner that.
+ */
+export function speechVoiceNote(voices: readonly SpeechVoiceInfo[]): string {
+  if (voices.length === 0) return 'Voices are still loading. Open this menu again in a moment.';
+  if (hasRicherVoices(voices)) return '';
+  if (voices.length === 1) {
+    return `${voices[0]!.name} is the only voice this browser offers, so Listen uses that system voice. Edge and Chrome include more natural voices.`;
+  }
+  return 'This browser only has the computer’s built-in voices. Choose one below. Edge and Chrome include more natural voices.';
+}
+
+export function isChildVoice(voice: SpeechVoiceInfo): boolean {
+  return CHILD_VOICES.test(voice.name);
+}
+
+/** True when this browser offers a neural or Google voice, not only the OS default. */
+export function hasRicherVoices(voices: readonly SpeechVoiceInfo[]): boolean {
+  return voices.some((voice) => RICHER_VOICES.test(voice.name) && !isChildVoice(voice));
 }
 
 /** Lower is a better match for the built-in preference list. */
 export function voiceRank(voice: SpeechVoiceInfo): number {
+  if (isChildVoice(voice)) return VOICE_PREFERENCES.length + 2;
   if (ROBOTIC_VOICES.test(voice.name)) return VOICE_PREFERENCES.length + 1;
   const index = VOICE_PREFERENCES.findIndex((pattern) => pattern.test(voice.name));
   return index === -1 ? VOICE_PREFERENCES.length : index;

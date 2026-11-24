@@ -4,6 +4,8 @@ import {
   normalizeSpeechRate,
   normalizeSpeechVoiceUri,
   pickSpeechVoice,
+  speechVoiceNote,
+  speechVoiceOptions,
   voicesForSpeech,
   type SpeechVoiceInfo,
 } from './speech-text';
@@ -62,12 +64,48 @@ describe('pickSpeechVoice', () => {
     ]);
   });
 
+  it('does not automatically pick Edge’s child voice', () => {
+    const edge = [
+      voice('Microsoft Ana', 'en-US', 'ana'),
+      voice('Microsoft David', 'en-US', 'david'),
+      voice('Microsoft Zira', 'en-US', 'zira'),
+    ];
+    expect(pickSpeechVoice(edge, null, 'en-US')?.voiceURI).toBe('zira');
+    expect(
+      pickSpeechVoice(
+        [
+          voice('Microsoft Ana', 'en-US', 'ana'),
+          voice('Microsoft Aria Online (Natural)', 'en-US', 'aria'),
+        ],
+        null,
+      )?.voiceURI,
+    ).toBe('aria');
+    expect(pickSpeechVoice(edge, 'ana')?.voiceURI).toBe('ana');
+  });
+
   it('keeps non-English voices only when no English voice exists', () => {
     const french = [voice('Hélène', 'fr-FR')];
     expect(voicesForSpeech([...french, voice('Samantha')]).map((item) => item.name)).toEqual([
       'Samantha',
     ]);
     expect(voicesForSpeech(french).map((item) => item.name)).toEqual(['Hélène']);
+  });
+});
+
+describe('speech voice menu', () => {
+  it('labels the child voice and explains when only system voices exist', () => {
+    const voices = [
+      voice('Microsoft Ana', 'en-US', 'ana'),
+      voice('Microsoft Zira', 'en-US', 'zira'),
+    ];
+    expect(speechVoiceOptions(voices, null).map((option) => option.label)).toEqual([
+      'Automatic (best adult voice)',
+      'Microsoft Ana (en-US) — child',
+      'Microsoft Zira (en-US)',
+    ]);
+    expect(speechVoiceNote(voices)).toContain('built-in voices');
+    expect(speechVoiceNote([voice('Google UK English Female')])).toBe('');
+    expect(speechVoiceNote([voice('Microsoft David')])).toContain('only voice');
   });
 });
 
