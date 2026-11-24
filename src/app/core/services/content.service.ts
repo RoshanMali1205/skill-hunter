@@ -16,6 +16,7 @@ const SUBJECT_CONTENT_FILES: Record<string, string[]> = {
   'design-patterns': ['content/design-patterns/topics.json'],
   'ai-concepts': ['content/ai-concepts/topics.json'],
   vue: ['content/vue/topics.json', 'content/vue/topics-extended.json'],
+  nodejs: ['content/nodejs/topics.json'],
 };
 
 @Injectable({ providedIn: 'root' })
