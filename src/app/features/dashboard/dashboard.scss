@@ -95,29 +95,17 @@
   gap: var(--space-3);
   justify-content: center;
   padding: var(--space-5);
+  border: 1px solid color-mix(in srgb, #fff 70%, var(--color-border));
   border-radius: var(--radius-lg);
-  color: #fff;
-  background: var(--gradient-banner);
-  box-shadow: var(--shadow-md);
+  color: var(--color-text);
+  background: var(--gradient-wash-strong);
+  box-shadow: var(--shadow-sm);
 
   h2 {
     margin: 0;
     font-size: 1.5rem;
     line-height: 1.25;
     color: inherit;
-  }
-
-  .btn--primary {
-    background: #fff;
-    border-color: #fff;
-    color: #1f2937;
-    box-shadow: none;
-  }
-
-  .btn--ghost {
-    color: #fff;
-    border-color: rgb(255 255 255 / 0.5);
-    background: transparent;
   }
 }
 
@@ -145,7 +133,7 @@
   font-weight: 700;
   text-transform: capitalize;
   color: #1f2937;
-  background: rgb(255 255 255 / 0.9);
+  background: rgb(255 255 255 / 0.82);
 }
 
 .dash__resume-text {
@@ -333,8 +321,26 @@
 
 // Brutalism: the hero is a flat block with a thick outline and a hard shadow.
 :host-context([data-ui-style='brutalism']) .dash__resume {
+  color: var(--color-primary-contrast);
+  background: var(--gradient-banner);
   border: 3px solid var(--brut-ink);
   box-shadow: 8px 8px 0 var(--brut-ink);
+
+  .btn--primary {
+    background: var(--color-surface);
+    border-color: var(--brut-ink);
+    color: var(--color-text);
+  }
+
+  .btn--ghost {
+    color: var(--color-primary-contrast);
+    background: transparent;
+  }
+
+  .dash__level {
+    color: var(--color-text);
+    background: var(--color-surface);
+  }
 }
 
 // Multi-color palettes: each "Today" tile, chip and list heading picks up a different palette color.

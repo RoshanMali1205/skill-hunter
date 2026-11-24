@@ -11,16 +11,11 @@
   align-items: center;
   justify-content: safe center;
   gap: var(--space-4);
-  padding:
-    max(var(--space-5), env(safe-area-inset-top, 0px))
+  padding: max(var(--space-5), env(safe-area-inset-top, 0px))
     max(var(--space-5), env(safe-area-inset-right, 0px))
     max(var(--space-5), env(safe-area-inset-bottom, 0px))
     max(var(--space-5), env(safe-area-inset-left, 0px));
-  background:
-    radial-gradient(1200px 700px at 10% -10%, color-mix(in srgb, var(--color-primary) 28%, transparent), transparent 60%),
-    radial-gradient(900px 600px at 110% 10%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 55%),
-    radial-gradient(800px 500px at 50% 120%, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent 50%),
-    var(--color-bg);
+  background: var(--gradient-page);
 }
 
 .auth-shell__backdrop {
@@ -44,7 +39,7 @@
   height: min(52vw, 420px);
   top: -8%;
   left: -6%;
-  background: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  background: var(--wash-peach);
   animation: auth-orb-drift-a 18s ease-in-out infinite alternate;
 }
 
@@ -53,7 +48,7 @@
   height: min(48vw, 380px);
   top: 18%;
   right: -10%;
-  background: color-mix(in srgb, var(--color-accent) 50%, transparent);
+  background: var(--wash-lilac);
   animation: auth-orb-drift-b 22s ease-in-out infinite alternate;
 }
 
@@ -62,7 +57,7 @@
   height: min(40vw, 300px);
   bottom: -6%;
   left: 28%;
-  background: color-mix(in srgb, var(--color-primary-strong) 40%, transparent);
+  background: var(--wash-mint);
   animation: auth-orb-drift-c 16s ease-in-out infinite alternate;
 }
 
@@ -72,7 +67,11 @@
   opacity: 0.35;
   background-image:
     linear-gradient(color-mix(in srgb, var(--color-border) 55%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--color-border) 55%, transparent) 1px, transparent 1px);
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-border) 55%, transparent) 1px,
+      transparent 1px
+    );
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 20%, transparent 75%);
 }

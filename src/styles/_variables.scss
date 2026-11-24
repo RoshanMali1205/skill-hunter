@@ -48,23 +48,44 @@
   --color-difficulty-intermediate: #c2410c;
   --color-difficulty-advanced: #dc2626;
 
+  /* Soft banner wash: warm peach, blush, lilac, then mint. Accent themes recolor
+   * buttons and links, not this atmosphere. */
+  --wash-peach: #ffd8c4;
+  --wash-blush: #f6c6d6;
+  --wash-lilac: #e0d0f8;
+  --wash-mint: #c8eee4;
+  --gradient-wash: linear-gradient(
+    90deg,
+    #fff3e6 0%,
+    #ffe6e2 24%,
+    #f8e4f0 48%,
+    #ebe4f8 70%,
+    #e4f5f0 88%,
+    #f5fbf9 100%
+  );
+  /* Richer slice of the same wash, for hero panels that sit on the page. */
+  --gradient-wash-strong: linear-gradient(
+    90deg,
+    #ffdcc6 0%,
+    #ffd4d2 26%,
+    #f4d0e8 50%,
+    #e0d2f8 72%,
+    #d4f0e6 100%
+  );
+  --gradient-wash-card: linear-gradient(100deg, #ffe8dc 0%, #fff1e8 38%, #f6eef8 70%, #f4f7fb 100%);
   --gradient-primary: linear-gradient(135deg, #0f7fae 0%, #0b6e99 50%, #003366 100%);
   --gradient-banner: linear-gradient(135deg, #0d7aa8 0%, #0b6e99 45%, #003366 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    rgba(11, 110, 153, 0.12) 0%,
-    rgba(246, 247, 249, 0.95) 48%,
-    rgba(142, 182, 204, 0.16) 100%
-  );
+  --gradient-hero: var(--gradient-wash-card);
   --gradient-tile: linear-gradient(165deg, #ffffff 0%, #f5f8fb 58%, #eef1f4 100%);
   --gradient-tile-strong: linear-gradient(145deg, #003366 0%, #0b6e99 52%, #1490c4 100%);
-  --gradient-page: linear-gradient(180deg, #eaf3f9 0%, #f6f7f9 26%, #f6f7f9 100%);
+  --gradient-page: var(--gradient-wash);
   --gradient-danger: linear-gradient(135deg, #f87171 0%, #dc2626 55%, #b91c1c 100%);
   --gradient-brand-text: linear-gradient(90deg, #003366 0%, #0b6e99 55%, #1490c4 100%);
   --header-wash: linear-gradient(
-    180deg,
-    color-mix(in srgb, #e8f4fb 48%, transparent) 0%,
-    transparent 100%
+    90deg,
+    color-mix(in srgb, var(--wash-peach) 40%, transparent) 0%,
+    color-mix(in srgb, var(--wash-lilac) 28%, transparent) 52%,
+    color-mix(in srgb, var(--wash-mint) 40%, transparent) 100%
   );
 
   --shadow-sm: 0 1px 2px rgba(31, 41, 55, 0.05);
@@ -122,23 +143,40 @@
   --color-danger: #f87171;
   --color-danger-contrast: #0f1419;
 
+  --wash-peach: #5c3a30;
+  --wash-blush: #5a3344;
+  --wash-lilac: #3c3358;
+  --wash-mint: #1e4540;
+  --gradient-wash: linear-gradient(
+    90deg,
+    #2a211c 0%,
+    #2c1e26 28%,
+    #261e32 54%,
+    #1c2830 80%,
+    #172422 100%
+  );
+  --gradient-wash-strong: linear-gradient(
+    90deg,
+    #3a2a22 0%,
+    #3a2430 28%,
+    #32243e 54%,
+    #24343c 80%,
+    #1e3330 100%
+  );
+  --gradient-wash-card: linear-gradient(100deg, #32261f 0%, #2a2230 50%, #1c2826 100%);
   --gradient-primary: linear-gradient(135deg, #7ec8e8 0%, #3ba4d4 45%, #0b6e99 100%);
   --gradient-banner: linear-gradient(135deg, #0a5a80 0%, #003366 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    rgba(59, 164, 212, 0.22) 0%,
-    rgba(23, 29, 37, 0.88) 55%,
-    rgba(15, 20, 25, 0.98) 100%
-  );
+  --gradient-hero: var(--gradient-wash-card);
   --gradient-tile: linear-gradient(165deg, #222a35 0%, #171d25 55%, #0f1419 100%);
   --gradient-tile-strong: linear-gradient(145deg, #3ba4d4 0%, #0b6e99 50%, #003366 100%);
-  --gradient-page: linear-gradient(180deg, #171d25 0%, #0f1419 40%, #0f1419 100%);
+  --gradient-page: var(--gradient-wash);
   --gradient-danger: linear-gradient(135deg, #fca5a5 0%, #f87171 55%, #ef4444 100%);
   --gradient-brand-text: linear-gradient(90deg, #ffffff 0%, #e8edf2 42%, #7ec8e8 100%);
   --header-wash: linear-gradient(
-    180deg,
-    color-mix(in srgb, #3ba4d4 14%, transparent) 0%,
-    transparent 100%
+    90deg,
+    color-mix(in srgb, var(--wash-peach) 55%, transparent) 0%,
+    color-mix(in srgb, var(--wash-lilac) 40%, transparent) 52%,
+    color-mix(in srgb, var(--wash-mint) 50%, transparent) 100%
   );
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -177,23 +215,40 @@
     --color-danger: #f87171;
     --color-danger-contrast: #0f1419;
 
+    --wash-peach: #5c3a30;
+    --wash-blush: #5a3344;
+    --wash-lilac: #3c3358;
+    --wash-mint: #1e4540;
+    --gradient-wash: linear-gradient(
+      90deg,
+      #2a211c 0%,
+      #2c1e26 28%,
+      #261e32 54%,
+      #1c2830 80%,
+      #172422 100%
+    );
+    --gradient-wash-strong: linear-gradient(
+      90deg,
+      #3a2a22 0%,
+      #3a2430 28%,
+      #32243e 54%,
+      #24343c 80%,
+      #1e3330 100%
+    );
+    --gradient-wash-card: linear-gradient(100deg, #32261f 0%, #2a2230 50%, #1c2826 100%);
     --gradient-primary: linear-gradient(135deg, #7ec8e8 0%, #3ba4d4 45%, #0b6e99 100%);
     --gradient-banner: linear-gradient(135deg, #0a5a80 0%, #003366 100%);
-    --gradient-hero: linear-gradient(
-      135deg,
-      rgba(59, 164, 212, 0.22) 0%,
-      rgba(23, 29, 37, 0.88) 55%,
-      rgba(15, 20, 25, 0.98) 100%
-    );
+    --gradient-hero: var(--gradient-wash-card);
     --gradient-tile: linear-gradient(165deg, #222a35 0%, #171d25 55%, #0f1419 100%);
     --gradient-tile-strong: linear-gradient(145deg, #3ba4d4 0%, #0b6e99 50%, #003366 100%);
-    --gradient-page: linear-gradient(180deg, #171d25 0%, #0f1419 40%, #0f1419 100%);
+    --gradient-page: var(--gradient-wash);
     --gradient-danger: linear-gradient(135deg, #fca5a5 0%, #f87171 55%, #ef4444 100%);
     --gradient-brand-text: linear-gradient(90deg, #ffffff 0%, #e8edf2 42%, #7ec8e8 100%);
     --header-wash: linear-gradient(
-      180deg,
-      color-mix(in srgb, #3ba4d4 14%, transparent) 0%,
-      transparent 100%
+      90deg,
+      color-mix(in srgb, var(--wash-peach) 55%, transparent) 0%,
+      color-mix(in srgb, var(--wash-lilac) 40%, transparent) 52%,
+      color-mix(in srgb, var(--wash-mint) 50%, transparent) 100%
     );
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);

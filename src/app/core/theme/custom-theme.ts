@@ -190,7 +190,6 @@ export function buildCustomPalette(
   const deep = fromHsl({ h: pl.h, s: Math.min(sat, 85), l: 15 });
   const accent = userAccent ?? fromHsl({ h: pl.h, s: sat, l: Math.min(62, pl.l + 14) });
   const tint = fromHsl({ h: pl.h, s: Math.min(sat, 70), l: 96 });
-  const mid = fromHsl({ h: pl.h, s: Math.min(sat, 70), l: 76 });
   // Keep the gradient's first stop readable for white text, even with a bright accent.
   const startLight = mix(p, accent, 0.14);
   const gradStart = contrastRatio(startLight, LIGHT_SURFACE) >= MIN_TEXT_CONTRAST ? startLight : p;
@@ -227,17 +226,10 @@ export function buildCustomPalette(
   }
   const lightClassicOnly: CssVars = {
     '--color-surface-alt': mix('#eef1f4', tint, 0.62),
-    '--gradient-hero': `linear-gradient(135deg, ${mix('#f6f7f9', p, 0.12)} 0%, ${mix('#ffffff', tint, 0.55)} 48%, ${mix('#f6f7f9', mid, 0.14)} 100%)`,
+    '--gradient-hero': 'var(--gradient-wash-card)',
     '--gradient-tile': `linear-gradient(165deg, #ffffff 0%, ${mix('#ffffff', tint, 0.35)} 62%, #f1f3f5 100%)`,
-    '--gradient-page': `linear-gradient(180deg, ${mix('#f6f7f9', tint, 0.45)} 0%, #f6f7f9 26%, #f6f7f9 100%)`,
-    '--header-wash': `linear-gradient(180deg, ${mix('#f6f7f9', tint, 0.42)} 0%, transparent 100%)`,
+    '--gradient-page': 'var(--gradient-wash)',
   };
-  if (multi) {
-    lightClassicOnly['--gradient-page'] =
-      `linear-gradient(180deg, ${mix('#f6f7f9', p, 0.11)} 0%, ${mix('#f6f7f9', s2, 0.07)} 20%, #f6f7f9 42%)`;
-    lightClassicOnly['--header-wash'] =
-      `linear-gradient(90deg, ${mix('#f6f7f9', p, 0.13)} 0%, ${mix('#f6f7f9', s2, 0.11)} 50%, ${mix('#f6f7f9', s3, 0.13)} 100%)`;
-  }
 
   // ── Dark mode ──
   const darkPrimary = ensureContrast(picked, DARK_SURFACE, MIN_TEXT_CONTRAST, 'lighten');
@@ -298,8 +290,8 @@ export function buildCustomPalette(
   }
   const darkClassicOnly: CssVars = {
     '--color-surface-alt': mix('#222a35', dp, 0.12),
-    '--gradient-hero': `linear-gradient(135deg, ${mix('#171d25', dp, 0.2)} 0%, #171d25 55%, ${DARK_INK} 100%)`,
-    '--header-wash': `linear-gradient(180deg, ${mix('#171d25', dp, 0.12)} 0%, transparent 100%)`,
+    '--gradient-hero': 'var(--gradient-wash-card)',
+    '--gradient-page': 'var(--gradient-wash)',
   };
 
   return {

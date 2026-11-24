@@ -1,6 +1,6 @@
 /* Accent families layered on shared neutrals from _variables.scss.
- * Body text, borders, and page chrome stay charcoal/slate — only CTAs,
- * links, progress, and soft washes follow the selected accent. */
+ * Body text, borders, and the pastel page wash stay shared — only CTAs,
+ * links, and progress follow the selected accent. */
 
 @mixin light-accents($primary, $strong, $accent, $tint, $mid, $deep, $sr, $sg, $sb) {
   --palette-navy-950: #{$deep};
@@ -29,12 +29,7 @@
     #{$primary} 50%,
     #{$deep} 100%
   );
-  --gradient-hero: linear-gradient(
-    135deg,
-    color-mix(in srgb, #{$primary} 12%, transparent) 0%,
-    color-mix(in srgb, #{$tint} 55%, #ffffff) 48%,
-    color-mix(in srgb, #{$mid} 14%, transparent) 100%
-  );
+  --gradient-hero: var(--gradient-wash-card);
   --gradient-tile: linear-gradient(
     165deg,
     #ffffff 0%,
@@ -49,17 +44,13 @@
     #{$primary} 45%,
     #{$deep} 100%
   );
-  --gradient-page: linear-gradient(
-    180deg,
-    color-mix(in srgb, #{$tint} 45%, #f6f7f9) 0%,
-    #f6f7f9 26%,
-    #f6f7f9 100%
-  );
+  --gradient-page: var(--gradient-wash);
   --gradient-brand-text: linear-gradient(90deg, #{$deep} 0%, #{$primary} 55%, #{$accent} 100%);
   --header-wash: linear-gradient(
-    180deg,
-    color-mix(in srgb, #{$tint} 42%, transparent) 0%,
-    transparent 100%
+    90deg,
+    color-mix(in srgb, var(--wash-peach) 40%, transparent) 0%,
+    color-mix(in srgb, var(--wash-lilac) 28%, transparent) 52%,
+    color-mix(in srgb, var(--wash-mint) 40%, transparent) 100%
   );
   --shadow-primary: 0 8px 22px rgba(#{$sr}, #{$sg}, #{$sb}, 0.26);
 }
@@ -86,12 +77,7 @@
   --color-accent: #{$accent};
 
   --gradient-primary: linear-gradient(135deg, #{$mid} 0%, #{$primary} 45%, #{$deep} 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    color-mix(in srgb, #{$primary} 20%, transparent) 0%,
-    color-mix(in srgb, #171d25 88%, transparent) 55%,
-    #0f1419 100%
-  );
+  --gradient-hero: var(--gradient-wash-card);
   --gradient-tile: linear-gradient(165deg, #222a35 0%, #171d25 55%, #0f1419 100%);
   --gradient-tile-strong: linear-gradient(145deg, #{$primary} 0%, #{$deep} 55%, #0f1419 100%);
   --gradient-banner: linear-gradient(
@@ -99,12 +85,13 @@
     color-mix(in srgb, #{$deep} 85%, #{$primary}) 0%,
     #{$deep} 100%
   );
-  --gradient-page: linear-gradient(180deg, #171d25 0%, #0f1419 42%, #0f1419 100%);
+  --gradient-page: var(--gradient-wash);
   --gradient-brand-text: linear-gradient(90deg, #ffffff 0%, #e8edf2 42%, #{$mid} 100%);
   --header-wash: linear-gradient(
-    180deg,
-    color-mix(in srgb, #{$primary} 12%, transparent) 0%,
-    transparent 100%
+    90deg,
+    color-mix(in srgb, var(--wash-peach) 55%, transparent) 0%,
+    color-mix(in srgb, var(--wash-lilac) 40%, transparent) 52%,
+    color-mix(in srgb, var(--wash-mint) 50%, transparent) 100%
   );
   --shadow-primary: 0 8px 24px rgba(#{$sr}, #{$sg}, #{$sb}, 0.28);
 }
@@ -200,24 +187,6 @@
   --gradient-banner: linear-gradient(135deg, #{$p1} 0%, #{$p2} 55%, #{$p3} 100%);
   --gradient-tile-strong: linear-gradient(145deg, #{$p1} 0%, #{$p2} 55%, #{$p3} 100%);
   --gradient-brand-text: linear-gradient(90deg, #{$p1} 0%, #{$p2} 55%, #{$p3} 100%);
-  --gradient-hero: linear-gradient(
-    135deg,
-    color-mix(in srgb, #{$p1} 13%, transparent) 0%,
-    color-mix(in srgb, #{$tint} 55%, #ffffff) 48%,
-    color-mix(in srgb, #{$p3} 14%, transparent) 100%
-  );
-  --gradient-page: linear-gradient(
-    180deg,
-    color-mix(in srgb, #{$p1} 11%, #f6f7f9) 0%,
-    color-mix(in srgb, #{$p2} 7%, #f6f7f9) 20%,
-    #f6f7f9 42%
-  );
-  --header-wash: linear-gradient(
-    90deg,
-    color-mix(in srgb, #{$p1} 13%, transparent) 0%,
-    color-mix(in srgb, #{$p2} 11%, transparent) 50%,
-    color-mix(in srgb, #{$p3} 13%, transparent) 100%
-  );
 }
 
 @mixin palette-dark($b1, $b2, $b3, $strong, $d1, $d2, $d3, $r, $g, $bl) {
@@ -228,12 +197,6 @@
   --gradient-banner: linear-gradient(135deg, #{$d1} 0%, #{$d2} 55%, #{$d3} 100%);
   --gradient-tile-strong: linear-gradient(145deg, #{$d1} 0%, #{$d2} 55%, #{$d3} 100%);
   --gradient-brand-text: linear-gradient(90deg, #{$b1} 0%, #{$b2} 55%, #{$b3} 100%);
-  --header-wash: linear-gradient(
-    90deg,
-    color-mix(in srgb, #{$b1} 13%, transparent) 0%,
-    color-mix(in srgb, #{$b2} 11%, transparent) 50%,
-    color-mix(in srgb, #{$b3} 13%, transparent) 100%
-  );
 }
 
 /* Northern Lights: teal, violet, pink */

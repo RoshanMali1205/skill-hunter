@@ -14,19 +14,20 @@
   flex-direction: column;
   gap: var(--space-5);
   padding: var(--space-6);
+  border: 1px solid color-mix(in srgb, #fff 70%, var(--color-border));
   border-radius: var(--radius-xl);
-  color: #fff;
-  background: var(--gradient-banner);
-  box-shadow: var(--shadow-md);
+  color: var(--color-text);
+  background: var(--gradient-wash-strong);
+  box-shadow: var(--shadow-sm);
 
-  // soft light blobs so the banner feels dimensional
+  // Soft color blobs so the banner feels dimensional.
   &::before,
   &::after {
     content: '';
     position: absolute;
     border-radius: 50%;
     pointer-events: none;
-    background: rgb(255 255 255 / 0.12);
+    filter: blur(8px);
   }
 
   &::before {
@@ -34,6 +35,7 @@
     height: 320px;
     top: -140px;
     right: -60px;
+    background: color-mix(in srgb, var(--wash-lilac) 55%, transparent);
   }
 
   &::after {
@@ -41,6 +43,7 @@
     height: 200px;
     bottom: -110px;
     right: 22%;
+    background: color-mix(in srgb, var(--wash-mint) 50%, transparent);
   }
 
   > * {
@@ -63,6 +66,18 @@
   }
 }
 
+:host-context([data-ui-style='brutalism']) .mock__hero {
+  color: var(--color-primary-contrast);
+  background: var(--gradient-banner);
+  border: 3px solid var(--brut-ink);
+  box-shadow: 8px 8px 0 var(--brut-ink);
+
+  &::before,
+  &::after {
+    display: none;
+  }
+}
+
 .mock__hero-main {
   display: flex;
   align-items: center;
@@ -78,8 +93,8 @@
   width: 64px;
   height: 64px;
   border-radius: var(--radius-lg);
-  background: rgb(255 255 255 / 0.2);
-  border: 1px solid rgb(255 255 255 / 0.35);
+  background: color-mix(in srgb, var(--color-surface) 62%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
   font-size: 1.9rem;
 }
 
@@ -114,8 +129,8 @@
     min-width: 92px;
     padding: var(--space-3) var(--space-4);
     border-radius: var(--radius-md);
-    background: rgb(255 255 255 / 0.16);
-    border: 1px solid rgb(255 255 255 / 0.25);
+    background: color-mix(in srgb, var(--color-surface) 62%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
   }
 
   strong {
@@ -143,7 +158,7 @@
     gap: var(--space-2);
     padding: var(--space-2) var(--space-3);
     border-radius: 999px;
-    background: rgb(255 255 255 / 0.16);
+    background: color-mix(in srgb, var(--color-surface) 62%, transparent);
     font-size: 0.85rem;
     font-weight: 600;
   }
@@ -155,7 +170,7 @@
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: rgb(255 255 255 / 0.28);
+    background: color-mix(in srgb, var(--color-surface) 80%, transparent);
     font-size: 0.75rem;
     font-weight: 800;
   }
