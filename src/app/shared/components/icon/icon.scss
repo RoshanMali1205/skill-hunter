@@ -1,11 +1,15 @@
 :host {
   display: inline-flex;
   flex-shrink: 0;
+  // Icons are decorative. If the SVG keeps the hit, iOS never clicks the
+  // link or button underneath — the bottom-nav icons then do nothing.
+  pointer-events: none;
 }
 
 svg {
   width: 1em;
   height: 1em;
+  pointer-events: none;
   stroke: currentColor;
   fill: none;
   stroke-width: 2;

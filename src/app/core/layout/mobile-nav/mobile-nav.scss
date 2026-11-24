@@ -12,12 +12,27 @@
   padding-bottom: env(safe-area-inset-bottom, 0);
   display: flex;
   align-items: stretch;
-  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
-  backdrop-filter: blur(10px) saturate(1.4);
-  -webkit-backdrop-filter: blur(10px) saturate(1.4);
+  // Blur must not sit on this bar. On an installed iPhone, -webkit-backdrop-filter
+  // on a position:fixed layer swallows taps, so the icons never navigate.
+  // The frost lives on ::before, which cannot be the touch target.
+  --mobile-nav-blur: blur(10px) saturate(1.4);
+  background: transparent;
   border-top: 1px solid var(--color-border);
   box-shadow: 0 -4px 16px rgba(20, 21, 40, 0.06);
   z-index: 20;
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+    -webkit-backdrop-filter: var(--mobile-nav-blur);
+    backdrop-filter: var(--mobile-nav-blur);
+    pointer-events: none;
+  }
 
   @include respond-to(desktop) {
     display: none;
@@ -43,6 +58,7 @@
   cursor: pointer;
   touch-action: manipulation;
   position: relative;
+  z-index: 1;
 
   app-icon {
     font-size: 1.3rem;
